@@ -1,0 +1,108 @@
+\documentclass[conference]{IEEEtran}
+\usepackage{epsfig,endnotes}
+\usepackage{graphicx, url}
+\usepackage{enumerate}
+\usepackage[square,comma,numbers,sort&compress]{natbib}
+\usepackage{booktabs}
+
+
+\makeatletter
+\@dblfptop 0pt
+\makeatother
+\usepackage{array}
+\usepackage{amssymb}
+\usepackage[usenames,dvipsnames]{color}
+\newcommand{\Red}[1]{{\color{red} #1}}
+%\newcommand{\todo}[2]{\Red{\textbf{TODO[}#1\textbf{]:} #2}}
+\newcommand{\todo}[2]{}
+
+
+\newcommand{\tocite}[1]{\Red{\cite{#1}}}
+\newcommand{\toref}[1]{\Red{\ref{#1}}}
+%\let\toref\ref
+\newcommand{\https}[1]{\texttt{\small https://#1}}
+
+%% code related
+\usepackage{listings}
+\definecolor{lightgray}{rgb}{.95,.95,.95}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]",
+  backgroundcolor=\color{lightgray},
+  extendedchars=true,
+  basicstyle=\ttfamily\small,
+  showstringspaces=false,
+  showspaces=false,
+  tabsize=2,
+  breaklines=true,
+  showtabs=false,
+}
+
+
+\lstnewenvironment{jscode} { \lstset{ language=JavaScript, } }{}
+
+
+\newcommand{\js}{\lstinline[language=JavaScript,backgroundcolor=\color{white},
+    breaklines=true,basicstyle=\small\ttfamily,breakatwhitespace,
+    literate={.}{}{0\discretionary{}{.}{.}}
+             {(}{}{0\discretionary{}{(}{(}}
+             {)}{}{0\discretionary{)}{}{)}}
+             {/}{}{0\discretionary{/}{}{/}}
+             {:}{}{0\discretionary{:}{}{:}}
+]}
+
+%\setlength{\textfloatsep}{6pt plus 2pt minus 3pt}
+%\setlength{\floatsep}{4pt plus 2pt minus 2pt}
+%\setlength{\intextsep}{4pt plus 2pt minus 2pt}
+%\let\oldcaption\caption
+%\renewcommand{\caption}{\vspace*{-5pt}\oldcaption}
+
+%%
+\begin{document}
+
+\title{
+\Large \bf
+Practical Information Flow Control for JavaScript
+}
+
+\author{
+}
+
+\maketitle
+
+% Use the following at camera-ready time to suppress page numbers.
+% Comment it out when you first submit the paper for review.
+%\thispagestyle{empty}
+
+
+\newenvironment{CompactItemize}%
+  {\begin{list}{$\blacktriangleright$}%
+   {\leftmargin=\parindent \itemsep=2pt \topsep=2pt
+     \parsep=0pt \partopsep=0pt}}%
+  {\end{list}}
+\renewcommand{\labelitemi}{$\blacktriangleright$}
+
+\input{abstract}
+\input{intro}
+
+
+%{\frenchspacing\scriptsize
+%\setlength{\bibsep}{2pt}
+\bibliographystyle{abbrvnat}
+\bibliography{local}
+%}
+
+\end{document}
