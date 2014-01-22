@@ -1,0 +1,31 @@
+\section{The methodology (XXX fix title)}
+\label{sec:methodology}
+
+We now formally state our information-flow control transformation.  For
+simplicity's sake, we consider only single-threaded source languages,
+whose primary notion of execution is evaluation of an expression into a
+value.  (Later, we consider how to accomodate systems which have
+semantics for concurrent execution.)
+
+\subsection{A tiny information-flow control calculus}
+
+Our first task is to define a information-flow control mini-language
+which will be combined with the source language. (Reference)  This
+language is not Turing-complete; this is intentional, as (1) the ability
+to call across the language boundary means that any control flow can be
+implemented in the source language, and (2) it simplifies the
+non-interference proof.  The language has a very simple set of typing
+rules.  The operational semantics for this language are worth remarking
+on (write a bit about how this IFC system works).  We can now state and
+prove a simple non-interference theorem about this language:
+
+\begin{theorem}
+(Statement of noninterference)
+\end{theorem}
+\begin{proof}
+XXX TODO should be simple
+\end{proof}
+
+\subsection{Combination (XXX)}
+
+
