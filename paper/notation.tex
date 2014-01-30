@@ -1,0 +1,53 @@
+\newcommand{\lub}{\sqcup}
+\newcommand{\glb}{\sqcap}
+\newcommand{\flows}{\sqsubseteq}
+\newcommand{\env}{\rho}
+\newcommand{\store}{\sigma}
+
+\newcommand{\ifc}[1]{\ensuremath{{\color{red} #1}}}
+\newcommand{\tar}[1]{\ensuremath{\mathbf{\color{blue} #1}}}
+
+\newcommand{\inE}[1]{\xi[#1]}
+
+\newcommand{\Il}{\ifc{l}}
+\newcommand{\Iv}{\ifc{v}}
+\newcommand{\Ie}{\ifc{e}}
+\newcommand{\IE}{\ifc{E}}
+\newcommand{\Ienv}{\ifc{\env}}
+\newcommand{\Istore}{\ifc{\store}}
+
+\newcommand{\Itrue}{\ifc{true}}
+\newcommand{\Ifalse}{\ifc{false}}
+\newcommand{\Ierr}{\ifc{\bot}}
+\newcommand{\Ii}{\ifc{i}}
+\newcommand{\IT}[1]{\ifc{IT}\ #1}
+
+
+\newcommand{\Ilop}[2]{#1\ \ifc{\oplus}\ #2}
+\newcommand{\Ilub}[2]{#1\ \ifc{\lub}\ #2}
+\newcommand{\Iglb}[2]{#1\ \ifc{\glb}\ #2}
+\newcommand{\Iflows}[2]{#1\ \ifc{\flows}\ #2}
+\newcommand{\IgetLabel}{\ifc{getLabel}}
+\newcommand{\IgetClr}{\ifc{getClr}}
+\newcommand{\Ifork}[2]{\ifc{fork}\ #1\ #2}
+
+\newcommand{\Ihole}[1]{\ifc{[#1]_I}}
+\newcommand{\inIE}[1]{\xi\Ihole{#1}}
+
+\newcommand{\Tv}{\tar{v}}
+\newcommand{\Te}{\tar{e}}
+\newcommand{\Tx}{\tar{x}}
+\newcommand{\Ta}{\tar{a}}
+\newcommand{\TE}{\tar{E}}
+\newcommand{\Tenv}{\tar{\env}}
+\newcommand{\Tstore}{\tar{\store}}
+
+\newcommand{\Tclo}[2]{\tar{\langle} #1\tar{\rangle}_{#2}}
+\newcommand{\Tlambda}[2]{\tar{\lambda}#1.\ #2}
+\newcommand{\Tset}[2]{\tar{set!}\ #1\ #2}
+\newcommand{\TI}[1]{\tar{TI}\ #1}
+
+\newcommand{\Thole}[1]{\tar{[#1]_T}}
+\newcommand{\inTE}[1]{\xi\Thole{#1}}
+\newcommand{\IN}[3]{\langle #1, #2, #3 \rangle}
+

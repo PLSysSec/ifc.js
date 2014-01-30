@@ -9,6 +9,104 @@ semantics for concurrent execution.)
 
 \subsection{A tiny information-flow control calculus}
 
+\begin{figure}[h]
+\begin{align*}
+\textrm{Thread \#:}   && \Ii          &   \\
+\textrm{Label:}       && \Il          &   \\
+\textrm{Label op:}    && \ifc{\oplus} & ::=  \ifc{\lub}
+                                        \ |\ \ifc{\glb}
+                                        \ |\ \ifc{\flows}\\
+\textrm{Value:}       && \Iv          & ::=  \Itrue 
+                                        \ |\ \Ifalse
+                                        \ |\ \Ierr
+                                        \ |\ \Ii
+                                        \ |\ \IT{\Tv}\\
+\textrm{Expression:}  && \Ie          & ::=  \Iv
+                                        \ |\ \Ilop{\Ie}{\Ie}
+                                        \ |\ \IgetLabel
+                                        \ |\ \IgetClr\\&&&
+                                        \ |\ \Ifork{\Ie}{\Ie}
+                                        \ |\ \IT{\Te}\\
+\textrm{Context:}     && \IE          & ::=  \Ihole{}
+                                        \ |\ \Ilop{\IE}{\Ie}
+                                        \ |\ \Ilop{\Ie}{\IE}\\&&&
+                                        \ |\ \Ifork{\IE}{\Ie}
+                                        \ |\ \IT{\TE}\\
+\end{align*}
+\caption{IFC calculus}
+\end{figure}
+
+\begin{figure}[h]
+\begin{align*}
+\textrm{Address:}     && \Ta          & \\
+\textrm{Variable:}    && \Tx          & \\
+\textrm{Value:}       && \Tv          & ::=  \Tclo{\Tlambda{\Tx}{\Te}}{\Tenv}
+                                        \ |\ \TI{\Iv}\\
+\textrm{Expression:}  && \Te          & ::=  \Tv
+                                        \ |\ \Tlambda{\Tx}{\Te}
+                                        \ |\ \Tx
+                                        \ |\ \Te\ \Te
+                                        \ |\ \Tset{\Te}{\Te}
+                                        \ |\ \TI{\Ie}\\
+\textrm{Context:}     && \TE          & ::=  \Thole{}
+                                        \ |\ \TE\ \Te
+                                        \ |\ \Tv\ \TE\\&&&
+                                        \ |\ \Tset{\TE}{\Te}
+                                        \ |\ \Tset{\Tx}{\TE}
+                                        \ |\ \TI{\IE}\\
+\textrm{Environment:} && \Tenv        & \in \Tx \rightharpoonup \Ta \\
+\textrm{Store:}       && \Tstore      & \in \Ta \rightharpoonup \Tv \\
+\end{align*}
+% reduction rules
+\begin{mathpar}
+
+% lambda to closure
+\inferrule[T-lam]{ }
+{
+\IN{\Tstore}{\Tenv}{\inTE{\Tlambda{\Tx}{\Te}}}
+\to
+\IN{\Tstore}{\Tenv}{\inE{\Tclo{\Tlambda{\Tx}{\Te}}{\Tenv}}}
+}
+
+\and
+
+% lookup variable
+\inferrule[T-var]{ }
+{
+\IN{\Tstore}{\Tenv}{\inTE{\Tx}}
+\to
+\IN{\Tstore}{\Tenv}{\inE{\Tstore(\Tenv(\Tx))}}
+}
+
+% beta reduction
+\inferrule[T-$\beta$]
+{
+\tar{\store'}=\Tstore[\Ta \mapsto \Tv]\\
+\tar{\env''}=\tar{\env'}[\Tx \mapsto \Ta]
+}
+{
+\IN{\Tstore}{\Tenv}{\inTE{\Tclo{\Tlambda{\Tx}{\Te}}{\tar{\env'}}\ \Tv}}
+\to
+\IN{\tar{\store'}}{\tar{\env''}}{\inE{\Te}}
+}{fresh(\Ta)}
+
+\and
+
+% set!
+\inferrule[T-set]
+{
+\tar{\store'} = \Tstore[\Tenv(\Tx) \mapsto \Tv]
+}
+{
+\IN{\Tstore}{\Tenv}{\inTE{\Tset{\Tx}{\Tv}}}
+\to
+\IN{\tar{\store'}}{\Tenv}{\inE{\Tv}}
+}
+
+\end{mathpar}
+\caption{Simple calculus}
+\end{figure}
+
 Our first task is to define a information-flow control mini-language
 which will be combined with the source language. (Reference)  This
 language is not Turing-complete; this is intentional, as (1) the ability
