@@ -3,6 +3,8 @@
 \newcommand{\flows}{\sqsubseteq}
 \newcommand{\env}{\rho}
 \newcommand{\store}{\sigma}
+\newcommand{\Rto}{\Rightarrow}
+\newcommand{\denot}[1]{[\!\!| #1 |\!\!]}
 
 \newcommand{\ifc}[1]{\ensuremath{{\color{red} #1}}}
 \newcommand{\tar}[1]{\ensuremath{\mathbf{\color{blue} #1}}}
@@ -20,7 +22,7 @@
 \newcommand{\Ifalse}{\ifc{false}}
 \newcommand{\Ierr}{\ifc{\bot}}
 \newcommand{\Ii}{\ifc{i}}
-\newcommand{\IT}[1]{\ifc{IT}\ #1}
+\newcommand{\IT}[1]{(\ifc{IT}\ #1)}
 
 
 \newcommand{\Ilop}[2]{#1\ \ifc{\oplus}\ #2}
@@ -31,8 +33,9 @@
 \newcommand{\IgetClr}{\ifc{getClr}}
 \newcommand{\Ifork}[2]{\ifc{fork}\ #1\ #2}
 
-\newcommand{\Ihole}[1]{\ifc{[#1]_I}}
+\newcommand{\Ihole}[1]{\ifc{[}#1\ifc{]_I}}
 \newcommand{\inIE}[1]{\xi\Ihole{#1}}
+\newcommand{\confI}[5]{\langle #1, #2, #3, #4 | #5 \rangle}
 
 \newcommand{\Tv}{\tar{v}}
 \newcommand{\Te}{\tar{e}}
@@ -45,9 +48,10 @@
 \newcommand{\Tclo}[2]{\tar{\langle} #1\tar{\rangle}_{#2}}
 \newcommand{\Tlambda}[2]{\tar{\lambda}#1.\ #2}
 \newcommand{\Tset}[2]{\tar{set!}\ #1\ #2}
-\newcommand{\TI}[1]{\tar{TI}\ #1}
+\newcommand{\TI}[1]{(\tar{TI}\ #1)}
 
-\newcommand{\Thole}[1]{\tar{[#1]_T}}
+\newcommand{\Thole}[1]{\tar{[}#1\tar{]_T}}
 \newcommand{\inTE}[1]{\xi\Thole{#1}}
-\newcommand{\IN}[3]{\langle #1, #2, #3 \rangle}
+\newcommand{\confT}[3]{\langle #1, #2 | #3 \rangle}
+\newcommand{\Tklone}[1]{\tar{\kappa}_{#1}}
 

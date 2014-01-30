@@ -18,6 +18,7 @@ semantics for concurrent execution.)
                                         \ |\ \ifc{\flows}\\
 \textrm{Value:}       && \Iv          & ::=  \Itrue 
                                         \ |\ \Ifalse
+                                        \ |\ \Il
                                         \ |\ \Ierr
                                         \ |\ \Ii
                                         \ |\ \IT{\Tv}\\
@@ -27,12 +28,57 @@ semantics for concurrent execution.)
                                         \ |\ \IgetClr\\&&&
                                         \ |\ \Ifork{\Ie}{\Ie}
                                         \ |\ \IT{\Te}\\
-\textrm{Context:}     && \IE          & ::=  \Ihole{}
+\textrm{Context:}     && \IE          & ::=  \Ihole{\ }
                                         \ |\ \Ilop{\IE}{\Ie}
-                                        \ |\ \Ilop{\Ie}{\IE}\\&&&
+                                        \ |\ \Ilop{\Iv}{\IE}\\&&&
                                         \ |\ \Ifork{\IE}{\Ie}
+                                        \ |\ \Ifork{\Iv}{\IE}
                                         \ |\ \IT{\TE}\\
+\textrm{Prim label op:} && \denot{\ }   & \in \Ie \rightharpoonup \Il \\
 \end{align*}
+% reduction rules
+\begin{mathpar}
+
+% reduce pure terms
+\inferrule[E-pure]
+{ 
+\ifc{e_1} \Rto \ifc{e_2}
+}
+{
+\confI{\ifc{l_1}}{\ifc{l_2}}{\Tstore}{\Tenv}{\inIE{\ifc{e_1}}}\|\cdots
+\to
+\confI{\ifc{l_1}}{\ifc{l_2}}{\Tstore}{\Tenv}{\inIE{\ifc{e_2}}}\|\cdots
+}
+
+\and
+
+%label ops
+\inferrule[E-labelOp]
+{ }
+{
+\ifc{\Ilop{l_1}{l_2}} 
+\Rto
+\denot{\ifc{\Ilop{l_1}{l_2}}} 
+}
+
+% fork
+\inferrule[E-fork]
+{ 
+\ifc{\Iflows{l_1}{l}} \Rto \Itrue\\
+\ifc{\Iflows{l}{l_2}} \Rto \Itrue\\
+\tar{\store'} = \Tklone{\store}(\Tstore)\\
+\tar{\env'}   = \Tklone{\env}(\Tenv)
+}
+{
+\confI{\ifc{l_1}}{\ifc{l_2}}{\Tstore}{\Tenv}{\inIE{\Ifork{\Il}{\IT{\Te}}}}\|\cdots
+\to
+\confI{\ifc{l_1}}{\ifc{l_2}}{\Tstore}{\Tenv}{\inIE{\Ii}}\|\cdots\|
+\confI{\ifc{l_1}}{\ifc{l}}{\tar{\store'}}{\tar{\env'}}{\inIE{\IT{\Te}}}
+}{fresh(\Ii)}
+
+\and
+\end{mathpar}
+
 \caption{IFC calculus}
 \end{figure}
 
@@ -48,7 +94,7 @@ semantics for concurrent execution.)
                                         \ |\ \Te\ \Te
                                         \ |\ \Tset{\Te}{\Te}
                                         \ |\ \TI{\Ie}\\
-\textrm{Context:}     && \TE          & ::=  \Thole{}
+\textrm{Context:}     && \TE          & ::=  \Thole{\ }
                                         \ |\ \TE\ \Te
                                         \ |\ \Tv\ \TE\\&&&
                                         \ |\ \Tset{\TE}{\Te}
@@ -56,6 +102,7 @@ semantics for concurrent execution.)
                                         \ |\ \TI{\IE}\\
 \textrm{Environment:} && \Tenv        & \in \Tx \rightharpoonup \Ta \\
 \textrm{Store:}       && \Tstore      & \in \Ta \rightharpoonup \Tv \\
+\textrm{Klone:}       && \Tklone{X}   & \in X \rightharpoonup X, X \in \{\Tenv, \Tstore \} \\
 \end{align*}
 % reduction rules
 \begin{mathpar}
@@ -63,9 +110,9 @@ semantics for concurrent execution.)
 % lambda to closure
 \inferrule[T-lam]{ }
 {
-\IN{\Tstore}{\Tenv}{\inTE{\Tlambda{\Tx}{\Te}}}
+\confT{\Tstore}{\Tenv}{\inTE{\Tlambda{\Tx}{\Te}}}
 \to
-\IN{\Tstore}{\Tenv}{\inE{\Tclo{\Tlambda{\Tx}{\Te}}{\Tenv}}}
+\confT{\Tstore}{\Tenv}{\inE{\Tclo{\Tlambda{\Tx}{\Te}}{\Tenv}}}
 }
 
 \and
@@ -73,9 +120,9 @@ semantics for concurrent execution.)
 % lookup variable
 \inferrule[T-var]{ }
 {
-\IN{\Tstore}{\Tenv}{\inTE{\Tx}}
+\confT{\Tstore}{\Tenv}{\inTE{\Tx}}
 \to
-\IN{\Tstore}{\Tenv}{\inE{\Tstore(\Tenv(\Tx))}}
+\confT{\Tstore}{\Tenv}{\inE{\Tstore(\Tenv(\Tx))}}
 }
 
 % beta reduction
@@ -85,9 +132,9 @@ semantics for concurrent execution.)
 \tar{\env''}=\tar{\env'}[\Tx \mapsto \Ta]
 }
 {
-\IN{\Tstore}{\Tenv}{\inTE{\Tclo{\Tlambda{\Tx}{\Te}}{\tar{\env'}}\ \Tv}}
+\confT{\Tstore}{\Tenv}{\inTE{\Tclo{\Tlambda{\Tx}{\Te}}{\tar{\env'}}\ \Tv}}
 \to
-\IN{\tar{\store'}}{\tar{\env''}}{\inE{\Te}}
+\confT{\tar{\store'}}{\tar{\env''}}{\inE{\Te}}
 }{fresh(\Ta)}
 
 \and
@@ -98,9 +145,9 @@ semantics for concurrent execution.)
 \tar{\store'} = \Tstore[\Tenv(\Tx) \mapsto \Tv]
 }
 {
-\IN{\Tstore}{\Tenv}{\inTE{\Tset{\Tx}{\Tv}}}
+\confT{\Tstore}{\Tenv}{\inTE{\Tset{\Tx}{\Tv}}}
 \to
-\IN{\tar{\store'}}{\Tenv}{\inE{\Tv}}
+\confT{\tar{\store'}}{\Tenv}{\inE{\Tv}}
 }
 
 \end{mathpar}
