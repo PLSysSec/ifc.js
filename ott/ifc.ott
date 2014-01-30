@@ -1,0 +1,128 @@
+
+metavar termvar, x ::=
+  {{ tex \mathit{[[termvar]]} }}
+metavar labelvar, l ::=
+metavar taskidvar, tid ::=
+metavar storevar, s ::=
+  {{ tex \sigma }}
+
+indexvar index, n, m ::=
+
+grammar
+e :: 'e_' ::=                                   {{ com IFC term }}
+  | l                ::  :: Label                 {{ com label }}
+  | true             ::  :: True
+  | false            ::  :: False
+  | IT vf            ::  :: TargetCallValue
+  | tid              ::  :: ThreadID              {{ com thread identifier }}
+  | join e1 e2       ::  :: Join                  {{ com join of two labels }}
+  | meet e1 e2       ::  :: Meet                  {{ com meet of two labels }}
+  | lessThan e1 e2   ::  :: CanFlowTo             {{ tex [[e1]] \sqsubseteq [[e2]] }}
+  | getLabel         ::  :: GetLabel              {{ com get the current label }}
+  | getClearance     ::  :: GetClearance          {{ com get the current clearance }}
+  | IT f             ::  :: TargetCall            {{ com call to target language }}
+  | lfork e1 e2      ::  :: LFork                 {{ com IFC fork }}
+  | send e1 e2 e3    ::  :: Send                  {{ com send message with label to given context }}
+  | receive e1 e2    ::  :: Receive               {{ com receive a message }}
+  | ( e )            :: S:: Parens
+  | E e              ::  :: EvalContext           {{ tex E[ [[e]] ] }}
+
+v :: 'v_' ::=                                   {{ com value }}
+  | l                ::  :: Label                 {{ com label }}
+  | true             ::  :: True
+  | false            ::  :: False
+  | IT vf            ::  :: TargetCallValue
+  | tid              ::  :: ThreadID              {{ com thread identifier }}
+
+E :: 'E_' ::=                                   {{ com evaluation context }}
+  | __               ::  :: Hole                  {{ com hole }}
+  | E op e           ::  :: LabelOpL              {{ com label operation left }}
+  | v op E           ::  :: LabelOpR              {{ com label operation right }}
+  | fork E e         ::  :: Fork
+  | lessThan E e     ::  :: CanFlowToL
+  | lessThan l E     ::  :: CanFlowToR
+  | IT F             ::  :: TargetCall
+  | ( E )            :: S:: Parens
+
+f :: 'f_' ::=                                   {{ com target language term }}
+  | TI e             ::  :: IfcCall               {{ com IFC call }}
+  | texp             ::  :: TargetExp             {{ com expression in the target language}}
+  | ( f )            :: S:: Parens
+  | F f              ::  :: EvalContext           {{ tex F[ [[f]] ] }}
+
+vf :: 'vf_' ::=
+  | TI v             ::  :: IfcCallValue
+  | tv               ::  :: TargetValue           {{ com value in the target language }}
+
+F :: 'F_' ::=
+  | __               ::  :: Hole                  {{ com hole }}
+  | TI E             ::  :: IfcCall
+  | ( F )            :: S:: Parens
+
+c :: 'c_' ::=
+  | conf l1 l2 s e   :: :: Config {{ com configuration }}
+                    {{ tex \langle [[l1]], [[l2]], [[s]], [[e]] \rangle }}
+
+tc :: 'tc_' ::=
+  | tconf s f        :: :: TConfig {{ com configuration in the target language }}
+                    {{ tex \langle [[s]], [[f]] \rangle }}
+
+terminals :: '' ::=
+  | -->              ::  :: SingleReduction {{ tex \rightarrow }}
+  | ~~>              ::  :: TReduction {{ tex \leadsto }}
+  | ==>              ::  :: Reduction {{ tex \Rightarrow }}
+  | ->               ::  :: LReduction {{ tex \hookrightarrow }}
+  | op               ::  :: LabelOp   {{ tex \oplus }}
+  | __               ::  :: Hole      {{ tex [\cdot] }}
+
+subrules
+  v <:: e
+
+defns
+Jop :: '' ::=
+
+  % the following transition is not defined, and is meant to capture the semantics of the target language
+  defn
+  tc1 ~~> tc2 :: ::treduce :: '' {{ com [[tc1]] reduces to [[tc2]] (semantics of target language) }} by
+
+  ---- :: TIIT
+  tconf s F (TI (IT f)) ~~> tconf s F f
+
+  % the following transition is not defined, and is meant to capture the semantics of labels
+  defn
+  e1 -> e2 :: :: label_reduce :: '' {{ com [[e1]] reduces to [[e2]] (semantics of labels) }} by
+
+  defn
+  c1 --> c2 :: :: reduce_single :: '' {{ com task [[c1]] reduces to [[c2]] }} by
+
+  ---- :: GetLabel
+  conf l1 l2 s E getLabel --> conf l1 l2 s E l1
+
+  ---- :: GetClearance
+  conf l1 l2 s E getClearance --> conf l1 l2 s E l2
+
+  tconf s f ~~> tconf s' f'
+  ---- :: ReduceTarget
+  conf l1 l2 s E (IT f) --> conf l1 l2 s' E (IT f')
+
+  ---- :: ITTI
+  conf l1 l2 s E (IT (TI e)) --> conf l1 l2 s E e
+
+% it seems that using [[c1..cn]] is not supported in the comment
+  defn
+  c1 .. cn ==> c1 .. cm :: ::reduce :: '' {{ com reduction of a task list }} by
+
+  c --> c'
+  ---- :: SingleStep
+  c c1 .. cn ==> c' c1 .. cn
+
+% TODO: we are missing rules for send/receive
+
+% TODO: missing side condition that tid is fresh
+  lessThan l1 l -> true
+  lessThan l l2 -> true
+  ---- :: LFork
+  conf l1 l2 s E (lfork l e) c1 .. cn ==> conf l1 l s e conf l1 l2 s E tid c1 .. cn
+
+  ---- :: Done
+  conf l1 l2 s v c1 .. cn ==> c1 .. cn
