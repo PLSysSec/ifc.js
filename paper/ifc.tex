@@ -42,12 +42,12 @@ semantics for concurrent execution.)
 % reduce pure terms
 \inferrule[E-pure]
 { 
-\ifc{e_1} \Rto \ifc{e_2}
+\Ie_1 \Rto \Ie_2
 }
 {
-\confI{\ifc{l_1}}{\ifc{l_2}}{\Tstore}{\Tenv}{\inIE{\ifc{e_1}}}\|\cdots
+\Iconf{\Il_1}{\Il_2}{\Tstore}{\Tenv}{\inIE{\Ie_1}}\|\cdots
 \to
-\confI{\ifc{l_1}}{\ifc{l_2}}{\Tstore}{\Tenv}{\inIE{\ifc{e_2}}}\|\cdots
+\Iconf{\Il_1}{\Il_2}{\Tstore}{\Tenv}{\inIE{\Ie_2}}\|\cdots
 }
 
 \and
@@ -56,24 +56,24 @@ semantics for concurrent execution.)
 \inferrule[E-labelOp]
 { }
 {
-\ifc{\Ilop{l_1}{l_2}} 
+\Ilop{\Il_1}{\Il_2}
 \Rto
-\denot{\ifc{\Ilop{l_1}{l_2}}} 
+\denot{ \Ilop{\Il_1}{\Il_2}}
 }
 
 % fork
 \inferrule[E-fork]
 { 
-\ifc{\Iflows{l_1}{l}} \Rto \Itrue\\
-\ifc{\Iflows{l}{l_2}} \Rto \Itrue\\
-\tar{\store'} = \Tklone{\store}(\Tstore)\\
-\tar{\env'}   = \Tklone{\env}(\Tenv)
+\Iflows{\Il_1}{\Il} \Rto \Itrue\\
+\Iflows{\Il}{\Il_2} \Rto \Itrue\\
+\Tstore' = \Tklone{\Tstore}(\Tstore)\\
+\Tenv'   = \Tklone{\Tenv}(\Tenv)
 }
 {
-\confI{\ifc{l_1}}{\ifc{l_2}}{\Tstore}{\Tenv}{\inIE{\Ifork{\Il}{\IT{\Te}}}}\|\cdots
+\Iconf{\Il_1}{\Il_2}{\Tstore}{\Tenv}{\inIE{\Ifork{\Il}{\IT{\Te}}}}\|\cdots
 \to
-\confI{\ifc{l_1}}{\ifc{l_2}}{\Tstore}{\Tenv}{\inIE{\Ii}}\|\cdots\|
-\confI{\ifc{l_1}}{\ifc{l}}{\tar{\store'}}{\tar{\env'}}{\inIE{\IT{\Te}}}
+\Iconf{\Il_1}{\Il_2}{\Tstore}{\Tenv}{\inIE{\Ii}}\|\cdots\|
+\Iconf{\Il_1}{\Il}{\tar{\store'}}{\tar{\env'}}{\inIE{\IT{\Te}}}
 }{fresh(\Ii)}
 
 \and
@@ -110,9 +110,9 @@ semantics for concurrent execution.)
 % lambda to closure
 \inferrule[T-lam]{ }
 {
-\confT{\Tstore}{\Tenv}{\inTE{\Tlambda{\Tx}{\Te}}}
+\Tconf{\Tstore}{\Tenv}{\inTE{\Tlambda{\Tx}{\Te}}}
 \to
-\confT{\Tstore}{\Tenv}{\inE{\Tclo{\Tlambda{\Tx}{\Te}}{\Tenv}}}
+\Tconf{\Tstore}{\Tenv}{\inE{\Tclo{\Tlambda{\Tx}{\Te}}{\Tenv}}}
 }
 
 \and
@@ -120,21 +120,21 @@ semantics for concurrent execution.)
 % lookup variable
 \inferrule[T-var]{ }
 {
-\confT{\Tstore}{\Tenv}{\inTE{\Tx}}
+\Tconf{\Tstore}{\Tenv}{\inTE{\Tx}}
 \to
-\confT{\Tstore}{\Tenv}{\inE{\Tstore(\Tenv(\Tx))}}
+\Tconf{\Tstore}{\Tenv}{\inE{\Tstore(\Tenv(\Tx))}}
 }
 
 % beta reduction
 \inferrule[T-$\beta$]
 {
-\tar{\store'}=\Tstore[\Ta \mapsto \Tv]\\
-\tar{\env''}=\tar{\env'}[\Tx \mapsto \Ta]
+\Tstore'=\Tstore[\Ta \mapsto \Tv]\\
+\Tenv'' =\Tenv'[\Tx \mapsto \Ta]
 }
 {
-\confT{\Tstore}{\Tenv}{\inTE{\Tclo{\Tlambda{\Tx}{\Te}}{\tar{\env'}}\ \Tv}}
+\Tconf{\Tstore}{\Tenv}{\inTE{\Tclo{\Tlambda{\Tx}{\Te}}{\Tenv'}\ \Tv}}
 \to
-\confT{\tar{\store'}}{\tar{\env''}}{\inE{\Te}}
+\Tconf{\Tstore'}{\Tenv''}{\inE{\Te}}
 }{fresh(\Ta)}
 
 \and
@@ -145,9 +145,9 @@ semantics for concurrent execution.)
 \tar{\store'} = \Tstore[\Tenv(\Tx) \mapsto \Tv]
 }
 {
-\confT{\Tstore}{\Tenv}{\inTE{\Tset{\Tx}{\Tv}}}
+\Tconf{\Tstore}{\Tenv}{\inTE{\Tset{\Tx}{\Tv}}}
 \to
-\confT{\tar{\store'}}{\Tenv}{\inE{\Tv}}
+\Tconf{\tar{\store'}}{\Tenv}{\inE{\Tv}}
 }
 
 \end{mathpar}
