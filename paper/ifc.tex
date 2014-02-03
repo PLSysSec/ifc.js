@@ -20,8 +20,8 @@ semantics for concurrent execution.)
                                         \ |\ \Ifalse
                                         \ |\ \Il
                                         \ |\ \Ierr
-                                        \ |\ \Ii
-                                        \ |\ \IT{\Tv}\\
+                                        \ |\ \Ii\\
+%                                        \ |\ \IT{\Tv}{\Tstore}{\Tenv}\\
 \textrm{Expression:}  && \Ie          & ::=  \Iv
                                         \ |\ \Ilop{\Ie}{\Ie}
                                         \ |\ \IgetLabel
@@ -45,9 +45,9 @@ semantics for concurrent execution.)
 \Ie_1 \Rto \Ie_2
 }
 {
-\Iconf{\Il_1}{\Il_2}{\Tstore}{\Tenv}{\inIE{\Ie_1}}\|\cdots
+\Iconf{\Il_1}{\Il_2}{\inIE{\Ie_1}}\|\cdots
 \to
-\Iconf{\Il_1}{\Il_2}{\Tstore}{\Tenv}{\inIE{\Ie_2}}\|\cdots
+\Iconf{\Il_1}{\Il_2}{\inE{\Ie_2}}\|\cdots
 }
 
 \and
@@ -70,13 +70,25 @@ semantics for concurrent execution.)
 \Tenv'   = \Tklone{\Tenv}(\Tenv)
 }
 {
-\Iconf{\Il_1}{\Il_2}{\Tstore}{\Tenv}{\inIE{\Ifork{\Il}{\IT{\Te}}}}\|\cdots
+\Iconf{\Il_1}{\Il_2}{\inIE{
+  \Ifork{\Il}{\IT{\STI{\Ie}{\Tstore}{\Tenv}}}
+}}\|\cdots
 \to
-\Iconf{\Il_1}{\Il_2}{\Tstore}{\Tenv}{\inIE{\Ii}}\|\cdots\|
-\Iconf{\Il_1}{\Il}{\tar{\store'}}{\tar{\env'}}{\inIE{\IT{\Te}}}
+\Iconf{\Il_1}{\Il_2}{\inE{\Ii}}\|\cdots\|
+\Iconf{\Il_1}{\Il}{\inE{
+  \IT{\STI{\Ie}{\Tstore'}{\Tenv'}}
+}}\|\cdots
 }{fresh(\Ii)}
 
 \and
+\inferrule[T-run]
+{}
+{
+\inIE{ \SIT{\TI{\Ie}}{\Tstore}{\Tenv} }
+\to
+\inE{ \Ie }
+}{}
+
 \end{mathpar}
 
 \caption{IFC calculus}
@@ -86,20 +98,20 @@ semantics for concurrent execution.)
 \begin{align*}
 \textrm{Address:}     && \Ta          & \\
 \textrm{Variable:}    && \Tx          & \\
-\textrm{Value:}       && \Tv          & ::=  \Tclo{\Tlambda{\Tx}{\Te}}{\Tenv}
-                                        \ |\ \TI{\Iv}\\
+\textrm{Value:}       && \Tv          & ::= \Tclo{\Tlambda{\Tx}{\Te}}{\Tenv}\\
 \textrm{Expression:}  && \Te          & ::=  \Tv
                                         \ |\ \Tlambda{\Tx}{\Te}
                                         \ |\ \Tx
                                         \ |\ \Te\ \Te
                                         \ |\ \Tset{\Te}{\Te}
-                                        \ |\ \TI{\Ie}\\
+                                        \ |\ \TI{\Ie}
+                                        \ |\ \STI{\Ie}{\Tstore}{\Tenv}\\
 \textrm{Context:}     && \TE          & ::=  \Thole{\ }
                                         \ |\ \TE\ \Te
                                         \ |\ \Tv\ \TE\\&&&
                                         \ |\ \Tset{\TE}{\Te}
                                         \ |\ \Tset{\Tx}{\TE}
-                                        \ |\ \TI{\IE}\\
+                                        \ |\ \TI{\IE}{\Tstore}{\Tenv}\\
 \textrm{Environment:} && \Tenv        & \in \Tx \rightharpoonup \Ta \\
 \textrm{Store:}       && \Tstore      & \in \Ta \rightharpoonup \Tv \\
 \textrm{Klone:}       && \Tklone{X}   & \in X \rightharpoonup X, X \in \{\Tenv, \Tstore \} \\
@@ -149,6 +161,48 @@ semantics for concurrent execution.)
 \to
 \Tconf{\tar{\store'}}{\Tenv}{\inE{\Tv}}
 }
+
+\and
+
+\inferrule
+{ }
+{
+\Tconf{\Tstore}{\Tenv}{\inTE{\upcall{\ \Ie}}}
+\to
+\Tconf{\Tstore}{\Tenv}{\inTE{\upcall{^{\Tstore}_{\Tenv}\ \Ie}}}
+}
+
+\and
+
+\inferrule
+{
+}
+{
+\Tconf{\Tstore}{\Tenv}{\inTE{\upcall{^{\Tstore'}_{\Tenv'}\ 
+                              (\downcall{^{\Tstore''}_{\Tenv''} \Te})}}}
+\to
+\Tconf{\Tstore''}{\Tenv''}{\inE{\Te}}
+}
+
+\and
+% fork
+\inferrule[E-fork]
+{ 
+\Iflows{\Il_1}{\Il} \Rto \Itrue\\
+\Iflows{\Il}{\Il_2} \Rto \Itrue\\
+\Tstore' = \Tklone{\Tstore}(\Tstore)\\
+\Tenv'   = \Tklone{\Tenv}(\Tenv)
+}
+{
+\Iconf{\Il_1}{\Il_2}{\inIE{ \Ifork{\Il}{
+      (\downcall{(\upcall{^{\Tstore}_{\Tenv}\ \Ie})})
+}}}\|\cdots
+\to
+\Iconf{\Il_1}{\Il_2}{\inE{\Ii}}\|\cdots\|
+\Iconf{\Il_1}{\Il}{\inE{
+}}\|\cdots
+}{fresh(\Ii)}
+
 
 \end{mathpar}
 \caption{Simple calculus}

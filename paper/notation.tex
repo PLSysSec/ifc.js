@@ -23,6 +23,7 @@
 \newcommand{\Ierr}{\ifc{\bot}}
 \newcommand{\Ii}{\ifc{i}}
 \newcommand{\IT}[1]{(\ifc{IT}\ #1)}
+\newcommand{\SIT}[3]{(\ifc{IT}^{#2}_{#3}\ #1)}
 
 
 \newcommand{\Ilop}[2]{#1\ \ifc{\oplus}\ #2}
@@ -35,7 +36,7 @@
 
 \newcommand{\Ihole}[1]{\ifc{[}#1\ifc{]_I}}
 \newcommand{\inIE}[1]{\xi\Ihole{#1}}
-\newcommand{\Iconf}[5]{\langle #1, #2, #3, #4 | #5 \rangle}
+\newcommand{\Iconf}[3]{\langle #1, #2 | #3 \rangle}
 
 \newcommand{\Tv}{\tar{v}}
 \newcommand{\Te}{\tar{e}}
@@ -49,6 +50,9 @@
 \newcommand{\Tlambda}[2]{\tar{\lambda}#1.\ #2}
 \newcommand{\Tset}[2]{\tar{set!}\ #1\ #2}
 \newcommand{\TI}[1]{(\tar{TI}\ #1)}
+\newcommand{\STI}[3]{(\tar{TI}^{#2}_{#3}\ #1)}
+\newcommand{\upcall}[1]{\tar{\to IFC}#1}
+\newcommand{\downcall}[1]{\ifc{ \leftarrow IFC}#1}
 
 \newcommand{\Thole}[1]{\tar{[}#1\tar{]_T}}
 \newcommand{\inTE}[1]{\xi\Thole{#1}}
