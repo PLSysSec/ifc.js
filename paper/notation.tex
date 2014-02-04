@@ -3,15 +3,16 @@
 \newcommand{\flows}{\sqsubseteq}
 \newcommand{\env}{\rho}
 \newcommand{\store}{\sigma}
-\newcommand{\Rto}{\Rightarrow}
-\newcommand{\denot}[1]{[\!\!| #1 |\!\!]}
+\newcommand{\denot}[1]{[\![ \, #1 \, ]\!]}
 
-\newcommand{\ifc}[1]{\ensuremath{{\color{red} #1}}}
-\newcommand{\tar}[1]{\ensuremath{\mathbf{\color{blue} #1}}}
+\newcommand{\ifc}[1]{\ensuremath{{\color{blue} #1}}}
+\newcommand{\ifctext}[1]{\ensuremath{{\color{blue} \textit{#1}}}}
+\newcommand{\tar}[1]{\ensuremath{\mathbf{\color{red} #1}}}
 
 \newcommand{\inE}[1]{\xi[#1]}
 
 \newcommand{\Il}{\ifc{l}}
+\newcommand{\Ic}{\ifc{c}}
 \newcommand{\Iv}{\ifc{v}}
 \newcommand{\Ie}{\ifc{e}}
 \newcommand{\IE}{\ifc{E}}
@@ -20,23 +21,25 @@
 
 \newcommand{\Itrue}{\ifc{true}}
 \newcommand{\Ifalse}{\ifc{false}}
+\newcommand{\Iunit}{\ifc{()}}
 \newcommand{\Ierr}{\ifc{\bot}}
 \newcommand{\Ii}{\ifc{i}}
-\newcommand{\IT}[1]{(\ifc{IT}\ #1)}
-\newcommand{\SIT}[3]{(\ifc{IT}^{#2}_{#3}\ #1)}
+\newcommand{\IT}[1]{\ifc{IT}\ #1}
+%\newcommand{\SIT}[3]{(\ifc{IT}^{#2}_{#3}\ #1)}
 
 
 \newcommand{\Ilop}[2]{#1\ \ifc{\oplus}\ #2}
 \newcommand{\Ilub}[2]{#1\ \ifc{\lub}\ #2}
 \newcommand{\Iglb}[2]{#1\ \ifc{\glb}\ #2}
 \newcommand{\Iflows}[2]{#1\ \ifc{\flows}\ #2}
-\newcommand{\IgetLabel}{\ifc{getLabel}}
-\newcommand{\IgetClr}{\ifc{getClr}}
-\newcommand{\Ifork}[2]{\ifc{fork}\ #1\ #2}
+\newcommand{\IgetLabel}{\ifctext{getLabel}}
+\newcommand{\IgetClr}{\ifctext{getClearance}}
+\newcommand{\Ifork}[2]{\ifctext{fork}\ #1\ #2}
 
 \newcommand{\Ihole}[1]{\ifc{[}#1\ifc{]_I}}
 \newcommand{\inIE}[1]{\xi\Ihole{#1}}
-\newcommand{\Iconf}[3]{\langle #1, #2 | #3 \rangle}
+\newcommand{\Iconf}[5]{\langle #1, #2, #5 \rangle_{#3}^{#4}}
+\newcommand{\Itasksep}{\,\|\,}
 
 \newcommand{\Tv}{\tar{v}}
 \newcommand{\Te}{\tar{e}}
@@ -49,13 +52,15 @@
 \newcommand{\Tclo}[2]{\tar{\langle} #1\tar{\rangle}_{#2}}
 \newcommand{\Tlambda}[2]{\tar{\lambda}#1.\ #2}
 \newcommand{\Tset}[2]{\tar{set!}\ #1\ #2}
-\newcommand{\TI}[1]{(\tar{TI}\ #1)}
-\newcommand{\STI}[3]{(\tar{TI}^{#2}_{#3}\ #1)}
-\newcommand{\upcall}[1]{\tar{\to IFC}#1}
-\newcommand{\downcall}[1]{\ifc{ \leftarrow IFC}#1}
+\newcommand{\TI}[1]{\tar{TI}\ #1}
+%\newcommand{\STI}[3]{(\tar{TI}^{#2}_{#3}\ #1)}
+%\newcommand{\upcall}[1]{\tar{\to IFC}#1}
+%\newcommand{\downcall}[1]{\ifc{ \leftarrow IFC}#1}
 
-\newcommand{\Thole}[1]{\tar{[}#1\tar{]_T}}
-\newcommand{\inTE}[1]{\xi\Thole{#1}}
-\newcommand{\Tconf}[3]{\langle #1, #2 | #3 \rangle}
+\newcommand{\Thole}[1]{\tar{[}\,#1\,\tar{]_T}}
+\newcommand{\inTE}[1]{\TE\Thole{#1}}
+\newcommand{\Tconf}[3]{\langle #1, #2, #3 \rangle}
 \newcommand{\Tklone}[1]{\tar{\kappa}_{#1}}
 
+\newcommand{\Tarrow}{\ \tar{\to_T}\ }
+\newcommand{\Iarrow}{\hookrightarrow}

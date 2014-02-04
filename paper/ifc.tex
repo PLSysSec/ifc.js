@@ -12,12 +12,13 @@ semantics for concurrent execution.)
 \begin{figure}[h]
 \begin{align*}
 \textrm{Thread \#:}   && \Ii          &   \\
-\textrm{Label:}       && \Il          &   \\
+\textrm{Label:}       && \Il          & \ \ \text{(we additionally use \Ic{} for clearances)}  \\
 \textrm{Label op:}    && \ifc{\oplus} & ::=  \ifc{\lub}
                                         \ |\ \ifc{\glb}
                                         \ |\ \ifc{\flows}\\
 \textrm{Value:}       && \Iv          & ::=  \Itrue 
                                         \ |\ \Ifalse
+                                        \ |\ \Iunit
                                         \ |\ \Il
                                         \ |\ \Ierr
                                         \ |\ \Ii\\
@@ -34,60 +35,73 @@ semantics for concurrent execution.)
                                         \ |\ \Ifork{\IE}{\Ie}
                                         \ |\ \Ifork{\Iv}{\IE}
                                         \ |\ \IT{\TE}\\
-\textrm{Prim label op:} && \denot{\ }   & \in \Ie \rightharpoonup \Il \\
+\textrm{Prim label op:} && \denot{\cdot}   & \in \Ie \rightharpoonup \Iv \\
 \end{align*}
 % reduction rules
 \begin{mathpar}
 
-% reduce pure terms
-\inferrule[E-pure]
-{ 
-\Ie_1 \Rto \Ie_2
+\inferrule[I-target]{
+  \Tconf{\Tstore}{\Tenv}{\inTE{\Te}}
+  \Tarrow
+  \Tconf{\tar{\Tstore'}}{\Tenv'}{\inTE{\tar{\Te'}}}
 }
 {
-\Iconf{\Il_1}{\Il_2}{\inIE{\Ie_1}}\|\cdots
-\to
-\Iconf{\Il_1}{\Il_2}{\inE{\Ie_2}}\|\cdots
+  \Iconf{\Tstore}{\Tenv}{\Il}{\Ic}{\inTE{\Te}}\Itasksep\cdots
+  \Iarrow
+  \Iconf{\tar{\Tstore'}}{\tar{\Tenv'}}{\Il}{\Ic}{\inTE{\tar{\Te'}}}\Itasksep\cdots
 }
 
 \and
 
-%label ops
-\inferrule[E-labelOp]
-{ }
+\inferrule[I-boundary]{ }
 {
-\Ilop{\Il_1}{\Il_2}
-\Rto
-\denot{ \Ilop{\Il_1}{\Il_2}}
+  \Iconf{\Tstore}{\Tenv}{\Il}{\Ic}{\inTE{\TI{\IT{\Te}}}}
+  \Iarrow
+  \Iconf{\Tstore}{\Tenv}{\Il}{\Ic}{\inTE{\Te}}
+}
+
+\and
+
+\inferrule[I-label]{ }
+{
+  \Iconf{\Tstore}{\Tenv}{\Il}{\Ic}{\inTE{\TI{\IgetLabel}}}\Itasksep\cdots
+  \Iarrow
+  \Iconf{\Tstore}{\Tenv}{\Il}{\Ic}{\inTE{\TI{\Il}}}\Itasksep\cdots
+}
+
+\and
+
+\inferrule[I-clearance]{ }
+{
+  \Iconf{\Tstore}{\Tenv}{\Il}{\Ic}{\inTE{\TI{\IgetClr}}}\Itasksep\cdots
+  \Iarrow
+  \Iconf{\Tstore}{\Tenv}{\Il}{\Ic}{\inTE{\TI{\Ic}}}\Itasksep\cdots
 }
 
 % fork
-\inferrule[E-fork]
+\inferrule[I-fork]
 { 
-\Iflows{\Il_1}{\Il} \Rto \Itrue\\
-\Iflows{\Il}{\Il_2} \Rto \Itrue\\
-\Tstore' = \Tklone{\Tstore}(\Tstore)\\
-\Tenv'   = \Tklone{\Tenv}(\Tenv)
+  \denot{\Iflows{\Il}{\ifc{\Il'}}} = \Itrue\\
+  \denot{\Iflows{\ifc{\Il'}}{\Ic}} = \Itrue\\
+  \tar{\Tstore'} = \Tklone{\Tstore}(\Tstore)\\
+  \tar{\Tenv'}   = \Tklone{\Tenv}(\Tenv)
 }
 {
-\Iconf{\Il_1}{\Il_2}{\inIE{
-  \Ifork{\Il}{\IT{\STI{\Ie}{\Tstore}{\Tenv}}}
-}}\|\cdots
-\to
-\Iconf{\Il_1}{\Il_2}{\inE{\Ii}}\|\cdots\|
-\Iconf{\Il_1}{\Il}{\inE{
-  \IT{\STI{\Ie}{\Tstore'}{\Tenv'}}
-}}\|\cdots
-}{fresh(\Ii)}
+  \Iconf{\Tstore}{\Tenv}{\Il}{\Ic}{
+    \inTE{\TI{
+      (\Ifork{\Il'}{(\IT{\Te})})
+    }}
+  }
+  \Itasksep\cdots
+  %
+  \Iarrow
+  %
+  \Iconf{\Tstore}{\Tenv}{\Il}{\Ic}{\inTE{\TI{\Ii}}}
+  \Itasksep\cdots\Itasksep
+  \Iconf{\tar{\Tstore'}}{\tar{\Tenv'}}{\Il}{\Il}{\inTE{\Te}}
+  \Itasksep\cdots
+}{\operatorname{fresh}(\Ii)}
 
-\and
-\inferrule[T-run]
-{}
-{
-\inIE{ \SIT{\TI{\Ie}}{\Tstore}{\Tenv} }
-\to
-\inE{ \Ie }
-}{}
 
 \end{mathpar}
 
@@ -104,14 +118,13 @@ semantics for concurrent execution.)
                                         \ |\ \Tx
                                         \ |\ \Te\ \Te
                                         \ |\ \Tset{\Te}{\Te}
-                                        \ |\ \TI{\Ie}
-                                        \ |\ \STI{\Ie}{\Tstore}{\Tenv}\\
+                                        \ |\ \TI{\Ie}\\
 \textrm{Context:}     && \TE          & ::=  \Thole{\ }
                                         \ |\ \TE\ \Te
                                         \ |\ \Tv\ \TE\\&&&
                                         \ |\ \Tset{\TE}{\Te}
                                         \ |\ \Tset{\Tx}{\TE}
-                                        \ |\ \TI{\IE}{\Tstore}{\Tenv}\\
+                                        \ |\ \TI{\IE}\\
 \textrm{Environment:} && \Tenv        & \in \Tx \rightharpoonup \Ta \\
 \textrm{Store:}       && \Tstore      & \in \Ta \rightharpoonup \Tv \\
 \textrm{Klone:}       && \Tklone{X}   & \in X \rightharpoonup X, X \in \{\Tenv, \Tstore \} \\
@@ -123,7 +136,7 @@ semantics for concurrent execution.)
 \inferrule[T-lam]{ }
 {
 \Tconf{\Tstore}{\Tenv}{\inTE{\Tlambda{\Tx}{\Te}}}
-\to
+\Tarrow
 \Tconf{\Tstore}{\Tenv}{\inE{\Tclo{\Tlambda{\Tx}{\Te}}{\Tenv}}}
 }
 
@@ -133,21 +146,23 @@ semantics for concurrent execution.)
 \inferrule[T-var]{ }
 {
 \Tconf{\Tstore}{\Tenv}{\inTE{\Tx}}
-\to
+\Tarrow
 \Tconf{\Tstore}{\Tenv}{\inE{\Tstore(\Tenv(\Tx))}}
 }
+
+\and
 
 % beta reduction
 \inferrule[T-$\beta$]
 {
-\Tstore'=\Tstore[\Ta \mapsto \Tv]\\
-\Tenv'' =\Tenv'[\Tx \mapsto \Ta]
+\tar{\Tstore'}=\Tstore[\Ta \mapsto \Tv]\\
+\tar{\Tenv''} =\tar{\Tenv'}[\Tx \mapsto \Ta]
 }
 {
-\Tconf{\Tstore}{\Tenv}{\inTE{\Tclo{\Tlambda{\Tx}{\Te}}{\Tenv'}\ \Tv}}
-\to
-\Tconf{\Tstore'}{\Tenv''}{\inE{\Te}}
-}{fresh(\Ta)}
+\Tconf{\Tstore}{\Tenv}{\inTE{\Tclo{\Tlambda{\Tx}{\Te}}{\tar{\Tenv'}}\ \Tv}}
+\Tarrow
+\Tconf{\tar{\Tstore'}}{\tar{\Tenv''}}{\inE{\Te}}
+}{\operatorname{fresh}(\Ta)}
 
 \and
 
@@ -158,50 +173,26 @@ semantics for concurrent execution.)
 }
 {
 \Tconf{\Tstore}{\Tenv}{\inTE{\Tset{\Tx}{\Tv}}}
-\to
+\Tarrow
 \Tconf{\tar{\store'}}{\Tenv}{\inE{\Tv}}
 }
-
-\and
-
-\inferrule
-{ }
-{
-\Tconf{\Tstore}{\Tenv}{\inTE{\upcall{\ \Ie}}}
-\to
-\Tconf{\Tstore}{\Tenv}{\inTE{\upcall{^{\Tstore}_{\Tenv}\ \Ie}}}
-}
-
-\and
-
-\inferrule
-{
-}
-{
-\Tconf{\Tstore}{\Tenv}{\inTE{\upcall{^{\Tstore'}_{\Tenv'}\ 
-                              (\downcall{^{\Tstore''}_{\Tenv''} \Te})}}}
-\to
-\Tconf{\Tstore''}{\Tenv''}{\inE{\Te}}
-}
-
-\and
 % fork
-\inferrule[E-fork]
-{ 
-\Iflows{\Il_1}{\Il} \Rto \Itrue\\
-\Iflows{\Il}{\Il_2} \Rto \Itrue\\
-\Tstore' = \Tklone{\Tstore}(\Tstore)\\
-\Tenv'   = \Tklone{\Tenv}(\Tenv)
-}
-{
-\Iconf{\Il_1}{\Il_2}{\inIE{ \Ifork{\Il}{
-      (\downcall{(\upcall{^{\Tstore}_{\Tenv}\ \Ie})})
-}}}\|\cdots
-\to
-\Iconf{\Il_1}{\Il_2}{\inE{\Ii}}\|\cdots\|
-\Iconf{\Il_1}{\Il}{\inE{
-}}\|\cdots
-}{fresh(\Ii)}
+%\inferrule[E-fork]
+%{ 
+%\Iflows{\Il}{\Il} \Ilabelarrow \Itrue\\
+%\Iflows{\Il}{\Ic} \Ilabelarrow \Itrue\\
+%\tar{\Tstore'} = \Tklone{\Tstore}(\Tstore)\\
+%\tar{\Tenv'}   = \Tklone{\Tenv}(\Tenv)
+%}
+%{
+%\Iconf{\Il}{\Ic}{\inIE{ \Ifork{\Il}{
+%      (\downcall{(\upcall{^{\Tstore}_{\Tenv}\ \Ie})})
+%}}}\|\cdots
+%\to
+%\Iconf{\Il}{\Ic}{\inE{\Ii}}\|\cdots\|
+%\Iconf{\Il}{\Il}{\inE{
+%}}\|\cdots
+%}{fresh(\Ii)}
 
 
 \end{mathpar}
