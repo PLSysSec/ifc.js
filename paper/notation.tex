@@ -17,7 +17,7 @@
 \newcommand{\Ie}{\ifc{e}}
 \newcommand{\IE}{\ifc{E}}
 \newcommand{\Ienv}{\ifc{\env}}
-\newcommand{\Istore}{\ifc{\store}}
+\newcommand{\Istore}{\ifc{\Sigma}}
 
 \newcommand{\Itrue}{\ifc{true}}
 \newcommand{\Ifalse}{\ifc{false}}
@@ -35,10 +35,11 @@
 \newcommand{\IgetLabel}{\ifctext{getLabel}}
 \newcommand{\IgetClr}{\ifctext{getClearance}}
 \newcommand{\Ifork}[2]{\ifctext{fork}\ #1\ #2}
+\newcommand{\TIstore}[2]{\ensuremath{\langle #1, #2, \rangle}}
 
 \newcommand{\Ihole}[1]{\ifc{[}#1\ifc{]_I}}
 \newcommand{\inIE}[1]{\xi\Ihole{#1}}
-\newcommand{\Iconf}[5]{\langle #1, #2, #5 \rangle_{#3}^{#4}}
+\newcommand{\Iconf}[4]{\langle #1, #4 \rangle_{#2}^{#3}}
 \newcommand{\Itasksep}{\,\|\,}
 
 \newcommand{\Tv}{\tar{v}}
@@ -60,7 +61,7 @@
 \newcommand{\Thole}[1]{\tar{[}\,#1\,\tar{]_T}}
 \newcommand{\inTE}[1]{\TE\Thole{#1}}
 \newcommand{\Tconf}[3]{\langle #1, #2, #3 \rangle}
-\newcommand{\Tklone}[1]{\tar{\kappa}_{#1}}
+\newcommand{\Tklone}{\tar{\kappa}}
 
 \newcommand{\Tarrow}{\ \tar{\to_T}\ }
 \newcommand{\Iarrow}{\hookrightarrow}

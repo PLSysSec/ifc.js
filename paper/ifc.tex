@@ -35,6 +35,7 @@ semantics for concurrent execution.)
                                         \ |\ \Ifork{\IE}{\Ie}
                                         \ |\ \Ifork{\Iv}{\IE}
                                         \ |\ \IT{\TE}\\
+\textrm{Store (of target language):} && \Istore\\
 \textrm{Prim label op:} && \denot{\cdot}   & \in \Ie \rightharpoonup \Iv \\
 \end{align*}
 % reduction rules
@@ -44,38 +45,42 @@ semantics for concurrent execution.)
   \Tconf{\Tstore}{\Tenv}{\inTE{\Te}}
   \Tarrow
   \Tconf{\tar{\Tstore'}}{\Tenv'}{\inTE{\tar{\Te'}}}
+  \\
+  \TIstore{\Tstore}{\Tenv} = \Istore
+  \\
+  \TIstore{\tar{\Tstore'}}{\tar{\Tenv'}} = \ifc{\Istore'}
 }
 {
-  \Iconf{\Tstore}{\Tenv}{\Il}{\Ic}{\inTE{\Te}}\Itasksep\cdots
+  \Iconf{\Istore}{\Il}{\Ic}{\inTE{\Te}}\Itasksep\cdots
   \Iarrow
-  \Iconf{\tar{\Tstore'}}{\tar{\Tenv'}}{\Il}{\Ic}{\inTE{\tar{\Te'}}}\Itasksep\cdots
+  \Iconf{\ifc{\Istore'}}{\Il}{\Ic}{\inTE{\tar{\Te'}}}\Itasksep\cdots
 }
 
 \and
 
 \inferrule[I-boundary]{ }
 {
-  \Iconf{\Tstore}{\Tenv}{\Il}{\Ic}{\inTE{\TI{\IT{\Te}}}}
+  \Iconf{\Istore}{\Il}{\Ic}{\inTE{\TI{\IT{\Te}}}}
   \Iarrow
-  \Iconf{\Tstore}{\Tenv}{\Il}{\Ic}{\inTE{\Te}}
+  \Iconf{\Istore}{\Il}{\Ic}{\inTE{\Te}}
 }
 
 \and
 
 \inferrule[I-label]{ }
 {
-  \Iconf{\Tstore}{\Tenv}{\Il}{\Ic}{\inTE{\TI{\IgetLabel}}}\Itasksep\cdots
+  \Iconf{\Istore}{\Il}{\Ic}{\inTE{\TI{\IgetLabel}}}\Itasksep\cdots
   \Iarrow
-  \Iconf{\Tstore}{\Tenv}{\Il}{\Ic}{\inTE{\TI{\Il}}}\Itasksep\cdots
+  \Iconf{\Istore}{\Il}{\Ic}{\inTE{\TI{\Il}}}\Itasksep\cdots
 }
 
 \and
 
 \inferrule[I-clearance]{ }
 {
-  \Iconf{\Tstore}{\Tenv}{\Il}{\Ic}{\inTE{\TI{\IgetClr}}}\Itasksep\cdots
+  \Iconf{\Istore}{\Il}{\Ic}{\inTE{\TI{\IgetClr}}}\Itasksep\cdots
   \Iarrow
-  \Iconf{\Tstore}{\Tenv}{\Il}{\Ic}{\inTE{\TI{\Ic}}}\Itasksep\cdots
+  \Iconf{\Istore}{\Il}{\Ic}{\inTE{\TI{\Ic}}}\Itasksep\cdots
 }
 
 % fork
@@ -83,11 +88,10 @@ semantics for concurrent execution.)
 { 
   \denot{\Iflows{\Il}{\ifc{\Il'}}} = \Itrue\\
   \denot{\Iflows{\ifc{\Il'}}{\Ic}} = \Itrue\\
-  \tar{\Tstore'} = \Tklone{\Tstore}(\Tstore)\\
-  \tar{\Tenv'}   = \Tklone{\Tenv}(\Tenv)
+  \ifc{\Istore'} = \Tklone(\Istore)\\
 }
 {
-  \Iconf{\Tstore}{\Tenv}{\Il}{\Ic}{
+  \Iconf{\Istore}{\Tenv}{\Il}{\Ic}{
     \inTE{\TI{
       (\Ifork{\Il'}{(\IT{\Te})})
     }}
@@ -96,9 +100,9 @@ semantics for concurrent execution.)
   %
   \Iarrow
   %
-  \Iconf{\Tstore}{\Tenv}{\Il}{\Ic}{\inTE{\TI{\Ii}}}
+  \Iconf{\Istore}{\Il}{\Ic}{\inTE{\TI{\Ii}}}
   \Itasksep\cdots\Itasksep
-  \Iconf{\tar{\Tstore'}}{\tar{\Tenv'}}{\Il}{\Il}{\inTE{\Te}}
+  \Iconf{\ifc{\Istore'}}{\Il}{\Il}{\inTE{\Te}}
   \Itasksep\cdots
 }{\operatorname{fresh}(\Ii)}
 
@@ -127,7 +131,7 @@ semantics for concurrent execution.)
                                         \ |\ \TI{\IE}\\
 \textrm{Environment:} && \Tenv        & \in \Tx \rightharpoonup \Ta \\
 \textrm{Store:}       && \Tstore      & \in \Ta \rightharpoonup \Tv \\
-\textrm{Klone:}       && \Tklone{X}   & \in X \rightharpoonup X, X \in \{\Tenv, \Tstore \} \\
+\textrm{Klone:}       && \Tklone   & \in \Tenv \times \Tstore \rightharpoonup \Tenv \times \Tstore \\
 \end{align*}
 % reduction rules
 \begin{mathpar}
