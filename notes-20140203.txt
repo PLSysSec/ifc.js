@@ -1,0 +1,52 @@
+0. John suggested reading the Moggi paper and the Wadler theorems for
+free paper.
+
+Goal: look specifically at state monad and write operational semantics for it
+
+1. Wrote down implementation of StateT
+
+    type StateT s m a = s -> m (s, a)
+
+    runStateT :: StateT s m a -> s -> m (s, a)
+    runStateT m s = m s
+
+    lift :: m a -> StateT s m a
+    lift m = \s -> m >>= \x -> return (s, x)
+
+2. Attempt to write down two-language system with 'run' and 'lift'
+
+    Problem: Which language does the state handled by run go?  Deian
+    advocated state in target language, which was to be manipulated
+    using 'getTCB' and 'setTCB'.  Edward advocated state in a
+    meta-language, since by analogy to a Haskell interpreter running our
+    system, the state of the target language is not defined by the IFC
+    language but in the metalanguage.  However, both of these approaches
+    do not work, because it is easy to break type-safety by replacing
+    the store with something with the wrong locations.
+
+3. Decision: 'run' should not be included in language, we should just
+have 'fork'.  Edward advocates fork in the target language (introduces
+E_Σ notation for evaluation context with runtime state).
+
+    Problem: ...
+
+4. Deian argues for fork in the source language.  We now consider the issue
+of type-safety in this system.  Typing contexts are with respect to well-typed
+contexts.  The store-condition is proposed for well-typedness.
+
+    Problem: Calls to target language must have store, but this should not
+    be in surface syntax.
+
+5. Deian observes that my system always is rooted in a red execution
+context, so we move the language state back to the outside.  Now calls
+from source language to target language do not need state annotation,
+because it appeals to the local-global context.  Fork moves back to IFC
+language using the store-condition, and the surface syntax problem goes
+away.
+
+    Note: What is the monadic interpretation of this?
+
+6. Brief consideration whether or not control effects cause problems;
+intuitively they should not, because we can always arrange for state to
+be top-level (by partitioning), even if the "monadic structure" is
+different.
