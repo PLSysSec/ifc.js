@@ -44,8 +44,16 @@ $
  \Tv : \tau$ is necessary when we want to preserve the type of \Tv,
  but no sufficient (e.g., can have same values of same type, but
  different value in the store; hence, we also need the SOS condition).
- \item The stronger condition: $\cdot \vdash \Tv : \tau$ implies the
- SOS condition.
+ \item The simpler condition: $\cdot \vdash \Tv : \tau$ for typed
+ langauges may be easier to user; in this case the embedder needs to
+ only prove that this implies the SOS condition.
+ \item Really we want to add a meta-level function $\nu: \Tv
+ \rightharpoonup \Tv$; this allows adding more ``guards'' for what can
+ be labled. In the case of Browbound, $\nu$ can, for example, throw an
+ exception if the value is not a string, thus forcing the programmer
+ to only pass in stringyfied data. In turn, proving that the condition
+ holds for this subset of values (strings) is trivial.
+ 
 \end{enumerate}
 
 \paragraph{Conditions on fork}
