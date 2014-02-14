@@ -1,0 +1,38 @@
+Modern software systems, for various reasons, rarely run on a single
+language runtime.  A browser, for example, spawns multiple JavaScript
+engines for each webpage a user visits.  The primary reason for an
+architecture of this form is isolation: scripts running from different
+websites should not be able to access each others state, and while
+in-principle such isolation could be enforced at a fine-grained level
+using special language support, the current software ecosystem
+overwhelmingly favors coarse-grained isolation, since programming
+languages are rarely designed with this sort of isolation in mind.
+
+For programming languages semanticists, this should be a troubling
+development, since most work on operational semantics, type systems,
+etc. concentrate on a single execution context; very little is said
+about the semantics of systems as a whole.  This is troubling, because
+the system as a whole often resembles a programming language in its own
+right.  The correspondence goes both ways: coarse-grained isolation
+provided by multiple runtimes can be used to implement language features
+that would otherwise be too invasive to implement, and the theory of
+programming languages can be used to reason about these systems.
+
+To be concrete, suppose have some existing programming language L.  Its
+semantics are given by some machine-based interpreter: that is, there is
+some set of machine states (Σ), and a partial function (step : Σ → Σ)
+describing the evolution of states to states.  A program (Prog) is
+mapped to a partial initial state (inject : Prog → Σ).  We can
+immediately generalize this definition to multiple isolated machines Σ*,
+with a nondeterministic step relation (step* : Rel(Σ*, Σ*)) constructed
+in the obvious way.
+
+
+
+
+(Related work.)
+
+    Wide-area programming: Language, Semantics and Infrastructure Design
+    http://www.cl.cam.ac.uk/~pes20/grn24872.html
+    Module systems: marshalling requiring rebinding to local resources,
+    abstract types over boundaries, versioning of modules

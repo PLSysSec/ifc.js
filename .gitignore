@@ -11,4 +11,7 @@ figs/arch-eps-converted-to.pdf
 .DS_Store
 /ott/ifc.pdf
 /ott/ifc.tex
-
+*.pdf
+*.dvi
+nohup.out
+\#*#

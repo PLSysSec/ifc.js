@@ -1,0 +1,9 @@
+
+
+% The most "convincing" story is to have a language capturing the
+% "essence of IFC" (this does not have any upcalls/downcalls in it), to
+% have a general method for combining that with another language (**),
+% and show that this combination method preserves noninterference.  (**
+% Don't think we can do that.)
+
+% Describe the combination process
