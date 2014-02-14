@@ -65,3 +65,10 @@ given in the typing rule for fork:
 \Delta; \Gamma \vdash \Ifork{\Ie_1}{\Ie_2} : \tau
 }
 \end{mathpar}
+
+\Red{ds: Should we consider the case where the state is shared among
+threads? If so, then we need to actually give an SOS condition. For
+Browbound we don't need this because this model would correspond to
+the event loop and we have our threads running with different global;
+of course message handlers do share state, but we can handle this case
+without changes (I think)}
