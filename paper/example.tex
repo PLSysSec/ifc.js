@@ -70,6 +70,9 @@ kind of program.
 Motivate why we have labeled values. How to I avoid label creep problem? We
 have fork. \Red{EZY shouldn't be in the ``background'' section.}
 
+Background talks about IFC calculus in general; here we talk about
+embedding and give the precise semantics for the IFC embedding.
+
 \Red{Give a fake rule with how you raise your label when you read from a file.
 We give you labeled values explicitly.}
 
@@ -105,4 +108,11 @@ about this at the end. You can do whatever you want.}
 
 \Red{What to do when you get stuck when you are about to invalidate IFC}
 
+Which rules do we want to talk about?
 
+\begin{enumerate}
+\item fork: most complicated; shows side-condition (what do we do with stores on fork?)
+\item label:  shows side-condition (what can we label? same as fork, but empty/all stores)
+\item unlabel: shows raising of label
+\item sendMessage: will give type for (maybe encapsulate queue in env)
+\end{enumerate}

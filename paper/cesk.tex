@@ -1,0 +1,67 @@
+\section{Generalizing to a CESK machine}
+\label{sec:cesk}
+
+Why is CSK not enough? Well if we want to write a correct condition
+for label we need to make sure that if the target language is say just
+STLC, then a lambda term that captures variables is properly handled.
+
+(Definition of CESK)
+
+Control-State-Environment-Kontinuations
+
+** Insert definition from plt redex book **
+We consider languages that can be modeled using imperatice SOS, with
+an explicit store and evaluation contexts.
+
+
+
+
+\paragraph{Conditions on label}
+$\forall
+\TE,
+\Istore_1, \Il_1, \Ic_1,
+\Istore_2, \Il_2, \Ic_2.
+\Iconf{\Istore_1}{\Il_1}{\Ic_1}{\inTE{\Tv}} \Tarrow^* k
+\Leftrightarrow              
+\Iconf{\Tstore_2}{\Il_2}{\Ic_2}{\inTE{\Tv}} \Tarrow^* k
+$
+and\\
+$
+\Iconf{\Istore_1}{\Il_1}{\Ic_1}{\inTE{\Tv}} \Tarrow^*
+\Iconf{\Istore'}{\Il'}{\Ic'}{\diverge}
+\Leftrightarrow              
+\Iconf{\Tstore_2}{\Il_2}{\Ic_2}{\inTE{\Tv}} \Tarrow^*
+\Iconf{\Istore'}{\Il'}{\Ic'}{\diverge}
+$
+
+\begin{enumerate}
+ \item What is this saying? In any evaluation context $\TE$ the value
+ \Tv reduces to the same configuration regardless of the store (and
+ environment).
+ \item We must consider the evaluation in the combined language; this
+ e.g., allows labeling already-labeled values.
+ \item The typing rule $\forall \Delta, \Gamma. \Delta;\Gamma \vdash
+ \Tv : \tau$ is necessary when we want to preserve the type of \Tv,
+ but no sufficient (e.g., can have same values of same type, but
+ different value in the store; hence, we also need the SOS condition).
+ \item The stronger condition: $\cdot \vdash \Tv : \tau$ implies the
+ SOS condition.
+\end{enumerate}
+
+\paragraph{Conditions on fork}
+If we do not allow sharing of state between threads then there is no
+SOS condition for fork. We don't care if the term gets stuck in the
+new thread because $\Tklone$ removed elements. However, we do need a
+condition when we consider typed systems. The condition for this is
+given in the typing rule for fork:
+%\Ifork{\Il'}{(\IT{\Te})})
+\begin{mathpar}
+\inferrule
+{
+\Delta; \Gamma \vdash \Ie_1 : l\\
+\Tklone_\Delta(\Delta); \Gamma \vdash \Ie_2 : \tau
+}
+{
+\Delta; \Gamma \vdash \Ifork{\Ie_1}{\Ie_2} : \tau
+}
+\end{mathpar}
