@@ -19,20 +19,14 @@ an explicit store and evaluation contexts.
 \paragraph{Conditions on label}
 $\forall
 \TE,
-\Istore_1, \Il_1, \Ic_1,
-\Istore_2, \Il_2, \Ic_2.
-\Iconf{\Istore_1}{\Il_1}{\Ic_1}{\inTE{\Tv}} \Tarrow^* k
+\Tstore_1, \Il_1, \Ic_1,
+\Tstore_2, \Il_2, \Ic_2.
+\Iconf{\Tstore_1}{\Il_1}{\Ic_1}{\inTE{\Tv}} \Tarrow^* k
 \Leftrightarrow              
 \Iconf{\Tstore_2}{\Il_2}{\Ic_2}{\inTE{\Tv}} \Tarrow^* k
 $
-and\\
-$
-\Iconf{\Istore_1}{\Il_1}{\Ic_1}{\inTE{\Tv}} \Tarrow^*
-\Iconf{\Istore'}{\Il'}{\Ic'}{\diverge}
-\Leftrightarrow              
-\Iconf{\Tstore_2}{\Il_2}{\Ic_2}{\inTE{\Tv}} \Tarrow^*
-\Iconf{\Istore'}{\Il'}{\Ic'}{\diverge}
-$
+Here $k$ is a multi-thread configuration (where a thread may have
+divereged, i.e., reduced to \diverge).
 
 \begin{enumerate}
  \item What is this saying? In any evaluation context $\TE$ the value
