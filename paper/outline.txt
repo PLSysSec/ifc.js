@@ -1,4 +1,4 @@
-# Intro: retrofit any lang w/ IFC
+# Abstract Intro: retrofit any lang w/ IFC (1.5 page) [JCM]
   - Adding IFC to an existing language is "painfull", there are
     usually 3 approaches
      1. Heavy modification/fine-grained IFC (JSFlow, etc.)
@@ -24,3 +24,39 @@
        that your implementation can be mapped to a monad.
 
 
+# Retrofitting a lnaguage with IFC (2 page) [DS/SH]
+  - Definte what language we are transforming (abstract machine)
+    : state, eval ctx, expr, -->
+  - Example miniML
+  - Define the IFC language
+    + embedding
+  - State TSNI
+
+  :> This is cool, but inefficient as hell. How acan we reuse
+  exisiting language features?
+
+# Concrete implementation (1 page) [SH/DS]
+  - Extend example by showing miniML threads sharing global state
+    (one thing we should be careful about: addresses must be opaque)
+  - Generalize => use simulation to show that the tighter embedding
+    preserves TSNI
+
+# Real world languages + [threads, event loops] (.5 pages) [ALL]
+  - JS 
+  - Haskell
+  - C
+
+# A monadic view/connection (2 page) [DS/EZ]
+  - IFC as base monad 
+  - In example: state is a tranformer
+
+# Monad isomorphisms (1 page) [EZ]
+
+# Handling external effects (.5-1 page) [ALL]
+  - LIOrefs [connection to monad isomorphis]
+  - XHR
+  - ...
+
+# Related work (1 page) [ALE]
+
+# Bib: (1 page)
