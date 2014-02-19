@@ -1,0 +1,26 @@
+# Intro: retrofit any lang w/ IFC
+  - Adding IFC to an existing language is "painfull", there are
+    usually 3 approaches
+     1. Heavy modification/fine-grained IFC (JSFlow, etc.)
+     2. Light modification/very-coarse-grained IFC (SME) ** don't want this **
+     3. LIO-style floating-label with explicitly labeled terms
+  - The technique of multiple VM works for any language of the form
+    (Sigma, E, e, -->)
+  - This is very general and you get TSNI by construction.
+  - In practice this approach may be too inefficient; in practice you
+    may modify the existing language, but how do you know that you got
+    it right without doing a whole soundness proof? How do you know
+    that you combined IFC w/ you language correctly?
+    Solutoin: model your languages as a monad M that is "isomorphic"
+    to a transformer T over the LIO monad, and you get the TSNI proof
+    for free.
+
+    Proof burdern:
+    1. You add IFC to your language using one of the 2 techniques and
+       now you need to prove TSNI.
+       * How do you add IFC? Modify every language feature...
+       Testin non-interference (ICFP 2013)
+    2. You add IFC as pitched in this paper and now you need to show
+       that your implementation can be mapped to a monad.
+
+
