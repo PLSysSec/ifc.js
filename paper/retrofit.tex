@@ -1,29 +1,63 @@
 \section{Retrofitting languages with IFC}
 \label{sec:retrofit}
-\cut{
+
+We consider language of the form |(S, E, e, -->)|, where |S| is some
+global state, |E| is an evaluation context, |e| is an expression in
+the language and |-->| is the reduction relation on the state,
+evaluation context and expression;
+we say expression |e| in context |E| and state |S| reduces to
+expression |e'| in context |E'| and state |S'| and write
+|conf S (E[e]) --> conf S' (E'[e'])|.
+
 
 To get the flavor for our approach, we will first show how our embedding
 works for a simple, ML-like language, with references and general recursion.
 
 \begin{figure}
-\begin{verbatim}
-e ::= e e
-    | x
-    | ref e
-    | !e
-    | e := e
-    | fix e
-    | if e then e else e
-    | v
+\begin{code}
+tv   ::= \x.te | true | false | ta
+te   ::= tv | x | te te | if te then te else te | ref te | !te | te := te | diverge
+tE   ::= tE te | tv tE | if tE then te else te
+       | ref tE | !tE | tE := te | tv := tE 
 
-v ::= \ x . e
-    | #t
-    | #f
-    | a
-\end{verbatim}
+te1 ; te2           @= (\x.te2) te1  where  x notmember FV(te2)
+let x = te1 in te2  @= (\x.te2) te1
+\end{code}
+
+\begin{mathpar}
+\inferrule[T-app]
+{ } {| conf tS (tE[(\x.te) tv]) --> conf tS (tE[{tv/x} tv]) |}
+
+\and
+\inferrule[T-ifTrue]
+{ } {| conf tS (tE[if true then te1 else te2]) --> conf tS (tE[te1]) |}
+
+\and
+\inferrule[T-ifFalse]
+{ } {| conf tS (tE[if false then te1 else te2]) --> conf tS (tE[te2]) |}
+
+\and
+\inferrule[T-ref]
+{| tS' = tS [ ta mapsto tv ] |} 
+{| conf tS (tE[ref tv]) --> conf tS' (tE[tv]) |}
+{| fresh ta |}
+
+\and
+\inferrule[T-deref]
+{| (ta, tv) member tS |}
+{| conf tS (tE[!ta]) --> conf tS (tE[tv]) |}
+
+\and
+\inferrule[T-ass]
+{| tS' = tS [ ta mapsto tv ] |} 
+{| conf tS (tE[ta := tv]) --> conf tS' (tE[tv]) |}
+\end{mathpar}
+
+\caption{Simple ML-like language}
 \label{fig:ml}
 \end{figure}
 
+\cut{
 (Selected rules from evaluation semantics. It's typed in the usual way.)
 
 (Maybe this section needs to get moved) Sketch how a traditional account

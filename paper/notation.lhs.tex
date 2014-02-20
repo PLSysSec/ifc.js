@@ -28,7 +28,6 @@
 %format --> = "\lto"
 %format ==> = "\lto^*"
 
-%format diverge = "{\Uparrow}"
 
 
 \newcommand{\lcurr}{\ensuremath{l_{\textrm{cur}}}}
@@ -36,7 +35,41 @@
 %format lcurr'
 %format lcurr''
 
-%% expressions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% state, eval ctx, expression
+
+%format S = "\Sigma"
+%format S'
+%format S''
+%format Si = S"_"i
+%format Si' = S'"_"i
+%format Si'' = S''"_"i
+%format S1
+%format S2
+%format S3
+%format S1'
+%format S2'
+%format S3'
+%format S1''
+%format S2''
+%format S3''
+
+%format E = "\xi"
+%format E'
+%format E''
+%format Ei = S"_"i
+%format Ei' = S'"_"i
+%format Ei'' = S''"_"i
+%format E1
+%format E2
+%format E3
+%format E1'
+%format E2'
+%format E3'
+%format E1''
+%format E2''
+%format E3''
+
 %format e'
 %format e''
 %format ei = e"_"i
@@ -52,17 +85,197 @@
 %format e2''
 %format e3''
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% IFC state, eval ctx, expression
+\newcommand{\ifc}[1]{\ensuremath{{\color{blue} #1}}}
+
+%format iS = "\ifc{"S"}"
+%format iS'
+%format iS''
+%format iSi = iS"_"i
+%format iSi' = iS'"_"i
+%format iSi'' = iS''"_"i
+%format iS1
+%format iS2
+%format iS3
+%format iS1'
+%format iS2'
+%format iS3'
+%format iS1''
+%format iS2''
+%format iS3''
+
+%format iE = "\ifc{E}"
+%format iE'
+%format iE''
+%format iEi = iE"_"i
+%format iEi' = iE'"_"i
+%format iEi'' = iE''"_"i
+%format iE1
+%format iE2
+%format iE3
+%format iE1'
+%format iE2'
+%format iE3'
+%format iE1''
+%format iE2''
+%format iE3''
+
+%format ie = "\ifc{"e"}"
+%format ie'
+%format ie''
+%format iei = ie"_"i
+%format iei' = ie'"_"i
+%format iei'' = ie''"_"i
+%format ie1
+%format ie2
+%format ie3
+%format ie1'
+%format ie2'
+%format ie3'
+%format ie1''
+%format ie2''
+%format ie3''
+
+%format iv = "\ifc{"v"}"
+%format iv'
+%format iv''
+%format ivi = iv"_"i
+%format ivi' = iv'"_"i
+%format ivi'' = iv''"_"i
+%format iv1
+%format iv2
+%format iv3
+%format iv1'
+%format iv2'
+%format iv3'
+%format iv1''
+%format iv2''
+%format iv3''
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% TARGET state, eval ctx, expression
+\newcommand{\tar}[1]{\ensuremath{\mathbf{\color{red} #1}}}
+
+%format tS = "\tar{"S"}"
+%format tS'
+%format tS''
+%format tSi = tS"_"i
+%format tSi' = tS'"_"i
+%format tSi'' = tS''"_"i
+%format tS1
+%format tS2
+%format tS3
+%format tS1'
+%format tS2'
+%format tS3'
+%format tS1''
+%format tS2''
+%format tS3''
+
+%format tE = "\tar{E}"
+%format tE'
+%format tE''
+%format tEi = tE"_"i
+%format tEi' = tE'"_"i
+%format tEi'' = tE''"_"i
+%format tE1
+%format tE2
+%format tE3
+%format tE1'
+%format tE2'
+%format tE3'
+%format tE1''
+%format tE2''
+%format tE3''
+
+%format te = "\tar{"e"}"
+%format te'
+%format te''
+%format tei = te"_"i
+%format tei' = te'"_"i
+%format tei'' = te''"_"i
+%format te1
+%format te2
+%format te3
+%format te1'
+%format te2'
+%format te3'
+%format te1''
+%format te2''
+%format te3''
+
+%format tv = "\tar{"v"}"
+%format tv'
+%format tv''
+%format tvi = tv"_"i
+%format tvi' = tv'"_"i
+%format tvi'' = tv''"_"i
+%format tv1
+%format tv2
+%format tv3
+%format tv1'
+%format tv2'
+%format tv3'
+%format tv1''
+%format tv2''
+%format tv3''
+
+%format ta = "\tar{"a"}"
+%format ta'
+%format ta''
+%format tai = ta"_"i
+%format tai' = ta'"_"i
+%format tai'' = ta''"_"i
+%format ta1
+%format ta2
+%format ta3
+%format ta1'
+%format ta2'
+%format ta3'
+%format ta1''
+%format ta2''
+%format ta3''
+
+%format tx = "\tar{"x"}"
+%format tx'
+%format tx''
+%format txi = tx"_"i
+%format txi' = tx'"_"i
+%format txi'' = tx''"_"i
+%format tx1
+%format tx2
+%format tx3
+%format tx1'
+%format tx2'
+%format tx3'
+%format tx1''
+%format tx2''
+%format tx3''
+
+%format true  = "\mathbf{true}"
+%format false = "\mathbf{false}"
+%format ref  = "\mathbf{ref}"
+%format diverge = "\tar{\Uparrow}"
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %% language
 \newcommand{\Coloneqq}{::=} % txfonts
 %format ::=     = "\Coloneqq"
 %format cdots   = "\cdots"
 %format cdot    = "\cdot"
+%format .       = "."
 
 %% misc
 \newcommand{\dom}[1]{\ensuremath{{\textrm{dom}} #1}}
 \newcommand{\fresh}[1]{\ensuremath{\textrm{fresh}(#1)}}
 %format mapsto   = "\mapsto"
-%format (=       = "\in"
+%format member   = "\in"
+%format notmember = "\not\in"
 %format dom      = "\textrm{dom}"
 %format emptyset = "\emptyset"
 %format fresh    = "\textrm{fresh}"
+%format @= = "\triangleq{}"
+%format FV       = "\mathcal{FV}"
+%format AV       = "\mathcal{AV}"
+
+%format conf (s) (e) = "\langle "s", "e"\rangle"
