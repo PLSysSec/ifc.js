@@ -1,0 +1,79 @@
+\documentclass{sigplanconf}
+%include polycode.fmt
+
+\usepackage{array, amssymb, amsthm, amsmath, mathpartir,thmtools}
+\usepackage[usenames,dvipsnames]{color}
+\newcommand{\Red}[1]{{\color{red} #1}}
+\newcommand{\todo}[2]{\Red{\textbf{TODO[}#1\textbf{]:} #2}}
+%\newcommand{\todo}[2]{}
+\newcommand{\cut}[1]{}
+
+\usepackage{wrapfig}
+\usepackage[square,numbers,sort&compress]{natbib}
+
+\newcommand{\tocite}[1]{\Red{\cite{#1}}}
+\newcommand{\toref}[1]{\Red{\ref{#1}}}
+
+\usepackage{float}
+\newfloat{listing}{htbp}{lop} \floatname{listing}{Listing}
+
+\declaretheorem{theorem}
+\declaretheorem[name=Lemma]{lemma}
+\declaretheorem[name=Corollary]{corollary}
+\declaretheorem[name=Proposition]{proposition}
+% thmstyle: definition
+\declaretheorem[name=Definition, style=definition]{definition}
+\declaretheorem[name=Example, style=definition]{example}
+% thmstyle: remark
+\declaretheorem[name=Proof sketch, style=remark]{proofsketch}
+
+
+
+\begin{document}
+\input{notation.tex}
+
+% ----------
+%% \conferenceinfo{ICFP'14,} {September 1--3, 2013, Gothenburg, Sweden.}
+%% \CopyrightYear{2014}
+%% \copyrightdata{XXX-X-XXXX-XXXX-X/XX/XX}
+% ----------
+
+\title{
+From Execution Context to Information Flow Control
+}
+
+\authorinfo{
+  Stefan Heule \and
+  Deian Stefan \and
+  Edward Z. Yang \and
+  David Mazi\`eres \and
+  John C. Mitchell
+}{Stanford University}{}
+
+\maketitle
+
+%JM/DM:  2 pages
+%include abstract.tex
+%include intro.tex
+%AR/DS:  1 pages
+%include background.tex
+%DS/SH:  2 pages
+%include retrofit.tex
+%SH/DS:  1 page
+%include concrete.tex
+%ALL:    .5 pages
+%include real.tex
+%EZ/DS:  2-3 pages
+%include monad.tex
+%ALL:    .5 pages
+%include extensions.tex
+%AR:     1 page
+%include related.tex
+
+%{\frenchspacing\scriptsize
+%\setlength{\bibsep}{2pt}
+\bibliographystyle{abbrvnat}
+\bibliography{local}
+%}
+
+\end{document}

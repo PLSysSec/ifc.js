@@ -1,5 +1,6 @@
-MAIN = main.ltx
-PDF = pdf
+MAIN = main.tex
+LHS2TEX = true
+PDF = ps
 
 ifeq ($(PDF),pdf)
 FIGEXT    = pdf
@@ -36,8 +37,7 @@ IMAGEDIST := $(filter-out $(IMAGEGEN), $(IMAGES)) \
 		$(wildcard figs/*.odp) $(wildcard figs/*.ppt)
 
 ifeq ($(PDF),pdf)
-LATEX     = pdflatex
-#\nonstopmode\\input
+LATEX     = pdflatex \\nonstopmode\\input
 else
 LATEX     = latex
 #\\nonstopmode\\input
@@ -48,6 +48,15 @@ endif
 BIBTEX    = bibtex -min-crossrefs=1000
 
 all: $(BASE).pdf
+
+ifeq ($(LHS2TEX),true)
+LHS2TEXOUT  = $(MAIN)
+LHS2TEXDEPS = $(wildcard $(shell egrep '%include .*.(tex|ltx)' $(BASE).lhs.$(SRCEXT) | cut -d ' ' -f 2 | xargs))
+$(MAIN): $(BASE).lhs.$(SRCEXT) $(TEXFILES) $(LHS2TEXDEPS)
+	lhs2TeX  $(BASE).lhs.$(SRCEXT) > $(MAIN)
+else
+LHS2TEXOUT  = 
+endif
 
 ifeq ($(PDF),pdf)
 %.pdf %.tex: %.fig
@@ -160,6 +169,7 @@ ignore:
 clean:
 	rm -f $(BASE).ps $(BASE).pdf $(BASE).tar.gz
 	rm -f $(TEXFIGS) $(GRAPHS) $(IMAGEGEN)
+	rm -f $(LHS2TEXOUT)
 	rm -f *.dvi *.aux *.log *.bbl *.blg *.lof *.lot *.toc *.bak *.out
 	rm -f *~ *.core core
 
