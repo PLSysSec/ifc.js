@@ -66,6 +66,7 @@ ie   ::=  iv | x | y | ie lop ie | getLabel | setLabel ie
 iE   ::=  iE lop ie | iv lop iE | setLabel iE | fork iE 
        |  send iE ie ie | send iv iE ie | send iv iv iE
        |  x, y <= recv. ie ie |  IT tE
+Q    ::=  nil | (il, id, ie) :: Q
 
 tE   ::=  cdots | TI iE
 
@@ -105,7 +106,7 @@ iconf iS' (lconf id il tS (iniE id'), ldots, lconf id' il tS te)
 {
 |il canFlowTo il'|\\
 |iS(id') = Q|\\
-|iS' = iS [ id' mapsto (il', id,  ie) cons Q ]|
+|iS' = iS [ id' mapsto (il', id,  ie) :: Q ]|
 }
 {|
 iconf iS (lconf id il tS (iniE (send id' il' ie))), ldots)
