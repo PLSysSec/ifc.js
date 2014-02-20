@@ -26,34 +26,125 @@ let x = te1 in te2  @= (\x.te2) te1
 
 \begin{mathpar}
 \inferrule[T-app]
-{ } {| conf tS (tE[(\x.te) tv]) --> conf tS (tE[{tv/x} tv]) |}
+{ } {| conf tS (intE ((\x.te) tv)) --> conf tS (intE ({tv/x} tv)) |}
 
 \and
 \inferrule[T-ifTrue]
-{ } {| conf tS (tE[if true then te1 else te2]) --> conf tS (tE[te1]) |}
+{ } {| conf tS (intE (if true then te1 else te2)) --> conf tS (intE te1) |}
 
 \and
 \inferrule[T-ifFalse]
-{ } {| conf tS (tE[if false then te1 else te2]) --> conf tS (tE[te2]) |}
+{ } {| conf tS (intE (if false then te1 else te2)) --> conf tS (intE te2) |}
 
 \and
 \inferrule[T-ref]
 {| tS' = tS [ ta mapsto tv ] |} 
-{| conf tS (tE[ref tv]) --> conf tS' (tE[tv]) |}
+{| conf tS (intE (ref tv)) --> conf tS' (intE tv) |}
 {| fresh ta |}
 
 \and
 \inferrule[T-deref]
 {| (ta, tv) member tS |}
-{| conf tS (tE[!ta]) --> conf tS (tE[tv]) |}
+{| conf tS (intE (!ta)) --> conf tS (intE tv) |}
 
 \and
 \inferrule[T-ass]
 {| tS' = tS [ ta mapsto tv ] |} 
-{| conf tS (tE[ta := tv]) --> conf tS' (tE[tv]) |}
+{| conf tS (intE (ta := tv)) --> conf tS' (intE tv) |}
 \end{mathpar}
 
 \caption{Simple ML-like language}
+\label{fig:ml}
+\end{figure}
+
+\begin{figure}
+\begin{code}
+lop  ::=  canFlowTo | lub | glb
+iv   ::=  id | il | true | false | unit
+ie   ::=  iv | x | y | ie lop ie | getLabel | setLabel ie
+       |  fork ie | send ie ie ie | x, y <= recv. ie ie |  IT te
+iE   ::=  iE lop ie | iv lop iE | setLabel iE | fork iE 
+       |  send iE ie ie | send iv iE ie | send iv iv iE
+       |  x, y <= recv. ie ie |  IT tE
+
+tE   ::=  cdots | TI iE
+
+
+x, y <= brecv . ie @= IT (let te' = TI (x, y <= recv. ie  (IT te')) in te')
+\end{code}
+
+\begin{mathpar}
+\inferrule[I-getLabel]
+{ }
+{|
+iconf iS (lconf id il tS (iniE (getLabel)), ldots)
+-->
+iconf iS (lconf id il tS (iniE il), ldots)
+|}
+\and
+\inferrule[I-setLabel]
+{ |il canFlowTo il'| }
+{|
+iconf iS (lconf id il tS (iniE (setLabel il')), ldots)
+-->
+iconf iS (lconf id il' tS (iniE unit), ldots)
+|}
+\and
+\inferrule[I-fork]
+{ 
+|iS' = iS [ id' mapsto nil ]|
+}
+{|
+iconf iS (lconf id il tS (iniE (fork (IT te))), ldots)
+-->
+iconf iS' (lconf id il tS (iniE id'), ldots, lconf id' il tS te)
+|}
+{|fresh (id')|}
+\and
+\inferrule[I-send]
+{
+|il canFlowTo il'|\\
+|iS(id') = Q|\\
+|iS' = iS [ id' mapsto (il', id,  ie) cons Q ]|
+}
+{|
+iconf iS (lconf id il tS (iniE (send id' il' ie))), ldots)
+-->
+iconf iS' (lconf id il tS (iniE unit), ldots)
+|}
+\and
+\inferrule[I-recv]
+{
+| filter il (iS(id)) = (il', id', ie') :: Q'|\\
+| iS' = iS[id mapsto Q']|
+}
+{|
+iconf iS (lconf id il tS (iniE (x, y <= recv. ie1 ie2))), ldots)
+-->
+iconf iS' (lconf id il tS (iniE ({ie'/x,id'/y} ie1)), ldots)
+|}
+\and
+\inferrule[I-noRecv]
+{
+| filter il (iS(id)) = nil|\\
+| iS' = iS[id mapsto nil]|
+}
+{|
+iconf iS (lconf id il tS (iniE (x, y <= recv. ie1 ie2))), ldots)
+-->
+iconf iS' (lconf id il tS (iniE ie2), ldots)
+|}
+\and
+\inferrule[I-border]
+{ }
+{| iniE (IT (TI (ie))) --> iniE ie |}
+\and
+\inferrule[T-border]
+{ }
+{| intE (TI (IT (te))) --> intE te |}
+\end{mathpar}
+
+\caption{IFC language}
 \label{fig:ml}
 \end{figure}
 

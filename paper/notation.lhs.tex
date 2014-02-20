@@ -27,6 +27,8 @@
 \newcommand{\lto}{\longrightarrow}
 %format --> = "\lto"
 %format ==> = "\lto^*"
+%format <=  = "\Leftarrow"
+%format =>  = "\Rightarrow"
 
 
 
@@ -69,6 +71,7 @@
 %format E1''
 %format E2''
 %format E3''
+%format inE (e) = E"["e"]"
 
 %format e'
 %format e''
@@ -120,6 +123,7 @@
 %format iE1''
 %format iE2''
 %format iE3''
+%format iniE (e) = iE"\ifc{[}"e"\ifc{]}"
 
 %format ie = "\ifc{"e"}"
 %format ie'
@@ -152,6 +156,69 @@
 %format iv1''
 %format iv2''
 %format iv3''
+
+%format il = "\ifc{"l"}"
+%format il'
+%format il''
+%format ili = il"_"i
+%format ili' = il'"_"i
+%format ili'' = il''"_"i
+%format il1
+%format il2
+%format il3
+%format il1'
+%format il2'
+%format il3'
+%format il1''
+%format il2''
+%format il3''
+
+%format id = "\ifc{"i"}"
+%format id'
+%format id''
+%format idi = id"_"i
+%format idi' = id'"_"i
+%format idi'' = id''"_"i
+%format id1
+%format id2
+%format id3
+%format id1'
+%format id2'
+%format id3'
+%format id1''
+%format id2''
+%format id3''
+
+%format Q = "\ifc{\Theta}"
+%format Q'
+%format Q''
+%format Qi = Q"_"i
+%format Qi' = Q'"_"i
+%format Qi'' = Q''"_"i
+%format Q1
+%format Q2
+%format Q3
+%format Q1'
+%format Q2'
+%format Q3'
+%format Q1''
+%format Q2''
+%format Q3''
+
+
+%format getLabel  = "\mathbf{getLabel}"
+%format setLabel  = "\mathbf{setLabel}"
+%format fork      = "\mathbf{fork}"
+%format send      = "\mathbf{send}"
+%format recv      = "\mathbf{recv}"
+%format brecv     = "\mathbf{recv}_{\infty}"
+%format lop       = "\otimes"
+%format blk       = "B"
+%format nonblk    = "N"
+%format unit      = "\langle\rangle"
+
+%format (TI (x))  = "\tar{^{\textrm{TI}}\lfloor}"x"\tar{\rfloor}"
+%format (IT (x))  = "\ifc{^{\textrm{IT}}\lceil}"x"\ifc{\rceil}"
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% TARGET state, eval ctx, expression
 \newcommand{\tar}[1]{\ensuremath{\mathbf{\color{red} #1}}}
@@ -187,6 +254,7 @@
 %format tE1''
 %format tE2''
 %format tE3''
+%format intE (e) = tE"\tar{[}"e"\tar{]}"
 
 %format te = "\tar{"e"}"
 %format te'
@@ -236,24 +304,8 @@
 %format ta2''
 %format ta3''
 
-%format tx = "\tar{"x"}"
-%format tx'
-%format tx''
-%format txi = tx"_"i
-%format txi' = tx'"_"i
-%format txi'' = tx''"_"i
-%format tx1
-%format tx2
-%format tx3
-%format tx1'
-%format tx2'
-%format tx3'
-%format tx1''
-%format tx2''
-%format tx3''
-
-%format true  = "\mathbf{true}"
-%format false = "\mathbf{false}"
+%format true  = "\overline{\mathbf{true}}"
+%format false = "\overline{\mathbf{false}}"
 %format ref  = "\mathbf{ref}"
 %format diverge = "\tar{\Uparrow}"
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -262,6 +314,7 @@
 \newcommand{\Coloneqq}{::=} % txfonts
 %format ::=     = "\Coloneqq"
 %format cdots   = "\cdots"
+%format ldots   = "\ldots"
 %format cdot    = "\cdot"
 %format .       = "."
 
@@ -277,5 +330,11 @@
 %format @= = "\triangleq{}"
 %format FV       = "\mathcal{FV}"
 %format AV       = "\mathcal{AV}"
+%format nil      = "\epsilon"
+%format cons     = "\triangleleft"
+%format filter (x) (y) = y "\preceq" x
 
 %format conf (s) (e) = "\langle "s", "e"\rangle"
+%format lconf (i) (l) (s) (e) = "\langle "s", "e"\rangle_{"i"}^{"l"}"
+%%format iconf (t) (s) = { t inlinesep s }
+%format iconf (t) (s) = { t inlinesep s }
