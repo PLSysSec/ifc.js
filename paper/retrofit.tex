@@ -138,20 +138,17 @@ iconf iS (lconf id il tS (iniE (ix1, ix2 <= recv. ie1 ie2))), ldots)
 iconf iS' (lconf id il tS (iniE ie2), ldots)
 |}
 \and
-\inferrule[I-bool]
-{ |b member {true, false}|  } {| iniE (IT b) --> iniE b |}
+\inferrule[I-labelOp]
+{ |denot (il lop il') = iv|}
+{ |iniE (il lop il') --> iniE iv| }
 \and
 \inferrule[I-border]
 { } {| iniE (IT (TI (ie))) --> iniE ie |}
 \and
-\inferrule[T-bool]
-{ |b member {true, false}| } {| intE (TI b) --> intE b |}
-\and
 \inferrule[T-border]
 { } {| intE (TI (IT (te))) --> intE te |}
 \end{mathpar}
-
-\caption{IFC language}
+\caption{IFC language nad general embedding.}
 \label{fig:ml}
 \end{figure}
 
@@ -166,6 +163,19 @@ function is simply the identity function, i.e.,
 |filter il Q| & \quad \text{otherwise}
 \end{array} \right.
 \]
+
+
+In the case of extending
+\begin{mathpar}
+\inferrule[I-bool]
+{ |b member {true, false}|  } {| iniE (IT b) --> iniE b |}
+\and
+\inferrule[T-bool]
+{ |b member {true, false}| } {| intE (TI b) --> intE b |}
+\end{mathpar}
+
+
+
 
 %% \cut{
 %% (Selected rules from evaluation semantics. It's typed in the usual way.)
