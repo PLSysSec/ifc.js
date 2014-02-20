@@ -15,13 +15,13 @@ works for a simple, ML-like language, with references and general recursion.
 
 \begin{figure}
 \begin{code}
-tv   ::= \x.te | true | false | ta
-te   ::= tv | x | te te | if te then te else te | ref te | !te | te := te | diverge
+tv   ::= \tx.te | true | false | ta
+te   ::= tv | tx | te te | if te then te else te | ref te | !te | te := te | diverge
 tE   ::= tE te | tv tE | if tE then te else te
        | ref tE | !tE | tE := te | tv := tE 
 
-te1 ; te2           @= (\x.te2) te1  where  x notmember FV(te2)
-let x = te1 in te2  @= (\x.te2) te1
+te1 ; te2            @= (\tx.te2) te1  where  tx notmember FV(te2)
+let tx = te1 in te2  @= (\tx.te2) te1
 \end{code}
 
 \begin{mathpar}
@@ -61,17 +61,18 @@ let x = te1 in te2  @= (\x.te2) te1
 \begin{code}
 lop  ::=  canFlowTo | lub | glb
 iv   ::=  id | il | true | false | unit
-ie   ::=  iv | x | y | ie lop ie | getLabel | setLabel ie
-       |  fork ie | send ie ie ie | x, y <= recv. ie ie |  IT te
+ie   ::=  iv | ix | ie lop ie | getLabel | setLabel ie
+       |  fork ie | send ie ie ie | ix1, ix2 <= recv. ie ie |  IT te
 iE   ::=  iE lop ie | iv lop iE | setLabel iE | fork iE 
        |  send iE ie ie | send iv iE ie | send iv iv iE
-       |  x, y <= recv. ie ie |  IT tE
+       |  ix1, ix2 <= recv. ie ie |  IT tE
 Q    ::=  nil | (il, id, ie) :: Q
 
+te   ::=  cdots | TI ie
 tE   ::=  cdots | TI iE
 
 
-x, y <= brecv . ie @= IT (let te' = TI (x, y <= recv. ie  (IT te')) in te')
+ix1, ix2 <= brecv . ie @= IT (let tx = TI (ix1, ix2 <= recv. ie  (IT tx)) in tx)
 \end{code}
 
 \begin{mathpar}
@@ -93,12 +94,13 @@ iconf iS (lconf id il' tS (iniE unit), ldots)
 \and
 \inferrule[I-fork]
 { 
-|iS' = iS [ id' mapsto nil ]|
+|iS' = iS [ id' mapsto nil ]|\\
+|tS' = q(tS)|
 }
 {|
-iconf iS (lconf id il tS (iniE (fork (IT te))), ldots)
+iconf iS (lconf id il tS (iniE (fork ie)), ldots)
 -->
-iconf iS' (lconf id il tS (iniE id'), ldots, lconf id' il tS te)
+iconf iS' (lconf id il tS (iniE id'), ldots, lconf id' il tS' (TI ie))
 |}
 {|fresh (id')|}
 \and
@@ -120,9 +122,9 @@ iconf iS' (lconf id il tS (iniE unit), ldots)
 | iS' = iS[id mapsto Q']|
 }
 {|
-iconf iS (lconf id il tS (iniE (x, y <= recv. ie1 ie2))), ldots)
+iconf iS (lconf id il tS (iniE (ix1, ix2 <= recv. ie1 ie2))), ldots)
 -->
-iconf iS' (lconf id il tS (iniE ({ie'/x,id'/y} ie1)), ldots)
+iconf iS' (lconf id il tS (iniE ({ie'/ix1,id'/ix2} ie1)), ldots)
 |}
 \and
 \inferrule[I-noRecv]
@@ -131,342 +133,358 @@ iconf iS' (lconf id il tS (iniE ({ie'/x,id'/y} ie1)), ldots)
 | iS' = iS[id mapsto nil]|
 }
 {|
-iconf iS (lconf id il tS (iniE (x, y <= recv. ie1 ie2))), ldots)
+iconf iS (lconf id il tS (iniE (ix1, ix2 <= recv. ie1 ie2))), ldots)
 -->
 iconf iS' (lconf id il tS (iniE ie2), ldots)
 |}
 \and
+\inferrule[I-bool]
+{ |b member {true, false}|  } {| iniE (IT b) --> iniE b |}
+\and
 \inferrule[I-border]
-{ }
-{| iniE (IT (TI (ie))) --> iniE ie |}
+{ } {| iniE (IT (TI (ie))) --> iniE ie |}
+\and
+\inferrule[T-bool]
+{ |b member {true, false}| } {| intE (TI b) --> intE b |}
 \and
 \inferrule[T-border]
-{ }
-{| intE (TI (IT (te))) --> intE te |}
+{ } {| intE (TI (IT (te))) --> intE te |}
 \end{mathpar}
 
 \caption{IFC language}
 \label{fig:ml}
 \end{figure}
 
-\cut{
-(Selected rules from evaluation semantics. It's typed in the usual way.)
+The filter function |filter il Q| removes message whose labels do not
+flow to |il|. Specifically, if |Q| is the empty list |nil|, the
+function is simply the identity function, i.e.,
+|filter il nil = nil|; otherwise:
+\[
+|filter il ((il', id, ie) :: Q )| = \left\{
+\begin{array}{l l}
+|(il', id, ie) :: filter il Q| & \quad \text{if |il' canFlowTo il|}\\
+|filter il Q| & \quad \text{otherwise}
+\end{array} \right.
+\]
 
-(Maybe this section needs to get moved) Sketch how a traditional account
-of IFC would go about extending these rules.  These things are:
-
-\begin{enumerate}
-    \item Extend values with labels. (Values are isolated in runtimes,
-        so runtime is labeled not values)
-    \item Extend semantics to have a label on the program counter.
-        (Ditto, runtime is values.)
-    \item Extend semantics for assignment, as addresses need labels.
-        (Labeled references are internalized in IFC language, and
-        traditional references are isolated in runtimes.)
-    \item Flow-sensitivity/insensitivity? (We choose flow-insensitive,
-        flow sensitivity by reduction.)
-\end{enumerate}
-
-% No longer describing a "minimal non-Turing complete IFC calculus",
-% instead, we jump straight to the combination.
-
-We'd like to construct a coarse-grained IFC system on top of our language.
-Intuitively, programs written in the target language are running on top of
-an IFC ``operating system''.  The way we will perform our embedding is
-by allowing programs to perform ``syscalls'' into the IFC runtime, and
-vice-versa.  The IFC runtime is responsible for performing label checks
-and ensuring TSNI is not violated.
-
-We achieve this using a Matthews-Findler style embedding~\nocite{} to combine
-the IFC language from the previous section with our example language.  Key points:
-
-\Red{EZY reviewer hat: why is this type mediation necessary? It seems a bit
-over-the-top.}
-
-\begin{itemize}
-    \item Expression and evaluation contexts are considered separately,
-        so that some of our operational rules are easier to write
-    \item IT/TI mediate cross-language type boundary (mention that this
-        is where monitor failure/exceptions get handled)
-\end{itemize}
-
-First, we associate a label with every evaluation context.  Suppose you had
-a function \verb|readFile|, you need to raise your label to write this
-kind of program.
-
-Motivate why we have labeled values. How to I avoid label creep problem? We
-have fork. \Red{EZY shouldn't be in the ``background'' section.}
-
-Background talks about IFC calculus in general; here we talk about
-embedding and give the precise semantics for the IFC embedding.
-
-\Red{Give a fake rule with how you raise your label when you read from a file.
-We give you labeled values explicitly.}
-
-\Red{EZY Why wouldn't a reviewer say, this sendMessage/receiveMessage thing
-is pretty weird, why'd you do the API that way?}
-
-\begin{verbatim}
-% colored differently
-e ::= fork e
-    # let's do channels?
-    | sendMessage e e  # asynchronous
-    | receiveMessage e # registers the callback
-    | label e e
-    | unlabel e
-    | IT e
-
-v ::= tid
-    | l
-    | Labeled l v
-\end{verbatim}
-
-\Red{Prove type safety for combined language?}
-
-\Red{Problem: synchronization primitives which are blocking. OK, talk
-about this at the end. You can do whatever you want.}
-% NB: the nice thing about sendMessage is we can just drop messages
-% when the labels don't work out
-%
-% Intuitively, it would seem to me that any concurrency primitive
-% would be fine, as long as you proved it safe, we don't really care.
-
-(Full operational semantics. Provide type rules.)
-
-\Red{What to do when you get stuck when you are about to invalidate IFC}
-
-Which rules do we want to talk about?
-
-\begin{enumerate}
-\item fork: most complicated; shows side-condition (what do we do with stores on fork?)
-\item label:  shows side-condition (what can we label? same as fork, but empty/all stores)
-\item unlabel: shows raising of label
-\item sendMessage: will give type for (maybe encapsulate queue in env)
-\end{enumerate}
-
-\subsection{The methodology (XXX fix title)}
-\label{sec:methodology}
-
-We now formally state our information-flow control transformation.  For
-simplicity's sake, we consider only single-threaded source languages,
-whose primary notion of execution is evaluation of an expression into a
-value.  (Later, we consider how to accomodate systems which have
-semantics for concurrent execution.)
-
-\subsection{A tiny information-flow control calculus}
-
-\begin{figure}[h]
-\begin{align*}
-\textrm{Thread \#:}   && \Ii          &   \\
-\textrm{Label:}       && \Il          & \ \ \text{(we additionally use \Ic{} for clearances)}  \\
-\textrm{Label op:}    && \ifc{\oplus} & ::=  \ifc{\lub}
-                                        \ |\ \ifc{\glb}
-                                        \ |\ \ifc{\flows}\\
-\textrm{Value:}       && \Iv          & ::=  \Itrue 
-                                        \ |\ \Ifalse
-                                        \ |\ \Iunit
-                                        \ |\ \Il
-                                        \ |\ \Ierr
-                                        \ |\ \Ii\\
-%                                        \ |\ \IT{\Tv}{\Tstore}{\Tenv}\\
-\textrm{Expression:}  && \Ie          & ::=  \Iv
-                                        \ |\ \Ilop{\Ie}{\Ie}
-                                        \ |\ \IgetLabel
-                                        \ |\ \IgetClr\\&&&
-                                        \ |\ \Ifork{\Ie}{\Ie}
-                                        \ |\ \IT{\Te}\\
-\textrm{Context:}     && \IE          & ::=  \Ihole{\ }
-                                        \ |\ \Ilop{\IE}{\Ie}
-                                        \ |\ \Ilop{\Iv}{\IE}\\&&&
-                                        \ |\ \Ifork{\IE}{\Ie}
-                                        \ |\ \Ifork{\Iv}{\IE}
-                                        \ |\ \IT{\TE}\\
-\textrm{Store (of target language):} && \Istore\\
-\textrm{Prim label op:} && \denot{\cdot}   & \in \Ie \rightharpoonup \Iv \\
-\end{align*}
-% reduction rules
-\begin{mathpar}
-
-\inferrule[I-target]{
-  \Tconf{\Tstore}{\Tenv}{\inTE{\Te}}
-  \Tarrow
-  \Tconf{\tar{\Tstore'}}{\Tenv'}{\inTE{\tar{\Te'}}}
-  \\
-  \TIstore{\Tstore}{\Tenv} = \Istore
-  \\
-  \TIstore{\tar{\Tstore'}}{\tar{\Tenv'}} = \ifc{\Istore'}
-}
-{
-  \Iconf{\Istore}{\Il}{\Ic}{\inTE{\Te}}\Itasksep\cdots
-  \Iarrow
-  \Iconf{\ifc{\Istore'}}{\Il}{\Ic}{\inTE{\tar{\Te'}}}\Itasksep\cdots
-}
-
-\and
-
-\inferrule[I-boundary]{ }
-{
-  \Iconf{\Istore}{\Il}{\Ic}{\inTE{\TI{\IT{\Te}}}}
-  \Iarrow
-  \Iconf{\Istore}{\Il}{\Ic}{\inTE{\Te}}
-}
-
-\and
-
-\inferrule[I-label]{ }
-{
-  \Iconf{\Istore}{\Il}{\Ic}{\inTE{\TI{\IgetLabel}}}\Itasksep\cdots
-  \Iarrow
-  \Iconf{\Istore}{\Il}{\Ic}{\inTE{\TI{\Il}}}\Itasksep\cdots
-}
-
-\and
-
-\inferrule[I-clearance]{ }
-{
-  \Iconf{\Istore}{\Il}{\Ic}{\inTE{\TI{\IgetClr}}}\Itasksep\cdots
-  \Iarrow
-  \Iconf{\Istore}{\Il}{\Ic}{\inTE{\TI{\Ic}}}\Itasksep\cdots
-}
-
-% fork
-\inferrule[I-fork]
-{ 
-  \denot{\Iflows{\Il}{\ifc{\Il'}}} = \Itrue\\
-  \denot{\Iflows{\ifc{\Il'}}{\Ic}} = \Itrue\\
-  \ifc{\Istore'} = \Tklone(\Istore)\\
-}
-{
-  \Iconf{\Istore}{\Tenv}{\Il}{\Ic}{
-    \inTE{\TI{
-      (\Ifork{\Il'}{(\IT{\Te})})
-    }}
-  }
-  \Itasksep\cdots
-  %
-  \Iarrow
-  %
-  \Iconf{\Istore}{\Il}{\Ic}{\inTE{\TI{\Ii}}}
-  \Itasksep\cdots\Itasksep
-  \Iconf{\ifc{\Istore'}}{\Il}{\Il}{\inTE{\Te}}
-  \Itasksep\cdots
-}{\operatorname{fresh}(\Ii)}
-
-
-\end{mathpar}
-
-\caption{IFC calculus}
-\end{figure}
-
-\begin{figure}[h]
-\begin{align*}
-\textrm{Address:}     && \Ta          & \\
-\textrm{Variable:}    && \Tx          & \\
-\textrm{Value:}       && \Tv          & ::= \Tclo{\Tlambda{\Tx}{\Te}}{\Tenv}\\
-\textrm{Expression:}  && \Te          & ::=  \Tv
-                                        \ |\ \Tlambda{\Tx}{\Te}
-                                        \ |\ \Tx
-                                        \ |\ \Te\ \Te
-                                        \ |\ \Tset{\Te}{\Te}
-                                        \ |\ \TI{\Ie}\\
-\textrm{Context:}     && \TE          & ::=  \Thole{\ }
-                                        \ |\ \TE\ \Te
-                                        \ |\ \Tv\ \TE\\&&&
-                                        \ |\ \Tset{\TE}{\Te}
-                                        \ |\ \Tset{\Tx}{\TE}
-                                        \ |\ \TI{\IE}\\
-\textrm{Environment:} && \Tenv        & \in \Tx \rightharpoonup \Ta \\
-\textrm{Store:}       && \Tstore      & \in \Ta \rightharpoonup \Tv \\
-\textrm{Klone:}       && \Tklone   & \in \Tenv \times \Tstore \rightharpoonup \Tenv \times \Tstore \\
-\end{align*}
-% reduction rules
-\begin{mathpar}
-
-% lambda to closure
-\inferrule[T-lam]{ }
-{
-\Tconf{\Tstore}{\Tenv}{\inTE{\Tlambda{\Tx}{\Te}}}
-\Tarrow
-\Tconf{\Tstore}{\Tenv}{\inE{\Tclo{\Tlambda{\Tx}{\Te}}{\Tenv}}}
-}
-
-\and
-
-% lookup variable
-\inferrule[T-var]{ }
-{
-\Tconf{\Tstore}{\Tenv}{\inTE{\Tx}}
-\Tarrow
-\Tconf{\Tstore}{\Tenv}{\inE{\Tstore(\Tenv(\Tx))}}
-}
-
-\and
-
-% beta reduction
-\inferrule[T-$\beta$]
-{
-\tar{\Tstore'}=\Tstore[\Ta \mapsto \Tv]\\
-\tar{\Tenv''} =\tar{\Tenv'}[\Tx \mapsto \Ta]
-}
-{
-\Tconf{\Tstore}{\Tenv}{\inTE{\Tclo{\Tlambda{\Tx}{\Te}}{\tar{\Tenv'}}\ \Tv}}
-\Tarrow
-\Tconf{\tar{\Tstore'}}{\tar{\Tenv''}}{\inE{\Te}}
-}{\operatorname{fresh}(\Ta)}
-
-\and
-
-% set!
-\inferrule[T-set]
-{
-\tar{\store'} = \Tstore[\Tenv(\Tx) \mapsto \Tv]
-}
-{
-\Tconf{\Tstore}{\Tenv}{\inTE{\Tset{\Tx}{\Tv}}}
-\Tarrow
-\Tconf{\tar{\store'}}{\Tenv}{\inE{\Tv}}
-}
-% fork
-%\inferrule[E-fork]
-%{ 
-%\Iflows{\Il}{\Il} \Ilabelarrow \Itrue\\
-%\Iflows{\Il}{\Ic} \Ilabelarrow \Itrue\\
-%\tar{\Tstore'} = \Tklone{\Tstore}(\Tstore)\\
-%\tar{\Tenv'}   = \Tklone{\Tenv}(\Tenv)
-%}
-%{
-%\Iconf{\Il}{\Ic}{\inIE{ \Ifork{\Il}{
-%      (\downcall{(\upcall{^{\Tstore}_{\Tenv}\ \Ie})})
-%}}}\|\cdots
-%\to
-%\Iconf{\Il}{\Ic}{\inE{\Ii}}\|\cdots\|
-%\Iconf{\Il}{\Il}{\inE{
-%}}\|\cdots
-%}{fresh(\Ii)}
-
-
-\end{mathpar}
-\caption{Simple calculus}
-\end{figure}
-
-Our first task is to define a information-flow control mini-language
-which will be combined with the source language. (Reference)  This
-language is not Turing-complete; this is intentional, as (1) the ability
-to call across the language boundary means that any control flow can be
-implemented in the source language, and (2) it simplifies the
-non-interference proof.  The language has a very simple set of typing
-rules.  The operational semantics for this language are worth remarking
-on (write a bit about how this IFC system works).  We can now state and
-prove a simple non-interference theorem about this language:
-
-\begin{theorem}
-(Statement of noninterference)
-\end{theorem}
-\begin{proof}
-XXX TODO should be simple
-\end{proof}
-
-\subsection{Combination (XXX)}
-
-
-}
+%% \cut{
+%% (Selected rules from evaluation semantics. It's typed in the usual way.)
+%% 
+%% (Maybe this section needs to get moved) Sketch how a traditional account
+%% of IFC would go about extending these rules.  These things are:
+%% 
+%% \begin{enumerate}
+%%     \item Extend values with labels. (Values are isolated in runtimes,
+%%         so runtime is labeled not values)
+%%     \item Extend semantics to have a label on the program counter.
+%%         (Ditto, runtime is values.)
+%%     \item Extend semantics for assignment, as addresses need labels.
+%%         (Labeled references are internalized in IFC language, and
+%%         traditional references are isolated in runtimes.)
+%%     \item Flow-sensitivity/insensitivity? (We choose flow-insensitive,
+%%         flow sensitivity by reduction.)
+%% \end{enumerate}
+%% 
+%% % No longer describing a "minimal non-Turing complete IFC calculus",
+%% % instead, we jump straight to the combination.
+%% 
+%% We'd like to construct a coarse-grained IFC system on top of our language.
+%% Intuitively, programs written in the target language are running on top of
+%% an IFC ``operating system''.  The way we will perform our embedding is
+%% by allowing programs to perform ``syscalls'' into the IFC runtime, and
+%% vice-versa.  The IFC runtime is responsible for performing label checks
+%% and ensuring TSNI is not violated.
+%% 
+%% We achieve this using a Matthews-Findler style embedding~\nocite{} to combine
+%% the IFC language from the previous section with our example language.  Key points:
+%% 
+%% \Red{EZY reviewer hat: why is this type mediation necessary? It seems a bit
+%% over-the-top.}
+%% 
+%% \begin{itemize}
+%%     \item Expression and evaluation contexts are considered separately,
+%%         so that some of our operational rules are easier to write
+%%     \item IT/TI mediate cross-language type boundary (mention that this
+%%         is where monitor failure/exceptions get handled)
+%% \end{itemize}
+%% 
+%% First, we associate a label with every evaluation context.  Suppose you had
+%% a function \verb|readFile|, you need to raise your label to write this
+%% kind of program.
+%% 
+%% Motivate why we have labeled values. How to I avoid label creep problem? We
+%% have fork. \Red{EZY shouldn't be in the ``background'' section.}
+%% 
+%% Background talks about IFC calculus in general; here we talk about
+%% embedding and give the precise semantics for the IFC embedding.
+%% 
+%% \Red{Give a fake rule with how you raise your label when you read from a file.
+%% We give you labeled values explicitly.}
+%% 
+%% \Red{EZY Why wouldn't a reviewer say, this sendMessage/receiveMessage thing
+%% is pretty weird, why'd you do the API that way?}
+%% 
+%% \begin{verbatim}
+%% % colored differently
+%% e ::= fork e
+%%     # let's do channels?
+%%     | sendMessage e e  # asynchronous
+%%     | receiveMessage e # registers the callback
+%%     | label e e
+%%     | unlabel e
+%%     | IT e
+%% 
+%% v ::= tid
+%%     | l
+%%     | Labeled l v
+%% \end{verbatim}
+%% 
+%% \Red{Prove type safety for combined language?}
+%% 
+%% \Red{Problem: synchronization primitives which are blocking. OK, talk
+%% about this at the end. You can do whatever you want.}
+%% % NB: the nice thing about sendMessage is we can just drop messages
+%% % when the labels don't work out
+%% %
+%% % Intuitively, it would seem to me that any concurrency primitive
+%% % would be fine, as long as you proved it safe, we don't really care.
+%% 
+%% (Full operational semantics. Provide type rules.)
+%% 
+%% \Red{What to do when you get stuck when you are about to invalidate IFC}
+%% 
+%% Which rules do we want to talk about?
+%% 
+%% \begin{enumerate}
+%% \item fork: most complicated; shows side-condition (what do we do with stores on fork?)
+%% \item label:  shows side-condition (what can we label? same as fork, but empty/all stores)
+%% \item unlabel: shows raising of label
+%% \item sendMessage: will give type for (maybe encapsulate queue in env)
+%% \end{enumerate}
+%% 
+%% \subsection{The methodology (XXX fix title)}
+%% \label{sec:methodology}
+%% 
+%% We now formally state our information-flow control transformation.  For
+%% simplicity's sake, we consider only single-threaded source languages,
+%% whose primary notion of execution is evaluation of an expression into a
+%% value.  (Later, we consider how to accomodate systems which have
+%% semantics for concurrent execution.)
+%% 
+%% \subsection{A tiny information-flow control calculus}
+%% 
+%% \begin{figure}[h]
+%% \begin{align*}
+%% \textrm{Thread \#:}   && \Ii          &   \\
+%% \textrm{Label:}       && \Il          & \ \ \text{(we additionally use \Ic{} for clearances)}  \\
+%% \textrm{Label op:}    && \ifc{\oplus} & ::=  \ifc{\lub}
+%%                                         \ |\ \ifc{\glb}
+%%                                         \ |\ \ifc{\flows}\\
+%% \textrm{Value:}       && \Iv          & ::=  \Itrue 
+%%                                         \ |\ \Ifalse
+%%                                         \ |\ \Iunit
+%%                                         \ |\ \Il
+%%                                         \ |\ \Ierr
+%%                                         \ |\ \Ii\\
+%% %                                        \ |\ \IT{\Tv}{\Tstore}{\Tenv}\\
+%% \textrm{Expression:}  && \Ie          & ::=  \Iv
+%%                                         \ |\ \Ilop{\Ie}{\Ie}
+%%                                         \ |\ \IgetLabel
+%%                                         \ |\ \IgetClr\\&&&
+%%                                         \ |\ \Ifork{\Ie}{\Ie}
+%%                                         \ |\ \IT{\Te}\\
+%% \textrm{Context:}     && \IE          & ::=  \Ihole{\ }
+%%                                         \ |\ \Ilop{\IE}{\Ie}
+%%                                         \ |\ \Ilop{\Iv}{\IE}\\&&&
+%%                                         \ |\ \Ifork{\IE}{\Ie}
+%%                                         \ |\ \Ifork{\Iv}{\IE}
+%%                                         \ |\ \IT{\TE}\\
+%% \textrm{Store (of target language):} && \Istore\\
+%% \textrm{Prim label op:} && \denot{\cdot}   & \in \Ie \rightharpoonup \Iv \\
+%% \end{align*}
+%% % reduction rules
+%% \begin{mathpar}
+%% 
+%% \inferrule[I-target]{
+%%   \Tconf{\Tstore}{\Tenv}{\inTE{\Te}}
+%%   \Tarrow
+%%   \Tconf{\tar{\Tstore'}}{\Tenv'}{\inTE{\tar{\Te'}}}
+%%   \\
+%%   \TIstore{\Tstore}{\Tenv} = \Istore
+%%   \\
+%%   \TIstore{\tar{\Tstore'}}{\tar{\Tenv'}} = \ifc{\Istore'}
+%% }
+%% {
+%%   \Iconf{\Istore}{\Il}{\Ic}{\inTE{\Te}}\Itasksep\cdots
+%%   \Iarrow
+%%   \Iconf{\ifc{\Istore'}}{\Il}{\Ic}{\inTE{\tar{\Te'}}}\Itasksep\cdots
+%% }
+%% 
+%% \and
+%% 
+%% \inferrule[I-boundary]{ }
+%% {
+%%   \Iconf{\Istore}{\Il}{\Ic}{\inTE{\TI{\IT{\Te}}}}
+%%   \Iarrow
+%%   \Iconf{\Istore}{\Il}{\Ic}{\inTE{\Te}}
+%% }
+%% 
+%% \and
+%% 
+%% \inferrule[I-label]{ }
+%% {
+%%   \Iconf{\Istore}{\Il}{\Ic}{\inTE{\TI{\IgetLabel}}}\Itasksep\cdots
+%%   \Iarrow
+%%   \Iconf{\Istore}{\Il}{\Ic}{\inTE{\TI{\Il}}}\Itasksep\cdots
+%% }
+%% 
+%% \and
+%% 
+%% \inferrule[I-clearance]{ }
+%% {
+%%   \Iconf{\Istore}{\Il}{\Ic}{\inTE{\TI{\IgetClr}}}\Itasksep\cdots
+%%   \Iarrow
+%%   \Iconf{\Istore}{\Il}{\Ic}{\inTE{\TI{\Ic}}}\Itasksep\cdots
+%% }
+%% 
+%% % fork
+%% \inferrule[I-fork]
+%% { 
+%%   \denot{\Iflows{\Il}{\ifc{\Il'}}} = \Itrue\\
+%%   \denot{\Iflows{\ifc{\Il'}}{\Ic}} = \Itrue\\
+%%   \ifc{\Istore'} = \Tklone(\Istore)\\
+%% }
+%% {
+%%   \Iconf{\Istore}{\Tenv}{\Il}{\Ic}{
+%%     \inTE{\TI{
+%%       (\Ifork{\Il'}{(\IT{\Te})})
+%%     }}
+%%   }
+%%   \Itasksep\cdots
+%%   %
+%%   \Iarrow
+%%   %
+%%   \Iconf{\Istore}{\Il}{\Ic}{\inTE{\TI{\Ii}}}
+%%   \Itasksep\cdots\Itasksep
+%%   \Iconf{\ifc{\Istore'}}{\Il}{\Il}{\inTE{\Te}}
+%%   \Itasksep\cdots
+%% }{\operatorname{fresh}(\Ii)}
+%% 
+%% 
+%% \end{mathpar}
+%% 
+%% \caption{IFC calculus}
+%% \end{figure}
+%% 
+%% \begin{figure}[h]
+%% \begin{align*}
+%% \textrm{Address:}     && \Ta          & \\
+%% \textrm{Variable:}    && \Tx          & \\
+%% \textrm{Value:}       && \Tv          & ::= \Tclo{\Tlambda{\Tx}{\Te}}{\Tenv}\\
+%% \textrm{Expression:}  && \Te          & ::=  \Tv
+%%                                         \ |\ \Tlambda{\Tx}{\Te}
+%%                                         \ |\ \Tx
+%%                                         \ |\ \Te\ \Te
+%%                                         \ |\ \Tset{\Te}{\Te}
+%%                                         \ |\ \TI{\Ie}\\
+%% \textrm{Context:}     && \TE          & ::=  \Thole{\ }
+%%                                         \ |\ \TE\ \Te
+%%                                         \ |\ \Tv\ \TE\\&&&
+%%                                         \ |\ \Tset{\TE}{\Te}
+%%                                         \ |\ \Tset{\Tx}{\TE}
+%%                                         \ |\ \TI{\IE}\\
+%% \textrm{Environment:} && \Tenv        & \in \Tx \rightharpoonup \Ta \\
+%% \textrm{Store:}       && \Tstore      & \in \Ta \rightharpoonup \Tv \\
+%% \textrm{Klone:}       && \Tklone   & \in \Tenv \times \Tstore \rightharpoonup \Tenv \times \Tstore \\
+%% \end{align*}
+%% % reduction rules
+%% \begin{mathpar}
+%% 
+%% % lambda to closure
+%% \inferrule[T-lam]{ }
+%% {
+%% \Tconf{\Tstore}{\Tenv}{\inTE{\Tlambda{\Tx}{\Te}}}
+%% \Tarrow
+%% \Tconf{\Tstore}{\Tenv}{\inE{\Tclo{\Tlambda{\Tx}{\Te}}{\Tenv}}}
+%% }
+%% 
+%% \and
+%% 
+%% % lookup variable
+%% \inferrule[T-var]{ }
+%% {
+%% \Tconf{\Tstore}{\Tenv}{\inTE{\Tx}}
+%% \Tarrow
+%% \Tconf{\Tstore}{\Tenv}{\inE{\Tstore(\Tenv(\Tx))}}
+%% }
+%% 
+%% \and
+%% 
+%% % beta reduction
+%% \inferrule[T-$\beta$]
+%% {
+%% \tar{\Tstore'}=\Tstore[\Ta \mapsto \Tv]\\
+%% \tar{\Tenv''} =\tar{\Tenv'}[\Tx \mapsto \Ta]
+%% }
+%% {
+%% \Tconf{\Tstore}{\Tenv}{\inTE{\Tclo{\Tlambda{\Tx}{\Te}}{\tar{\Tenv'}}\ \Tv}}
+%% \Tarrow
+%% \Tconf{\tar{\Tstore'}}{\tar{\Tenv''}}{\inE{\Te}}
+%% }{\operatorname{fresh}(\Ta)}
+%% 
+%% \and
+%% 
+%% % set!
+%% \inferrule[T-set]
+%% {
+%% \tar{\store'} = \Tstore[\Tenv(\Tx) \mapsto \Tv]
+%% }
+%% {
+%% \Tconf{\Tstore}{\Tenv}{\inTE{\Tset{\Tx}{\Tv}}}
+%% \Tarrow
+%% \Tconf{\tar{\store'}}{\Tenv}{\inE{\Tv}}
+%% }
+%% % fork
+%% %\inferrule[E-fork]
+%% %{ 
+%% %\Iflows{\Il}{\Il} \Ilabelarrow \Itrue\\
+%% %\Iflows{\Il}{\Ic} \Ilabelarrow \Itrue\\
+%% %\tar{\Tstore'} = \Tklone{\Tstore}(\Tstore)\\
+%% %\tar{\Tenv'}   = \Tklone{\Tenv}(\Tenv)
+%% %}
+%% %{
+%% %\Iconf{\Il}{\Ic}{\inIE{ \Ifork{\Il}{
+%% %      (\downcall{(\upcall{^{\Tstore}_{\Tenv}\ \Ie})})
+%% %}}}\|\cdots
+%% %\to
+%% %\Iconf{\Il}{\Ic}{\inE{\Ii}}\|\cdots\|
+%% %\Iconf{\Il}{\Il}{\inE{
+%% %}}\|\cdots
+%% %}{fresh(\Ii)}
+%% 
+%% 
+%% \end{mathpar}
+%% \caption{Simple calculus}
+%% \end{figure}
+%% 
+%% Our first task is to define a information-flow control mini-language
+%% which will be combined with the source language. (Reference)  This
+%% language is not Turing-complete; this is intentional, as (1) the ability
+%% to call across the language boundary means that any control flow can be
+%% implemented in the source language, and (2) it simplifies the
+%% non-interference proof.  The language has a very simple set of typing
+%% rules.  The operational semantics for this language are worth remarking
+%% on (write a bit about how this IFC system works).  We can now state and
+%% prove a simple non-interference theorem about this language:
+%% 
+%% \begin{theorem}
+%% (Statement of noninterference)
+%% \end{theorem}
+%% \begin{proof}
+%% XXX TODO should be simple
+%% \end{proof}
+%% 
+%% \subsection{Combination (XXX)}
+%% 
+%% 
+%% }
