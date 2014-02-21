@@ -29,7 +29,7 @@ let tx = te1 in te2  @= (\tx.te2) te1
 \and
 \inferrule[T-pure]
 {| te ~> te'|}
-{| conf tS (iniE te) -> conf tS (iniE te') |}
+{| conf tS (intE te) -> conf tS (intE te') |}
 
 \and
 \inferrule[T-app]
