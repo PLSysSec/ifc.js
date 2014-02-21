@@ -24,8 +24,10 @@
 %format glb = "\glb"
 %format oplus = "\oplus"
 
-\newcommand{\lto}{\longrightarrow}
-%format --> = "\lto"
+%format ~>  = "\leadsto"
+%format .-> = "\hookrightarrow"
+%format .~> = "\rightarrowtriangle"
+%format --> = "\longrightarrow"
 %format ==> = "\lto^*"
 %format <=  = "\Leftarrow"
 %format =>  = "\Rightarrow"
@@ -205,6 +207,25 @@
 %format id2''
 %format id3''
 
+%format io = "\ifc{\theta}"
+%format io'
+%format io''
+%format ioi = io"_"i
+%format ioi' = io'"_"i
+%format ioi'' = io''"_"i
+%format io1
+%format io2
+%format io3
+%format io1'
+%format io2'
+%format io3'
+%format io1''
+%format io2''
+%format io3''
+%format iok = io"_"k
+%format iok' = io'"_"k
+%format iok'' = io''"_"k
+
 %format Q = "\ifc{\Theta}"
 %format Q'
 %format Q''
@@ -365,6 +386,8 @@
 %format nil      = "\epsilon"
 %format filter (x) (y) = y "\preceq" x
 %format (denot (a)) = "\llbracket " a "\rrbracket"
+
+%format :: = "\triangleleft"
 
 %format conf (s) (e) = "\langle "s", "e"\rangle"
 %format lconf (i) (l) (s) (e) = "\langle "s", "e"\rangle_{"i"}^{"l"}"

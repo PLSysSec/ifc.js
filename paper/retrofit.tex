@@ -1,13 +1,14 @@
 \section{Retrofitting languages with IFC}
 \label{sec:retrofit}
 
-We consider language of the form |(S, E, e, -->)|, where |S| is some
+We consider language of the form |(S, E, e, ->)|, where |S| is some
 global state, |E| is an evaluation context, |e| is an expression in
-the language and |-->| is the reduction relation on the state,
+the language and |->| is the reduction relation on the state,
 evaluation context and expression;
 we say expression |e| in context |E| and state |S| reduces to
 expression |e'| in context |E'| and state |S'| and write
-|conf S (E[e]) --> conf S' (E'[e'])|.
+|conf S (E[e]) -> conf S' (E'[e'])|.
+$|->| : (|S| \times |E| \times |e|) \rightharpoonup (|S| \times |E| \times |e|)$
 
 
 To get the flavor for our approach, we will first show how our embedding
@@ -25,32 +26,38 @@ let tx = te1 in te2  @= (\tx.te2) te1
 \end{code}
 
 \begin{mathpar}
+\and
+\inferrule[T-pure]
+{| te ~> te'|}
+{| conf tS te -> conf tS te' |}
+
+\and
 \inferrule[T-app]
-{ } {| conf tS (intE ((\x.te) tv)) --> conf tS (intE ({tv/x} tv)) |}
+{ } {| intE ((\x.te) tv) ~> intE ({tv/x} tv) |}
 
 \and
 \inferrule[T-ifTrue]
-{ } {| conf tS (intE (if true then te1 else te2)) --> conf tS (intE te1) |}
+{ } {| intE (if true then te1 else te2)  ~> intE te1 |}
 
 \and
 \inferrule[T-ifFalse]
-{ } {| conf tS (intE (if false then te1 else te2)) --> conf tS (intE te2) |}
+{ } {| intE (if false then te1 else te2) ~> intE te2 |}
 
 \and
 \inferrule[T-ref]
-{| tS' = tS [ ta mapsto tv ] |} 
-{| conf tS (intE (ref tv)) --> conf tS' (intE tv) |}
-{| fresh ta |}
+{| tS' = tS [ ta mapsto tv ] | } 
+{| conf tS (intE (ref tv)) -> conf tS' (intE ta) |}
+{| fresh (ta) |}
 
 \and
 \inferrule[T-deref]
-{| (ta, tv) member tS |}
-{| conf tS (intE (!ta)) --> conf tS (intE tv) |}
+{| tv = tS(ta) |}
+{| conf tS (intE (!ta)) -> conf tS (intE tv) |}
 
 \and
 \inferrule[T-ass]
 {| tS' = tS [ ta mapsto tv ] |} 
-{| conf tS (intE (ta := tv)) --> conf tS' (intE tv) |}
+{| conf tS (intE (ta := tv)) -> conf tS' (intE tv) |}
 \end{mathpar}
 
 \caption{Simple ML-like language}
@@ -66,7 +73,8 @@ ie   ::=  iv | ix | ie lop ie | getLabel | setLabel ie
 iE   ::=  iE lop ie | iv lop iE | setLabel iE | fork iE 
        |  send iE ie ie | send iv iE ie | send iv iv iE
        |  ix1, ix2 <= recv. ie ie |  IT tE
-Q    ::=  nil | (il, id, ie) :: Q
+io   ::=  (il, id ie)
+Q    ::=  nil | io :: Q
 
 te   ::=  cdots | TI ie
 tE   ::=  cdots | TI iE
@@ -76,33 +84,48 @@ ix1, ix2 <= brecv . ie @= IT (let tx = TI (ix1, ix2 <= recv. ie  (IT tx)) in tx)
 \end{code}
 
 \begin{mathpar}
+\inferrule[I-step]
+{|
+  conf tS (intE te) -> conf tS (intE te')
+|}
+{|
+iconf iS (lconf id il tS (IT (intE te)), ldots)
+.->
+iconf iS (lconf id il tS' (IT (intE te')), ldots)
+|}
+
+\and
 \inferrule[I-getLabel]
 { }
 {|
 iconf iS (lconf id il tS (iniE (getLabel)), ldots)
--->
+.->
 iconf iS (lconf id il tS (iniE il), ldots)
 |}
+
 \and
 \inferrule[I-setLabel]
 { |il canFlowTo il'| }
 {|
 iconf iS (lconf id il tS (iniE (setLabel il')), ldots)
--->
+.->
 iconf iS (lconf id il' tS (iniE unit), ldots)
 |}
+
 \and
 \inferrule[I-fork]
 { 
 |iS' = iS [ id' mapsto nil ]|\\
-|tS' = q(tS)|
+|tS' = q(tS)|\\
+|fresh (id')|
 }
 {|
 iconf iS (lconf id il tS (iniE (fork ie)), ldots)
--->
+.->
 iconf iS' (lconf id il tS (iniE id'), ldots, lconf id' il tS' (TI ie))
 |}
-{|fresh (id')|}
+%{|fresh (id')|}
+
 \and
 \inferrule[I-send]
 {
@@ -112,20 +135,23 @@ iconf iS' (lconf id il tS (iniE id'), ldots, lconf id' il tS' (TI ie))
 }
 {|
 iconf iS (lconf id il tS (iniE (send id' il' ie))), ldots)
--->
+.->
 iconf iS' (lconf id il tS (iniE unit), ldots)
 |}
+
 \and
 \inferrule[I-recv]
 {
-| filter il (iS(id)) = (il', id', ie') :: Q'|\\
-| iS' = iS[id mapsto Q']|
+| filter il (iS(id)) = io1 :: cdots :: iok :: (il', id', ie')|\\
+| iS' = iS[id mapsto io1 :: cdots :: iok]|\\
+| ie1'' = {ie'/ix1,id'/ix2} ie1|
 }
 {|
-iconf iS (lconf id il tS (iniE (ix1, ix2 <= recv. ie1 ie2))), ldots)
--->
-iconf iS' (lconf id il tS (iniE ({ie'/ix1,id'/ix2} ie1)), ldots)
+iconf iS (lconf id il tS (iniE (ix1, ix2 <= recv. ie1 ie2)), ldots)
+.->
+iconf iS' (lconf id il tS (iniE ie1''), ldots)
 |}
+
 \and
 \inferrule[I-noRecv]
 {
@@ -133,20 +159,31 @@ iconf iS' (lconf id il tS (iniE ({ie'/ix1,id'/ix2} ie1)), ldots)
 | iS' = iS[id mapsto nil]|
 }
 {|
-iconf iS (lconf id il tS (iniE (ix1, ix2 <= recv. ie1 ie2))), ldots)
--->
+iconf iS (lconf id il tS (iniE (ix1, ix2 <= recv. ie1 ie2)), ldots)
+.->
 iconf iS' (lconf id il tS (iniE ie2), ldots)
 |}
+
+\inferrule[I-pure]
+{| ie .~> ie'|}
+{|
+  iconf iS (lconf id il tS ie)
+.->
+  iconf iS (lconf id il tS ie)
+|}
+
 \and
 \inferrule[I-labelOp]
 { |denot (il lop il') = iv|}
-{ |iniE (il lop il') --> iniE iv| }
+{ |iniE (il lop il') .~> iniE iv| }
+
 \and
 \inferrule[I-border]
-{ } {| iniE (IT (TI (ie))) --> iniE ie |}
+{ } {| iniE (IT (TI (ie))) .~> iniE ie |}
+
 \and
 \inferrule[T-border]
-{ } {| intE (TI (IT (te))) --> intE te |}
+{ } {| intE (TI (IT (te))) ~> intE te |}
 \end{mathpar}
 \caption{IFC language nad general embedding.}
 \label{fig:ml}
@@ -168,10 +205,10 @@ function is simply the identity function, i.e.,
 In the case of extending
 \begin{mathpar}
 \inferrule[I-bool]
-{ |b member {true, false}|  } {| iniE (IT b) --> iniE b |}
+{ |b member {true, false}|  } {| iniE (IT b) -> iniE b |}
 \and
 \inferrule[T-bool]
-{ |b member {true, false}| } {| intE (TI b) --> intE b |}
+{ |b member {true, false}| } {| intE (TI b) -> intE b |}
 \end{mathpar}
 
 
