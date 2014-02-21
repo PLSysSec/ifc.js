@@ -89,9 +89,9 @@ ix1, ix2 <= brecv . ie @= IT (let tx = TI (ix1, ix2 <= recv. ie  (IT tx)) in tx)
 conf tS (te) -> conf tS' te'
 |}
 {|
-iconf iS (lconf id il tS (iniE te), ldots)
+iconf iS (lconf id il tS (iniE (IT te)), ldots)
 .->
-iconf iS (lconf id il tS' (iniE te'), ldots)
+iconf iS (lconf id il tS' (iniE (IT te')), ldots)
 |}
 
 \and
