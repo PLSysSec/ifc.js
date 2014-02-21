@@ -387,9 +387,11 @@
 %format filter (x) (y) = y "\preceq" x
 %format (denot (a)) = "\llbracket " a "\rrbracket"
 
-%format :: = "\triangleleft"
 
 %format conf (s) (e) = "\langle "s", "e"\rangle"
 %format lconf (i) (l) (s) (e) = "\langle "s", "e"\rangle_{"i"}^{"l"}"
 %%format iconf (t) (s) = { t inlinesep s }
 %format iconf (t) (s) = { t inlinesep s }
+
+%format iHole (x) = "\ifc{["x"]}"
+%format tHole (x) = "\tar{["x"]}"

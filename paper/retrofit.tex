@@ -18,7 +18,7 @@ works for a simple, ML-like language, with references and general recursion.
 \begin{code}
 tv   ::= \tx.te | true | false | ta
 te   ::= tv | tx | te te | if te then te else te | ref te | !te | te := te | diverge
-tE   ::= tE te | tv tE | if tE then te else te
+tE   ::= tHole | tE te | tv tE | if tE then te else te
        | ref tE | !tE | tE := te | tv := tE 
 
 te1 ; te2            @= (\tx.te2) te1  where  tx notmember FV(te2)
@@ -70,7 +70,7 @@ lop  ::=  canFlowTo | lub | glb
 iv   ::=  id | il | true | false | unit
 ie   ::=  iv | ix | ie lop ie | getLabel | setLabel ie
        |  fork ie | send ie ie ie | ix1, ix2 <= recv. ie ie |  IT te
-iE   ::=  iE lop ie | iv lop iE | setLabel iE | fork iE 
+iE   ::=  iHole | iE lop ie | iv lop iE | setLabel iE | fork iE 
        |  send iE ie ie | send iv iE ie | send iv iv iE
        |  ix1, ix2 <= recv. ie ie |  IT tE
 io   ::=  (il, id ie)
