@@ -1,14 +1,12 @@
 \section{Retrofitting languages with IFC}
 \label{sec:retrofit}
 
-We consider language of the form |(S, E, e, ->)|, where |S| is some
-global state, |E| is an evaluation context, |e| is an expression in
-the language and |->| is the reduction relation on the state,
-evaluation context and expression;
-we say expression |e| in context |E| and state |S| reduces to
-expression |e'| in context |E'| and state |S'| and write
-|conf S (E[e]) -> conf S' (E'[e'])|.
-$|->| : (|S| \times |E| \times |e|) \rightharpoonup (|S| \times |E| \times |e|)$
+
+We consider languages in the form of abstract state machines |(tS, tE,
+te, ->)|, where |tS| is the global machine state, |tE| is an evaluation
+context, |te| is an expression in the language and |->| is the
+reduction relation on such configuration, i.e., $|->| : (|tS| \times
+|tE| \times |te|) \rightharpoonup (|tS| \times |tE| \times |te|)$
 
 
 To get the flavor for our approach, we will first show how our embedding
@@ -210,6 +208,15 @@ In the case of extending
 \inferrule[T-bool]
 { |b member {true, false}| } {| intE (TI b) -> intE b |}
 \end{mathpar}
+
+
+
+\subsection{Generalizing further}
+
+\begin{itemize}
+\item Label transition systems.
+\item Arbitrary scheduling policies $\alpha$
+\end{itemize}
 
 
 
