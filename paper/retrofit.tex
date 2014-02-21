@@ -29,19 +29,19 @@ let tx = te1 in te2  @= (\tx.te2) te1
 \and
 \inferrule[T-pure]
 {| te ~> te'|}
-{| conf tS te -> conf tS te' |}
+{| conf tS (iniE te) -> conf tS (iniE te') |}
 
 \and
 \inferrule[T-app]
-{ } {| intE ((\x.te) tv) ~> intE ({tv/x} tv) |}
+{ } {| (\x.te) tv ~> {tv/x} te |}
 
 \and
 \inferrule[T-ifTrue]
-{ } {| intE (if true then te1 else te2)  ~> intE te1 |}
+{ } {| if true then te1 else te2  ~> te1|}
 
 \and
 \inferrule[T-ifFalse]
-{ } {| intE (if false then te1 else te2) ~> intE te2 |}
+{ } {| if false then te1 else te2  ~> te2|}
 
 \and
 \inferrule[T-ref]
@@ -74,7 +74,7 @@ iE   ::=  iE lop ie | iv lop iE | setLabel iE | fork iE
        |  send iE ie ie | send iv iE ie | send iv iv iE
        |  ix1, ix2 <= recv. ie ie |  IT tE
 io   ::=  (il, id ie)
-Q    ::=  nil | io :: Q
+Q    ::=  nil | io , Q
 
 te   ::=  cdots | TI ie
 tE   ::=  cdots | TI iE
@@ -131,7 +131,7 @@ iconf iS' (lconf id il tS (iniE id'), ldots, lconf id' il tS' (TI ie))
 {
 |il canFlowTo il'|\\
 |iS(id') = Q|\\
-|iS' = iS [ id' mapsto (il', id,  ie) :: Q ]|
+|iS' = iS [ id' mapsto (il', id,  ie) , Q ]|
 }
 {|
 iconf iS (lconf id il tS (iniE (send id' il' ie))), ldots)
@@ -142,8 +142,8 @@ iconf iS' (lconf id il tS (iniE unit), ldots)
 \and
 \inferrule[I-recv]
 {
-| filter il (iS(id)) = io1 :: cdots :: iok :: (il', id', ie')|\\
-| iS' = iS[id mapsto io1 :: cdots :: iok]|\\
+| filter il (iS(id)) = io1 , ... , iok , (il', id', ie')|\\
+| iS' = iS[id mapsto io1 , ... , iok]|\\
 | ie1'' = {ie'/ix1,id'/ix2} ie1|
 }
 {|
@@ -167,19 +167,19 @@ iconf iS' (lconf id il tS (iniE ie2), ldots)
 \inferrule[I-pure]
 {| ie .~> ie'|}
 {|
-  iconf iS (lconf id il tS ie)
+  iconf iS (lconf id il tS (iniE ie))
 .->
-  iconf iS (lconf id il tS ie)
+iconf iS (lconf id il tS (iniE ie))
 |}
 
 \and
 \inferrule[I-labelOp]
 { |denot (il lop il') = iv|}
-{ |iniE (il lop il') .~> iniE iv| }
+{ |il lop il' .~> iv| }
 
 \and
 \inferrule[I-border]
-{ } {| iniE (IT (TI (ie))) .~> iniE ie |}
+{ } {| IT (TI (ie)) .~> ie |}
 
 \and
 \inferrule[T-border]
@@ -194,9 +194,9 @@ flow to |il|. Specifically, if |Q| is the empty list |nil|, the
 function is simply the identity function, i.e.,
 |filter il nil = nil|; otherwise:
 \[
-|filter il ((il', id, ie) :: Q )| = \left\{
+|filter il ((il', id, ie) , Q )| = \left\{
 \begin{array}{l l}
-|(il', id, ie) :: filter il Q| & \quad \text{if |il' canFlowTo il|}\\
+|(il', id, ie) , filter il Q| & \quad \text{if |il' canFlowTo il|}\\
 |filter il Q| & \quad \text{otherwise}
 \end{array} \right.
 \]
