@@ -77,7 +77,8 @@ Q    ::=  nil | io , Q
 te   ::=  cdots | TI ie
 tE   ::=  cdots | TI iE
 
-iTE  ::=  THole | iTE, lconf id il tS ie
+it   ::=  lconf id il tS ie
+iTE  ::=  THole | iTE, it
 
 ix1, ix2 <= brecv . ie @= IT (let tx = TI (ix1, ix2 <= recv. ie  (IT tx)) in tx)
 \end{code}
