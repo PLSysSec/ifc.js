@@ -31,15 +31,15 @@ let tx = te1 in te2  @= (\tx.te2) te1
 
 \and
 \inferrule[T-app]
-{ } {| conf tS ((\x.te) tv) ~> conf tS ({tv/x} te) |}
+{ } {| conf tS ((\x.te) tv) -> conf tS ({tv/x} te) |}
 
 \and
 \inferrule[T-ifTrue]
-{ } {| conf tS (if true then te1 else te2)  ~> conf tS te1|}
+{ } {| conf tS (if true then te1 else te2) -> conf tS te1|}
 
 \and
 \inferrule[T-ifFalse]
-{ } {| conf tS (if false then te1 else te2)  ~> conf tS te2|}
+{ } {| conf tS (if false then te1 else te2) -> conf tS te2|}
 
 \and
 \inferrule[T-ref]
