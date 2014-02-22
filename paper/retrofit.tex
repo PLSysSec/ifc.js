@@ -150,9 +150,9 @@ iconf iS (tconf id il' unit)
 |fresh (id')|
 }
 {|
-iconf iS (lconf id il tS (iniE (fork ie)), ldots)
+iconf iS (lconf id il tS (fork ie), ldots)
 .->
-iconf iS' (lconf id il tS (iniE id'), ldots, lconf id' il tS' (TI ie))
+iconf iS' (lconf id il tS id', ldots, lconf id' il tS' (TI ie))
 |}
 %{|fresh (id')|}
 
