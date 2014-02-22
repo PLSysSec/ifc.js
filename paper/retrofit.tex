@@ -15,7 +15,7 @@ works for a simple, ML-like language, with references and general recursion.
 \begin{figure}
 \begin{code}
 tv   ::= \tx.te | true | false | ta
-te   ::= tv | tx | te te | if te then te else te | ref te | !te | te := te | diverge
+te   ::= tv | tx | te te | if te then te else te | ref te | !te | te := te
 tE   ::= tHole | tE te | tv tE | if tE then te else te
        | ref tE | !tE | tE := te | tv := tE 
 
@@ -77,6 +77,7 @@ Q    ::=  nil | io , Q
 te   ::=  cdots | TI ie
 tE   ::=  cdots | TI iE
 
+iTE  ::=  THole | iTE, lconf id il tS ie
 
 ix1, ix2 <= brecv . ie @= IT (let tx = TI (ix1, ix2 <= recv. ie  (IT tx)) in tx)
 \end{code}
@@ -95,6 +96,19 @@ iS', (iniTE (lconf id il' tS (iniE ie')))
 |}
 
 \and
+\inferrule[I-evalCtx2]
+{|
+iS ,(iniTE (lconf id il tS ie))
+.-.>
+iS', (iniTE' (lconf id il' tS ie'))
+|}
+{|
+iS ,(iniTE (lconf id il tS (iniE ie)))
+.-.>
+iS', (iniTE' (lconf id il' tS (iniE ie')))
+|}
+
+\and
 \inferrule[I-step]
 {|
 conf tS (te) -> conf tS' te'
@@ -105,15 +119,6 @@ iS, (iniTE (lconf id il tS (IT te)))
 iS, (iniTE (lconf id il tS' (IT te')))
 |}
 
-%% \and
-%% \inferrule[I-getLabel]
-%% { }
-%% {|
-%% iconf iS (lconf id il tS getLabel, ldots)
-%% .->
-%% iconf iS (lconf id il tS il, ldots)
-%% |}
-
 \and
 \inferrule[I-getLabel]
 { }
@@ -122,15 +127,6 @@ iconf iS (tconf id il getLabel)
 .->
 iconf iS (tconf id il il)
 |}
-
-%% \and
-%% \inferrule[I-setLabel]
-%% { |il canFlowTo il'| }
-%% {|
-%% iconf iS (lconf id il tS (iniE (setLabel il')), ldots)
-%% .->
-%% iconf iS (lconf id il' tS (iniE unit), ldots)
-%% |}
 
 \and
 \inferrule[I-setLabel]
@@ -156,19 +152,6 @@ iS', iniTE' (lconf id' il tS' (TI ie))
 |}
 %{|fresh (id')|}
 
-%% \and
-%% \inferrule[I-send]
-%% {
-%% |il canFlowTo il'|\\
-%% |iS(id') = Q|\\
-%% |iS' = iS [ id' mapsto (il', id,  ie) , Q ]|
-%% }
-%% {|
-%% iconf iS (lconf id il tS (iniE (send id' il' ie))), ldots)
-%% .->
-%% iconf iS' (lconf id il tS (iniE unit), ldots)
-%% |}
-
 \and
 \inferrule[I-send]
 {
@@ -182,19 +165,6 @@ iconf iS  (tconf id il (send id' il' ie))
 iconf iS' (tconf id il unit)
 |}
 
-%% \and
-%% \inferrule[I-recv]
-%% {
-%% | filter il (iS(id)) = io1 , ... , iok , (il', id', ie')|\\
-%% | iS' = iS[id mapsto io1 , ... , iok]|\\
-%% | ie1'' = {ie'/ix1,id'/ix2} ie1|
-%% }
-%% {|
-%% iconf iS (lconf id il tS (iniE (ix1, ix2 <= recv. ie1 ie2)), ldots)
-%% .->
-%% iconf iS' (lconf id il tS (iniE ie1''), ldots)
-%% |}
-
 \and
 \inferrule[I-recv]
 {
@@ -206,18 +176,6 @@ iconf iS  (tconf id il (ix1, ix2 <= recv. ie1 ie2))
 .->
 iconf iS' (tconf id il ({ie'/ix1,id'/ix2} ie1))
 |}
-
-%% \and
-%% \inferrule[I-noRecv]
-%% {
-%% | filter il (iS(id)) = nil|\\
-%% | iS' = iS[id mapsto nil]|
-%% }
-%% {|
-%% iconf iS (lconf id il tS (iniE (ix1, ix2 <= recv. ie1 ie2)), ldots)
-%% .->
-%% iconf iS' (lconf id il tS (iniE ie2), ldots)
-%% |}
 
 \and
 \inferrule[I-noRecv]
