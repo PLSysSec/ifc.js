@@ -90,9 +90,9 @@ iconf iS (tconf id il ie)
 iconf iS' (tconf id il' ie')
 |}
 {|
-iconf iS (iniTE (lconf id il tS ie))
+iconf iS (iniTE (lconf id il tS (iniE ie)))
 .->
-iconf iS' (iniTE (lconf id il' tS ie'))
+iconf iS' (iniTE (lconf id il' tS (iniE ie')))
 |}
 
 \and
