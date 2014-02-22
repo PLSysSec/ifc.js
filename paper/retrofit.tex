@@ -25,37 +25,37 @@ let tx = te1 in te2  @= (\tx.te2) te1
 
 \begin{mathpar}
 \and
-\inferrule[T-pure]
-{| te ~> te'|}
-{| conf tS (intE te) -> conf tS (intE te') |}
+\inferrule[T-evalCtx]
+{| conf tS te -> conf tS' te')|}
+{| conf tS (intE te) -> conf tS' (intE te') |}
 
 \and
 \inferrule[T-app]
-{ } {| (\x.te) tv ~> {tv/x} te |}
+{ } {| conf tS ((\x.te) tv) ~> conf tS ({tv/x} te) |}
 
 \and
 \inferrule[T-ifTrue]
-{ } {| if true then te1 else te2  ~> te1|}
+{ } {| conf tS (if true then te1 else te2)  ~> conf tS te1|}
 
 \and
 \inferrule[T-ifFalse]
-{ } {| if false then te1 else te2  ~> te2|}
+{ } {| conf tS (if false then te1 else te2)  ~> conf tS te2|}
 
 \and
 \inferrule[T-ref]
 {| tS' = tS [ ta mapsto tv ] | } 
-{| conf tS (intE (ref tv)) -> conf tS' (intE ta) |}
+{| conf tS (ref tv) -> conf tS' ta |}
 {| fresh (ta) |}
 
 \and
 \inferrule[T-deref]
 {| tv = tS(ta) |}
-{| conf tS (intE (!ta)) -> conf tS (intE tv) |}
+{| conf tS (!ta) -> conf tS tv |}
 
 \and
 \inferrule[T-ass]
 {| tS' = tS [ ta mapsto tv ] |} 
-{| conf tS (intE (ta := tv)) -> conf tS' (intE tv) |}
+{| conf tS (ta := tv) -> conf tS' tv |}
 \end{mathpar}
 
 \caption{Simple ML-like language}
@@ -215,6 +215,7 @@ In the case of extending
 
 \begin{itemize}
 \item Label transition systems.
+\item Non-deterministic reduction.
 \item Arbitrary scheduling policies $\alpha$
 \end{itemize}
 
