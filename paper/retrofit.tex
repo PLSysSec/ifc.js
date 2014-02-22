@@ -141,7 +141,7 @@ iconf iS (tconf id il' unit)
 \inferrule[I-fork]
 { 
 |iS' = iS [ id' mapsto nil ]|\\
-|tS' = q(tS)|\\
+|tS' = klone(tS)|\\
 |fresh (id')|\\
 |iTE' THole = iniTE (lconf id il tS id'), THole|
 }
