@@ -25,8 +25,8 @@
 %format oplus = "\oplus"
 
 %format ~>  = "\leadsto"
-%format .-> = "\overset{\alpha}{\hookrightarrow}"
-%format .~> = "\rightarrowtriangle"
+%format .-> = "\hookrightarrow"
+%format .-.> = "\rightarrowtriangle"
 %format --> = "\longrightarrow"
 %format ==> = "\lto^*"
 %format <=  = "\Leftarrow"
@@ -121,7 +121,8 @@
 %format iTE1''
 %format iTE2''
 %format iTE3''
-%format iniTE (e) = iTE"\ifc{[}"e"\ifc{]}"
+%format (iniTE (e)) = iTE"\ifc{[}"e"\ifc{]}"
+%format (iniTE' (e)) = iTE'"\ifc{[}"e"\ifc{]}"
 %format tconf (i) (l) (e) = "\langle "e"\rangle_{"i"}^{"l"}"
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -423,9 +424,10 @@
 
 
 %format conf (s) (e) = "\langle "s", "e"\rangle"
-%format lconf (i) (l) (s) (e) = "\langle "s", "e"\rangle^{"i"}_{"l"}"
-%%format iconf (t) (s) = { t inlinesep s }
-%format iconf (t) (s) = { t inlinesep s }
+%format (lconf (i) (l) (s) (e)) = "\langle "s", "e"\rangle^{"i"}_{"l"}"
+%%format iconf (t) (s) = { t , s }
+%format iconf (t) (s) = { t , s }
 
 %format iHole (x) = "\ifc{["x"]}"
 %format tHole (x) = "\tar{["x"]}"
+%format THole (x) = "\ifc{["x"]}"

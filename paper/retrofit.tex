@@ -77,7 +77,6 @@ Q    ::=  nil | io , Q
 te   ::=  cdots | TI ie
 tE   ::=  cdots | TI iE
 
-iTE  ::=  iTE, lconf id il tS ie, ldots
 
 ix1, ix2 <= brecv . ie @= IT (let tx = TI (ix1, ix2 <= recv. ie  (IT tx)) in tx)
 \end{code}
@@ -90,9 +89,9 @@ iconf iS (tconf id il ie)
 iconf iS' (tconf id il' ie')
 |}
 {|
-iconf iS (iniTE (lconf id il tS (iniE ie)))
-.->
-iconf iS' (iniTE (lconf id il' tS (iniE ie')))
+iS ,(iniTE (lconf id il tS (iniE ie)))
+.-.>
+iS', (iniTE (lconf id il' tS (iniE ie')))
 |}
 
 \and
@@ -101,9 +100,9 @@ iconf iS' (iniTE (lconf id il' tS (iniE ie')))
 conf tS (te) -> conf tS' te'
 |}
 {|
-iconf iS (iniTE (lconf id il tS (IT te)))
-.->
-iconf iS (iniTE (lconf id il tS' (IT te')))
+iS, (iniTE (lconf id il tS (IT te)))
+.-.>
+iS, (iniTE (lconf id il tS' (IT te')))
 |}
 
 %% \and
@@ -147,12 +146,13 @@ iconf iS (tconf id il' unit)
 { 
 |iS' = iS [ id' mapsto nil ]|\\
 |tS' = q(tS)|\\
-|fresh (id')|
+|fresh (id')|\\
+|iTE' THole = iniTE (lconf id il tS id'), THole|
 }
 {|
-iconf iS (lconf id il tS (fork ie), ldots)
-.->
-iconf iS' (lconf id il tS id', ldots, lconf id' il tS' (TI ie))
+iS, iniTE (lconf id il tS (fork ie))
+.-.>
+iS', iniTE' (lconf id' il tS' (TI ie))
 |}
 %{|fresh (id')|}
 
