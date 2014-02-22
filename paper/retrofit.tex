@@ -82,32 +82,63 @@ ix1, ix2 <= brecv . ie @= IT (let tx = TI (ix1, ix2 <= recv. ie  (IT tx)) in tx)
 \end{code}
 
 \begin{mathpar}
+\inferrule[I-evalCtx]
+{|
+iconf iS (lconf id il tS ie, ldots)
+.->
+iconf iS' (lconf id il' tS' ie', ldots)
+|}
+{|
+iconf iS (lconf id il tS (iniE ie), ldots)
+.->
+iconf iS' (lconf id il' tS' (iniE ie'), ldots)
+|}
+
+\and
 \inferrule[I-step]
 {|
 conf tS (te) -> conf tS' te'
 |}
 {|
-iconf iS (lconf id il tS (iniE (IT te)), ldots)
+iconf iS (lconf id il tS (IT te), ldots)
 .->
-iconf iS (lconf id il tS' (iniE (IT te')), ldots)
+iconf iS (lconf id il tS' (IT te'), ldots)
 |}
+
+%% \and
+%% \inferrule[I-getLabel]
+%% { }
+%% {|
+%% iconf iS (lconf id il tS getLabel, ldots)
+%% .->
+%% iconf iS (lconf id il tS il, ldots)
+%% |}
 
 \and
 \inferrule[I-getLabel]
 { }
 {|
-iconf iS (lconf id il tS (iniE (getLabel)), ldots)
+iconf iS (inTE id il getLabel)
 .->
-iconf iS (lconf id il tS (iniE il), ldots)
+iconf iS (inTE id il il)
 |}
+
+%% \and
+%% \inferrule[I-setLabel]
+%% { |il canFlowTo il'| }
+%% {|
+%% iconf iS (lconf id il tS (iniE (setLabel il')), ldots)
+%% .->
+%% iconf iS (lconf id il' tS (iniE unit), ldots)
+%% |}
 
 \and
 \inferrule[I-setLabel]
 { |il canFlowTo il'| }
 {|
-iconf iS (lconf id il tS (iniE (setLabel il')), ldots)
+iconf iS (inTE id il (setLabel il'))
 .->
-iconf iS (lconf id il' tS (iniE unit), ldots)
+iconf iS (inTE id il' unit)
 |}
 
 \and
@@ -124,6 +155,19 @@ iconf iS' (lconf id il tS (iniE id'), ldots, lconf id' il tS' (TI ie))
 |}
 %{|fresh (id')|}
 
+%% \and
+%% \inferrule[I-send]
+%% {
+%% |il canFlowTo il'|\\
+%% |iS(id') = Q|\\
+%% |iS' = iS [ id' mapsto (il', id,  ie) , Q ]|
+%% }
+%% {|
+%% iconf iS (lconf id il tS (iniE (send id' il' ie))), ldots)
+%% .->
+%% iconf iS' (lconf id il tS (iniE unit), ldots)
+%% |}
+
 \and
 \inferrule[I-send]
 {
@@ -132,23 +176,47 @@ iconf iS' (lconf id il tS (iniE id'), ldots, lconf id' il tS' (TI ie))
 |iS' = iS [ id' mapsto (il', id,  ie) , Q ]|
 }
 {|
-iconf iS (lconf id il tS (iniE (send id' il' ie))), ldots)
+iconf iS  (inTE id il (send id' il' ie))
 .->
-iconf iS' (lconf id il tS (iniE unit), ldots)
+iconf iS' (inTE id il unit)
 |}
+
+%% \and
+%% \inferrule[I-recv]
+%% {
+%% | filter il (iS(id)) = io1 , ... , iok , (il', id', ie')|\\
+%% | iS' = iS[id mapsto io1 , ... , iok]|\\
+%% | ie1'' = {ie'/ix1,id'/ix2} ie1|
+%% }
+%% {|
+%% iconf iS (lconf id il tS (iniE (ix1, ix2 <= recv. ie1 ie2)), ldots)
+%% .->
+%% iconf iS' (lconf id il tS (iniE ie1''), ldots)
+%% |}
 
 \and
 \inferrule[I-recv]
 {
 | filter il (iS(id)) = io1 , ... , iok , (il', id', ie')|\\
 | iS' = iS[id mapsto io1 , ... , iok]|\\
-| ie1'' = {ie'/ix1,id'/ix2} ie1|
 }
 {|
-iconf iS (lconf id il tS (iniE (ix1, ix2 <= recv. ie1 ie2)), ldots)
+iconf iS  (inTE id il (ix1, ix2 <= recv. ie1 ie2))
 .->
-iconf iS' (lconf id il tS (iniE ie1''), ldots)
+iconf iS' (inTE id il ({ie'/ix1,id'/ix2} ie1))
 |}
+
+%% \and
+%% \inferrule[I-noRecv]
+%% {
+%% | filter il (iS(id)) = nil|\\
+%% | iS' = iS[id mapsto nil]|
+%% }
+%% {|
+%% iconf iS (lconf id il tS (iniE (ix1, ix2 <= recv. ie1 ie2)), ldots)
+%% .->
+%% iconf iS' (lconf id il tS (iniE ie2), ldots)
+%% |}
 
 \and
 \inferrule[I-noRecv]
@@ -157,27 +225,23 @@ iconf iS' (lconf id il tS (iniE ie1''), ldots)
 | iS' = iS[id mapsto nil]|
 }
 {|
-iconf iS (lconf id il tS (iniE (ix1, ix2 <= recv. ie1 ie2)), ldots)
+iconf iS  (inTE id il (ix1, ix2 <= recv. ie1 ie2))
 .->
-iconf iS' (lconf id il tS (iniE ie2), ldots)
+iconf iS' (inTE id il ie2)
 |}
 
-\inferrule[I-pure]
-{| ie .~> ie'|}
-{|
-  iconf iS (lconf id il tS (iniE ie))
-.->
-iconf iS (lconf id il tS (iniE ie))
-|}
-
-\and
 \inferrule[I-labelOp]
-{ |denot (il lop il') = iv|}
-{ |il lop il' .~> iv| }
+{ |denot (il1 lop il2) = iv|}
+{ |iconf iS (inTE id il (il1 lop il2)) .-> iconf iS (inTE id il iv)| }
 
 \and
 \inferrule[I-border]
-{ } {| IT (TI (ie)) .~> ie |}
+{ }
+{|
+iconf iS (inTE id il (IT (TI (ie))))
+.->
+iconf iS (inTE id il ie)
+|}
 
 \and
 \inferrule[T-border]

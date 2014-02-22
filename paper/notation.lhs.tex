@@ -106,6 +106,24 @@
 %format e2''
 %format e3''
 
+
+%format iTE = "\ifc{T}"
+%format iTE'
+%format iTE''
+%format iTEi = iTE"_"i
+%format iTEi' = iTE'"_"i
+%format iTEi'' = iTE''"_"i
+%format iTE1
+%format iTE2
+%format iTE3
+%format iTE1'
+%format iTE2'
+%format iTE3'
+%format iTE1''
+%format iTE2''
+%format iTE3''
+%format inTE (i) (l) (e) = "\langle "e"\rangle_{"i"}^{"l"}"
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% IFC state, eval ctx, expression
 \newcommand{\ifc}[1]{\ensuremath{{\color{blue} #1}}}
@@ -405,7 +423,7 @@
 
 
 %format conf (s) (e) = "\langle "s", "e"\rangle"
-%format lconf (i) (l) (s) (e) = "\langle "s", "e"\rangle_{"i"}^{"l"}"
+%format lconf (i) (l) (s) (e) = "\langle "s", "e"\rangle^{"i"}_{"l"}"
 %%format iconf (t) (s) = { t inlinesep s }
 %format iconf (t) (s) = { t inlinesep s }
 
