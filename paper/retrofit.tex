@@ -67,10 +67,12 @@ Typing judgment: $|tyrule tG tS te tt|$
 
 \begin{figure}
 \begin{mathpar}
-
+\inferrule[T-ty-address]
+{}
+{| tyrule tG tS a (ref (tyLookup tS a)) |}
 \end{mathpar}
 
-\caption{Typing rules for ML-like language}
+\caption{Selected typing rules for ML-like language}
 \label{fig:ml-typing}
 \end{figure}
 
