@@ -1,2 +1,62 @@
 \section{Concrete implementation}
 \label{sec:concrete}
+
+The operational semantics we have derived in the previous section
+constitutes an abstract \emph{specification}: a semantics for which
+non-interference is (obviously) true.  This specification can guide the
+design of an information-flow calculus which would not be directly
+derivable from our procedure, but is related to some such derivation.
+For example, in our mini-ML language, the combined semantics requires
+each thread to have a separate ML heap.  In an actual implementation, we
+might like to only have a \emph{single} heap, with some restrictions to
+enforce the illusion of separate heaps.  If these restrictions cause our
+implementation semantics to behave in the same way as the specification
+semantics (modulo some extra conditions), we might hope that we also
+automatically achieve non-interference.
+
+We can make this formal as follows: \Red{Define some notation}
+
+\begin{theorem}
+    Suppose we have a abstract specification language $L$ with machine
+    states $|C|$, evaluation relation $|.->|$ and erasure function $e$.
+    Furthermore we have a proof that this language fulfills termination
+    sensitive non-interference: if $|C1| \approx_l |C2|$ and $|C1|
+    |.->|^* |C1'|$, then there exists a $|C2'|$ such that $|C2| |.->|^*
+    |C2'|$ and $|C1'| \approx_l |C2'|$.
+
+    Next, suppose we have a language $L'$ with machine states $|Q|$,
+    evaluation relation $|.->|'$ and erasure function $e'$.  Given
+    functions $f^{-1} : |C -> Q|$ and $f : |Q -> C|$ relating machine
+    states between $L$ and $L'$, obeying the condition $f^{-1} \circ f =
+    id$.  Then to show termination sensitive non-interference for $L'$,
+    it suffices to show that for every evaluation rule $|Q| |.->|' |Q'|$
+    it is either the case that $f(|Q|) |.->| f(|Q'|)$ or that
+    \ldots
+\end{theorem}
+
+\begin{proof}
+Our proof proceeds along the same lines as a traditional TSNI proof.
+\ldots (wait for the proof to be done)
+\end{proof}
+
+To provide a sense of how these conditions work, we give an example
+use of these theorem:
+
+\begin{theorem}
+    The language described in Figure X satisfies termination sensitive non-interference.
+\end{theorem}
+
+\begin{code}
+\end{code}
+
+
+\begin{figure}
+    \begin{code}
+
+    \end{code}
+
+\caption{ML with a single heap}
+\label{fig:comb}
+\end{figure}
+
+This version
