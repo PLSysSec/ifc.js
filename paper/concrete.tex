@@ -51,9 +51,20 @@ use of these theorem:
 
 
 \begin{figure}
-    \begin{code}
 
-    \end{code}
+\begin{mathpar}
+\inferrule[C-evalCtx]
+{|
+coconf iS tS (cconf id il ie)
+.->
+coconf iS' tS (cconf id il' ie')
+|}
+{|
+coconf iS tS (cconf id il (iniE ie), ldots)
+.->
+iS' ; tS ; sched step (cconf id il' (iniE ie'), ldots)
+|}
+\end{mathpar}
 
 \caption{ML with a single heap}
 \label{fig:comb}
