@@ -280,6 +280,24 @@ In the case of extending
 \end{figure}
 
 
+
+\subsection{Formal Guarantees}
+
+\begin{theorem}[Termination Sensitive Non-Interference (TSNI)]
+  For any two list of tasks |its1|, |its2|, |its2|, label |il|,
+  IFC states |iS1|, |iS2|, |iS1'|, where
+  \[
+    |its1| \approx_{|il|} |its2| \qquad \text{and} \qquad
+    |iconf iS1 its1| |.->|^* |iconf iS1' its1'|
+  \]
+  then there exists a list of tasks |ts2'| and an IFC state |iS2'| such that
+  \[
+    |iconf iS2 its2| |.->|^* |iconf iS2' its2'| \qquad \text{and} \qquad
+    |its1'| \approx_{|il|} |its2'|
+    \ \text{.}
+  \]
+\end{theorem}
+
 \subsection{Generalizing further}
 
 \begin{itemize}
@@ -287,3 +305,14 @@ In the case of extending
 \item Non-deterministic reduction.
 \item Arbitrary scheduling policies $\alpha$
 \end{itemize}
+
+
+
+
+
+
+
+
+
+
+
