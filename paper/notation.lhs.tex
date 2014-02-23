@@ -127,6 +127,9 @@
 %format (iniTE' (e)) = iTE'"\ifc{[}"e"\ifc{]}"
 %format (tconf (i) (l) (e)) = "\langle "tS", "e"\rangle^{"i"}_{"l"}"
 
+%format coconf (t) (h) (s) = t ; h ; { s }
+%format (cconf (i) (l) (e)) = "\langle "e"\rangle^{"i"}_{"l"}"
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% IFC state, eval ctx, expression
 \newcommand{\ifc}[1]{\ensuremath{{\color{blue} #1}}}
@@ -491,3 +494,9 @@
 %format klone1''
 %format klone2''
 %format klone3''
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Combined state, eval ctx, expression
+
+%format coconf (t) (h) (s) = t ; h ; { s }
+%format (cconf (i) (l) (e)) = "\langle "e"\rangle^{"i"}_{"l"}"
