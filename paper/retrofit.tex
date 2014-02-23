@@ -96,6 +96,17 @@ ix1, ix2 <= brecv . ie @= IT (let tx = TI (ix1, ix2 <= recv. ie  (IT tx)) in tx)
 \end{figure}
 
 \begin{figure}
+\begin{align*}
+  &|erase il (iconf iS its) = iconf iS its| \\
+  &|erase il (tconf id il' ie) =| \begin{cases}
+    |tconf id il' bullet| & |il' cantFlowTo il| \\
+    |tconf id il' (erase ie)| & \text{otherwise}
+  \end{cases}
+\end{align*}
+\caption{Erasure function.}
+\end{figure}
+
+\begin{figure}
 \begin{mathpar}
 \inferrule[I-evalCtx]
 {|
