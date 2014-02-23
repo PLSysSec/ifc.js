@@ -6,7 +6,7 @@ We consider languages in the form of abstract state machines |(tS, tE,
 te, ->)|, where |tS| is the global machine state, |tE| is an evaluation
 context, |te| is an expression in the language and |->| is the
 reduction relation on such configuration, i.e., $|->| : (|tS| \times
-|tE| \times |te|) \rightharpoonup (|tS| \times |tE| \times |te|)$
+|tE| \times |te|) \rightharpoonup (|tS| \times |tE| \times |te|)$ \Red{This doesn't match the way the evaluation rules are currently done with a frame rule}
 
 
 To get the flavor for our approach, we will first show how our embedding
