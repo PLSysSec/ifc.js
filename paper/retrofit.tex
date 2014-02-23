@@ -79,7 +79,11 @@ tE   ::=  cdots | TI iE
 
 ix1, ix2 <= brecv . ie @= IT (let tx = TI (ix1, ix2 <= recv. ie  (IT tx)) in tx)
 \end{code}
+\caption{IFC grammar.}
+\label{fig:ifc-grammar}
+\end{figure}
 
+\begin{figure}
 \begin{mathpar}
 \inferrule[I-evalCtx]
 {|
@@ -224,8 +228,8 @@ iconf iS (tconf id il ie)
 \inferrule[T-border]
 { } {| conf tS (intE (TI (IT (te)))) -> conf tS (intE te)|}
 \end{mathpar}
-\caption{IFC language nad general embedding.}
-\label{fig:ml}
+\caption{IFC language and general embedding.}
+\label{fig:ifc}
 \end{figure}
 
 The filter function |filter il Q| removes message whose labels do not
