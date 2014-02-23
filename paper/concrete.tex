@@ -53,16 +53,29 @@ use of these theorem:
 \begin{figure}
 
 \begin{mathpar}
-\inferrule[C-evalCtx]
+\inferrule[I-stepT]
 {|
-coconf iS tS (cconf id il ie)
-.->
-coconf iS' tS (cconf id il' ie')
+conf tS (te) -> conf tS' te'
 |}
 {|
-coconf iS tS (cconf id il (iniE ie), ldots)
+coconf iS tS (cconf id il (iniE (IT te)), ldots)
 .->
-iS' ; tS ; sched step (cconf id il' (iniE ie'), ldots)
+iS ; tS' ; sched step (cconf id il (iniE (IT te')), ldots)
+|}
+
+\and
+% This rule is not complete, needs the FV condition
+\inferrule[C-fork]
+{ 
+|iS' = iS [ id' mapsto nil ]|\\
+|it1 = cconf id il (iniE id')|\\
+|itnew = cconf id' il (TI ie)|\\
+|fresh (id')|
+}
+{|
+coconf iS tS (lconf id il (iniE (fork ie)), ldots)
+.->
+iS'; tS; sched fork (it1, ldots, itnew)
 |}
 \end{mathpar}
 
