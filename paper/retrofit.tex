@@ -65,7 +65,7 @@ let tx = te1 in te2  @= (\tx.te2) te1
 \begin{figure}
 \begin{code}
 lop  ::=  canFlowTo | lub | glb
-iv   ::=  id | il | true | false | unit
+iv   ::=  id | il | true | false | unit | IT tv
 ie   ::=  iv | ix | ie lop ie | getLabel | setLabel ie
        |  fork ie | send ie ie ie | ix1, ix2 <= recv. ie ie |  IT te
 iE   ::=  iHole | iE lop ie | iv lop iE | setLabel iE | fork iE 
@@ -76,9 +76,6 @@ Q    ::=  nil | io , Q
 
 te   ::=  cdots | TI ie
 tE   ::=  cdots | TI iE
-
-it   ::=  lconf id il tS ie
-iTE  ::=  THole | iTE, it
 
 ix1, ix2 <= brecv . ie @= IT (let tx = TI (ix1, ix2 <= recv. ie  (IT tx)) in tx)
 \end{code}
@@ -91,44 +88,52 @@ iconf iS (tconf id il ie)
 iconf iS' (tconf id il' ie')
 |}
 {|
-iS ,(iniTE (lconf id il tS (iniE ie)))
-.-.>
-iS', sched step (iniTE (lconf id il' tS (iniE ie')))
+iconf iS (lconf id il tS (iniE ie), ldots)
+.->
+iS' ; sched step (lconf id il' tS (iniE ie'), ldots)
 |}
 
 \and
-\inferrule[I-evalCtx2]
+\inferrule[I-done]
 {|
-iS ,(iniTE (lconf id il tS ie))
-.-.>
-iS', (iniTE' (lconf id il' tS ie'))
 |}
 {|
-iS ,(iniTE (lconf id il tS (iniE ie)))
-.-.>
-iS', (iniTE' (lconf id il' tS (iniE ie')))
+iconf iS (lconf id il tS iv, ldots)
+.->
+iS ; sched done (lconf id il tS iv, ldots)
 |}
 
 \and
-\inferrule[I-step]
+\inferrule[I-stepT]
 {|
 conf tS (te) -> conf tS' te'
 |}
 {|
-iS, (iniTE (lconf id il tS (IT te)))
-.-.>
-iS, sched step (iniTE (lconf id il tS' (IT te')))
+iconf iS (lconf id il tS (iniE (IT te)), ldots)
+.->
+iS ; sched step (lconf id il tS' (iniE (IT te')), ldots)
+|}
+
+\and
+\inferrule[I-noStepT]
+{|
+conf tS (te) -/> 
+|}
+{|
+iconf iS (lconf id il tS (iniE (IT te)), ldots)
+.->
+iS ; sched noStep (lconf id il tS (iniE (IT te)), ldots)
 |}
 
 \and
 \inferrule[I-noStep]
 {|
-it nostep
+it .-/> 
 |}
 {|
-iS, (iniTE it)
-.-.>
-iS, sched noStep (iniTE it)
+iconf iS (it, ldots)
+.->
+iS ; sched noStep (it, ldots)
 |}
 
 \and
@@ -154,13 +159,14 @@ iconf iS (tconf id il' unit)
 { 
 |iS' = iS [ id' mapsto nil ]|\\
 |tS' = klone(tS)|\\
-|fresh (id')|\\
-|iTE' THole = iniTE (lconf id il tS id'), THole|
+|it1 = lconf id il tS (iniE id')|\\
+|itnew = lconf id' il tS' (TI ie)|\\
+|fresh (id')|
 }
 {|
-iS, iniTE (lconf id il tS (fork ie))
-.-.>
-iS', sched fork (iniTE' (lconf id' il tS' (TI ie)))
+iconf iS (lconf id il tS (iniE (fork ie)), ldots)
+.->
+iS'; sched fork (it1, ldots, itnew)
 |}
 %{|fresh (id')|}
 
@@ -247,21 +253,24 @@ In the case of extending
 \begin{figure}
   Round robin:
 \begin{code}
-  sched step (it1, it2, ...)    = it2, ..., it1
-  sched noStep (it1, it2, ...)  = it2, ...
-  sched fork (it1, it2, ...)    = it2, ..., it1
+  sched step (it1, it2, ...)    = {it2, ..., it1}
+  sched done (it1, it2, ...)    = {it2, ...}
+  sched noStep (it1, it2, ...)  = {it2, ...}
+  sched fork (it1, it2, ...)    = {it2, ..., it1}
 \end{code}
   Browbound:
 \begin{code}
-  sched step (it1, it2, ...)    = it1, it2, ...
-  sched noStep (it1, it2, ...)  = it2, ...
-  sched fork (it1, it2, ...)    = it1, it2, ...
+  sched step (it1, it2, ...)    = {it1, it2, ...}
+  sched noStep (it1, it2, ...)  = {it2, ...}
+  sched done (it1, it2, ...)    = {it2, ...}
+  sched fork (it1, it2, ...)    = {it1, it2, ...}
 \end{code}
   Sequential:
 \begin{code}
-  sched step (it1, it2, ...)       = it1, it2, ...
-  sched noStep (it1, it2, ...)     = it1, it2, ...
-  sched fork (it1, it2, ... it1n)  = itn, it1, it2, ...
+  sched step (it1, it2, ...)       = {it1, it2, ...}
+  sched noStep (it1, it2, ...)     = {it1, it2, ...}
+  sched done (it1, it2, ...)       = {it2, ...}
+  sched fork (it1, it2, ... it1n)  = {itn, it1, it2, ...}
 \end{code}
 \caption{scheduling policies}
 \end{figure}

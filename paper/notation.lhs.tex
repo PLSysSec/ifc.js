@@ -24,14 +24,15 @@
 %format glb = "\glb"
 %format oplus = "\oplus"
 
+%format -/> = "\not\to"
 %format ~>  = "\leadsto"
 %format .->  = "\hookrightarrow"
-%format .-.> = "\rightarrowtriangle"
+%format .-/>  = "\not\hookrightarrow"
 %format --> = "\longrightarrow"
 %format ==> = "\lto^*"
 %format <=  = "\Leftarrow"
 %format =>  = "\Rightarrow"
-%format (sched (t) (p) ) = "\alpha_{"t"} ("p")"
+%format (sched (t) (p) ) = "\alpha_{"t"}("{p}")"
 
 
 
@@ -122,9 +123,9 @@
 %format iTE1''
 %format iTE2''
 %format iTE3''
-%format (iniTE (e)) = iTE"\ifc{[}"e"\ifc{]}"
+%format (iniTE (e)) = e, ldots
 %format (iniTE' (e)) = iTE'"\ifc{[}"e"\ifc{]}"
-%format tconf (i) (l) (e) = "\langle "e"\rangle^{"i"}_{"l"}"
+%format (tconf (i) (l) (e)) = "\langle "tS", "e"\rangle^{"i"}_{"l"}"
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% IFC state, eval ctx, expression
@@ -284,9 +285,10 @@
 %format iti = it"_"i
 %format iti' = it'"_"i
 %format iti'' = it''"_"i
+%format itnew = it"_\textrm{new}"
 %format itn = it"_"n
 %format itn' = it'"_"n
-%format iti'' = it''"_"n
+%format itn'' = it''"_"n
 %format it1
 %format it2
 %format it3
@@ -296,6 +298,8 @@
 %format it1''
 %format it2''
 %format it3''
+
+%format not (x) = "{\not "x"}"
 
 
 
@@ -446,8 +450,7 @@
 
 %format conf (s) (e) = "\langle "s", "e"\rangle"
 %format (lconf (i) (l) (s) (e)) = "\langle "s", "e"\rangle^{"i"}_{"l"}"
-%%format iconf (t) (s) = { t , s }
-%format iconf (t) (s) = { t , s }
+%format iconf (t) (s) = t ; { s }
 
 %format iHole (x) = "\ifc{["x"]}"
 %format tHole (x) = "\tar{["x"]}"
