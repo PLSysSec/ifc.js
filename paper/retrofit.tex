@@ -77,7 +77,8 @@ Q    ::=  nil | io , Q
 te   ::=  cdots | TI ie
 tE   ::=  cdots | TI iE
 
-iTE  ::=  THole | iTE, lconf id il tS ie
+it   ::=  lconf id il tS ie
+iTE  ::=  THole | iTE, it
 
 ix1, ix2 <= brecv . ie @= IT (let tx = TI (ix1, ix2 <= recv. ie  (IT tx)) in tx)
 \end{code}
@@ -92,7 +93,7 @@ iconf iS' (tconf id il' ie')
 {|
 iS ,(iniTE (lconf id il tS (iniE ie)))
 .-.>
-iS', (iniTE (lconf id il' tS (iniE ie')))
+iS', sched step (iniTE (lconf id il' tS (iniE ie')))
 |}
 
 \and
@@ -116,7 +117,18 @@ conf tS (te) -> conf tS' te'
 {|
 iS, (iniTE (lconf id il tS (IT te)))
 .-.>
-iS, (iniTE (lconf id il tS' (IT te')))
+iS, sched step (iniTE (lconf id il tS' (IT te')))
+|}
+
+\and
+\inferrule[I-noStep]
+{|
+it nostep
+|}
+{|
+iS, (iniTE it)
+.-.>
+iS, sched noStep (iniTE it)
 |}
 
 \and
@@ -148,7 +160,7 @@ iconf iS (tconf id il' unit)
 {|
 iS, iniTE (lconf id il tS (fork ie))
 .-.>
-iS', iniTE' (lconf id' il tS' (TI ie))
+iS', sched fork (iniTE' (lconf id' il tS' (TI ie)))
 |}
 %{|fresh (id')|}
 
@@ -232,6 +244,27 @@ In the case of extending
 { |b member {true, false}| } {| intE (TI b) -> intE b |}
 \end{mathpar}
 
+\begin{figure}
+  Round robin:
+\begin{code}
+  sched step (it1, it2, ...)    = it2, ..., it1
+  sched noStep (it1, it2, ...)  = it2, ...
+  sched fork                    = sched step
+\end{code}
+  Browbound:
+\begin{code}
+  sched step                    = Id
+  sched noStep (it1, it2, ...)  = it2, ...
+  sched fork                    = Id
+\end{code}
+  Sequential:
+\begin{code}
+  sched step                       = Id
+  sched noStep (it1, it2, ...)     = Id
+  sched fork (it1, it2, ... it1n)  = itn, t1, t2, ...
+\end{code}
+\caption{scheduling policies}
+\end{figure}
 
 
 \subsection{Generalizing further}
