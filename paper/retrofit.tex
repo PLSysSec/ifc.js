@@ -6,7 +6,7 @@ We consider languages in the form of abstract state machines |(tS, tE,
 te, ->)|, where |tS| is the global machine state, |tE| is an evaluation
 context, |te| is an expression in the language and |->| is the
 reduction relation on such configuration, i.e., $|->| : (|tS| \times
-|tE| \times |te|) \rightharpoonup (|tS| \times |tE| \times |te|)$
+|tE| \times |te|) \rightharpoonup (|tS| \times |tE| \times |te|)$ \Red{This doesn't match the way the evaluation rules are currently done with a frame rule}
 
 
 To get the flavor for our approach, we will first show how our embedding
@@ -15,6 +15,7 @@ works for a simple, ML-like language, with references and general recursion.
 \begin{figure}
 \begin{code}
 tv   ::= \tx.te | true | false | ta
+tt   ::= bool | tt -> tt | ref tt
 te   ::= tv | tx | te te | if te then te else te | ref te | !te | te := te
 tE   ::= tHole | tE te | tv tE | if tE then te else te
        | ref tE | !tE | tE := te | tv := tE 
@@ -22,6 +23,8 @@ tE   ::= tHole | tE te | tv tE | if tE then te else te
 te1 ; te2            @= (\tx.te2) te1  where  tx notmember FV(te2)
 let tx = te1 in te2  @= (\tx.te2) te1
 \end{code}
+
+Typing judgment: $|tyrule tG tS te tt|$
 
 \begin{mathpar}
 \and
@@ -60,6 +63,15 @@ let tx = te1 in te2  @= (\tx.te2) te1
 
 \caption{Simple ML-like language}
 \label{fig:ml}
+\end{figure}
+
+\begin{figure}
+\begin{mathpar}
+
+\end{mathpar}
+
+\caption{Typing rules for ML-like language}
+\label{fig:ml-typing}
 \end{figure}
 
 \begin{figure}
