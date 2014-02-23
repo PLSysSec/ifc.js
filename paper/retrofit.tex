@@ -99,11 +99,22 @@ ix1, ix2 <= brecv . ie @= IT (let tx = TI (ix1, ix2 <= recv. ie  (IT tx)) in tx)
 
 \begin{figure}
 \begin{align*}
-  &|erase il (iconf iS its) = iconf iS its| \\
+  &|erase il (iconf iS its) =
+  iconf (erase il iS) (fltr (\ lconf id il' tS te . te = bullet) (map (erasef il) its))| \\
   &|erase il (tconf id il' ie) =| \begin{cases}
     |tconf id il' bullet| & |il' cantFlowTo il| \\
-    |tconf id il' (erase ie)| & \text{otherwise}
-  \end{cases}
+    |tconf id il' (erase il ie)| & \text{otherwise}
+  \end{cases} \\
+  %&|erase il iS [i mapsto Q] = iS [i mapsto (erase il Q)]|\\
+  &|erase il ((il', id, ie), Q) =| \begin{cases}
+    |erase il Q| & |il' cantFlowTo il| \\
+    |(il', id, ie), (erase il Q)| & \text{otherwise}
+  \end{cases} \\
+  &|erase il (send ie1 ie2 ie3) =| \begin{cases}
+    |send ie1 ie2 bullet| & |ie2 cantFlowTo il| \\
+    |send ie1 ie2 (erase il ie3)| & \text{otherwise}
+  \end{cases} \\
+  &\text{In all other cases, |erasef il| is applied homomorphically.}
 \end{align*}
 \caption{Erasure function.}
 \end{figure}
