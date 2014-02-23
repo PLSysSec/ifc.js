@@ -93,6 +93,22 @@
 %format E3''
 %format inE (e) = E"["e"]"
 
+%format G = "\Gamma"
+%format G'
+%format G''
+%format Gi = S"_"i
+%format Gi' = S'"_"i
+%format Gi'' = S''"_"i
+%format G1
+%format G2
+%format G3
+%format G1'
+%format G2'
+%format G3'
+%format G1''
+%format G2''
+%format G3''
+
 %format e'
 %format e''
 %format ei = e"_"i
@@ -107,6 +123,22 @@
 %format e1''
 %format e2''
 %format e3''
+
+%format t = "\tau"
+%format t'
+%format t''
+%format ti = t"_"i
+%format ti' = t'"_"i
+%format ti'' = t''"_"i
+%format t1
+%format t2
+%format t3
+%format t1'
+%format t2'
+%format t3'
+%format t1''
+%format t2''
+%format t3''
 
 %format iTE = "\ifc{T}"
 %format iTE'
@@ -359,7 +391,7 @@
 %format tS2''
 %format tS3''
 
-%format tE = "\tar{E}"
+%format tE = "\tar{"E"}"
 %format tE'
 %format tE''
 %format tEi = tE"_"i
@@ -375,6 +407,22 @@
 %format tE2''
 %format tE3''
 %format intE (e) = tE"\tar{[}"e"\tar{]}"
+
+%format tG = "\tar{"G"}"
+%format tG'
+%format tG''
+%format tGi = tG"_"i
+%format tGi' = tG'"_"i
+%format tGi'' = tG''"_"i
+%format tG1
+%format tG2
+%format tG3
+%format tG1'
+%format tG2'
+%format tG3'
+%format tG1''
+%format tG2''
+%format tG3''
 
 %format te = "\tar{"e"}"
 %format te'
@@ -440,10 +488,29 @@
 %format ta2''
 %format ta3''
 
+%format tt = "\tar{"t"}"
+%formtt tt'
+%formtt tt''
+%formtt tti = tt"_"i
+%formtt tti' = tt'"_"i
+%formtt tti'' = tt''"_"i
+%formtt tt1
+%formtt tt2
+%formtt tt3
+%formtt tt1'
+%formtt tt2'
+%formtt tt3'
+%formtt tt1''
+%formtt tt2''
+%formtt tt3''
+
 %format true  = "\mathbf{true}"
 %format false = "\mathbf{false}"
 %format ref  = "\mathbf{ref}"
 %format diverge = "\tar{\Uparrow}"
+%format bool = "\mathbf{bool}"
+%format ref = "\mathbf{ref}"
+%format -> = "\rightarrow"
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% language
@@ -500,3 +567,7 @@
 
 %format coconf (t) (h) (s) = t ; h ; { s }
 %format (cconf (i) (l) (e)) = "\langle "e"\rangle^{"i"}_{"l"}"
+
+% Going to use S
+
+%format tyrule (g) (s) (e) (t) = g ; s :- e : t
