@@ -318,14 +318,14 @@ In the case of extending
 \subsection{Formal Guarantees}
 
 \begin{theorem}[Termination Sensitive Non-Interference (TSNI)]
-  For any two list of tasks |its1|, |its2|, |its2|, label |il|,
+  For any list of tasks |its1|, |its2|, |its2|, label |il|,
   IFC states |iS1|, |iS2|, |iS1'|, where
   \begin{equation} \label{eq:tsni-lhs}
     |its1| \approx_{|il|} |its2|
     \qquad \text{and} \qquad
     |iconf iS1 its1| |.->|^* |iconf iS1' its1'|
   \end{equation}
-  then there exists a list of tasks |ts2'| and an IFC state |iS2'| such that
+  then there exists a list of tasks |its2'| and an IFC state |iS2'| such that
   \begin{equation} \label{eq:tsni-rhs}
     |its1'| \approx_{|il|} |its2'|
      \qquad \text{and} \qquad
@@ -333,6 +333,23 @@ In the case of extending
     \ \text{.}
   \end{equation}
 \end{theorem}
+
+\begin{lemma}
+  For any list of tasks |its1|, |its2|, |its2|, label |il|,
+  IFC states |iS1|, |iS2|, |iS1'|, where
+  \begin{equation} \label{eq:tsni-lhs}
+  |its1| \approx_{|il|} |its2|
+  \qquad \text{and} \qquad
+  |iconf iS1 its1| |.->| |iconf iS1' its1'|
+  \end{equation}
+  then there exists a list of tasks |its2'| and an IFC state |iS2'| such that
+  \begin{equation} \label{eq:tsni-rhs}
+  |its1'| \approx_{|il|} |its2'|
+  \qquad \text{and} \qquad
+  |iconf iS2 its2| |.->|^* |iconf iS2' its2'|
+  \ \text{.}
+  \end{equation}
+\end{lemma}
 
 \begin{proof}
   We proof the theorem by induction on the length of the derivation sequence in~(1).
