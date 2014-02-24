@@ -28,7 +28,7 @@ We can make this formal as follows: \Red{Define some notation}
     evaluation relation $|.->|'$ and erasure function $e'$.  Given
     functions $f^{-1} : |C -> Q|$ and $f : |Q -> C|$ relating machine
     states between $L$ and $L'$, obeying the condition $f^{-1} \circ f =
-    id$.  Then to show termination sensitive non-interference for $L'$,
+    id$ and $f^{-1} \circ e' \circ f = e$.  Then to show termination sensitive non-interference for $L'$,
     it suffices to show that for every evaluation rule $|Q| |.->|' |Q'|$
     it is either the case that $f(|Q|) |.->| f(|Q'|)$ or that
     \ldots
@@ -36,7 +36,8 @@ We can make this formal as follows: \Red{Define some notation}
 
 \begin{proof}
 Our proof proceeds along the same lines as a traditional TSNI proof,
-so we simply show that \Red{Lemma~1}
+we simply must show \Red{Lemma~1} holds for our language.  We proceed by induction
+over reduction derivations in the first step.
 \end{proof}
 
 To provide a sense of how these conditions work, we give an example
