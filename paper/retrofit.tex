@@ -24,13 +24,9 @@ te1 ; te2            @= (\tx.te2) te1  where  tx notmember FV(te2)
 let tx = te1 in te2  @= (\tx.te2) te1
 \end{code}
 
-Typing judgment: $|tyrule tG tS te tt|$
+Typing judgment: $|tyrule tG tS te tty|$
 
 \begin{mathpar}
-\and
-\inferrule[T-evalCtx]
-{| conf tS te -> conf tS' te')|}
-{| conf tS (intE te) -> conf tS' (intE te') |}
 
 \and
 \inferrule[T-app]
@@ -92,6 +88,9 @@ te   ::=  cdots | TI ie
 tE   ::=  cdots | TI iE
 
 ix1, ix2 <= brecv . ie @= IT (let tx = TI (ix1, ix2 <= recv. ie  (IT tx)) in tx)
+
+conf tS te @= iconf iS (fullconf id il tS (iniEt te), ldots)
+niconf iS id il ie @= iconf iS (fullconf id il tS (iniEi ie), ldots)
 \end{code}
 \caption{IFC grammar.}
 \label{fig:ifc-grammar}
@@ -104,7 +103,7 @@ ix1, ix2 <= brecv . ie @= IT (let tx = TI (ix1, ix2 <= recv. ie  (IT tx)) in tx)
   &|erase il (tconf id il' ie) =| \begin{cases}
     %|lconf bullet bullet bullet bullet| & |il' cantFlowTo il| \\
     |bullet| & |il' cantFlowTo il| \\
-    |lconf id il' (erase il tS) (erase il ie)| & \text{otherwise}
+    |fullconf id il' (erase il tS) (erase il ie)| & \text{otherwise}
   \end{cases} \\
   %&|erase il iS [i mapsto Q] = iS [i mapsto (erase il Q)]|\\
   &|erase il Q = filter il Q|\\
@@ -119,54 +118,20 @@ ix1, ix2 <= brecv . ie @= IT (let tx = TI (ix1, ix2 <= recv. ie  (IT tx)) in tx)
 
 \begin{figure}
 \begin{mathpar}
-\inferrule[I-evalCtx]
-{|
-iconf iS (tconf id il ie)
-.->
-iconf iS' (tconf id il' ie')
-|}
-{|
-iconf iS (lconf id il tS (iniE ie), ldots)
-.->
-iS' ; sched step (lconf id il' tS (iniE ie'), ldots)
-|}
-
 \and
 \inferrule[I-done]
 {|
 |}
 {|
-iconf iS (lconf id il tS iv, ldots)
+iconf iS (fullconf id il tS iv, ldots)
 .->
-iS ; sched done (lconf id il tS iv, ldots)
-|}
-
-\and
-\inferrule[I-stepT]
-{|
-conf tS (te) -> conf tS' te'
-|}
-{|
-iconf iS (lconf id il tS (iniE (IT te)), ldots)
-.->
-iS ; sched step (lconf id il tS' (iniE (IT te')), ldots)
-|}
-
-\and
-\inferrule[I-noStepT]
-{|
-conf tS (te) -/> 
-|}
-{|
-iconf iS (lconf id il tS (iniE (IT te)), ldots)
-.->
-iS ; sched noStep (lconf id il tS (iniE (IT te)), ldots)
+iS ; sched done (fullconf id il tS iv, ldots)
 |}
 
 \and
 \inferrule[I-noStep]
 {|
-it .-/> 
+iconf iS (it, ldots) .-/> 
 |}
 {|
 iconf iS (it, ldots)
@@ -175,36 +140,36 @@ iS ; sched noStep (it, ldots)
 |}
 
 \and
+\inferrule[I-fork]
+{ 
+|iS' = iS [ id' mapsto nil ]|\\
+|tS' = klone(tS)|\\
+|it1 = fullconf id il tS (iniE id')|\\
+|itnew = fullconf id' il tS' (TI ie)|\\
+|fresh (id')|
+}
+{|
+iconf iS (fullconf id il tS (iniEi (fork ie)), ldots)
+.->
+iS'; sched fork (it1, ldots, itnew)
+|}
+
+\and
 \inferrule[I-getLabel]
 { }
 {|
-iconf iS (tconf id il getLabel)
+niconf iS id il getLabel
 .->
-iconf iS (tconf id il il)
+niconf iS id il il
 |}
 
 \and
 \inferrule[I-setLabel]
 { |il canFlowTo il'| }
 {|
-iconf iS (tconf id il (setLabel il'))
+niconf iS id il (setLabel il')
 .->
-iconf iS (tconf id il' unit)
-|}
-
-\and
-\inferrule[I-fork]
-{ 
-|iS' = iS [ id' mapsto nil ]|\\
-|tS' = klone(tS)|\\
-|it1 = lconf id il tS (iniE id')|\\
-|itnew = lconf id' il tS' (TI ie)|\\
-|fresh (id')|
-}
-{|
-iconf iS (lconf id il tS (iniE (fork ie)), ldots)
-.->
-iS'; sched fork (it1, ldots, itnew)
+niconf iS id il' unit
 |}
 %{|fresh (id')|}
 
@@ -216,9 +181,9 @@ iS'; sched fork (it1, ldots, itnew)
 |iS' = iS [ id' mapsto (il', id,  ie) , Q ]|
 }
 {|
-iconf iS  (tconf id il (send id' il' ie))
+niconf iS  id il (send id' il' ie)
 .->
-iconf iS' (tconf id il unit)
+niconf iS' id il unit
 |}
 
 \and
@@ -228,9 +193,9 @@ iconf iS' (tconf id il unit)
 | iS' = iS[id mapsto io1 , ... , iok]|\\
 }
 {|
-iconf iS  (tconf id il (ix1, ix2 <= recv. ie1 ie2))
+niconf iS  id il (ix1, ix2 <= recv. ie1 ie2)
 .->
-iconf iS' (tconf id il ({ie'/ix1,id'/ix2} ie1))
+niconf iS' id il ({ie'/ix1,id'/ix2} ie1)
 |}
 
 \and
@@ -240,27 +205,27 @@ iconf iS' (tconf id il ({ie'/ix1,id'/ix2} ie1))
 | iS' = iS[id mapsto nil]|
 }
 {|
-iconf iS  (tconf id il (ix1, ix2 <= recv. ie1 ie2))
+niconf iS  id il (ix1, ix2 <= recv. ie1 ie2)
 .->
-iconf iS' (tconf id il ie2)
+niconf iS' id il ie2
 |}
 
 \inferrule[I-labelOp]
 { |denot (il1 lop il2) = iv|}
-{ |iconf iS (tconf id il (il1 lop il2)) .-> iconf iS (tconf id il iv)| }
+{ |niconf iS id il (il1 lop il2) .-> niconf iS id il iv| }
 
 \and
 \inferrule[I-border]
 { }
 {|
-iconf iS (tconf id il (IT (TI (ie))))
+niconf iS id il (IT (TI (ie)))
 .->
-iconf iS (tconf id il ie)
+niconf iS id il ie
 |}
 
 \and
 \inferrule[T-border]
-{ } {| conf tS (intE (TI (IT (te)))) -> conf tS (intE te)|}
+{ } {| conf tS (TI (IT (te))) -> conf tS te|}
 \end{mathpar}
 \caption{IFC language and general embedding.}
 \label{fig:ifc}

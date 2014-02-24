@@ -77,7 +77,7 @@
 %format S2''
 %format S3''
 
-%format E = "\xi"
+%format E = "E"
 %format E'
 %format E''
 %format Ei = S"_"i
@@ -93,6 +93,8 @@
 %format E2''
 %format E3''
 %format inE (e) = E"["e"]"
+
+%format CE = "\mathcal{E}"
 
 %format G = "\Gamma"
 %format G'
@@ -125,21 +127,21 @@
 %format e2''
 %format e3''
 
-%format t = "\tau"
-%format t'
-%format t''
-%format ti = t"_"i
-%format ti' = t'"_"i
-%format ti'' = t''"_"i
-%format t1
-%format t2
-%format t3
-%format t1'
-%format t2'
-%format t3'
-%format t1''
-%format t2''
-%format t3''
+%format ty = "\tau"
+%format ty'
+%format ty''
+%format tyi = ty"_"i
+%format tyi' = ty'"_"i
+%format tyi'' = ty''"_"i
+%format ty1
+%format ty2
+%format ty3
+%format ty1'
+%format ty2'
+%format ty3'
+%format ty1''
+%format ty2''
+%format ty3''
 
 %format iTE = "\ifc{T}"
 %format iTE'
@@ -158,7 +160,6 @@
 %format iTE3''
 %format (iniTE (e)) = e, ldots
 %format (iniTE' (e)) = iTE'"\ifc{[}"e"\ifc{]}"
-%format (tconf (i) (l) (e)) = "\langle "tS", "e"\rangle^{"i"}_{"l"}"
 
 %format coconf (t) (h) (s) = t ; h ; { s }
 %format (cconf (i) (l) (e)) = "\langle "e"\rangle^{"i"}_{"l"}"
@@ -199,6 +200,8 @@
 %format iE2''
 %format iE3''
 %format iniE (e) = iE"\ifc{[}"e"\ifc{]}"
+%format iniEt (e) = iE"\ifc{[}"e"\ifc{]}" "_\tar{T}"
+%format iniEi (e) = iE"\ifc{[}"e"\ifc{]}" "_\ifc{I}"
 
 %format ie = "\ifc{"e"}"
 %format ie'
@@ -489,21 +492,21 @@
 %format ta2''
 %format ta3''
 
-%format tt = "\tar{"t"}"
-%formtt tt'
-%formtt tt''
-%formtt tti = tt"_"i
-%formtt tti' = tt'"_"i
-%formtt tti'' = tt''"_"i
-%formtt tt1
-%formtt tt2
-%formtt tt3
-%formtt tt1'
-%formtt tt2'
-%formtt tt3'
-%formtt tt1''
-%formtt tt2''
-%formtt tt3''
+%format tty = "\tar{"ty"}"
+%formtt tty'
+%formtt tty''
+%formtt ttyi = tty"_"i
+%formtt ttyi' = tty'"_"i
+%formtt ttyi'' = tty''"_"i
+%formtt tty1
+%formtt tty2
+%formtt tty3
+%formtt tty1'
+%formtt tty2'
+%formtt tty3'
+%formtt tty1''
+%formtt tty2''
+%formtt tty3''
 
 %format true  = "\mathbf{true}"
 %format false = "\mathbf{false}"
@@ -539,9 +542,12 @@
 %format (denot (a)) = "\llbracket " a "\rrbracket"
 
 
-%format conf (s) (e) = "\langle "s", "e"\rangle"
-%format (lconf (i) (l) (s) (e)) = "\langle "s", "e"\rangle^{"i"}_{"l"}"
-%format iconf (t) (s) = t ; { s }
+%format conf (s) (e) = CE"_{"s"}\left["e"\right]"
+% %format (tconf (i) (l) (e)) = "\langle "iE"["e"]_\ifc{I}\rangle^{"i"}_{"l"}"
+%format (tconf (i) (l) (e)) = CE"^{"i"}_{"l"}["e"]"
+%format (fullconf (i) (l) (s) (e)) = "\langle "s", "e"\rangle^{"i"}_{"l"}"
+%format iconf (t) (s) = t ; s
+%format niconf (t) (i) (l) (e) = CE"_{"t"}["e"]^{"i"}_{"l"}"
 
 %format erase (l) (e) = "\varepsilon_{"l"}("e")"
 %format erasef (l) = "\varepsilon_{"l"}"
@@ -549,8 +555,8 @@
 %format map = "\text{map}"
 %format fltr = "\text{filter}"
 
-%format iHole (x) = "\ifc{["x"]}"
-%format tHole (x) = "\tar{["x"]}"
+%format iHole (x) = "\ifc{["x"]_I}"
+%format tHole (x) = "\tar{["x"]_T}"
 %format THole (x) = "\ifc{["x"]}"
 
 %format klone = "\kappa"
