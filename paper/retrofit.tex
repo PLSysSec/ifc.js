@@ -159,7 +159,7 @@ iS'; sched fork (it1, ldots, itnew)
 { }
 {|
 niconf iS id il getLabel
-.->
+->
 niconf iS id il il
 |}
 
@@ -168,7 +168,7 @@ niconf iS id il il
 { |il canFlowTo il'| }
 {|
 niconf iS id il (setLabel il')
-.->
+->
 niconf iS id il' unit
 |}
 %{|fresh (id')|}
@@ -182,7 +182,7 @@ niconf iS id il' unit
 }
 {|
 niconf iS  id il (send id' il' ie)
-.->
+->
 niconf iS' id il unit
 |}
 
@@ -194,7 +194,7 @@ niconf iS' id il unit
 }
 {|
 niconf iS  id il (ix1, ix2 <= recv. ie1 ie2)
-.->
+->
 niconf iS' id il ({ie'/ix1,id'/ix2} ie1)
 |}
 
@@ -206,7 +206,7 @@ niconf iS' id il ({ie'/ix1,id'/ix2} ie1)
 }
 {|
 niconf iS  id il (ix1, ix2 <= recv. ie1 ie2)
-.->
+->
 niconf iS' id il ie2
 |}
 
@@ -219,7 +219,7 @@ niconf iS' id il ie2
 { }
 {|
 niconf iS id il (IT (TI (ie)))
-.->
+->
 niconf iS id il ie
 |}
 
