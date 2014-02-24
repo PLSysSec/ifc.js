@@ -15,7 +15,7 @@ works for a simple, ML-like language, with references and general recursion.
 \begin{figure}
 \begin{code}
 tv   ::= \tx.te | true | false | ta
-tt   ::= bool | tt -> tt | ref tt
+tty   ::= bool | tty -> tty | ref tty
 te   ::= tv | tx | te te | if te then te else te | ref te | !te | te := te
 tE   ::= tHole | tE te | tv tE | if tE then te else te
        | ref tE | !tE | tE := te | tv := tE 
