@@ -1,16 +1,24 @@
 \section{Retrofitting languages with IFC}
 \label{sec:retrofit}
 
+While we would like to add information flow control to \emph{any}
+language, we will have to make some assumptions about the form of the
+target language.  We consider languages whose semantics can be expressed
+in the form of abstract machines |(tS, tE, te, ->)|, where |tS| is the
+global machine state, |tE| is an evaluation context, |te| is an
+expression in the language and |->| is the reduction relation on such
+configuration, i.e., $|->| : (|tS| \times |tE| \times |te|)
+\rightharpoonup (|tS| \times |tE| \times |te|)$.  Metavariables in this
+target language have been colored red.
 
-We consider languages in the form of abstract state machines |(tS, tE,
-te, ->)|, where |tS| is the global machine state, |tE| is an evaluation
-context, |te| is an expression in the language and |->| is the
-reduction relation on such configuration, i.e., $|->| : (|tS| \times
-|tE| \times |te|) \rightharpoonup (|tS| \times |tE| \times |te|)$ \Red{This doesn't match the way the evaluation rules are currently done with a frame rule}
-
-
-To get the flavor for our approach, we will first show how our embedding
-works for a simple, ML-like language, with references and general recursion.
+In Figure~\ref{fig:ml}, we give an example of a standard ML-like
+language with mutable references.  These semantics have been prepared
+for interoperability in the style of Matthews and Findler~\nocite{}, in
+particular, the evaluation rules have been expressed in terms of an
+evaluation context $\mathcal{E}_{\tar{\Sigma}}$.  Without the embedding,
+this evaluation context is defined as |conf tS te @= tS, tE[ te ]|, but
+when we perform the embedding, we will reinterpret the meaning
+of this operator, moving .
 
 \begin{figure}
 \begin{code}
@@ -24,7 +32,7 @@ te1 ; te2            @= (\tx.te2) te1  where  tx notmember FV(te2)
 let tx = te1 in te2  @= (\tx.te2) te1
 \end{code}
 
-Typing judgment: $|tyrule tG tS te tty|$
+\Red{Suggestion: Only give the rules for references, because otherwise this is all standard.}
 
 \begin{mathpar}
 
@@ -62,6 +70,7 @@ Typing judgment: $|tyrule tG tS te tty|$
 \end{figure}
 
 \begin{figure}
+Typing judgment: $|tyrule tG tS te tty|$
 \begin{mathpar}
 \inferrule[T-ty-address]
 {}
@@ -91,7 +100,7 @@ ix1, ix2 <= brecv . ie @= IT (let tx = TI (ix1, ix2 <= recv. ie  (IT tx)) in tx)
 
 conf tS te @= iconf iS (fullconf id il tS (iniEt te), ldots)
 niconf iS id il ie @= iconf iS (fullconf id il tS (iniEi ie), ldots)
-CE[e] -> iconf iS (t, ldots) @= CE[e] .-> iconf iS (sched step (t, ldots))
+CE[e] -> iconf iS (it, ldots) @= CE[e] .-> iconf iS (sched step (it, ldots))
 \end{code}
 \caption{IFC grammar.}
 \label{fig:ifc-grammar}
