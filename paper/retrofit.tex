@@ -335,15 +335,16 @@ In the case of extending
 \end{theorem}
 
 \begin{lemma}
+  \label{lemma:tsni}
   For any list of tasks |its1|, |its2|, |its2|, label |il|,
   IFC states |iS1|, |iS2|, |iS1'|, where
-  \begin{equation} \label{eq:tsni-lhs}
+  \begin{equation} \label{eq:tsni-lemma-lhs}
   |its1| \approx_{|il|} |its2|
   \qquad \text{and} \qquad
   |iconf iS1 its1| |.->| |iconf iS1' its1'|
   \end{equation}
   then there exists a list of tasks |its2'| and an IFC state |iS2'| such that
-  \begin{equation} \label{eq:tsni-rhs}
+  \begin{equation} \label{eq:tsni-lemma-rhs}
   |its1'| \approx_{|il|} |its2'|
   \qquad \text{and} \qquad
   |iconf iS2 its2| |.->|^* |iconf iS2' its2'|
@@ -352,16 +353,16 @@ In the case of extending
 \end{lemma}
 
 \begin{proof}
-  We proof the theorem by induction on the length of the derivation sequence in~(1).
+  We proof the theorem by induction on the length of the derivation sequence in~\eqref{eq:tsni-lhs}.
   The base case for derivations
   of length 0 is trivial, allowing
   us to simple chose $|its2'=its2|$ and $|iS2'=iS2|$.  In the step case, we assume
   the theorem holds for derivation sequences of length up to $n$, and show that it also
-  holds for those of length $n+1$.  We split the derivation sequence from~(1) as follows:
+  holds for those of length $n+1$.  We split the derivation sequence from~\eqref{eq:tsni-lhs} as follows:
   \[
   |iconf iS1 its1| |.->| |iconf iS1'' its1''| |.->|^n |iconf iS1' its1'|
   \]
-  for some IFC state |iS1''| and task list |its1''|.  By \Red{Lemma~1}, we get
+  for some IFC state |iS1''| and task list |its1''|.  By Lemma~\ref{lemma:tsni}, we get
   |its2''| and |iS2''| with
   \begin{equation} \label{eq:tsni-proof-1}
   |its1''| \approx_{|il|} |its2''|
@@ -375,8 +376,8 @@ In the case of extending
   \qquad \text{and} \qquad
   |iconf iS2'' its2''| |.->|^* |iconf iS2' its2'|
   \end{equation}
-  Stitching together the derivation sequences from (3) and (4) directly gives
-  us (2), which concludes the proof.
+  Stitching together the derivation sequences from~\eqref{eq:tsni-proof-1} and~\eqref{eq:tsni-proof-2} directly gives
+  us~\eqref{eq:tsni-rhs}, which concludes the proof.
 \end{proof}
 
 \subsection{Generalizing further}
