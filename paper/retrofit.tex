@@ -441,13 +441,24 @@ a natural embedding which preserves booleans across boundaries.}
     
     Therefore, after |its2| has potentially executed some number of steps
     to arrive at |its2''|, we are now in the situation where $|its1|\approx_{|il|}|its2''|$, and the first task |it1| and |it2| don't
-    get erased and are |il| equivalent.  We consider all
+    get erased and are |il| equivalent.
+    We consider all
     possible rules used to derive~\eqref{eq:tsni-lemma-lhs}:
     \begin{description}
+      \item[Case \textsc{I-setLabel}]
+        From the form of the rule we know that the expression |ie1| executing
+        in task |it1| is of the form |iniE (setLabel il)|.
+        If |it2| is also of the form |iniE' (setLabel il)| for some
+        |iniE'| that is |il| equivalent to |iniE|,
+        then~\eqref{eq:tsni-lemma-rhs}
+        holds by executing the same step.
+        Otherwise, if the two are not syntactically equivalent, then
+        |it1| must contain a |send| that gets erased by |erasef il|, and
+        must currently be executing the part that got erased.
+        \Red{this reasoning is not actually right.  will be fixed shortly.}
       \item[Case \textsc{I-done}] 
       \item[Case \textsc{I-noStep}] 
       \item[Case \textsc{I-fork}] 
-      \item[Case \textsc{I-setLabel}]
     \end{description}
   \end{itemize}
 \end{proof}
