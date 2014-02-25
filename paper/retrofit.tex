@@ -69,6 +69,26 @@ let tx = te1 in te2  @= (\tx.te2) te1
 \label{fig:ml}
 \end{figure}
 
+Next, we describe the IFC language.  \Red{Description of the IFC language as
+a standard floating label system, or backwards reference to the
+background section.}  In Figure~\ref{fig:ifc}, we describe the syntax
+of the language, and provide rules for all operations which operate on a single
+thread.  \Red{One could imagine these rules giving the definition of a very
+boring information flow control language, by defining |niconf iS id il ie| appropriately
+and providing an appropriate erasure function.}
+
+We use the notation |filter il Q| to indicate a filter function which removes message whose labels do not
+flow to |il|. Specifically, if |Q| is the empty list |nil|, the
+function is simply the identity function, i.e.,
+|filter il nil = nil|; otherwise:
+\[
+|filter il ((il', id, ie) , Q )| = \left\{
+\begin{array}{l l}
+|(il', id, ie) , filter il Q| & \quad \text{if |il' canFlowTo il|}\\
+|filter il Q| & \quad \text{otherwise}
+\end{array} \right.
+\]
+
 %   \begin{figure}
 %   Typing judgment: $|tyrule tG tS te tty|$
 %   \begin{mathpar}
@@ -92,31 +112,9 @@ iE   ::=  iHole | iE lop ie | iv lop iE | setLabel iE | fork iE
        |  ix1, ix2 <= recv. ie ie
 io   ::=  (il, id ie)
 Q    ::=  nil | io , Q
-
-CE[e] -> iconf iS (it, ldots) @= CE[e] .-> iconf iS (sched step (it, ldots))
 \end{code}
 
 \begin{mathpar}
-%   \and
-%   \inferrule[I-done]
-%   {|
-%   |}
-%   {|
-%   iconf iS (fullconf id il tS iv, ldots)
-%   .->
-%   iS ; sched done (fullconf id il tS iv, ldots)
-%   |}
-
-\and
-\inferrule[I-noStep]
-{|
-iconf iS (it, ldots) .-/> 
-|}
-{|
-iconf iS (it, ldots)
-.->
-iS ; sched noStep (it, ldots)
-|}
 
 \and
 \inferrule[I-getLabel]
@@ -178,9 +176,26 @@ niconf iS' id il ie2
 { |denot (il1 lop il2) = iv|}
 { |niconf iS id il (il1 lop il2) -> niconf iS id il iv| }
 \end{mathpar}
-\caption{IFC language}
+\caption{IFC language, single-thread operations}
 \label{fig:ifc}
 \end{figure}
+
+Finally, in Figure~\ref{fig:embedding},
+we provide all of the rules responsible for actually carrying out the embedding:
+
+\begin{itemize}
+    \item We extend the values, expressions and evaluation contexts of both languages to allow for embeddings terms in one language to be embedded in the other.  \Red{For now, we defer discussion on how these boundaries mediate between the type systems of the two languages.}
+    \item We reinterpret |CE| to be evaluation contexts on threadpools.  By assumption, only the first thread in the threadpool executes.
+    \item We define |->|, operation on a single thread, in terms of |.->|, operation on thread pools.  The correspondence is simple: a thread executes a step, and then is rescheduled in the thread pool according to schedule policy $\alpha$. \Red{More on schedule policies later}
+    \item Finally, we define some rules for scheduling, handling forking threads (which interact with the state of the target language) and intermediating between the borders of the two languages. \Red{As written, these rules will not preserve type-safety of the underyling language, but it is easy to adjust them to ensure they do so.}
+\end{itemize}
+
+The fork rule is of particular interest; it is defined in terms of a function $\kappa$.
+Conservatively, $\kappa$ may be simply thought of as the identity function, in which
+case the semantics of fork are such that the state of the target language is \emph{cloned}
+when forking occurs.  However, this is not necessary: it is also valid for $\kappa$
+to remove entries from the state.  \Red{For more information about when this is not the
+fork semantics you want, see the concrete implementation section.}
 
 \begin{figure}
 \begin{tabular}{ll}
@@ -202,9 +217,9 @@ tE   ::=  cdots | TI iE
 
 \begin{code}
 ix1, ix2 <= brecv . ie @= IT (let tx = TI (ix1, ix2 <= recv. ie  (IT tx)) in tx)
-
 conf tS te @= iconf iS (fullconf id il tS (iniEt te), ldots)
 niconf iS id il ie @= iconf iS (fullconf id il tS (iniEi ie), ldots)
+CE[e] -> iconf iS (it, ldots) @= CE[e] .-> iconf iS (sched step (it, ldots))
 \end{code}
 
 \begin{mathpar}
@@ -224,6 +239,27 @@ iS'; sched fork (it1, ldots, itnew)
 |}
 
 \and
+\inferrule[I-done]
+{|
+|}
+{|
+iconf iS (fullconf id il tS iv, ldots)
+.->
+iS ; sched done (fullconf id il tS iv, ldots)
+|}
+
+\and
+\inferrule[I-noStep]
+{|
+iconf iS (it, ldots) .-/> 
+|}
+{|
+iconf iS (it, ldots)
+.->
+iS ; sched noStep (it, ldots)
+|}
+
+\and
 \inferrule[I-border]
 { }
 {|
@@ -237,8 +273,9 @@ niconf iS id il ie
 { } {| conf tS (TI (IT (te))) -> conf tS te|}
 \end{mathpar}
 \caption{The embedding}
-\label{fig:embedding-grammar}
+\label{fig:embedding}
 \end{figure}
+
 
 \begin{figure}
 \begin{align*}
@@ -260,20 +297,8 @@ niconf iS id il ie
 \caption{Erasure function.}
 \end{figure}
 
-The filter function |filter il Q| removes message whose labels do not
-flow to |il|. Specifically, if |Q| is the empty list |nil|, the
-function is simply the identity function, i.e.,
-|filter il nil = nil|; otherwise:
-\[
-|filter il ((il', id, ie) , Q )| = \left\{
-\begin{array}{l l}
-|(il', id, ie) , filter il Q| & \quad \text{if |il' canFlowTo il|}\\
-|filter il Q| & \quad \text{otherwise}
-\end{array} \right.
-\]
-
-
-In the case of extending
+\Red{When both languages have booleans, it is relatively simple to define
+a natural embedding which preserves booleans across boundaries.}
 \begin{mathpar}
 \inferrule[I-bool]
 { |b member {true, false}|  } {| iniE (IT b) -> iniE b |}
