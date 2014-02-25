@@ -333,36 +333,34 @@ a natural embedding which preserves booleans across boundaries.}
 \subsection{Formal Guarantees}
 
 \begin{theorem}[Termination Sensitive Non-Interference (TSNI)]
-  For any list of tasks |its1|, |its2|, |its2|, label |il|,
-  IFC states |iS1|, |iS2|, |iS1'|, where
+  For any configurations |ic1|, |ic1'|, |ic2|, and label |il| where
   \begin{equation} \label{eq:tsni-lhs}
-    |its1| \approx_{|il|} |its2|
+    |ic1| \approx_{|il|} |ic2|
     \qquad \text{and} \qquad
-    |iconf iS1 its1| |.->|^* |iconf iS1' its1'|
+    |ic1| |.->|^* |ic1'|
   \end{equation}
-  then there exists a list of tasks |its2'| and an IFC state |iS2'| such that
+  then there exists a configuration |ic2'| such that
   \begin{equation} \label{eq:tsni-rhs}
-    |its1'| \approx_{|il|} |its2'|
+    |ic1'| \approx_{|il|} |ic2'|
      \qquad \text{and} \qquad
-    |iconf iS2 its2| |.->|^* |iconf iS2' its2'|
+    |ic2| |.->|^* |ic2'|
     \ \text{.}
   \end{equation}
 \end{theorem}
 
 \begin{lemma}
   \label{lemma:tsni}
-  For any list of tasks |its1|, |its2|, |its2|, label |il|,
-  IFC states |iS1|, |iS2|, |iS1'|, where
+  For any configurations |ic1|, |ic1'|, |ic2|, and label |il| where
   \begin{equation} \label{eq:tsni-lemma-lhs}
-  |its1| \approx_{|il|} |its2|
+  |ic1| \approx_{|il|} |ic2|
   \qquad \text{and} \qquad
-  |iconf iS1 its1| |.->| |iconf iS1' its1'|
+  |ic1| |.->| |ic1'|
   \end{equation}
-  then there exists a list of tasks |its2'| and an IFC state |iS2'| such that
+  then there exists a configuration |ic2'| such that
   \begin{equation} \label{eq:tsni-lemma-rhs}
-  |its1'| \approx_{|il|} |its2'|
+  |ic1'| \approx_{|il|} |ic2'|
   \qquad \text{and} \qquad
-  |iconf iS2 its2| |.->|^* |iconf iS2' its2'|
+  |ic2| |.->|^* |ic2'|
   \ \text{.}
   \end{equation}
 \end{lemma}
