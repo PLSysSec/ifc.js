@@ -369,61 +369,65 @@ a natural embedding which preserves booleans across boundaries.}
   We proof the theorem by induction on the length of the derivation sequence in~\eqref{eq:tsni-lhs}.
   The base case for derivations
   of length 0 is trivial, allowing
-  us to simple chose $|its2'=its2|$ and $|iS2'=iS2|$.  In the step case, we assume
+  us to simple chose $|ic2'=ic2|$.  In the step case, we assume
   the theorem holds for derivation sequences of length up to $n$, and show that it also
   holds for those of length $n+1$.  We split the derivation sequence from~\eqref{eq:tsni-lhs} as follows:
   \[
-  |iconf iS1 its1| |.->| |iconf iS1'' its1''| |.->|^n |iconf iS1' its1'|
+  |ic1| |.->| |ic1''| |.->|^n |ic1'|
   \]
-  for some IFC state |iS1''| and task list |its1''|.  By Lemma~\ref{lemma:tsni}, we get
-  |its2''| and |iS2''| with
+  for some configuration |ic1''|.  By Lemma~\ref{lemma:tsni}, we get
+  |ic''| with
   \begin{equation} \label{eq:tsni-proof-1}
-  |its1''| \approx_{|il|} |its2''|
+  |ic1''| \approx_{|il|} |ic2''|
   \qquad \text{and} \qquad
-  |iconf iS2 its2| |.->|^* |iconf iS2'' its2''|
+  |ic2| |.->|^* |ic2''|
   \end{equation}
   Applying the induction hypothesis to
-  $|iconf iS1'' its1''| |.->|^n |iconf iS1' its1'|$, we get |its2'| and |iS2'| with
+  $|ic1''| |.->|^n |ic1'|$, we get |ic2'| with
   \begin{equation} \label{eq:tsni-proof-2}
-  |its1'| \approx_{|il|} |its2'|
+  |ic1'| \approx_{|il|} |ic2'|
   \qquad \text{and} \qquad
-  |iconf iS2'' its2''| |.->|^* |iconf iS2' its2'|
+  |ic2''| |.->|^* |ic2'|
   \end{equation}
   Stitching together the derivation sequences from~\eqref{eq:tsni-proof-1} and~\eqref{eq:tsni-proof-2} directly gives
   us~\eqref{eq:tsni-rhs}, which concludes the proof.
 \end{proof}
 
 \begin{proof}[Proof of Lemma~\ref{lemma:tsni}]
-  \Red{It seems that the theorem, lemma as well as the proofs need to talk
-    about |il| equivalence of |iS|, too, not just |il| equivalence of tasks.}
-  
   We proof the lemma by induction on the derivation
   for~\eqref{eq:tsni-lemma-lhs}, and consider all possible rules that
-  could have been used to make the reduction step.  In all cases, there
-  needs to exist a task |it1| at the beginning of the list of |its1|.
-  Consider two cases:
+  could have been used to make the reduction step.
+  First, we observe there must be at least one task in |ic1|, otherwise
+  it could not take a step.  Thus, |ic1| is of the form
+  |iconf iS1 (it1, its1)|.  Consider two cases:
   \begin{itemize}
     \item $|erase il it1|=|bullet|$. In this case, we do not need to take a
     step for
-    |its2|, because |its2'=its2| will already be |il|-equivalent to |its'|.
-    In particular, note that 
-    To see that, note that all existing tasks in |its1| are left in the
-    same order and unmodified, except for |it1| (which has no
-    corresponding task in |its2|, since it gets filtered).  The task |it1|
+    |ic2|, because |ic2'=ic2| will already be |il|-equivalent to |ic1'|.
+    To see that, note that the tasks |its1| in |ic1| are left in the
+    same order and unmodified. The task |it1| either
     gets dropped (by \textsc{I-noStep}), or
     transforms into a new task |it1'| as well as potentially spawning a new
     task |it1''|.  Since both |it1'| and |it1''| have a label that is
-    at least as high as the label of |it1|, they will also get filtered.
+    at least as high as the label of |it1|, they will get filtered
+    by |erasef il| in |ic1'|.
+    Finally, lets consider the possible changes to |iS1|: If |it1| sends a
+    message, then the corresponding queue in |iS1'| will contain one
+    more message.  However, that message has the label of |it1| (or a higher
+    label), and will thus get erased by |erasef il|.
+    \Red{The task could also send a message}
+    This ensures that $|ic1'|\approx_{|il|}|ic2'|$.
     
     \alphacondition{We need all scheduling policies to not change the order
       of any tasks (except for the first one).  Newly spawned task can appear
       anywhere in the list.}
     \item $|erase il it1|\neq|bullet|$.  Here, there must be a corresponding
-    task |it2|, such that $|it1|\approx_{|il|}|it2|$ (otherwise |its1| and
-    |its2| could not be |il| equivalent).
+    task |it2| in |ic2|,
+    such that |it1=it2| (otherwise |ic1| and
+    |ic2| could not be |il| equivalent).
     However, |it2| might not be at the beginning of the task list yet, but
     all tasks occurring before it must get erased by |erasef il|.
-    In |its2|, we can first take some number of steps until |it2| moves
+    In |ic2|, we can first take some number of steps until |it2| moves
     to the front of the list (\Red{Say more precisely why
       (basically because we require the scheduling policy to do that)}).
     
@@ -433,27 +437,14 @@ a natural embedding which preserves booleans across boundaries.}
       exclusively forever (e.g. just execute the first task all the time
       if it gets into an infinite loop).}
     
-    Therefore, after |its2| has potentially executed some number of steps
-    to arrive at |its2''|, we are now in the situation where $|its1|\approx_{|il|}|its2''|$, and the first task |it1| and |it2| don't
-    get erased and are |il| equivalent.
-    We consider all
-    possible rules used to derive~\eqref{eq:tsni-lemma-lhs}:
-    \begin{description}
-      \item[Case \textsc{I-setLabel}]
-        From the form of the rule we know that the expression |ie1| executing
-        in task |it1| is of the form |iniE (setLabel il)|.
-        If |it2| is also of the form |iniE' (setLabel il)| for some
-        |iniE'| that is |il| equivalent to |iniE|,
-        then~\eqref{eq:tsni-lemma-rhs}
-        holds by executing the same step.
-        Otherwise, if the two are not syntactically equivalent, then
-        |it1| must contain a |send| that gets erased by |erasef il|, and
-        must currently be executing the part that got erased.
-        \Red{this reasoning is not actually right.  will be fixed shortly.}
-      \item[Case \textsc{I-done}] 
-      \item[Case \textsc{I-noStep}] 
-      \item[Case \textsc{I-fork}] 
-    \end{description}
+    Therefore, after |ic2| has potentially executed some number of steps
+    to arrive at |ic2''|, we are now in the situation where $|ic1|\approx_{|il|}|ic2''|$, and the first task |it1| and |it2| don't
+    get erased and are thus equivalent.
+    The task |it2| can now take exactly the same step as |it1|;  we only
+    need to argue that the potential differences in |iS1| and |iS2| cannot
+    have an influence on the execution (and we know |iS1| and |iS2| are
+    |il| equivalent).
+    \Red{Actually show this}
   \end{itemize}
 \end{proof}
 
