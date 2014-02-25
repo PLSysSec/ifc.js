@@ -284,14 +284,10 @@ niconf iS id il ie
   &|erase il (tconf id il' ie) =| \begin{cases}
     %|lconf bullet bullet bullet bullet| & |il' cantFlowTo il| \\
     |bullet| & |il' cantFlowTo il| \\
-    |fullconf id il' (erase il tS) (erase il ie)| & \text{otherwise}
+    |tconf id il' ie| & \text{otherwise}
   \end{cases} \\
   %&|erase il iS [i mapsto Q] = iS [i mapsto (erase il Q)]|\\
   &|erase il Q = filter il Q|\\
-  &|erase il (send id il' ie) =| \begin{cases}
-    |send id il' bullet| & |il' cantFlowTo il| \\
-    |send id il' (erase il ie)| & \text{otherwise}
-  \end{cases} \\
   &\text{In all other cases, |erasef il| is applied homomorphically.}
 \end{align*}
 \caption{Erasure function.}
