@@ -1,16 +1,24 @@
 \section{Retrofitting languages with IFC}
 \label{sec:retrofit}
 
+While we would like to add information flow control to \emph{any}
+language, we will have to make some assumptions about the form of the
+target language.  We consider languages whose semantics can be expressed
+in the form of abstract machines |(tS, tE, te, tv, ->)|, where |tS| is the
+global machine state, |tE| is an evaluation context, |te| is an
+expression in the language, |tv| is the set of values, and |->| is the reduction relation on such
+configuration, i.e., $|->| : (|tS| \times |tE| \times |te|)
+\rightharpoonup (|tS| \times |tE| \times |te|)$.  Metavariables in this
+target language have been colored red.
 
-We consider languages in the form of abstract state machines |(tS, tE,
-te, ->)|, where |tS| is the global machine state, |tE| is an evaluation
-context, |te| is an expression in the language and |->| is the
-reduction relation on such configuration, i.e., $|->| : (|tS| \times
-|tE| \times |te|) \rightharpoonup (|tS| \times |tE| \times |te|)$ \Red{This doesn't match the way the evaluation rules are currently done with a frame rule}
-
-
-To get the flavor for our approach, we will first show how our embedding
-works for a simple, ML-like language, with references and general recursion.
+In Figure~\ref{fig:ml}, we give an example of a standard ML-like
+language with mutable references.  These semantics have been prepared
+for interoperability in the style of Matthews and Findler~\Red{XXX}; in
+particular, the evaluation rules have been expressed in terms of an
+evaluation context $\mathcal{E}_{\tar{\Sigma}}$.  Without the embedding,
+this evaluation context is defined as |conf tS te @= tS, tE[ te ]|, but
+when we perform the embedding, we will reinterpret the meaning
+of this evaluation context, lifting these semantics to an IFC setting.
 
 \begin{figure}
 \begin{code}
@@ -24,7 +32,7 @@ te1 ; te2            @= (\tx.te2) te1  where  tx notmember FV(te2)
 let tx = te1 in te2  @= (\tx.te2) te1
 \end{code}
 
-Typing judgment: $|tyrule tG tS te tty|$
+\Red{Suggestion: Only give the rules for references, because otherwise this is all standard.}
 
 \begin{mathpar}
 
@@ -61,73 +69,43 @@ Typing judgment: $|tyrule tG tS te tty|$
 \label{fig:ml}
 \end{figure}
 
-\begin{figure}
-\begin{mathpar}
-\inferrule[T-ty-address]
-{}
-{| tyrule tG tS a (ref (tyLookup tS a)) |}
-\end{mathpar}
+%   \begin{figure}
+%   Typing judgment: $|tyrule tG tS te tty|$
+%   \begin{mathpar}
+%   \inferrule[T-ty-address]
+%   {}
+%   {| tyrule tG tS a (ref (tyLookup tS a)) |}
+%   \end{mathpar}
 
-\caption{Selected typing rules for ML-like language}
-\label{fig:ml-typing}
-\end{figure}
+%   \caption{Selected typing rules for ML-like language}
+%   \label{fig:ml-typing}
+%   \end{figure}
 
 \begin{figure}
 \begin{code}
 lop  ::=  canFlowTo | lub | glb
-iv   ::=  id | il | true | false | unit | IT tv
+iv   ::=  id | il | true | false | unit
 ie   ::=  iv | ix | ie lop ie | getLabel | setLabel ie
-       |  fork ie | send ie ie ie | ix1, ix2 <= recv. ie ie |  IT te
+       |  fork ie | send ie ie ie | ix1, ix2 <= recv. ie ie
 iE   ::=  iHole | iE lop ie | iv lop iE | setLabel iE | fork iE 
        |  send iE ie ie | send iv iE ie | send iv iv iE
-       |  ix1, ix2 <= recv. ie ie |  IT tE
+       |  ix1, ix2 <= recv. ie ie
 io   ::=  (il, id ie)
 Q    ::=  nil | io , Q
 
-te   ::=  cdots | TI ie
-tE   ::=  cdots | TI iE
-
-ix1, ix2 <= brecv . ie @= IT (let tx = TI (ix1, ix2 <= recv. ie  (IT tx)) in tx)
-
-conf tS te @= iconf iS (fullconf id il tS (iniEt te), ldots)
-niconf iS id il ie @= iconf iS (fullconf id il tS (iniEi ie), ldots)
-CE[e] -> iconf iS (t, ldots) @= CE[e] .-> iconf iS (sched step (t, ldots))
+CE[e] -> iconf iS (it, ldots) @= CE[e] .-> iconf iS (sched step (it, ldots))
 \end{code}
-\caption{IFC grammar.}
-\label{fig:ifc-grammar}
-\end{figure}
 
-\begin{figure}
-\begin{align*}
-  &|erase il (iconf iS its) =
-  iconf (erase il iS) (fltr (\ it . it = bullet) (map (erasef il) its))| \\
-  &|erase il (tconf id il' ie) =| \begin{cases}
-    %|lconf bullet bullet bullet bullet| & |il' cantFlowTo il| \\
-    |bullet| & |il' cantFlowTo il| \\
-    |fullconf id il' (erase il tS) (erase il ie)| & \text{otherwise}
-  \end{cases} \\
-  %&|erase il iS [i mapsto Q] = iS [i mapsto (erase il Q)]|\\
-  &|erase il Q = filter il Q|\\
-  &|erase il (send id il' ie) =| \begin{cases}
-    |send id il' bullet| & |il' cantFlowTo il| \\
-    |send id il' (erase il ie)| & \text{otherwise}
-  \end{cases} \\
-  &\text{In all other cases, |erasef il| is applied homomorphically.}
-\end{align*}
-\caption{Erasure function.}
-\end{figure}
-
-\begin{figure}
 \begin{mathpar}
-\and
-\inferrule[I-done]
-{|
-|}
-{|
-iconf iS (fullconf id il tS iv, ldots)
-.->
-iS ; sched done (fullconf id il tS iv, ldots)
-|}
+%   \and
+%   \inferrule[I-done]
+%   {|
+%   |}
+%   {|
+%   iconf iS (fullconf id il tS iv, ldots)
+%   .->
+%   iS ; sched done (fullconf id il tS iv, ldots)
+%   |}
 
 \and
 \inferrule[I-noStep]
@@ -138,21 +116,6 @@ iconf iS (it, ldots) .-/>
 iconf iS (it, ldots)
 .->
 iS ; sched noStep (it, ldots)
-|}
-
-\and
-\inferrule[I-fork]
-{ 
-|iS' = iS [ id' mapsto nil ]|\\
-|tS' = klone(tS)|\\
-|it1 = fullconf id il tS (iniE id')|\\
-|itnew = fullconf id' il tS' (TI ie)|\\
-|fresh (id')|
-}
-{|
-iconf iS (fullconf id il tS (iniEi (fork ie)), ldots)
-.->
-iS'; sched fork (it1, ldots, itnew)
 |}
 
 \and
@@ -214,6 +177,51 @@ niconf iS' id il ie2
 \inferrule[I-labelOp]
 { |denot (il1 lop il2) = iv|}
 { |niconf iS id il (il1 lop il2) -> niconf iS id il iv| }
+\end{mathpar}
+\caption{IFC language}
+\label{fig:ifc}
+\end{figure}
+
+\begin{figure}
+\begin{tabular}{ll}
+\begin{minipage}{.22\textwidth}
+\begin{code}
+iv ::= cdots | IT tv
+ie ::= cdots | IT te
+iE ::= cdots | IT tE
+\end{code}
+\end{minipage} &
+\begin{minipage}{.22\textwidth}
+\begin{code}
+tv ::= cdots | TI iv
+te  ::=  cdots | TI ie
+tE   ::=  cdots | TI iE
+\end{code}
+\end{minipage}
+\end{tabular}
+
+\begin{code}
+ix1, ix2 <= brecv . ie @= IT (let tx = TI (ix1, ix2 <= recv. ie  (IT tx)) in tx)
+
+conf tS te @= iconf iS (fullconf id il tS (iniEt te), ldots)
+niconf iS id il ie @= iconf iS (fullconf id il tS (iniEi ie), ldots)
+\end{code}
+
+\begin{mathpar}
+\and
+\inferrule[I-fork]
+{ 
+|iS' = iS [ id' mapsto nil ]|\\
+|tS' = klone(tS)|\\
+|it1 = fullconf id il tS (iniE id')|\\
+|itnew = fullconf id' il tS' (TI ie)|\\
+|fresh (id')|
+}
+{|
+iconf iS (fullconf id il tS (iniEi (fork ie)), ldots)
+.->
+iS'; sched fork (it1, ldots, itnew)
+|}
 
 \and
 \inferrule[I-border]
@@ -228,8 +236,28 @@ niconf iS id il ie
 \inferrule[T-border]
 { } {| conf tS (TI (IT (te))) -> conf tS te|}
 \end{mathpar}
-\caption{IFC language and general embedding.}
-\label{fig:ifc}
+\caption{The embedding}
+\label{fig:embedding-grammar}
+\end{figure}
+
+\begin{figure}
+\begin{align*}
+  &|erase il (iconf iS its) =
+  iconf (erase il iS) (fltr (\ it . it = bullet) (map (erasef il) its))| \\
+  &|erase il (tconf id il' ie) =| \begin{cases}
+    %|lconf bullet bullet bullet bullet| & |il' cantFlowTo il| \\
+    |bullet| & |il' cantFlowTo il| \\
+    |fullconf id il' (erase il tS) (erase il ie)| & \text{otherwise}
+  \end{cases} \\
+  %&|erase il iS [i mapsto Q] = iS [i mapsto (erase il Q)]|\\
+  &|erase il Q = filter il Q|\\
+  &|erase il (send id il' ie) =| \begin{cases}
+    |send id il' bullet| & |il' cantFlowTo il| \\
+    |send id il' (erase il ie)| & \text{otherwise}
+  \end{cases} \\
+  &\text{In all other cases, |erasef il| is applied homomorphically.}
+\end{align*}
+\caption{Erasure function.}
 \end{figure}
 
 The filter function |filter il Q| removes message whose labels do not
