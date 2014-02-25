@@ -286,7 +286,12 @@ niconf iS id il ie
     |bullet| & |il' cantFlowTo il| \\
     |tconf id il' ie| & \text{otherwise}
   \end{cases} \\
-  %&|erase il iS [i mapsto Q] = iS [i mapsto (erase il Q)]|\\
+  &|erase il nil = nil|\\
+  &|erase il (iS [id mapsto Q]) =| \begin{cases}
+    |erase il iS| & \text{|il' cantFlowTo il|, where |il'| is}\\
+    & \text{the label of thread |id|} \\
+    |(erase il iS) [id mapsto (erase il Q)]| & \text{otherwise}
+  \end{cases} \\
   &|erase il Q = filter il Q|\\
   &\text{In all other cases, |erasef il| is applied homomorphically.}
 \end{align*}
@@ -411,11 +416,13 @@ a natural embedding which preserves booleans across boundaries.}
     task |it1''|.  Since both |it1'| and |it1''| have a label that is
     at least as high as the label of |it1|, they will get filtered
     by |erasef il| in |ic1'|.
-    Finally, lets consider the possible changes to |iS1|: If |it1| sends a
+    Lets consider the possible changes to |iS1|: If |it1| sends a
     message, then the corresponding queue in |iS1'| will contain one
     more message.  However, that message has the label of |it1| (or a higher
     label), and will thus get erased by |erasef il|.
-    \Red{The task could also send a message}
+    Finally, receiving or not receiving a message (by
+    \textsc{I-recv} or \textsc{I-noRecv}) only changes the queue of
+    task |it1|, which are erased from |iS1|.
     This ensures that $|ic1'|\approx_{|il|}|ic2'|$.
     
     \alphacondition{We need all scheduling policies to not change the order
@@ -444,7 +451,16 @@ a natural embedding which preserves booleans across boundaries.}
     need to argue that the potential differences in |iS1| and |iS2| cannot
     have an influence on the execution (and we know |iS1| and |iS2| are
     |il| equivalent).
-    \Red{Actually show this}
+    Again, only send and receive will change |iS|, so we consider all
+    rules that could have been used for~\eqref{eq:tsni-lemma-rhs}.  If
+    a message is sent, then the message is added to the same queue.  This
+    queue is either completely erased, or it is |il| equivalent.  In both
+    cases, |il| equivalence of |iS1'| and |iS2'| is preserved.
+    When the tasks are receiving a message, then by the reduction rules
+    we know that they first filter the queue by the label of |it1|.  We
+    also know that the queues are equivalent when filtered by the less
+    restrictive label |il|, thus the messages received (or dropped) from the
+    queue are equivalent.
   \end{itemize}
 \end{proof}
 
