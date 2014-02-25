@@ -8,13 +8,51 @@ design of an information-flow calculus which would not be directly
 derivable from our procedure, but is related to some such derivation.
 For example, in our mini-ML language, the combined semantics requires
 each thread to have a separate ML heap.  In an actual implementation, we
-might like to only have a \emph{single} heap, with some restrictions to
-enforce the illusion of separate heaps.  If these restrictions cause our
-implementation semantics to behave in the same way as the specification
-semantics (modulo some extra conditions), we might hope that we also
-automatically achieve non-interference.
+might like to only have a single heap, but disallowing the
+passing of references between threads.  This restriction maintains a
+correspondence between the abstract multiple heaps and the concrete
+single heap.  As long as we don't add any extra transitions which directly
+leak secret data, we might hope that non-interference follows
+immediately.
 
-We can make this formal as follows: \Red{Define some notation}
+However, when proving termination-\emph{sensitive} non-interference, we
+cannot allow an arbitrary restrictions.  Consider a trivial state
+machine as shown in Figure~\ref{fig:trivial-sm}, whose second projection
+is classified secret.  With all three transitions, this language
+fulfills termination-sensitive noninterference.  Furthermore, if the
+dashed line is removed, the language continues to satisfy TSNI.
+However, if any solid line is removed, however, the language fails TSNI.
+Only \emph{some} transitions may be removed safely.
+
+\begin{figure}
+    States: $(x,y)$ for $x,y \in \{0,1\}$ \\
+    Erasure function: $f(x,y) = (x,\bullet)$
+
+    \begin{center}\begin{tikzpicture}[node distance=2cm, auto]
+        \node (A) {$(1,1)$};
+        \node (B) [right of=A] {$(1,0)$};
+        \node (C) [below of=A] {$(0,1)$};
+        \node (D) [right of=C] {$(0,0)$};
+        \draw[->] (A) to node {} (B);
+        \draw[->] (C) to node {} (D);
+        \draw[->, dashed] (B) to node {} (D);
+    \end{tikzpicture}\end{center}
+
+    \label{fig:trivial-sm}
+    \caption{A trivial state machine}
+\end{figure}
+
+In order to capture the condition with which transitions may be removed
+safely, we require a novel, stronger variant of termination-sensitive
+noninterference:
+
+\begin{lemma}[Erased-transition/transition simulation (ETTS)]
+    For any state |C|, if |erase l C .-> delta|, then there exists a |C'| such that
+    |erase l C' = delta| and |C .=> C'|.
+\end{lemma}
+
+Traditional TSNI is an easy corollary of this lemma.  Now we can state
+the result:
 
 \begin{theorem}
     Suppose we have a abstract specification language $L$ with machine
@@ -27,8 +65,15 @@ We can make this formal as follows: \Red{Define some notation}
     Next, suppose we have a language $L'$ with machine states $|Q|$,
     evaluation relation $|.->|'$ and erasure function $e'$.  Given
     functions $f^{-1} : |C -> Q|$ and $f : |Q -> C|$ relating machine
-    states between $L$ and $L'$, obeying the condition $f^{-1} \circ f =
-    id$ and $f^{-1} \circ e' \circ f = e$.  Then to show termination sensitive non-interference for $L'$,
+    states between $L$ and $L'$, obeying the conditions:
+
+    \begin{itemize}
+        \item $f$ is functorial over $l$-equivalence: if
+            $|Q1| \approx'_l |Q2|$ then $f(|Q1|) \approx_l f(|Q2|)$.
+    \end{itemize}
+    
+    (Probably $f^{-1} \circ f =
+    id$ and $f^{-1} \circ e' \circ f = e$)  Then to show termination sensitive non-interference for $L'$,
     it suffices to show that for every evaluation rule $|Q| |.->|' |Q'|$
     it is either the case that $f(|Q|) |.->| f(|Q'|)$ or that
     \ldots
@@ -38,6 +83,9 @@ We can make this formal as follows: \Red{Define some notation}
 Our proof proceeds along the same lines as a traditional TSNI proof,
 we simply must show \Red{Lemma~1} holds for our language.  We proceed by induction
 over reduction derivations in the first step.
+
+We have $ts'_1 \approx_l ts'_2$ and would like to show $f(ts'_1) \approx_l f(ts'_2)$;
+this can be seen by expanding the definition of
 \end{proof}
 
 To provide a sense of how these conditions work, we give an example
