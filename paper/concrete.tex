@@ -52,16 +52,30 @@ the pointer dangling.  Next, we define a desugaring into this language
 which adds dynamic checks, eliminating the possibility for these undesirable
 transitions to be exercised.
 
-\begin{theorem}[Isomorphism preserves termination sensitive non-interference]
-    Consider a language \tar{L} with configurations |tc|, reduction
-    relation \tar{|.->|} and erasure function \tar{|erasef l|} and a
-    language \ifc{L} with configurations |ic|, reduction relation
-    \ifc{|.->|} and erasure function \ifc{|erasef l|}.  We say that
-    \tar{L} and \ifc{L} are isomorphic if there exist (total) functions
-    $f : |tc -> ic|$ and $f^{-1} : |ic -> tc|$ such that $f \circ f^{-1}
-    = id$, $f^{-1} \circ f = id$, and that $f$ and $f^{-1}$ are
+\begin{definition}[Information-flow control language]
+    An information-flow control language L is a tuple $(|C|, |C|^*, |.->|,
+    |erasef l|)$, where $c \in |C|$ is the type of machine configurations,
+    $|C|^*$ is the type of erased machine configurations, |.->| is a
+    reduction relation between machine configurations and $|erasef l|$
+    is an erasure function from machine configurations to erased machine
+    configurations.
+\end{definition}
+
+\begin{definition}[$l$-equivalence]
+    Two machine configurations $c$ and $c'$ are considered $l$-equivalent ($c \approx_l c'$)
+    if $|erase l c| = |erase l c'|$.
+\end{definition}
+
+\begin{definition}[Isomorphism of information-flow control languages]
+    Two languages
+    \tar{L} $(|tC|, |tC|^*, \tar{|.->|}, \tar{|erasef l|})$ and \ifc{L} $(|iC|, |iC|^*, \ifc{|.->|}, \ifc{|erasef l|})$ are isomorphic if there exist (total) functions
+    $f : |tC -> iC|$ and $f^{-1} : |iC -> tC|$ such that $f \circ f^{-1}
+    = id_{|tC|}$, $f^{-1} \circ f = id_{|iC|}$, and that $f$ and $f^{-1}$ are
     functorial over $l$-equivalences (i.e. if $|tc|\ \tar{\approx_l}\
     |tc'|$ then $f(|tc|)\ \ifc{\approx_l}\ f(|tc'|)$ and vice-versa).
+\end{definition}
+
+\begin{theorem}[Isomorphism preserves termination sensitive non-interference]
     Then if \ifc{L} satisfies termination sensitive non-interference,
     then \tar{L} satisfies termination sensitive non-interference.
 \end{theorem}
@@ -69,8 +83,10 @@ transitions to be exercised.
 \begin{proof}
     Easily shown by transporting configurations and reduction derivations
     from \tar{L} to \ifc{L}, applying TSNI, and then transporting the resulting
-    configuration and derivation back.
+    configuration and multi-step derivation back.
 \end{proof}
+
+
 
 \begin{figure}
 
