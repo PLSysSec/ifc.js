@@ -8,21 +8,19 @@ design of an information-flow calculus which would not be directly
 derivable from our procedure, but is related to some such derivation.
 For example, in our mini-ML language, the combined semantics requires
 each thread to have a separate ML heap.  In an actual implementation, we
-might like to only have a single heap, but disallowing the
-passing of references between threads.  This restriction maintains a
-correspondence between the abstract multiple heaps and the concrete
-single heap.  As long as we don't add any extra transitions which directly
-leak secret data, we might hope that non-interference follows
-immediately.
+might like to only have a single heap and disallow the passing of
+references between threads.  This restriction maintains a correspondence
+between the abstract multiple heaps and the concrete single heap.  We might
+hope that we can prove noninterference for this new system by reusing
+noninterference for the old system.
 
-However, when proving termination-\emph{sensitive} non-interference, we
-cannot allow an arbitrary restrictions.  Consider a trivial state
-machine as shown in Figure~\ref{fig:trivial-sm}, whose second projection
-is classified secret.  With all three transitions, this language
-fulfills termination-sensitive noninterference.  Furthermore, if the
-dashed line is removed, the language continues to satisfy TSNI.
-However, if any solid line is removed, however, the language fails TSNI.
-Only \emph{some} transitions may be removed safely.
+However, modifying operational rules poses a distinct problem for
+preserving non-interference.  Consider a trivial state machine as shown
+in Figure~\ref{fig:trivial-sm}, whose second projection is classified
+secret.  With all three transitions, this language fulfills
+termination-sensitive noninterference.  Furthermore, if the dashed line
+is removed, the language continues to satisfy TSNI.  However, if any
+solid line is removed, however, the language fails TSNI.
 
 \begin{figure}
     States: $(x,y)$ for $x,y \in \{0,1\}$ \\
@@ -42,60 +40,35 @@ Only \emph{some} transitions may be removed safely.
     \caption{A trivial state machine}
 \end{figure}
 
-In order to capture the condition with which transitions may be removed
-safely, we require a novel, stronger variant of termination-sensitive
-noninterference:
+The approach we will take is in two steps.  First, we sidestep the
+restriction problem by demanding that the concrete implementation be
+\emph{isomorphic} to the abstract specification, but perhaps having a different
+runtime representation (a single heap) and some well-formedness
+condition (every item on the heap only contains pointers from a single
+location).  Isomorphism will preserve nonintereference, but it will also means all
+transitions in the abstract language have to be implemented, including
+undesirable transitions such as sending a pointer to another thread makes
+the pointer dangling.  Next, we define a desugaring into this language
+which adds dynamic checks, eliminating the possibility for these undesirable
+transitions to be exercised.
 
-\begin{lemma}[Erased-transition/transition simulation (ETTS)]
-    For any state |C|, if |erase l C ..-> delta|, then there exists a |C'| such that
-    |erase l C' = delta| and |C .=> C'|.
-\end{lemma}
-
-Traditional TSNI is an easy corollary of this lemma.  \Red{Need to argue
-this is provable!} Now we can state the result:
-
-\begin{theorem}
-    Suppose we have a abstract specification language $L$ with machine
-    states $|C|$, evaluation relation $|.->|$, erasure function $|erasef l|$,
-    and a proof that ETTS holds.
-
-    Next, suppose we have a language $L'$ with machine states $|C'|$,
-    evaluation relation $|.->|'$ and erasure function $|erasef l|'$.  We demand that this
-    language be related to $L$ in the following way:
-
-    \begin{itemize}
-        \item There are functions $f : |C' -> C|$ and $f^{-1} : |C -> C'|$ which is functorial
-            over $l$-equivalences: e.g. if $|C| \approx'_l |C'|$ then
-            $f(|C|) \approx_l f(|C'|)$ and vice versa.
-    \end{itemize}
-
-    Then ETTS holds for language $L'$.
+\begin{theorem}[Isomorphism preserves termination sensitive non-interference]
+    Consider a language \tar{L} with configurations |tc|, reduction
+    relation \tar{|.->|} and erasure function \tar{|erasef l|} and a
+    language \ifc{L} with configurations |ic|, reduction relation
+    \ifc{|.->|} and erasure function \ifc{|erasef l|}.  We say that
+    \tar{L} and \ifc{L} are isomorphic if there exist (total) functions
+    $f : |tc -> ic|$ and $f^{-1} : |ic -> tc|$ such that $f \circ f^{-1}
+    = id$, $f^{-1} \circ f^{-1} = id$, and that $f$ and $f^{-1}$ are
+    functorial over $l$-equivalences (i.e. if $|tc|\ \tar{\approx_l}\
+    |tc'|$ then $f(|tc|)\ \ifc{\approx_l}\ f(|tc'|)$ and vice-versa).
+    Then if \ifc{L} satisfies termination sensitive non-interference,
+    then \tar{L} satisfies termination sensitive non-interference.
 \end{theorem}
 
 \begin{proof}
-We need to show that for all choices of $|C1'|$, there exists a $|C2'|$ with
-the desired properties.  We proceed by induction on the erased-transition.
-There are two cases.  In the first case, there is a one-to-one correspondence
-between reduction relations in 
-
-Our proof proceeds along the same lines as a traditional TSNI proof,
-we simply must show \Red{Lemma~1} holds for our language.  We proceed by induction
-over reduction derivations in the first step.
-
-We have $ts'_1 \approx_l ts'_2$ and would like to show $f(ts'_1) \approx_l f(ts'_2)$;
-this can be seen by expanding the definition of
+    Easy application of TSNI \tar{L} by applying $f$
 \end{proof}
-
-To provide a sense of how these conditions work, we give an example
-use of these theorem:
-
-\begin{theorem}
-    The language described in Figure X satisfies termination sensitive non-interference.
-\end{theorem}
-
-\begin{code}
-\end{code}
-
 
 \begin{figure}
 
