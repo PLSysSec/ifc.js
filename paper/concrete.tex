@@ -47,39 +47,37 @@ safely, we require a novel, stronger variant of termination-sensitive
 noninterference:
 
 \begin{lemma}[Erased-transition/transition simulation (ETTS)]
-    For any state |C|, if |erase l C .-> delta|, then there exists a |C'| such that
+    For any state |C|, if |erase l C ..-> delta|, then there exists a |C'| such that
     |erase l C' = delta| and |C .=> C'|.
 \end{lemma}
 
-Traditional TSNI is an easy corollary of this lemma.  Now we can state
-the result:
+Traditional TSNI is an easy corollary of this lemma.  \Red{Need to argue
+this is provable!} Now we can state the result:
 
 \begin{theorem}
     Suppose we have a abstract specification language $L$ with machine
-    states $|C|$, evaluation relation $|.->|$ and erasure function $e$.
-    Furthermore we have a proof that this language fulfills termination
-    sensitive non-interference: if $|C1| \approx_l |C2|$ and $|C1|
-    |.->|^* |C1'|$, then there exists a $|C2'|$ such that $|C2| |.->|^*
-    |C2'|$ and $|C1'| \approx_l |C2'|$.
+    states $|C|$, evaluation relation $|.->|$, erasure function $|erasef l|$,
+    and a proof that ETTS holds.
 
-    Next, suppose we have a language $L'$ with machine states $|Q|$,
-    evaluation relation $|.->|'$ and erasure function $e'$.  Given
-    functions $f^{-1} : |C -> Q|$ and $f : |Q -> C|$ relating machine
-    states between $L$ and $L'$, obeying the conditions:
+    Next, suppose we have a language $L'$ with machine states $|C'|$,
+    evaluation relation $|.->|'$ and erasure function $|erasef l|'$.  We demand that this
+    language be related to $L$ in the following way:
 
     \begin{itemize}
-        \item $f$ is functorial over $l$-equivalence: if
-            $|Q1| \approx'_l |Q2|$ then $f(|Q1|) \approx_l f(|Q2|)$.
+        \item There are functions $f : |C' -> C|$ and $f^{-1} : |C -> C'|$ which is functorial
+            over $l$-equivalences: e.g. if $|C| \approx'_l |C'|$ then
+            $f(|C|) \approx_l f(|C'|)$ and vice versa.
     \end{itemize}
-    
-    (Probably $f^{-1} \circ f =
-    id$ and $f^{-1} \circ e' \circ f = e$)  Then to show termination sensitive non-interference for $L'$,
-    it suffices to show that for every evaluation rule $|Q| |.->|' |Q'|$
-    it is either the case that $f(|Q|) |.->| f(|Q'|)$ or that
-    \ldots
+
+    Then ETTS holds for language $L'$.
 \end{theorem}
 
 \begin{proof}
+We need to show that for all choices of $|C1'|$, there exists a $|C2'|$ with
+the desired properties.  We proceed by induction on the erased-transition.
+There are two cases.  In the first case, there is a one-to-one correspondence
+between reduction relations in 
+
 Our proof proceeds along the same lines as a traditional TSNI proof,
 we simply must show \Red{Lemma~1} holds for our language.  We proceed by induction
 over reduction derivations in the first step.
