@@ -35,7 +35,7 @@
 %format ==> = "\lto^*"
 %format <=  = "\Leftarrow"
 %format =>  = "\Rightarrow"
-%format (sched (t) (p) ) = "\alpha_{"t"}("{p}")"
+%format (sched (t) (p) ) = "\alpha_{{\tiny\mathrm{"t"}}}("p")"
 
 
 
@@ -439,6 +439,10 @@
 %format nonblk    = "N"
 %format unit      = "\langle\rangle"
 
+%format done      = "D"
+%format noStep    = "N"
+%format step      = "S"
+
 %format (TI (x))  = "\tar{_{\textrm{TI}}\lfloor}"x"\tar{\rfloor}"
 %format (IT (x))  = "\ifc{^{\textrm{IT}}\lceil}"x"\ifc{\rceil}"
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -615,8 +619,8 @@
 %format iconf (t) (s) = t ; s
 %format niconf (t) (i) (l) (e) = CE"_{"t"}\left["e"\right]^{"i"}_{"l"}"
 
-%format erase (l) (e) = "\varepsilon_{"l"}("e")"
-%format erasef (l) = "\varepsilon_{"l"}"
+%format (erase (l) (e)) = "\varepsilon_{"l"}("e")"
+%format (erasef (l)) = "\varepsilon_{"l"}"
 
 %format map = "\text{map}"
 %format fltr = "\text{filter}"
