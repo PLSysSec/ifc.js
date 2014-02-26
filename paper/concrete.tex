@@ -59,7 +59,7 @@ transitions to be exercised.
     \ifc{|.->|} and erasure function \ifc{|erasef l|}.  We say that
     \tar{L} and \ifc{L} are isomorphic if there exist (total) functions
     $f : |tc -> ic|$ and $f^{-1} : |ic -> tc|$ such that $f \circ f^{-1}
-    = id$, $f^{-1} \circ f^{-1} = id$, and that $f$ and $f^{-1}$ are
+    = id$, $f^{-1} \circ f = id$, and that $f$ and $f^{-1}$ are
     functorial over $l$-equivalences (i.e. if $|tc|\ \tar{\approx_l}\
     |tc'|$ then $f(|tc|)\ \ifc{\approx_l}\ f(|tc'|)$ and vice-versa).
     Then if \ifc{L} satisfies termination sensitive non-interference,
@@ -67,7 +67,9 @@ transitions to be exercised.
 \end{theorem}
 
 \begin{proof}
-    Easy application of TSNI \tar{L} by applying $f$
+    Easily shown by transporting configurations and reduction derivations
+    from \tar{L} to \ifc{L}, applying TSNI, and then transporting the resulting
+    configuration and derivation back.
 \end{proof}
 
 \begin{figure}
