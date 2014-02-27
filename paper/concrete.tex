@@ -124,22 +124,6 @@ transitions to be exercised.
 
 \Red{Move these definitions earlier}
 
-\begin{definition}[Information-flow control language]
-    An information-flow control language L is a tuple $(|C|, |C|^*, |.->|,
-    |erasef l|)$, where $c \in |C|$ is the type of machine configurations,
-    $|C|^*$ is the type of erased machine configurations, |.->| is a
-    reduction relation between machine configurations and $|erasef l|$
-    is an erasure function from machine configurations to erased machine
-    configurations.  For sequential languages, we may also speak of
-    values, e.g. a configurations $V \subseteq |C|$ for which there are
-    no possible further transitions.
-\end{definition}
-
-\begin{definition}[$l$-equivalence]
-    Two machine configurations $c$ and $c'$ are considered $l$-equivalent ($c \approx_l c'$)
-    if $|erase l c| = |erase l c'|$.
-\end{definition}
-
 Before we show isomorphism preserves termination sensitive
 non-interference, we'd like to remark that one can safely remove transitions
 and preserve termination \emph{insensitive} interference:
