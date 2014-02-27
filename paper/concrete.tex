@@ -322,37 +322,50 @@ lemma we will use.
     However, |it2| might not be at the beginning of the task list yet, but
     all tasks occurring before it must get erased by |erasef il|.
     In |ic2|, we can first take some number of steps until |it2| moves
-    to the front of the list (\Red{Say more precisely why
-      (basically because we require the scheduling policy to do that)}).
+    to the front of the list.
+    This is the case regardless of any additional side conditions $P$ on
+    rules, because for all of these tasks, it can either take an actual
+    step, or it gets dropped by \textsc{I-noStep} (which is always
+    possible, as there cannot be an additional side condition on this
+    rule).  All tasks that didn't get dropped are still at a label
+    that isn't below |il| and thus get erased.
     
-    \alphacondition{The scheduling policy must eventually let any task in
-      the task list evaluate.  In particular, it cannot get stuck when the
-      first task gets stuck, or keep executing a small number of tasks
-      exclusively forever (e.g. just execute the first task all the time
-      if it gets into an infinite loop).}
+%    \alphacondition{The scheduling policy must eventually let any task in
+%      the task list evaluate.  In particular, it cannot get stuck when the
+%      first task gets stuck, or keep executing a small number of tasks
+%      exclusively forever (e.g. just execute the first task all the time
+%      if it gets into an infinite loop).}
     
     Therefore, after |ic2| has potentially executed some number of steps
-    to arrive at |ic2''|, we are now in the situation where $|ic1|\approx_{|il|}|ic2''|$, and the first task |it1| and |it2| don't
-    get erased and are thus equivalent.
-    The task |it2| can now take exactly the same step as |it1|;  we only
+    to arrive at |ic2''|, we are now in the situation where $|ic1|\approx_{|il|}|ic2''|$, and the first tasks |it1| and |it2|,
+    respectively, don't get erased and are thus equivalent.
+    The task |it2| can now take exactly the same step as |it1|;  this
+    is true even with arbitrary additional premises $P$ that follow
+    the condition in Definition~\ref{def:npri}, since those
+    predicates only depend on |erase il ic1|, which is equivalent
+    to |erase il ic2|, and thus those predicates evaluate in the same way.
+    Thus, we only
     need to argue that the potential differences in |iS1| and |iS2| cannot
     have an influence on the execution (and we know |iS1| and |iS2| are
     |il| equivalent).
-    Again, only send and receive will change |iS|, so we consider all
-    rules that could have been used for~\eqref{eq:tsni-lemma-rhs}.  If
-    a message is sent, then the message is added to the same queue.  This
-    queue is either completely erased, or it is |il| equivalent.  In both
-    cases, |il| equivalence of |iS1'| and |iS2'| is preserved.
-    When the tasks are receiving a message, then by the reduction rules
-    we know that they first filter the queue by the label of |it1|.  We
-    also know that the queues are equivalent when filtered by the less
-    restrictive label |il|, thus the messages received (or dropped) from the
-    queue are equivalent.
+    Again, only sending and receiving will depend on, or change |iS|,
+    so we consider all these cases.
+    \begin{description}
+      \item[Case \textsc{I-send}]
+      Here, the task |it2| will send the same message to the same
+      receiver queue. This
+      queue is either completely erased, or it is |il| equivalent.  In both
+      cases, |il| equivalence of |iS1'| and |iS2'| is preserved.
+      \item[Case \textsc{I-recv} and \textsc{I-noRecv}]
+      When the tasks are receiving a message, then by the reduction rules
+      we know that they first filter the queue by the label
+      |lcurr| of |it1|.  We
+      also know that the queues are equivalent when filtered by the less
+      restrictive label |il|, thus the messages received (or dropped) from the
+      queue are equivalent.
+    \end{description}
   \end{itemize}
 \end{proof}
-
-
-
 
 
 \subsection{\Red{Previous Stuff (to be merged/removed as necessary)}}
