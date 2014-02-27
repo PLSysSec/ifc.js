@@ -282,31 +282,6 @@ niconf iS id il ie
 \end{figure}
 
 
-\begin{figure}
-\begin{align*}
-  &|erase il (iconf iS its) =
-  iconf (erase il iS) (fltr (\ it . it = bullet) (map (erasef il) its))| \\
-  &|erase il (tconf id il' ie) =| \begin{cases}
-    %|lconf bullet bullet bullet bullet| & |il' cantFlowTo il| \\
-    |bullet| & |il' cantFlowTo il| \\
-    |tconf id il' ie| & \text{otherwise}
-  \end{cases} \\
-  &|erase il emptyset = emptyset|\\
-  &|erase il (iS [id mapsto Q]) =| \begin{cases}
-    |erase il iS| & \text{|il' cantFlowTo il|, where |il'| is}\\
-    & \text{the label of thread |id|} \\
-    |(erase il iS) [id mapsto (erase il Q)]| & \text{otherwise}
-  \end{cases} \\
-  &|erase il Q = filter il Q|
-\end{align*}
-\caption{
-Erasure function for configurations, threads, system state, and
-message queus.  In all other cases, |erasef il| is applied
-homomorphically.
-\label{fig:erasure}
-}
-\end{figure}
-
 \Red{When both languages have booleans, it is relatively simple to define
 a natural embedding which preserves booleans across boundaries.}
 \begin{mathpar}
@@ -337,80 +312,6 @@ a natural embedding which preserves booleans across boundaries.}
 \end{figure}
 
 
-\subsection{Formal Guarantees}
-
-\begin{definition}[Information-flow control language]
-    An information-flow control language |L| is a tuple |(C, .->,
-    erasef l)|, where $c \in |C|$ is the type of machine configurations, |.->| is a
-    reduction relation between machine configurations and |erasef l : C -> tyerase C|
-    is an erasure function parametrized on labels from machine configurations to \emph{erased} machine
-    configurations |tyerase C|.  For sequential languages, the
-    language is augmented with a set of terminal configuration states $V
-    \subseteq |C|$ for which there are no possible further transitions.
-\end{definition}
-
-%{
-%format .->  = "\overset{\alpha}{\hookrightarrow}"
-Using this definition, we can now expand the definition for the
-specification family of languages.
-%
-Specifically, |specLang alpha (targetLang nop) = (ifc C, ifc V, .->,
-erasef il)|, such that $|ifc C| = |iS| \times \prod |it|$ and $|ifc V|
-= |iS| \times |it|^*$, where $|it|^* \subset |it|$ it the type for
-tasks whose expressions have been reduced to values.\footnote{
-Here, we abuse notation by using metavariables to describe types of
-the corresponding non-terminals, e.g., |it| for the type of task.
-}
-%}
-
-\begin{definition}[$l$-equivalence]
-    In a language |(C, .->, erasef l)|, two machine configurations
-    |memberf (c, c') C| are considered $l$-equivalent (|c ~= c'|)
-    if |erase l c = erase l c'|.
-\end{definition}
-
-\begin{definition}[Termination Sensitive Non-Interference (TSNI)]
-  A language |(C, .->, erasef l)| is termination
-  sensitive non-interfering if for any label |l|, and configurations
-  |c1, c1', c2 member C|, if
-  \begin{equation} \label{eq:tsni-lhs}
-    |c1| \approx_{|l|} |c2|
-    \qquad \text{and} \qquad
-    |c1| |.->|^* |c1'|
-  \end{equation}
-  then there exists a configuration |c2' member C| such that
-  \begin{equation} \label{eq:tsni-rhs}
-    |c1'| \approx_{|l|} |c2'|
-     \qquad \text{and} \qquad
-    |c2| |.->|^* |c2'|
-    \ \text{.}
-  \end{equation}
-\end{definition}
-
-\begin{theorem}[Concurrent specification language is TSNI]
-For any target language |targetLang nop|, |specLang roundrobinf
-(targetLang nop)| satisfies TSNI.
-\end{theorem}
-
-\begin{definition}[Termination Insensitive Non-Interference (TINI)]
-  A language |(C, V, .->, erasef l)| is termination
-  insensitive non-interfering if for any label |l|, and configurations
-  |c1, c2 member C| and |c1', c2' member V| if
-   $|c1| \approx_{|l|} |c2|$,
-   $|c1| |.->|^* |c1'|$, and
-   $|c2| |.->|^* |c2'|$, then
-   $|c1'| \approx_{|l|} |c2'|$.
-\end{definition}
-
-
-\begin{theorem}[Sequential specification language is TINI]
-For any target language |targetLang nop|, |specLang seqf (targetLang
-nop)| satisfies TINI.
-\end{theorem}
-
-
-
-
 
 \subsection{Generalizing further}
 
@@ -419,9 +320,6 @@ nop)| satisfies TINI.
 \item Non-deterministic reduction.
 \item Arbitrary scheduling policies $\alpha$
 \end{itemize}
-
-
-
 
 
 
