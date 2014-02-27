@@ -53,6 +53,20 @@ way to represent the heap.  How can we be sure that these
 new, \textit{concrete semantics} for our system still satisfy
 termination-sensitive non-interference?
 
+Intuitively, there are two scenarios in which non-interference
+can be violated when restricting the transition relation:
+\begin{itemize}
+  \item Adding an additional premise to one of the rules that inspects
+  information which is above the security label of the task currently
+  executing.  This would allow another task to observe the termination
+  of the other if both are at the same security level, and thus observe
+  the secret information that was used in the additional
+  premise of the rule.
+  \item Adding additional restrictions to transition rules can
+  also cause the whole configuration to get stuck, which can leak
+  information through the termination channel.
+\end{itemize}
+
 %This isn't trivial, as it is not sound to add arbitrary additional
 %conditions on evaluation rules.  To see this, consider a contrived
 %concrete system where we add a premise to a reduction rule that
@@ -64,6 +78,24 @@ termination-sensitive non-interference?
 
 \subsection{Correctness of Concrete Semantics}
 
+To formalize the conditions under which we can show the concrete
+semantics preserve non-interference, we require some notation:
+
+\Red{isomorphism definition here}
+
+Now, we propose the following two-step process to ensure that
+TSNI is preserved:
+\begin{enumerate}
+  \item First, any of the reduction rules of the abstract
+  semantics presented in Section~\ref{sec:retrofit} can
+  be restricted by adding a predicate $P$ to the premise of
+  any rule other than \textsc{I-noStep}.  The predicate $P$
+  can depend only on the \textit{erased} configuration
+  |erase il ic|, where |il| is the label of the first task
+  in the task list.
+\end{enumerate}
+
+
 We now have a concrete semantics, which both uses a different
 representation for some of the constructs in language (a single
 heap rather than a heap per task in our running example), as well
@@ -74,15 +106,6 @@ condition on what kind of restrictions can be allowed on the
 operational rules.  Secondly, we define the notation of an
 isomorphism between IFC languages and show that it preserves
 non-interference.
-
-Intuitively, there are two scenarios in which non-interference
-can be violated when restricting the transition relation:
-\begin{itemize}
-  \item Adding an additional premise to one of the rules that inspects
-  information which is above the security label of the thread currently
-  executing.
-  \item
-\end{itemize}
 
 \Red{At some point in this section we should say a little about
   why the abstract setting needs complete isolation (because it
