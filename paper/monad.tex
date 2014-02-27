@@ -1,7 +1,49 @@
 \section{The monadic interpretation}
 \label{sec:monad}
 
-In this section, we discuss the intuition behind the operational rules
-we have proposed by considering their interpretation when structured
-using monads and monad transformers.  Monads were originally proposed
-as a method for structuring operational semantics~\cite{Moggi:2007:SOS:1230168.1230592}
+In the previous sections, we have been primarily concerned with the
+combination of operational semantics in order to automatically augment a
+language with information flow control.  In this section, we present
+a more abstract view of what is going on, phrased in the language of monads
+and monad transformers.  The key idea is that the computational effects
+of the target language should be thought of as a \emph{monad transformer}
+on top of the information-flow control base monad.  Readers who are not
+familiar with monads should feel free to skip this section.
+
+Monads were originally proposed as a method for organizing computational
+effects~\cite{Moggi:1991:NCM:116981.116984}.  One of the key questions
+of interest was how to modularly build more complex computational
+effects out of simpler ones.  One particular approach, the
+\emph{incremental
+approach}~\cite{Benton00monadsand,Liang95monadtransformers}, utilizes
+monad transformers, which add an extra computation feature to a
+pre-existing monad.  In the past, this approach has been criticized for
+a number of failings, including the fact that the order in meaning of a
+monad can depend on the order in which the monad transformers are
+applied. \Red{cite} The canonical example of this phenomenon is the
+composition of the state monad and the error monad: depending on the
+ordering of the two monad transformers, state is preserved or thrown away
+upon an error.
+
+These problems can be viewed as defects in a setting where we are
+simply interested in combining effects.  However, in the setting of information
+flow control, we are primarily interested in augmenting the
+computational effects of a target language with information flow control
+\emph{without} compromising noninterference.  When the base monad is
+kept abstract (in the style of a restricted IO monad~\cite{Terei:2012:SH:2364506.2364524}),
+there is an easy argument why any monad transformer must also preserve noninterference:
+the monad transformer could have been implemented simply as a \emph{pure} interpreter, and
+the pure interpreter is just another program like any other that may run on top of
+a restricted IO monad.
+
+Now, one shouldn't simply force an interpreter to be reimplemented on
+top of a language supporting information flow control.  As suggested by
+Filinski et al~\cite{Filinski:2010:MA:1707801.1706354}, we should use
+pure implementations of computational effects to understand
+computational effects when built into information flow languages: they
+give a good hint what the operational rules should be.  This intuition
+backed the development of Section~\ref{sec:retrofit}.  Furthermore,
+developing the relationship between concrete semantics and abstract
+semantics in \ref{sec:concrete} relates to the question of monad
+isomorphisms in the presence of data abstraction.  We leave
+investigating this connection in more detail to future work.
