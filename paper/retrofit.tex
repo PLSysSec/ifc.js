@@ -112,6 +112,7 @@ iE   ::=  iHole | iE lop ie | iv lop iE | setLabel iE | fork iE
        |  ix1, ix2 <= recv. ie ie
 io   ::=  (il, id ie)
 Q    ::=  nil | io , Q
+iS   ::=  emptyset | iS [ id mapsto Q ]
 \end{code}
 
 \begin{mathpar}
