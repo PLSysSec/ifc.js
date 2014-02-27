@@ -23,6 +23,7 @@
 %format oplus = "\oplus"
 %format bullet = "\bullet"
 
+%format -> = "\rightarrow"
 %format -/> = "\not\to"
 %format ~>  = "\leadsto"
 %format .->  = "\hookrightarrow"
@@ -472,8 +473,6 @@
 %format L2''
 %format L3''
 
-%format (spec (x)) = "\color{violet}{"x"}"
-
 %format not (x) = "{\not "x"}"
 
 
@@ -634,7 +633,6 @@
 %format diverge = "\tar{\Uparrow}"
 %format bool = "\mathbf{bool}"
 %format ref = "\mathbf{ref}"
-%format -> = "\rightarrow"
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% language
@@ -699,6 +697,21 @@
 %format klone2''
 %format klone3''
 
+%format alpha = "\alpha"
+%format alpha'
+%format alpha''
+%format alphai = alpha"_"i
+%format alphai' = alpha'"_"i
+%format alphai'' = alpha''"_"i
+%format alpha1
+%format alpha2
+%format alpha3
+%format alpha1'
+%format alpha2'
+%format alpha3'
+%format alpha1''
+%format alpha2''
+%format alpha3''
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Combined state, eval ctx, expression
 
@@ -711,3 +724,11 @@
 %format (tyLookup (s) (a)) = s"("a")"
 
 %format delta = "\delta"
+
+
+%%%%%
+%% LANGUAGES
+
+%format nop = " "
+%format (targetLang (x)) = "\lambda_{"x"}"
+%format (specLang (x) (y)) = "\mathrm{IFC}("x, y")"

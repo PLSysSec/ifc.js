@@ -65,7 +65,7 @@ let tx = te1 in te2  @= (\tx.te2) te1
 {| conf tS (ta := tv) -> conf tS' tv |}
 \end{mathpar}
 
-\caption{Simple ML-like language}
+\caption{Simple ML-like language |targetLang ML|}
 \label{fig:ml}
 \end{figure}
 
@@ -199,6 +199,9 @@ to remove entries from the state.  \Red{For more information about when this is 
 fork semantics you want, see the concrete implementation section.}
 
 \begin{figure}
+%{
+%format .->  = "\overset{\alpha}{\hookrightarrow}"
+%format .-/>  = "\not\overset{\alpha}{\hookrightarrow}"
 \begin{tabular}{ll}
 \begin{minipage}{.22\textwidth}
 \begin{code}
@@ -224,7 +227,6 @@ CE[e] -> iconf iS (it, ldots) @= CE[e] .-> iconf iS (sched step (it, ldots))
 \end{code}
 
 \begin{mathpar}
-\and
 \inferrule[I-fork]
 { 
 |iS' = iS [ id' mapsto nil ]|\\
@@ -273,8 +275,10 @@ niconf iS id il ie
 \inferrule[T-border]
 { } {| conf tS (TI (IT (te))) -> conf tS te|}
 \end{mathpar}
-\caption{The embedding}
+\caption{The embedding |specLang alpha (targetLang nop)|, where
+$|targetLang nop| = (|tS|\times|tE|\times|te|\times|tv|, |->|)$}
 \label{fig:embedding}
+%}
 \end{figure}
 
 
