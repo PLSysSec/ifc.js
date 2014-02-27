@@ -276,7 +276,7 @@ niconf iS id il ie
 { } {| conf tS (TI (IT (te))) -> conf tS te|}
 \end{mathpar}
 \caption{The embedding |specLang alpha (targetLang nop)|, where
-$|targetLang nop| = (|tS|\times|tE|\times|te|\times|tv|, |->|)$}
+|targetLang nop = (tS, tE, te, tv, ->)|}
 \label{fig:embedding}
 %}
 \end{figure}
@@ -337,7 +337,6 @@ a natural embedding which preserves booleans across boundaries.}
 \end{figure}
 
 
-\clearpage % TODO: remove again, but keep for now to not have the text be split across 4 pages.
 \subsection{Formal Guarantees}
 
 \begin{definition}[Information-flow control language]
@@ -349,6 +348,13 @@ a natural embedding which preserves booleans across boundaries.}
     language is augmented with a set of terminal configuration states $V
     \subseteq |C|$ for which there are no possible further transitions.
 \end{definition}
+
+%{
+%format .->  = "\overset{\alpha}{\hookrightarrow}"
+Using this definition, our specification language |specLang alpha
+(targetLang nop) = ((iS,its), .->, erasef il)|, where |its| is a task
+list containing terms from the embeddeding.
+%}
 
 \begin{definition}[$l$-equivalence]
     In a language |(C, .->, erasef l)|, two machine configurations
@@ -375,9 +381,55 @@ a natural embedding which preserves booleans across boundaries.}
 \end{definition}
 
 
-\begin{theorem}[TSNI]
+\begin{theorem}[Concurrent specification language is TSNI]
+For any target language |targetLang nop|,
+|specLang roundrobinf (targetLang nop)| satisfies TSNI.
 \end{theorem}
 
+
+\begin{definition}[Termination Insensitive Non-Interference (TINI)]
+  A language $|L|=(|C|, |C|^*, |.->|, |erasef l|)$ is termination
+  insensitive non-interfering if for any label |l|, and configurations
+  |c1, c2, V1, V2 member C|, if
+   $|c1| \approx_{|l|} |c2|$,
+   $|c1| |.->|^* |V1|$, and
+   $|c2| |.->|^* |V2|$, then
+   $|V1| \approx_{|l|} |V2|$.
+\end{definition}
+
+
+\begin{theorem}[Termination Insensitive Non-Interference (TINI)]
+  For any label |il| and configurations |ici = iconf iSi iti|, |ici' =
+  iconf iSi' (fullconf idi ili tSi' ivi')|, where |i member {1,2}|, if
+   $|ic1| \approx_{|il|} |ic2|$,
+   $|ic1| |.->|^* |ic1'|$, and
+   $|ic2| |.->|^* |ic2'|$, then
+   $|ic1'| \approx_{|il|} |ic2'|$.
+\end{theorem}
+
+
+
+\subsection{Generalizing further}
+
+\begin{itemize}
+\item Label transition systems.
+\item Non-deterministic reduction.
+\item Arbitrary scheduling policies $\alpha$
+\end{itemize}
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\cut{
 \begin{lemma}
   \label{lemma:tsni}
   For any configurations |ic1|, |ic1'|, |ic2|, and label |il| where
@@ -422,7 +474,6 @@ a natural embedding which preserves booleans across boundaries.}
   Stitching together the derivation sequences from~\eqref{eq:tsni-proof-1} and~\eqref{eq:tsni-proof-2} directly gives
   us~\eqref{eq:tsni-rhs}, which concludes the proof.
 \end{proof}
-
 \begin{proof}[Proof of Lemma~\ref{lemma:tsni}]
   We proof the lemma by induction on the derivation
   for~\eqref{eq:tsni-lemma-lhs}, and consider all possible rules that
@@ -488,44 +539,4 @@ a natural embedding which preserves booleans across boundaries.}
     queue are equivalent.
   \end{itemize}
 \end{proof}
-
-\begin{definition}[Termination Insensitive Non-Interference (TINI)]
-  A language $|L|=(|C|, |C|^*, |.->|, |erasef l|)$ is termination
-  insensitive non-interfering if for any label |l|, and configurations
-  |c1, c2, V1, V2 member C|, if
-   $|c1| \approx_{|l|} |c2|$,
-   $|c1| |.->|^* |V1|$, and
-   $|c2| |.->|^* |V2|$, then
-   $|V1| \approx_{|l|} |V2|$.
-\end{definition}
-
-
-\begin{theorem}[Termination Insensitive Non-Interference (TINI)]
-  For any label |il| and configurations |ici = iconf iSi iti|, |ici' =
-  iconf iSi' (fullconf idi ili tSi' ivi')|, where |i member {1,2}|, if
-   $|ic1| \approx_{|il|} |ic2|$,
-   $|ic1| |.->|^* |ic1'|$, and
-   $|ic2| |.->|^* |ic2'|$, then
-   $|ic1'| \approx_{|il|} |ic2'|$.
-\end{theorem}
-
-
-
-\subsection{Generalizing further}
-
-\begin{itemize}
-\item Label transition systems.
-\item Non-deterministic reduction.
-\item Arbitrary scheduling policies $\alpha$
-\end{itemize}
-
-
-
-
-
-
-
-
-
-
-
+}
