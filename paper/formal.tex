@@ -1,5 +1,5 @@
-\subsection{Security guarantees}
-\label{sec:retrofit:formal}
+\section{Security guarantees}
+\label{sec:formal}
 
 In this section we present the formal security guarantees provided by
 our embedding.
@@ -57,13 +57,13 @@ our erasure function.
 %
 A task and its corresponding message queue is completely removed from the task
 list if its label does not flow to the attacker observation level |il|;
-otherwsie, apply the erasure function homomorphically and remove any message
-from the task's message queue that are more sensitive than |il|.\footnote{
+otherwsie, we apply the erasure function homomorphically and remove any message
+from the task's message queue that are more sensitive than |il|.
+
 We note that the definition of |erasef il| precisely captures the IFC
 language's attacker model.  For instance, in our case, by removing sensitive
 tasks and messages from the system, we assume that that the attacker cannot
 observe the number of sensitive tasks or messages.
-}
 %
 %}
 
@@ -81,7 +81,8 @@ observe the number of sensitive tasks or messages.
     & \text{the label of thread |id|} \\
     |(erase il iS) [id mapsto (erase il Q)]| & \text{otherwise}
   \end{cases} \\
-  &|erase il Q = filter il Q|
+  &|erase il Q = filter il Q|\\
+  &|erase il v = v|
 \end{align*}
 \caption{
 Erasure function for tasks, queue maps, message queues, and configurations.
