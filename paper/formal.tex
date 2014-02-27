@@ -112,6 +112,16 @@ equivalence as the syntactic-equivalence of erased configurations.
 \end{definition}
 %
 
+Intuitively, we can now state that a language satisfies non-interference if an
+attacker at level |l| cannot distinguish the runs of any two |l|-equivalent
+configurations.
+%
+This precise NI property is called termination sensitive non-interference
+(TSNI), since it considers runs of programs, and thus does not allow for leaks
+due termination or internal timing behavior.
+%
+Formally, we define TSNI as follows.
+
 \begin{definition}[Termination Sensitive Non-Interference (TSNI)]
   A language |(C, .->, erasef l)| is termination
   sensitive non-interfering if for any label |l|, and configurations
