@@ -172,17 +172,21 @@ Before we show isomorphism preserves termination sensitive
 non-interference, we'd like to remark that one can safely remove transitions
 and preserve termination \emph{insensitive} interference:
 
-\begin{definition}[Inclusion of information-flow control languages]
-    A language \con{|(C, V, .->, erasef l)|} is included in another
-    language \abs{|(C, V, .->, erasef l)|} if there exists a total function |f : tC -> iC| such that
-    |f| is a bijection over |l|-equivalences (|cc clequiv cc'| if and only if
-    |(ap f cc) alequiv (ap f cc')|),
-    preserves values (if |subseteq cc cV| then |subseteq (ap f cc) aV|) and is
-    functorial over |.=>| (if
-    |cc creducestar cc'| then |(ap f cc) areducestar (ap f cc')|).
+\begin{definition}[Weak isomorphism of information-flow control languages]
+    A language \con{|(C, .->, erasef l)|} is weakly isomorphic to a
+    language \abs{|(iC, .->, erasef l)|} if there exist total functions
+    |f : tC -> iC| and |finv : iC -> tC| such that |f .. finv = idf tC|
+    |finv .. f = idf iC|.  Furthermore, the following coherence conditions
+    must hold:
+    \begin{itemize}
+        \item |f| is functorial (e.g. if $\abs{x\ R\ y}$ then
+            $f(\abs{x})\ \con{R}\ f(\abs{y})$) over both
+            $l$-equivalences and |.->|, and
+        \item |finv| is functorial over $l$-equivalence (though not necessarily |.->|).
+    \end{itemize}
 \end{definition}
 
-\begin{theorem}[Isomorphism preserves termination insensitive non-interference]
+\begin{theorem}[Weak isomorphism preserves termination insensitive non-interference]
     If a language \con{L} is included in a language \abs{L}, and \abs{L}
     satisfies TINI, then \con{L} satisfies TINI.
 \end{theorem}
@@ -190,18 +194,24 @@ and preserve termination \emph{insensitive} interference:
 \begin{proof}
     Shown by transporting configurations and reduction derivations
     from \con{L} to \abs{L}, applying TINI and transporting the resulting
-    equivalence back using bijectivity of $f$ over $l$-equivalences.
+    equivalence back using functoriality of |finv| over $l$-equivalences.
 \end{proof}
 
-Now we strengthen the condition to show TSNI:
+Isomorphism requires that |finv| is functorial over reduction relations
+as well, i.e. that we can extract a concrete reduction sequence from an abstract one.
 
 \begin{definition}[Isomorphism of information-flow control languages]
     A language \con{|(C, .->, erasef l)|} is
-    isomorphic to a language \abs{|iC, .->, erasef l|} are isomorphic if there exist total functions
-    |f : tC -> iC| and |finv : iC -> tC| such that |f .. finv = idf tC|, |finv .. f = idf iC|, and |f| and |finv| are
-    functorial over both $l$-equivalences (if |cc clequiv
-    cc'| then $f(|tc|)\ \ifc{\approx_l}\ f(|tc'|)$ and if $|ic|\ \ifc{\approx_l}\ |ic'|$ then $f^{-1}$) and
-    $|.->|$ (if $|tc|\ \tar{|.->|}\ |tc'|$ then $f(|tc|)\ \ifc{|.->|}\ f(|tc'|)$ and vice versa).
+    isomorphic to a language \abs{|(iC, .->, erasef l)|} if there exist total functions
+    |f : tC -> iC| and |finv : iC -> tC| such that |f .. finv = idf tC|, |finv .. f = idf iC|, and both |f| and |finv| are
+    functorial over both $l$-equivalences and |.->|.
+%(if |cc clequiv
+%   cc'| then
+%   |(ap f cc) alequiv (ap f cc')| and if |ac alequiv ac'|
+%   then |(ap finv ac) clequiv (ap finv ac')|) and
+%   |.->| (if
+%   |cc creduce cc'| then |(ap f cc) areduce (ap f cc')| and
+%   if |ac areduce ac'| then |(ap finv ac) creduce (ap finv ac')|)
 \end{definition}
 
 \begin{theorem}[Isomorphism preserves termination sensitive non-interference]
@@ -212,7 +222,7 @@ Now we strengthen the condition to show TSNI:
 \begin{proof}
     Shown by transporting configurations and reduction derivations from
     \tar{L} to \ifc{L}, applying TSNI, and then transporting the
-    resulting configuration and multi-step derivation back.
+    resulting configuration, $l$-equivalence and multi-step derivation back.
 \end{proof}
 %}
 
