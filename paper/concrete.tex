@@ -361,19 +361,6 @@ lemma we will use.
 
 \subsection{\Red{Previous Stuff (to be merged/removed as necessary)}}
 
-The operational semantics we have derived in the previous section
-constitutes an abstract \emph{specification}: a semantics for which
-non-interference is (obviously) true.  This specification can guide the
-design of an information-flow calculus which would not be directly
-derivable from our procedure, but is related to some such derivation.
-For example, in our mini-ML language, the combined semantics requires
-each thread to have a separate ML heap.  In an actual implementation, we
-might like to only have a single heap and disallow the passing of
-references between threads.  This restriction maintains a correspondence
-between the abstract multiple heaps and the concrete single heap.  We might
-hope that we can prove noninterference for this new system by reusing
-noninterference for the old system.
-
 However, modifying operational rules poses a distinct problem for
 preserving non-interference.  Consider a trivial state machine as shown
 in Figure~\ref{fig:trivial-sm}, whose second projection is classified
@@ -399,19 +386,6 @@ solid line is removed, however, the language fails TSNI.
     \label{fig:trivial-sm}
     \caption{A trivial state machine}
 \end{figure}
-
-The approach we will take is in two steps.  First, we sidestep the
-restriction problem by demanding that the concrete implementation be
-\emph{isomorphic} to the abstract specification, but perhaps having a different
-runtime representation (a single heap) and some well-formedness
-condition (every item on the heap only contains pointers from a single
-location).  Isomorphism will preserve nonintereference, but it will also means all
-transitions in the abstract language have to be implemented, including
-undesirable transitions such as sending a pointer to another thread makes
-the pointer dangling.  Next, we define a desugaring into this language
-which adds dynamic checks, eliminating the possibility for these undesirable
-transitions to be exercised.
-
 
 Before we show isomorphism preserves termination sensitive
 non-interference, we'd like to remark that one can safely remove transitions
