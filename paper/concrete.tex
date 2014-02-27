@@ -2,6 +2,76 @@
 \label{sec:concrete}
 
 The operational semantics we have derived in the previous section
+satisfy termination sensitive non-interference by design.  However,
+these abstract semantics essentially require that different tasks
+execute completely isolated.  For instance, for the mini-ML language,
+this means that every task has it's own heap.  For practical
+implementations this is often not desirable.  Instead, we would like to
+more tightly couple the integration of the target and IFC
+language by reusing existing infrastructure.  In the running example,
+a concrete implementation might use a single global heap, and ensure
+that references do not cross task boundaries, and thus preserving
+non-interference.
+
+In this section, we will detail an approach that allows one to implement
+a concrete system differently from our proposal in the previous
+section, and give conditions for when such a system preserves termination
+sensitive non-interference.
+We explain the idea for the single heap mini-ML language, and then
+generalize to arbitrary systems.
+
+\subsection{IFC-Mini-ML with a Single Heap}
+
+Instead of using a configuration of the form
+|iconf iS (fullconf id1 il1 tS1 ie1, fullconf id2 il2 tS2 ie2 ldots)|
+where every task has its
+own ML heap, we would like a single global heap as in
+|oneheapiconf iS tS (oneheapfullconf id1 il1 ie1, oneheapfullconf id2 il2 ie2, ldots)|.
+Furthermore, we keep up a fictional separation between the portions
+of the global heap that tasks can use by forbidding references to
+cross task boundaries. Most
+of the operational rules can easily be adapted to work with these
+new configurations.  In the abstract system, the \textsc{I-fork}
+rule created a new heap for the new task to execute in.  Since we
+want to forbid references to cross task boundaries, we do not modify
+the global heap and instead add an additional premise that the forked
+expression |ie| must not contain any references.
+Finally, we add the same condition to the \textsc{I-send} rule.
+Tasks that try to fork or send an expression that contains a
+reference will now get stuck, and will stop executing by the
+\textsc{I-noStep} rule.
+
+\Red{Show the key rules here.}
+
+As we have outlined the IFC-Mini-ML language with a single heap, we
+effectively restrict the abstract semantics in some cases (namely
+to not allow the passing of references) as well as using a different
+way to represent the heap.  How can we be sure that these
+new, \textit{concrete semantics} for our system still satisfy
+termination-sensitive non-interference?
+
+This isn't trivial, as it is not sound to add arbitrary additional
+conditions on evaluation rules.  To see this, consider a contrived
+concrete system where we add a premise to a reduction rule that
+stops a task based on secret information.  Such a system will
+not satisfy non-interference, as it allows other tasks on the
+same level to observe the termination of that task and thus the
+secret information which was used to decide if the task terminates
+or not.
+\Red{This last part is written poorly.  Let's do it better, or remove it.}
+
+\subsection{Correctness of Concrete Semantics}
+
+\Red{Say what do we do here.}
+
+\Red{At some point in this section we should say a little about
+  why the abstract setting needs complete isolation (because it
+  works for \textit{any} language), and that this is sometimes
+  what you want.}
+
+\subsection{\Red{Previous Stuff (to be merged/removed as necessary)}}
+
+The operational semantics we have derived in the previous section
 constitutes an abstract \emph{specification}: a semantics for which
 non-interference is (obviously) true.  This specification can guide the
 design of an information-flow calculus which would not be directly
