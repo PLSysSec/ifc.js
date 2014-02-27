@@ -282,31 +282,6 @@ niconf iS id il ie
 \end{figure}
 
 
-\begin{figure}
-\begin{align*}
-  &|erase il (iconf iS its) =
-  iconf (erase il iS) (fltr (\ it . it = bullet) (map (erasef il) its))| \\
-  &|erase il (tconf id il' ie) =| \begin{cases}
-    %|lconf bullet bullet bullet bullet| & |il' cantFlowTo il| \\
-    |bullet| & |il' cantFlowTo il| \\
-    |tconf id il' ie| & \text{otherwise}
-  \end{cases} \\
-  &|erase il emptyset = emptyset|\\
-  &|erase il (iS [id mapsto Q]) =| \begin{cases}
-    |erase il iS| & \text{|il' cantFlowTo il|, where |il'| is}\\
-    & \text{the label of thread |id|} \\
-    |(erase il iS) [id mapsto (erase il Q)]| & \text{otherwise}
-  \end{cases} \\
-  &|erase il Q = filter il Q|
-\end{align*}
-\caption{
-Erasure function for configurations, threads, system state, and
-message queus.  In all other cases, |erasef il| is applied
-homomorphically.
-\label{fig:erasure}
-}
-\end{figure}
-
 \Red{When both languages have booleans, it is relatively simple to define
 a natural embedding which preserves booleans across boundaries.}
 \begin{mathpar}
@@ -412,7 +387,6 @@ nop)| satisfies TINI.
 
 
 
-
 \subsection{Generalizing further}
 
 \begin{itemize}
@@ -420,9 +394,6 @@ nop)| satisfies TINI.
 \item Non-deterministic reduction.
 \item Arbitrary scheduling policies $\alpha$
 \end{itemize}
-
-
-
 
 
 

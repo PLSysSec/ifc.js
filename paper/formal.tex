@@ -1,0 +1,142 @@
+\subsection{Security guarantees}
+\label{sec:retrofit:formal}
+
+In this section we present the formal security guarantees provided by
+our embedding.
+%
+Concretely, we show that an IFC langauge, |specLang alpha (targetLang
+nop)|, satisfies non-interference(NI)~\tocite{}.
+%
+Intuitively, non-interference states that secret values cannot be
+leaked by programs written in the language.
+%
+As we show below, the precise scheduling policy |alpha| dictates
+whether or not the guarantee holds for programs with diverging tasks.
+
+We prove non-interference for |specLang alpha (targetLang nop)| using
+the \emph{term erasure} technique of~\tocite{}.
+%
+Intuitively the term erasure technique allows us to show that a an
+attacker does not learn any sensitive information from a program
+written in a NI language, if the program behaves identically to the
+same program with all sensitive data ``erased.''
+% 
+To accommodate for this, we extend our formalism to account for
+programs with erased configurations and a function |erasef l| that
+performs erasures, usually by rewriting (parts of) configurations that
+are more sensitive than |l| to a new syntactic construct |bullet|.
+%
+Directly, we can now give a precise definition for the kinds of
+languages we wish to prove NI.
+
+\begin{definition}[Information-flow control language]
+    An information-flow control language |L| is a tuple |(C, .->,
+    erasef l)|, where $c \in |C|$ is the type of machine configurations, |.->| is a
+    reduction relation between machine configurations and |erasef l : C -> tyerase C|
+    is an erasure function parametrized on labels from machine configurations to \emph{erased} machine
+    configurations |tyerase C|.  For sequential languages, the
+    language is augmented with a set of terminal configuration states $V
+    \subseteq |C|$ for which there are no possible further transitions.
+\end{definition}
+
+%{
+%format .->  = "\overset{\alpha}{\hookrightarrow}"
+Using this definition, |specLang alpha (targetLang nop) = (ifc C, ifc
+V, .->, erasef il)|, such that $|ifc C| = |iS| \times \prod |it|$ and
+$|ifc V| = |iS| \times |it|^*$, where $|it|^* \subset |it|$ it the
+type for tasks whose expressions have been reduced to
+values.\footnote{
+  Here, we abuse notation by describing types for configuration parts using the
+  same metavariables as the ``instance'' of the type, e.g., |it| for the type of
+  task.
+}
+%
+The erased configuration |tyerase (ifc C)| extends |ifc C| with configurations
+containing |bullet|; Figure~\ref{fig:erasure} gives the precise definition for
+our erasure function.
+%
+A task and its corresponding message queue is completely removed from the task
+list if its label does not flow to the attacker observation level |il|;
+otherwsie, apply the erasure function homomorphically and remove any message
+from the task's message queue that are more sensitive than |il|.\footnote{
+We note that the definition of |erasef il| precisely captures the IFC
+language's attacker model.  For instance, in our case, by removing sensitive
+tasks and messages from the system, we assume that that the attacker cannot
+observe the number of sensitive tasks or messages.
+}
+%
+%}
+
+\begin{figure} % fig:erasure
+\begin{align*}
+  &|erase il (iconf iS its) =
+  iconf (erase il iS) (fltr (\ it . it = bullet) (map (erasef il) its))|\\
+  &|fullconf id il' tS ie| \begin{cases}
+    |bullet| & |il' cantFlowTo il| \\
+    |fullconf id il' (erase l tS) (erase l ie)| & \text{otherwise}
+  \end{cases} \\
+  &|erase il emptyset = emptyset|\\
+  &|erase il (iS [id mapsto Q]) =| \begin{cases}
+    |erase il iS| & \text{|il' cantFlowTo il|, where |il'| is}\\
+    & \text{the label of thread |id|} \\
+    |(erase il iS) [id mapsto (erase il Q)]| & \text{otherwise}
+  \end{cases} \\
+  &|erase il Q = filter il Q|
+\end{align*}
+\caption{
+Erasure function for tasks, queue maps, message queues, and configurations.
+In all other cases, including target-language constructs, |erasef il| is
+applied homomorphically.
+\label{fig:erasure}
+}
+\end{figure}
+
+
+\begin{definition}[$l$-equivalence]
+    In a language |(C, .->, erasef l)|, two machine configurations
+    |memberf (c, c') C| are considered $l$-equivalent (|c ~= c'|)
+    if |erase l c = erase l c'|.
+\end{definition}
+
+\begin{definition}[Termination Sensitive Non-Interference (TSNI)]
+  A language |(C, .->, erasef l)| is termination
+  sensitive non-interfering if for any label |l|, and configurations
+  |c1, c1', c2 member C|, if
+  \begin{equation} \label{eq:tsni-lhs}
+    |c1| \approx_{|l|} |c2|
+    \qquad \text{and} \qquad
+    |c1| |.->|^* |c1'|
+  \end{equation}
+  then there exists a configuration |c2' member C| such that
+  \begin{equation} \label{eq:tsni-rhs}
+    |c1'| \approx_{|l|} |c2'|
+     \qquad \text{and} \qquad
+    |c2| |.->|^* |c2'|
+    \ \text{.}
+  \end{equation}
+\end{definition}
+
+\begin{theorem}[Concurrent specification language is TSNI]
+For any target language |targetLang nop|, |specLang roundrobinf
+(targetLang nop)| satisfies TSNI.
+\end{theorem}
+
+\begin{definition}[Termination Insensitive Non-Interference (TINI)]
+  A language |(C, V, .->, erasef l)| is termination
+  insensitive non-interfering if for any label |l|, and configurations
+  |c1, c2 member C| and |c1', c2' member V| if
+   $|c1| \approx_{|l|} |c2|$,
+   $|c1| |.->|^* |c1'|$, and
+   $|c2| |.->|^* |c2'|$, then
+   $|c1'| \approx_{|l|} |c2'|$.
+\end{definition}
+
+
+\begin{theorem}[Sequential specification language is TINI]
+For any target language |targetLang nop|, |specLang seqf (targetLang
+nop)| satisfies TINI.
+\end{theorem}
+
+
+
+
