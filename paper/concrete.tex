@@ -4,9 +4,6 @@
 \newcommand{\con}[1]{\ensuremath{{\color{red} #1}}}
 \newcommand{\abs}[1]{\ensuremath{{\color{blue} #1}}}
 
-\Red{In this section I only talk about TSNI.  Once we finish the previous
-  section to both talk about TSNI and TINI, we should do the same here.}
-
 The operational semantics we have defined in the previous section
 satisfy termination sensitive non-interference by design.
 We achieve this general statement that works for a large class of
@@ -164,8 +161,8 @@ non-interference is preserved:
   |concreteLang alpha targetLang| satisfies TINI, or TSNI, respectively.
 \end{theorem}
 
-We give the proof of this in Section~\ref{sec:proofs}.
-Going back to our single-heap ML-like IFC language, we can
+Before we give the proof of this theorem in Section~\ref{sec:proofs},
+let's consider our single-heap ML-like IFC language and
 show that it is in fact NPRI, and thus non-interfering.
 
 \begin{theorem}
@@ -215,7 +212,7 @@ of isomorphisms.
   resulting configuration, $l$-equivalence and multi-step derivation back.
 \end{proof}
 
-\Red{Adapt proofs.}
+\Red{Adapt the following proofs.}
 
 \begin{lemma}
   \label{lemma:tsni}
