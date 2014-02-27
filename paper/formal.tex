@@ -1,48 +1,33 @@
-\section{Security Guarantees}
-\label{sec:formal}
+\subsection{Security guarantees}
+\label{sec:retrofit:formal}
 
 In this section we present the formal security guarantees provided by
 our embedding.
 %
-Specifically, we show that a combined langauge, |specLang alpha
-(targetLang nop)|, satisfies a form of non-interference.
+Concretely, we show that an IFC langauge, |specLang alpha (targetLang
+nop)|, satisfies non-interference(NI)~\tocite{}.
 %
 Intuitively, non-interference states that secret values cannot be
 leaked by programs written in the language.
+%
+As we show below, the precise scheduling policy |alpha| dictates
+whether or not the guarantee holds for programs with diverging tasks.
 
-
-In this section, we show that LIO computations satisfy
-termination-sensitive non-interference. As in ~\cite{Li+:2010:arrows,Russo+:Haskell08,stefan:lio}, 
-we prove this property by using the
-\emph{term erasure} technique. The erasure function $\eraseName_L$
-rewrites data at security levels that the attacker cannot observe into
-the syntax node $\hole$.
-
-
-\begin{figure}
-\begin{align*}
-  &|erase il (iconf iS its) =
-  iconf (erase il iS) (fltr (\ it . it = bullet) (map (erasef il) its))| \\
-  &|erase il (tconf id il' ie) =| \begin{cases}
-    %|lconf bullet bullet bullet bullet| & |il' cantFlowTo il| \\
-    |bullet| & |il' cantFlowTo il| \\
-    |tconf id il' ie| & \text{otherwise}
-  \end{cases} \\
-  &|erase il emptyset = emptyset|\\
-  &|erase il (iS [id mapsto Q]) =| \begin{cases}
-    |erase il iS| & \text{|il' cantFlowTo il|, where |il'| is}\\
-    & \text{the label of thread |id|} \\
-    |(erase il iS) [id mapsto (erase il Q)]| & \text{otherwise}
-  \end{cases} \\
-  &|erase il Q = filter il Q|
-\end{align*}
-\caption{
-Erasure function for configurations, threads, system state, and
-message queus.  In all other cases, |erasef il| is applied
-homomorphically.
-\label{fig:erasure}
-}
-\end{figure}
+We prove non-interference for |specLang alpha (targetLang nop)| using
+the \emph{term erasure} technique of~\tocite{}.
+%
+Intuitively the term erasure technique allows us to show that a an
+attacker does not learn any sensitive information from a program
+written in a NI language, if the program behaves identically to the
+same program with all sensitive data ``erased.''
+% 
+To accommodate for this, we extend our formalism to account for
+programs with erased configurations and a function |erasef l| that
+performs erasures, usually by rewriting (parts of) configurations that
+are more sensitive than |l| to a new syntactic construct |bullet|.
+%
+Directly, we can now give a precise definition for the kinds of
+languages we wish to prove NI.
 
 \begin{definition}[Information-flow control language]
     An information-flow control language |L| is a tuple |(C, .->,
@@ -56,17 +41,44 @@ homomorphically.
 
 %{
 %format .->  = "\overset{\alpha}{\hookrightarrow}"
-Using this definition, we can now expand the definition for the
-specification family of languages.
-%
-Specifically, |specLang alpha (targetLang nop) = (ifc C, ifc V, .->,
-erasef il)|, such that $|ifc C| = |iS| \times \prod |it|$ and $|ifc V|
-= |iS| \times |it|^*$, where $|it|^* \subset |it|$ it the type for
-tasks whose expressions have been reduced to values.\footnote{
-Here, we abuse notation by using metavariables to describe types of
-the corresponding non-terminals, e.g., |it| for the type of task.
+Using this definition, |specLang alpha (targetLang nop) = (ifc C, ifc
+V, .->, erasef il)|, such that $|ifc C| = |iS| \times \prod |it|$ and
+$|ifc V| = |iS| \times |it|^*$, where $|it|^* \subset |it|$ it the
+type for tasks whose expressions have been reduced to
+values.\footnote{
+  Here, we abuse notation by describing types for configuration parts using the
+  same metavariables as the ``instance'' of the type, e.g., |it| for the type of
+  task.
 }
+%
+Figure~\ref{fig:erasure} gives the precise definition for our erasure function.
+%
 %}
+
+\begin{figure}
+\begin{align*}
+  &|erase il (iconf iS its) =
+  iconf (erase il iS) (fltr (\ it . it = bullet) (map (erasef il) its))| \\
+  &|fullconf id il' tS ie| \begin{cases}
+    |bullet| & |il' cantFlowTo il| \\
+    |fullconf id il' (erase l tS) (erase l ie)| & \text{otherwise}
+  \end{cases} \\
+  &|erase il emptyset = emptyset|\\
+  &|erase il (iS [id mapsto Q]) =| \begin{cases}
+    |erase il iS| & \text{|il' cantFlowTo il|, where |il'| is}\\
+    & \text{the label of thread |id|} \\
+    |(erase il iS) [id mapsto (erase il Q)]| & \text{otherwise}
+  \end{cases} \\
+  &|erase il Q = filter il Q|
+\end{align*}
+\caption{
+Erasure function for configurations, tasks, queue map, and message queues.
+In all other cases, including target-language constructs, |erasef il| is
+applied homomorphically.
+\label{fig:erasure}
+}
+\end{figure}
+
 
 \begin{definition}[$l$-equivalence]
     In a language |(C, .->, erasef l)|, two machine configurations

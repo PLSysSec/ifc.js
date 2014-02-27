@@ -663,7 +663,6 @@
 
 
 %format conf (s) (e) = CE"_{"s"}\left["e"\right]"
-% %format (tconf (i) (l) (e)) = "\langle "iE"["e"]_\ifc{I}\rangle^{"i"}_{"l"}"
 %format (tconf (i) (l) (e)) = CE"^{"i"}_{"l"}["e"]"
 %format (fullconf (i) (l) (s) (e)) = "\langle "s", "e"\rangle^{"i"}_{"l"}"
 %format (oneheapfullconf (i) (l) (e)) = "\langle "e"\rangle^{"i"}_{"l"}"
@@ -673,6 +672,7 @@
 
 %format (erase (l) (e)) = "\varepsilon_{"l"}("e")"
 %format (erasef (l)) = "\varepsilon_{"l"}"
+
 
 %format map = "\text{map}"
 %format fltr = "\text{filter}"
@@ -729,7 +729,7 @@
 %%%%%
 %% LANGUAGES
 
-%format nop = " "
+%format nop = "\!\!"
 %format targetLang = "\Red{\lambda}"
 %format (specLang (x) (y)) = "L_\text{IFC}("x, y")"
 %format specLangML a = "L_\text{IFC}("a, targetLangML")"
@@ -737,3 +737,30 @@
 %format concreteLang a x = "L_\text{C}("a, x")"
 %format concreteLangMl a = "L_\text{IFC}^{\Red{\text{Heap}}}("a")"
 
+%format (ifc (x)) = "\ifc{"x"}"
+
+%%%%%
+%% From concrete
+%format tyerase c = "\varepsilon("c")"
+%format tyerasef = "\varepsilon"
+%format ^ = " "
+%format c = "c"
+%format c'
+%format cc = "\con{"c"}"
+%format cc'
+%format ac = "\abs{"c"}"
+%format ac'
+%format finv = f"^{-1}"
+%format V = "V"
+%format cV = "\con{"V"}"
+%format aV = "\abs{"V"}"
+%format ~= = "\approx_l"
+%format clequiv = "\con{"~="}"
+%format alequiv = "\abs{"~="}"
+%format creduce = "\con{".->"}"
+%format areduce = "\abs{".->"}"
+%format creducestar = "\con{".=>"}"
+%format areducestar = "\abs{".=>"}"
+%format (ap (f) (x)) = f"("x")"
+%format .. = "\circ"
+%format idf (t) = "id_{"t"}"
