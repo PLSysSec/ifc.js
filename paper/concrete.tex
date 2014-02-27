@@ -122,13 +122,17 @@ the pointer dangling.  Next, we define a desugaring into this language
 which adds dynamic checks, eliminating the possibility for these undesirable
 transitions to be exercised.
 
+\Red{Move these definitions earlier}
+
 \begin{definition}[Information-flow control language]
     An information-flow control language L is a tuple $(|C|, |C|^*, |.->|,
     |erasef l|)$, where $c \in |C|$ is the type of machine configurations,
     $|C|^*$ is the type of erased machine configurations, |.->| is a
     reduction relation between machine configurations and $|erasef l|$
     is an erasure function from machine configurations to erased machine
-    configurations.
+    configurations.  For sequential languages, we may also speak of
+    values, e.g. a configurations $V \subseteq |C|$ for which there are
+    no possible further transitions.
 \end{definition}
 
 \begin{definition}[$l$-equivalence]
@@ -136,13 +140,42 @@ transitions to be exercised.
     if $|erase l c| = |erase l c'|$.
 \end{definition}
 
+Before we show isomorphism preserves termination sensitive
+non-interference, we'd like to remark that one can safely remove transitions
+and preserve termination \emph{insensitive} interference:
+
+\begin{definition}[Inclusion of information-flow control languages]
+    A language $(|tC|, |tC|^*, \tar{|V|}, \tar{|.->|}, \tar{|erasef l|})$ is
+    included in $(|iC|, |iC|^*, \ifc{|V|}, \ifc{|.->|}, \ifc{|erasef
+    l|})$ if there exists a total function $f : |tC -> iC|$ such that
+    $f$ is a bijection over $l$-equivalences ($|tc|\ \tar{\approx_l}\
+    |tc'|$ if and only if $f(|tc|)\ \ifc{\approx_l}\ f(|tc'|)$),
+    preserves values (if $|tc| \subseteq \tar{|V|}$ then $|ic| \subseteq
+    \ifc{|V|}$) and is functorial over $|.->|$ (if $|tc|\ \tar{|.->|}\
+    |tc'|$ then $f(|tc|)\ \ifc{|.->|}\ f(|tc'|)$).
+\end{definition}
+
+\begin{theorem}[Isomorphism preserves termination insensitive non-interference]
+    If \tar{L} is included in \ifc{L}, and \ifc{L} satisfies TINI, then
+    \tar{L} satisfies TINI.
+\end{theorem}
+
+\begin{proof}
+    Shown by transporting configurations and reduction derivations
+    from \tar{L} to \ifc{L}, applying TINI and transporting the resulting
+    equivalence back using bijectivity of $f$ over $l$-equivalences.
+\end{proof}
+
+Now we strengthen the condition to show TSNI:
+
 \begin{definition}[Isomorphism of information-flow control languages]
-    Two languages
-    \tar{L} $(|tC|, |tC|^*, \tar{|.->|}, \tar{|erasef l|})$ and \ifc{L} $(|iC|, |iC|^*, \ifc{|.->|}, \ifc{|erasef l|})$ are isomorphic if there exist (total) functions
+    A language $(|tC|, |tC|^*, \tar{|.->|}, \tar{|erasef l|})$ is
+    isomorphic to \ifc{L} $(|iC|, |iC|^*, \ifc{|.->|}, \ifc{|erasef l|})$ are isomorphic if there exist total functions
     $f : |tC -> iC|$ and $f^{-1} : |iC -> tC|$ such that $f \circ f^{-1}
-    = id_{|tC|}$, $f^{-1} \circ f = id_{|iC|}$, and that $f$ and $f^{-1}$ are
-    functorial over $l$-equivalences (i.e. if $|tc|\ \tar{\approx_l}\
-    |tc'|$ then $f(|tc|)\ \ifc{\approx_l}\ f(|tc'|)$ and vice-versa).
+    = id_{|tC|}$, $f^{-1} \circ f = id_{|iC|}$, and $f$ and $f^{-1}$ are
+    functorial over both $l$-equivalences (if $|tc|\ \tar{\approx_l}\
+    |tc'|$ then $f(|tc|)\ \ifc{\approx_l}\ f(|tc'|)$ and vice-versa) and
+    $|.->|$ (if $|tc|\ \tar{|.->|}\ |tc'|$ then $f(|tc|)\ \ifc{|.->|}\ f(|tc'|)$ and vice versa).
 \end{definition}
 
 \begin{theorem}[Isomorphism preserves termination sensitive non-interference]
@@ -151,9 +184,9 @@ transitions to be exercised.
 \end{theorem}
 
 \begin{proof}
-    Easily shown by transporting configurations and reduction derivations
-    from \tar{L} to \ifc{L}, applying TSNI, and then transporting the resulting
-    configuration and multi-step derivation back.
+    Shown by transporting configurations and reduction derivations from
+    \tar{L} to \ifc{L}, applying TSNI, and then transporting the
+    resulting configuration and multi-step derivation back.
 \end{proof}
 
 
