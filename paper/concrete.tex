@@ -134,6 +134,7 @@ transitions to be exercised.
 %format cc'
 %format ac = "\abs{"c"}"
 %format ac'
+%format finv = f"^{-1}"
 %format V = "V"
 %format cV = "\con{"V"}"
 %format aV = "\abs{"V"}"
@@ -145,6 +146,8 @@ transitions to be exercised.
 %format creducestar = "\con{".=>"}"
 %format areducestar = "\abs{".=>"}"
 %format (ap (f) (x)) = f"("x")"
+%format .. = "\circ"
+%format idf (t) = "id_{"t"}"
 
 \begin{definition}[Information-flow control language]
     An information-flow control language L is a tuple |(C, .->,
@@ -170,8 +173,8 @@ non-interference, we'd like to remark that one can safely remove transitions
 and preserve termination \emph{insensitive} interference:
 
 \begin{definition}[Inclusion of information-flow control languages]
-    A language \con{|(C, Ce, V, .->, erasef l)|} is included in another
-    language \abs{|(C, Ce, V, .->, erasef l)|} if there exists a total function |f : tC -> iC| such that
+    A language \con{|(C, V, .->, erasef l)|} is included in another
+    language \abs{|(C, V, .->, erasef l)|} if there exists a total function |f : tC -> iC| such that
     |f| is a bijection over |l|-equivalences (|cc clequiv cc'| if and only if
     |(ap f cc) alequiv (ap f cc')|),
     preserves values (if |subseteq cc cV| then |subseteq (ap f cc) aV|) and is
@@ -193,12 +196,11 @@ and preserve termination \emph{insensitive} interference:
 Now we strengthen the condition to show TSNI:
 
 \begin{definition}[Isomorphism of information-flow control languages]
-    A language $(|tC|, |tC|^*, \tar{|.->|}, \tar{|erasef l|})$ is
-    isomorphic to \ifc{L} $(|iC|, |iC|^*, \ifc{|.->|}, \ifc{|erasef l|})$ are isomorphic if there exist total functions
-    $f : |tC -> iC|$ and $f^{-1} : |iC -> tC|$ such that $f \circ f^{-1}
-    = id_{|tC|}$, $f^{-1} \circ f = id_{|iC|}$, and $f$ and $f^{-1}$ are
-    functorial over both $l$-equivalences (if $|tc|\ \tar{\approx_l}\
-    |tc'|$ then $f(|tc|)\ \ifc{\approx_l}\ f(|tc'|)$ and if $|ic|\ \ifc{\approx_l}\ |ic'|$ then $f^{-1}$) and
+    A language \con{|(C, .->, erasef l)|} is
+    isomorphic to a language \abs{|iC, .->, erasef l|} are isomorphic if there exist total functions
+    |f : tC -> iC| and |finv : iC -> tC| such that |f .. finv = idf tC|, |finv .. f = idf iC|, and |f| and |finv| are
+    functorial over both $l$-equivalences (if |cc clequiv
+    cc'| then $f(|tc|)\ \ifc{\approx_l}\ f(|tc'|)$ and if $|ic|\ \ifc{\approx_l}\ |ic'|$ then $f^{-1}$) and
     $|.->|$ (if $|tc|\ \tar{|.->|}\ |tc'|$ then $f(|tc|)\ \ifc{|.->|}\ f(|tc'|)$ and vice versa).
 \end{definition}
 
