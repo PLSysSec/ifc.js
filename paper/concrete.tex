@@ -129,6 +129,7 @@ Now, we can propose the following two-step process to ensure that
 non-interference is preserved:
 \Red{We should find a better name for this, or not use a name, or something.}
 \begin{definition}[Non-interference preserving, restricted isomorphism (NPRI)]
+  \label{def:npri}
   We call an IFC language
   |concreteLang alpha targetLang| (the concrete language for a given
   target language |targetLang| and scheduling policy |alpha|)
@@ -212,17 +213,39 @@ of isomorphisms.
   resulting configuration, $l$-equivalence and multi-step derivation back.
 \end{proof}
 
-\Red{Adapt the following proofs.}
+For the proof of Theorem~\ref{thm:npri}, we first show that the
+abstract language, potentially augmented with predicates as described
+in the first point of Definition~\ref{def:npri}, satisfies
+non-interference.  Combining this result with the isomorphism theorems
+will prove the goal as desired.
+
+\begin{theorem}
+  \label{thm:rr-tsni-general}
+  For any target language |targetLang|,
+  the language |specLang roundrobinf targetLang| where predicates $P$
+  have potentially been added to the reduction rules as described in
+  Definition~\ref{def:npri} satisfies TSNI.
+\end{theorem}
+
+Theorem~\ref{thm:rr-tsni} is a simple consequence of this
+(for the case where without any additional predicates).
+Before we proceed with the proof of this theorem, we state a
+lemma we will use.
 
 \begin{lemma}
-  \label{lemma:tsni}
-  For any configurations |ic1|, |ic1'|, |ic2|, and label |il| where
+  \label{lemma:rr-tsni-general}
+  We consider, for any target language |targetLang|,
+  the information-flow control
+  language |specLang roundrobinf targetLang| where a predicate $P$
+  has potentially been added to the reduction rules as described in
+  Definition~\ref{def:npri}.  Then,
+  for any configurations |ic1|, |ic1'|, |ic2|, and label |il| where
   \begin{equation} \label{eq:tsni-lemma-lhs}
   |ic1| \approx_{|il|} |ic2|
   \qquad \text{and} \qquad
   |ic1| |.->| |ic1'|
   \end{equation}
-  then there exists a configuration |ic2'| such that
+  there exists a configuration |ic2'| such that
   \begin{equation} \label{eq:tsni-lemma-rhs}
   |ic1'| \approx_{|il|} |ic2'|
   \qquad \text{and} \qquad
@@ -241,7 +264,7 @@ of isomorphisms.
   \[
   |ic1| |.->| |ic1''| |.->|^n |ic1'|
   \]
-  for some configuration |ic1''|.  By Lemma~\ref{lemma:tsni}, we get
+  for some configuration |ic1''|.  By Lemma~\ref{lemma:rr-tsni-general}, we get
   |ic''| with
   \begin{equation} \label{eq:tsni-proof-1}
   |ic1''| \approx_{|il|} |ic2''|
@@ -256,39 +279,47 @@ of isomorphisms.
   |ic2''| |.->|^* |ic2'|
   \end{equation}
   Stitching together the derivation sequences from~\eqref{eq:tsni-proof-1} and~\eqref{eq:tsni-proof-2} directly gives
-  us~\eqref{eq:tsni-rhs}, which concludes the proof.
+  us the right-hand side of the implication in the TSNI
+  definition~\eqref{eq:tsni-rhs}, which concludes the proof.
 \end{proof}
-\begin{proof}[Proof of Lemma~\ref{lemma:tsni}]
-  We proof the lemma by induction on the derivation
-  for~\eqref{eq:tsni-lemma-lhs}, and consider all possible rules that
-  could have been used to make the reduction step.
+\begin{proof}[Proof of Lemma~\ref{lemma:rr-tsni-general}]
   First, we observe there must be at least one task in |ic1|, otherwise
   it could not take a step.  Thus, |ic1| is of the form
   |iconf iS1 (it1, its1)|.  Consider two cases:
   \begin{itemize}
-    \item $|erase il it1|=|bullet|$. In this case, we do not need to take a
-    step for
+    \item $|erase il it1|=|bullet|$.
+    By the definition of |erasef il|, we know that |il canFlowTo lcurr|
+    where |lcurr| is the label of |it1|.
+    In this case, we do not need to take a step for
     |ic2|, because |ic2'=ic2| will already be |il|-equivalent to |ic1'|.
     To see that, note that the tasks |its1| in |ic1| are left in the
-    same order and unmodified. The task |it1| either
+    same order and unmodified (the scheduling policy only
+    modifies the first task). The task |it1| either
     gets dropped (by \textsc{I-noStep}), or
-    transforms into a new task |it1'| as well as potentially spawning a new
+    transforms into a task |it1'| as well as potentially spawning a new
     task |it1''|.  Since both |it1'| and |it1''| have a label that is
-    at least as high as the label of |it1|, they will get filtered
-    by |erasef il| in |ic1'|.
-    Lets consider the possible changes to |iS1|: If |it1| sends a
-    message, then the corresponding queue in |iS1'| will contain one
-    more message.  However, that message has the label of |it1| (or a higher
-    label), and will thus get erased by |erasef il|.
-    Finally, receiving or not receiving a message (by
-    \textsc{I-recv} or \textsc{I-noRecv}) only changes the queue of
-    task |it1|, which are erased from |iS1|.
-    This ensures that $|ic1'|\approx_{|il|}|ic2'|$.
-    
-    \alphacondition{We need all scheduling policies to not change the order
-      of any tasks (except for the first one).  Newly spawned task can appear
-      anywhere in the list.}
-    \item $|erase il it1|\neq|bullet|$.  Here, there must be a corresponding
+    at least as high as the label of |it1| (can be seen
+    by inspecting all reduction rules), they will get filtered
+    by |erasef il| in |ic1'|.  Therefore, the |il| equivalence of the
+    task list is guaranteed.
+    Lets consider the possible changes to |iS1|:
+    Only three reduction rules change |iS1|,
+    thus it suffices to consider these cases:
+    \begin{description}
+      \item[Case \textsc{I-send}]
+      A new message triple with label |il'| gets added to the message
+      queue of the receiving thread.  However, since |lcurr canFlowTo il'|,
+      the triple will get erased.
+      \item[Case \textsc{I-recv} and \textsc{I-noRecv}]
+      In this case, only the queue of
+      task |it1| can change, which gets erased.
+    \end{description}
+    This ensures that $|ic1'|\approx_{|il|}|ic2'|=|ic2|$.
+%    \alphacondition{We need all scheduling policies to not change the order
+%      of any tasks (except for the first one).  Newly spawned task can appear
+%      anywhere in the list.}
+    \item $|erase il it1|\neq|bullet|$.
+    Here, there must be a corresponding
     task |it2| in |ic2|,
     such that |it1=it2| (otherwise |ic1| and
     |ic2| could not be |il| equivalent).

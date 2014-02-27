@@ -41,8 +41,8 @@
 %format (seq (t) (p) ) = seqf"_{{\tiny\mathrm{"t"}}}("p")"
 
 
-
-\newcommand{\lcurr}{\ensuremath{l_{\textrm{cur}}}}
+\newcommand{\ifc}[1]{\ensuremath{{\color{blue} #1}}}
+\newcommand{\lcurr}{\ensuremath{\ifc{l_{\textrm{cur}}}}}
 %format lcurr = "\lcurr"
 %format lcurr'
 %format lcurr''
@@ -203,7 +203,6 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% IFC state, eval ctx, expression
-\newcommand{\ifc}[1]{\ensuremath{{\color{blue} #1}}}
 
 %format iS = "\ifc{"S"}"
 %format iS'
