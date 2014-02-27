@@ -1,2 +1,21 @@
 \section{Related work}
 \label{sec:related}
+
+\Red{
+Monads and IFC:
+
+Basically, monads and IFC go together like toads and holes, or pigs and blankets, etc.  But the role the monad plays varies widely.  First, you have static systems (Abadi, Tse-Zdancewic), which utilize a lattice of monads: if a value is in a monad with a label that's too high, you're not allowed to unpeel it and look at the value inside.  Next, you have dynamic systems.  It seems pretty clear that making the IFC TCB be in a monad is a good idea, and the cluster of papers around LIO are all about that. Some of these papers talk about monad transformers: Devriese/Piessens focuses on how you might implement something like LIO by applying a monad transformer to some base monad to run the appropriate restrictions; Harrison/Hook do some more close to what we're doing, where they actually try to say something like "transformers do not interfere." But I can't tell if they're actually doing what we're doing, and their work has a number of unrelated technical restrictions.
+
+In more detail:
+
+Information Flow Enforcement in Monadic Libraries (Devriese/Piessens): Talks about how to use a monad transformer to take a non-IFC base monad and turn it into a IFC monad, namely the lifting operation should enforce extra constraints.  We take closely related ideas, and apply it to settings where there are not any monads.  Devriese/Piessens doesn't note the idea that untrusted monad transformers can be applied to add extra effects.
+
+Achieving information flow security through monadic control of effects (Harrison/Hook): separation kernel is the basic idea behind our constructed (everything is partioned).  Notion of atomic noninterference between layers of effects, ``sufficient condition for atomic noninterference to be inherited through monad transformer application''.  But atomic noninterference is not proper noninterference as we've defined here! No proof of separation of kernels, instead prove weaker property no write down.
+
+A Core Calculus of Dependency (Abadi et al): define a calculus, which calculi you want to prove IFC secure can be translated into.  It's a static system.  Why do they use monads?  Something about that
+}
+
+
+IFC for any language:
+
+Gotta talk about secure multi-execution
