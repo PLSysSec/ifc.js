@@ -1,6 +1,9 @@
 \section{Concrete implementation}
 \label{sec:concrete}
 
+\Red{In this section I only talk about TSNI.  Once we finish the previous
+  section to both talk about TSNI and TINI, we should do the same here.}
+
 The operational semantics we have derived in the previous section
 satisfy termination sensitive non-interference by design.  However,
 these abstract semantics essentially require that different tasks
@@ -50,19 +53,36 @@ way to represent the heap.  How can we be sure that these
 new, \textit{concrete semantics} for our system still satisfy
 termination-sensitive non-interference?
 
-This isn't trivial, as it is not sound to add arbitrary additional
-conditions on evaluation rules.  To see this, consider a contrived
-concrete system where we add a premise to a reduction rule that
-stops a task based on secret information.  Such a system will
-not satisfy non-interference, as it allows other tasks on the
-same level to observe the termination of that task and thus the
-secret information which was used to decide if the task terminates
-or not.
-\Red{This last part is written poorly.  Let's do it better, or remove it.}
+%This isn't trivial, as it is not sound to add arbitrary additional
+%conditions on evaluation rules.  To see this, consider a contrived
+%concrete system where we add a premise to a reduction rule that
+%stops a task based on secret information.  Such a system will
+%not satisfy non-interference, as it allows other tasks on the
+%same level to observe the termination of that task and thus the
+%secret information which was used to decide if the task terminates
+%or not.
 
 \subsection{Correctness of Concrete Semantics}
 
-\Red{Say what do we do here.}
+We now have a concrete semantics, which both uses a different
+representation for some of the constructs in language (a single
+heap rather than a heap per task in our running example), as well
+as restricting some of the operational rules to disallow
+undesirable transitions.  To show that the concrete semantics
+still satisfy TSNI, we use two techniques.  First, we give a
+condition on what kind of restrictions can be allowed on the
+operational rules.  Secondly, we define the notation of an
+isomorphism between IFC languages and show that it preserves
+non-interference.
+
+Intuitively, there are two scenarios in which non-interference
+can be violated when restricting the transition relation:
+\begin{itemize}
+  \item Adding an additional premise to one of the rules that inspects
+  information which is above the security label of the thread currently
+  executing.
+  \item
+\end{itemize}
 
 \Red{At some point in this section we should say a little about
   why the abstract setting needs complete isolation (because it
