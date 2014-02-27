@@ -1,6 +1,9 @@
 \section{Concrete implementation}
 \label{sec:concrete}
 
+\newcommand{\con}[1]{\ensuremath{{\color{red} #1}}}
+\newcommand{\abs}[1]{\ensuremath{{\color{blue} #1}}}
+
 \Red{In this section I only talk about TSNI.  Once we finish the previous
   section to both talk about TSNI and TINI, we should do the same here.}
 
@@ -27,6 +30,7 @@ generalize to arbitrary systems.
 
 Instead of using a configuration of the form
 |iconf iS (fullconf id1 il1 tS1 ie1, fullconf id2 il2 tS2 ie2 ldots)|
+as is done in |specLangML alpha|
 where every task has its
 own ML heap, we would like a single global heap as in
 |oneheapiconf iS tS (oneheapfullconf id1 il1 ie1, oneheapfullconf id2 il2 ie2, ldots)|.
@@ -43,6 +47,8 @@ Finally, we add the same condition to the \textsc{I-send} rule.
 Tasks that try to fork or send an expression that contains a
 reference will now get stuck, and will stop executing by the
 \textsc{I-noStep} rule.
+We call this family of languages |concreteLangMl alpha|, which
+is still parametrized by the scheduling policy |alpha|.
 
 \Red{Show the key rules here.}
 
@@ -67,6 +73,11 @@ can be violated when restricting the transition relation:
   information through the termination channel.
 \end{itemize}
 
+Next, we will make these two intuitions precise and give a general
+definition for how non-interference can be preserved.  Then, we
+show that the definition in Figure~\Red{XXX} satisfy these
+conditions.
+
 %This isn't trivial, as it is not sound to add arbitrary additional
 %conditions on evaluation rules.  To see this, consider a contrived
 %concrete system where we add a premise to a reduction rule that
@@ -81,11 +92,25 @@ can be violated when restricting the transition relation:
 To formalize the conditions under which we can show the concrete
 semantics preserve non-interference, we require some notation:
 
-\Red{isomorphism definition here}
+\begin{definition}[Weak isomorphism of information-flow control languages]
+  A language \con{|(C, .->, erasef l)|} is \textit{weakly isomorphic} to a
+  language \abs{|(iC, .->, erasef l)|} if there exist total functions
+  |f : tC -> iC| and |finv : iC -> tC| such that |f .. finv = idf tC|
+  |finv .. f = idf iC|.  Furthermore, the following coherence conditions
+  must hold:
+  \begin{itemize}
+    \item |f| is functorial (e.g. if $\abs{x\ R\ y}$ then
+    $f(\abs{x})\ \con{R}\ f(\abs{y})$) over both
+    $l$-equivalences and |.->|, and
+    \item |finv| is functorial over $l$-equivalence (though not necessarily |.->|).
+  \end{itemize}
+  We furthermore call the two languages \textit{isomorphic} if both
+  |f| and |finv| are functorial over |.->|.
+\end{definition}
 
-Now, we propose the following two-step process to ensure that
+Now, we can propose the following two-step process to ensure that
 TSNI is preserved:
-\Red{We should find a better name for this.}
+\Red{We should find a better name for this, or not use a name, or something.}
 \begin{definition}[Non-Interference preserving, restricted isomorphism (NPRI)]
   We call an IFC language
   |concreteLang alpha targetLang| (which can be thought of as
@@ -111,20 +136,31 @@ TSNI is preserved:
 \end{definition}
 
 \begin{theorem}[NPRI implies TSNI]
-  If the language |concreteLang alpha targetLang| is a NPRI, then
+  If a language |concreteLang alpha targetLang| is a NPRI, then
   |concreteLang alpha targetLang| satisfies TSNI.
 \end{theorem}
 
-We now have a concrete semantics, which both uses a different
-representation for some of the constructs in language (a single
-heap rather than a heap per task in our running example), as well
-as restricting some of the operational rules to disallow
-undesirable transitions.  To show that the concrete semantics
-still satisfy TSNI, we use two techniques.  First, we give a
-condition on what kind of restrictions can be allowed on the
-operational rules.  Secondly, we define the notation of an
-isomorphism between IFC languages and show that it preserves
-non-interference.
+
+With this machinery in place, we can now state and prove that our
+single-heap ML-like IFC language is NPRI, and thus non-interfering.
+
+\begin{theorem}
+  The language |concreteLangMl alpha| is a NPRI.
+\end{theorem}
+As a trivial corollary, it follows that |concreteLangMl roundrobinf| is
+TSNI, and |concreteLangMl seqf| is TINI.
+
+\begin{proof}
+  It is easy to see that condition 1.\ of NPRI is satisfied, since
+  we only add a side condition to the rules \textsc{I-fork} and
+  \textsc{I-send}, and the condition only inspects the expression
+  of the current task, which is by the definition of |erasef il| not
+  erased.
+  
+  This leaves us to give an isomorphism between |concreteLangMl alpha|
+  and |concreteLang alpha targetLangMl|, which we do as follows.
+  \Red{Actually give an isomorphism.}
+\end{proof}
 
 \Red{At some point in this section we should say a little about
   why the abstract setting needs complete isolation (because it
@@ -184,69 +220,10 @@ the pointer dangling.  Next, we define a desugaring into this language
 which adds dynamic checks, eliminating the possibility for these undesirable
 transitions to be exercised.
 
-\Red{Move these definitions earlier}
-
-%{
-%format tyerase c = "\varepsilon("c")"
-%format tyerasef = "\varepsilon"
-%format ^ = " "
-%format c = "c"
-%format c'
-%format cc = "\con{"c"}"
-%format cc'
-%format ac = "\abs{"c"}"
-%format ac'
-%format finv = f"^{-1}"
-%format V = "V"
-%format cV = "\con{"V"}"
-%format aV = "\abs{"V"}"
-%format ~= = "\approx_l"
-%format clequiv = "\con{"~="}"
-%format alequiv = "\abs{"~="}"
-%format creduce = "\con{".->"}"
-%format areduce = "\abs{".->"}"
-%format creducestar = "\con{".=>"}"
-%format areducestar = "\abs{".=>"}"
-%format (ap (f) (x)) = f"("x")"
-%format .. = "\circ"
-%format idf (t) = "id_{"t"}"
-
-\begin{definition}[Information-flow control language]
-    An information-flow control language L is a tuple |(C, .->,
-    erasef l)|, where $c \in |C|$ is the type of machine configurations, |.->| is a
-    reduction relation between machine configurations and |erasef l : C .-> tyerase C|
-    is an erasure function parametrized on labels from machine configurations to \emph{erased} machine
-    configurations |tyerase C|.  For sequential languages, the
-    language is augmented with a set of terminal configuration states $V
-    \subseteq |C|$ for which there are no possible further transitions.
-\end{definition}
-
-\begin{definition}[$l$-equivalence]
-    In a language |(C, .->, erasef l)|, two machine configurations
-    |memberf (c, c') C| are considered $l$-equivalent (|c ~= c'|)
-    if |erase l c = erase l c'|.
-\end{definition}
-
-\newcommand{\con}[1]{\ensuremath{{\color{red} #1}}}
-\newcommand{\abs}[1]{\ensuremath{{\color{blue} #1}}}
 
 Before we show isomorphism preserves termination sensitive
 non-interference, we'd like to remark that one can safely remove transitions
 and preserve termination \emph{insensitive} interference:
-
-\begin{definition}[Weak isomorphism of information-flow control languages]
-    A language \con{|(C, .->, erasef l)|} is weakly isomorphic to a
-    language \abs{|(iC, .->, erasef l)|} if there exist total functions
-    |f : tC -> iC| and |finv : iC -> tC| such that |f .. finv = idf tC|
-    |finv .. f = idf iC|.  Furthermore, the following coherence conditions
-    must hold:
-    \begin{itemize}
-        \item |f| is functorial (e.g. if $\abs{x\ R\ y}$ then
-            $f(\abs{x})\ \con{R}\ f(\abs{y})$) over both
-            $l$-equivalences and |.->|, and
-        \item |finv| is functorial over $l$-equivalence (though not necessarily |.->|).
-    \end{itemize}
-\end{definition}
 
 \begin{theorem}[Weak isomorphism preserves termination insensitive non-interference]
     If a language \con{L} is included in a language \abs{L}, and \abs{L}
@@ -286,7 +263,6 @@ as well, i.e. that we can extract a concrete reduction sequence from an abstract
     \tar{L} to \ifc{L}, applying TSNI, and then transporting the
     resulting configuration, $l$-equivalence and multi-step derivation back.
 \end{proof}
-%}
 
 
 

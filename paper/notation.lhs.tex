@@ -730,8 +730,10 @@
 %% LANGUAGES
 
 %format nop = " "
-%format targetLang = "\lambda"
+%format targetLang = "\Red{\lambda}"
 %format (specLang (x) (y)) = "L_\text{IFC}("x, y")"
 %format specLangML a = "L_\text{IFC}("a, targetLangML")"
-%format targetLangML = "\lambda_{\text{ML}}"
+%format targetLangML = "\Red{\lambda_{\text{ML}}}"
 %format concreteLang a x = "L_\text{C}("a, x")"
+%format concreteLangMl a = "L_\text{IFC}^{\Red{\text{Heap}}}("a")"
+
