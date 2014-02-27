@@ -35,7 +35,7 @@
 %format ==> = "\lto^*"
 %format <=  = "\Leftarrow"
 %format =>  = "\Rightarrow"
-%format (sched (t) (p) ) = "\alpha_{"t"}("{p}")"
+%format (sched (t) (p) ) = "\alpha_{{\tiny\mathrm{"t"}}}("p")"
 
 
 
@@ -62,6 +62,38 @@
 %format C1''
 %format C2''
 %format C3''
+
+%format tC = "\tar{"C"}"
+%format tC'
+%format tC''
+%format tCi = tC"_"i
+%format tCi' = tC'"_"i
+%format tCi'' = tC''"_"i
+%format tC1
+%format tC2
+%format tC3
+%format tC1'
+%format tC2'
+%format tC3'
+%format tC1''
+%format tC2''
+%format tC3''
+
+%format iC = "\ifc{"C"}"
+%format iC'
+%format iC''
+%format iCi = iC"_"i
+%format iCi' = iC'"_"i
+%format iCi'' = iC''"_"i
+%format iC1
+%format iC2
+%format iC3
+%format iC1'
+%format iC2'
+%format iC3'
+%format iC1''
+%format iC2''
+%format iC3''
 
 %format S = "\Sigma"
 %format S'
@@ -407,6 +439,10 @@
 %format nonblk    = "N"
 %format unit      = "\langle\rangle"
 
+%format done      = "D"
+%format noStep    = "N"
+%format step      = "S"
+
 %format (TI (x))  = "\tar{_{\textrm{TI}}\lfloor}"x"\tar{\rfloor}"
 %format (IT (x))  = "\ifc{^{\textrm{IT}}\lceil}"x"\ifc{\rceil}"
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -585,8 +621,8 @@
 %format oneheapiconf (t) (s) (u) = t ; s ; u
 %format niconf (t) (i) (l) (e) = CE"_{"t"}\left["e"\right]^{"i"}_{"l"}"
 
-%format erase (l) (e) = "\varepsilon_{"l"}("e")"
-%format erasef (l) = "\varepsilon_{"l"}"
+%format (erase (l) (e)) = "\varepsilon_{"l"}("e")"
+%format (erasef (l)) = "\varepsilon_{"l"}"
 
 %format map = "\text{map}"
 %format fltr = "\text{filter}"

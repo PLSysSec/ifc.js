@@ -112,6 +112,7 @@ iE   ::=  iHole | iE lop ie | iv lop iE | setLabel iE | fork iE
        |  ix1, ix2 <= recv. ie ie
 io   ::=  (il, id ie)
 Q    ::=  nil | io , Q
+iS   ::=  emptyset | iS [ id mapsto Q ]
 \end{code}
 
 \begin{mathpar}
@@ -201,16 +202,16 @@ fork semantics you want, see the concrete implementation section.}
 \begin{tabular}{ll}
 \begin{minipage}{.22\textwidth}
 \begin{code}
-iv ::= cdots | IT tv
-ie ::= cdots | IT te
-iE ::= cdots | IT tE
+iv  ::= cdots | IT tv
+ie  ::= cdots | IT te
+iE  ::= cdots | IT tE
 \end{code}
 \end{minipage} &
 \begin{minipage}{.22\textwidth}
 \begin{code}
-tv ::= cdots | TI iv
-te  ::=  cdots | TI ie
-tE   ::=  cdots | TI iE
+tv  ::= cdots | TI iv
+te  ::= cdots | TI ie
+tE  ::= cdots | TI iE
 \end{code}
 \end{minipage}
 \end{tabular}
@@ -235,7 +236,7 @@ CE[e] -> iconf iS (it, ldots) @= CE[e] .-> iconf iS (sched step (it, ldots))
 {|
 iconf iS (fullconf id il tS (iniEi (fork ie)), ldots)
 .->
-iS'; sched fork (it1, ldots, itnew)
+iS'; sched F (it1, ldots, itnew)
 |}
 
 \and
@@ -245,7 +246,7 @@ iS'; sched fork (it1, ldots, itnew)
 {|
 iconf iS (fullconf id il tS iv, ldots)
 .->
-iS ; sched done (fullconf id il tS iv, ldots)
+iS ; sched D (fullconf id il tS iv, ldots)
 |}
 
 \and
@@ -256,7 +257,7 @@ iconf iS (it, ldots) .-/>
 {|
 iconf iS (it, ldots)
 .->
-iS ; sched noStep (it, ldots)
+iS ; sched N (it, ldots)
 |}
 
 \and
@@ -286,16 +287,19 @@ niconf iS id il ie
     |bullet| & |il' cantFlowTo il| \\
     |tconf id il' ie| & \text{otherwise}
   \end{cases} \\
-  &|erase il nil = nil|\\
   &|erase il (iS [id mapsto Q]) =| \begin{cases}
     |erase il iS| & \text{|il' cantFlowTo il|, where |il'| is}\\
     & \text{the label of thread |id|} \\
     |(erase il iS) [id mapsto (erase il Q)]| & \text{otherwise}
   \end{cases} \\
-  &|erase il Q = filter il Q|\\
-  &\text{In all other cases, |erasef il| is applied homomorphically.}
+  &|erase il Q = filter il Q|
 \end{align*}
-\caption{Erasure function.}
+\caption{
+Erasure function for configurations, threads, system state, and
+message queus.  In all other cases, |erasef il| is applied
+homomorphically.
+\label{fig:erasure}
+}
 \end{figure}
 
 \Red{When both languages have booleans, it is relatively simple to define
@@ -309,26 +313,19 @@ a natural embedding which preserves booleans across boundaries.}
 \end{mathpar}
 
 \begin{figure}
-  Round robin:
+  Concurrent, round robin:
 \begin{code}
-  sched step (it1, it2, ...)    = {it2, ..., it1}
-  sched done (it1, it2, ...)    = {it2, ...}
-  sched noStep (it1, it2, ...)  = {it2, ...}
-  sched fork (it1, it2, ...)    = {it2, ..., it1}
-\end{code}
-  Browbound:
-\begin{code}
-  sched step (it1, it2, ...)    = {it1, it2, ...}
-  sched noStep (it1, it2, ...)  = {it2, ...}
-  sched done (it1, it2, ...)    = {it2, ...}
-  sched fork (it1, it2, ...)    = {it1, it2, ...}
+  sched S (it1, it2, ldots)  = it2, ldots, it1
+  sched D (it1, it2, ldots)  = it2, ldots
+  sched N (it1, it2, ldots)  = it2, ldots
+  sched F (it1, it2, ldots)  = it2, ldots, it1
 \end{code}
   Sequential:
 \begin{code}
-  sched step (it1, it2, ...)       = {it1, it2, ...}
-  sched noStep (it1, it2, ...)     = {it1, it2, ...}
-  sched done (it1, it2, ...)       = {it2, ...}
-  sched fork (it1, it2, ... it1n)  = {itn, it1, it2, ...}
+  sched S (it1, it2, ldots)        = it1, it2, ldots
+  sched N (it1, it2, ldots)        = it1, it2, ldots
+  sched D (it1, it2, ldots)        = it2, ldots
+  sched F (it1, it2, ldots, itn)   = itn, it1, it2, ldots
 \end{code}
 \caption{Scheduling policies}
 \end{figure}
@@ -463,6 +460,19 @@ a natural embedding which preserves booleans across boundaries.}
     queue are equivalent.
   \end{itemize}
 \end{proof}
+
+
+
+\begin{theorem}[Termination Insensitive Non-Interference (TINI)]
+  For any label |il| and configurations |ici = iconf iSi iti|, |ici' =
+  iconf iSi' (fullconf idi ili tSi' ivi')|, where |i member {1,2}|, if
+   $|ic1| \approx_{|il|} |ic2|$,
+   $|ic1| |.->|^* |ic1'|$, and
+   $|ic2| |.->|^* |ic2'|$, then
+   $|ic1'| \approx_{|il|} |ic2'|$.
+\end{theorem}
+
+
 
 \subsection{Generalizing further}
 
