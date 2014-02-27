@@ -109,21 +109,17 @@ conditions.
 To formalize the conditions under which we can show the concrete
 semantics preserve non-interference, we require some notation:
 
-\begin{definition}[Weak isomorphism of information-flow control languages]
-  A language \con{|(C, .->, erasef l)|} is \textit{weakly isomorphic} to a
-  language \abs{|(iC, .->, erasef l)|} if there exist total functions
-  |f : tC -> iC| and |finv : iC -> tC| such that |f .. finv = idf tC|
-  |finv .. f = idf iC|.  Furthermore, the following coherence conditions
-  must hold:
-  \begin{itemize}
-    \item |f| is functorial (e.g. if $\abs{x\ R\ y}$ then
-    $f(\abs{x})\ \con{R}\ f(\abs{y})$) over both
-    $l$-equivalences and |.->|, and
-    \item |finv| is functorial over $l$-equivalence (though not necessarily |.->|).
-  \end{itemize}
-  We furthermore call the two languages \textit{isomorphic} if both
-  |f| and |finv| are functorial over |.->|.
+\begin{definition}[Isomorphism of information-flow control languages]
+  A language \con{|(C, .->, erasef l)|} is \textit{isomorphic} to a
+  language \abs{|(iC, .->, erasef l)|} if there exist total functions |f
+  : tC -> iC| and |finv : iC -> tC| such that |f .. finv = idf tC| |finv
+  .. f = idf iC|.  Furthermore, |f| and |finv| are functorial (e.g. if
+  $\abs{x\ R\ y}$ then $f(\abs{x})\ \con{R}\ f(\abs{y})$) over both
+  $l$-equivalences and |.->|.
 \end{definition}
+
+\Red{In some cases, this restriction can be weakened, where |finv| does
+not have to be functorial over |.->|}
 
 Now, we can propose the following two-step process to ensure that
 non-interference is preserved:

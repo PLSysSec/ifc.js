@@ -50,21 +50,14 @@ values.\footnote{
   same metavariables as the ``instance'' of the type, e.g., |it| for the type of
   task.
 }
-%
 The erased configuration |tyerase (ifc C)| extends |ifc C| with configurations
 containing |bullet|; Figure~\ref{fig:erasure} gives the precise definition for
 our erasure function.
 %
 A task and its corresponding message queue is completely removed from the task
 list if its label does not flow to the attacker observation level |il|;
-otherwsie, we apply the erasure function homomorphically and remove any message
+otherwise, we apply the erasure function homomorphically and remove any message
 from the task's message queue that are more sensitive than |il|.
-
-We note that the definition of |erasef il| precisely captures the IFC
-language's attacker model.  For instance, in our case, by removing sensitive
-tasks and messages from the system, we assume that that the attacker cannot
-observe the number of sensitive tasks or messages.
-%
 %}
 
 \begin{figure} % fig:erasure
@@ -84,20 +77,40 @@ observe the number of sensitive tasks or messages.
   &|erase il Q = filter il Q|\\
   &|erase il v = v|
 \end{align*}
-\caption{
-Erasure function for tasks, queue maps, message queues, and configurations.
-In all other cases, including target-language constructs, |erasef il| is
-applied homomorphically.
-\label{fig:erasure}
-}
+\caption{ Erasure function for tasks, queue maps, message queues, and
+configurations.  In all other cases, including target-language constructs,
+|erasef il| is applied homomorphically.  \label{fig:erasure} }
 \end{figure}
 
+We note that the definition of |erasef il| precisely captures the IFC
+language's attacker model. 
+%
+For instance, in our case, by removing sensitive tasks and messages from the
+system, we assume that that the attacker cannot observe the number of sensitive
+tasks or messages.
+%
+While such assumptions are standard~\tocite{}, our definitions allow for
+stronger attackers that may be able to inspect resource usage.\footnote{
+  We believe that we can extend |specLang alpha (targetLang nop)| to
+  such models using the resource limits techniques of~\tocite{}.
+  %
+  We leave this extension to future work.
+}
 
-\begin{definition}[$l$-equivalence]
+Non-interference relies on the definition of an attacker's observational power at
+security level |l|, which is typically defined as an equivalence
+relation---called |l|-equivalence---on configurations, i.e., an attacker cannot
+distinguish two configurations that are |l|-equivalent.
+%
+Since our erasure function captures the attacker model, we simply define this
+equivalence as the syntactic-equivalence of erased configurations.
+%
+\begin{definition}[|l|-equivalence]
     In a language |(C, .->, erasef l)|, two machine configurations
     |memberf (c, c') C| are considered $l$-equivalent (|c ~= c'|)
     if |erase l c = erase l c'|.
 \end{definition}
+%
 
 \begin{definition}[Termination Sensitive Non-Interference (TSNI)]
   A language |(C, .->, erasef l)| is termination
