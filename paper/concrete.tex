@@ -7,12 +7,19 @@
 \Red{In this section I only talk about TSNI.  Once we finish the previous
   section to both talk about TSNI and TINI, we should do the same here.}
 
-The operational semantics we have derived in the previous section
-satisfy termination sensitive non-interference by design.  However,
-these abstract semantics essentially require that different tasks
-execute completely isolated.  For instance, for the mini-ML language,
-this means that every task has it's own heap.  For practical
-implementations this is often not desirable.  Instead, we would like to
+The operational semantics we have defined in the previous section
+satisfy termination sensitive non-interference by design.
+We achieve this general statement that works for a large class of
+languages by having different task execute completely isolated from
+each other, such that every task has it's own state.
+In some cases, this strong separation is desirable, or even necessary.
+Languages like C provide direct access to the addresses without
+mechanisms in the language to achieve a separation of the heap.
+However, for other languages this isolation of tasks can be
+undesirable, e.g., for performance reasons.
+For instance, for the mini-ML language, our presentation so far
+requires a separate heap per task, which is not very practical.
+Instead, we would like to
 more tightly couple the integration of the target and IFC
 language by reusing existing infrastructure.  In the running example,
 a concrete implementation might use a single global heap, and ensure
@@ -20,11 +27,12 @@ that references do not cross task boundaries, and thus preserving
 non-interference.
 
 In this section, we will detail an approach that allows one to implement
-a concrete system differently from our proposal in the previous
-section, and give conditions for when such a system preserves termination
-sensitive non-interference.
-We explain the idea for the single heap mini-ML language, and then
-generalize to arbitrary systems.
+a concrete system guided conceptually by the ideas in the previous
+section but making different choice for ease of implementation or
+performance, and give conditions for when such a system preserves
+non-interference.
+We first explain the idea for the single heap mini-ML language, and then
+generalize to arbitrary languages.
 
 \subsection{IFC-Mini-ML with a Single Heap}
 
