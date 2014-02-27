@@ -341,19 +341,19 @@ a natural embedding which preserves booleans across boundaries.}
 \subsection{Formal Guarantees}
 
 \begin{definition}[Information-flow control language]
-    An information-flow control language |L| is a tuple $(|C|, |C|^*, |.->|,
-    |erasef l|)$, where $c \in |C|$ is the type of machine configurations,
-    $|C|^*$ is the type of erased machine configurations, |.->| is a
-    reduction relation between machine configurations and $|erasef l|$
-    is an erasure function from machine configurations to erased machine
-    configurations.  For sequential languages, we may also speak of
-    values, e.g. a configurations $V \subseteq |C|$ for which there are
-    no possible further transitions.
+    An information-flow control language L is a tuple |(C, .->,
+    erasef l)|, where $c \in |C|$ is the type of machine configurations, |.->| is a
+    reduction relation between machine configurations and |erasef l : C .-> tyerase C|
+    is an erasure function parametrized on labels from machine configurations to \emph{erased} machine
+    configurations |tyerase C|.  For sequential languages, the
+    language is augmented with a set of terminal configuration states $V
+    \subseteq |C|$ for which there are no possible further transitions.
 \end{definition}
 
 \begin{definition}[$l$-equivalence]
-    Two machine configurations $c$ and $c'$ are considered $l$-equivalent ($c \approx_l c'$)
-    if $|erase l c| = |erase l c'|$.
+    In a language |(C, .->, erasef l)|, two machine configurations
+    |memberf (c, c') C| are considered $l$-equivalent (|c ~= c'|)
+    if |erase l c = erase l c'|.
 \end{definition}
 
 \begin{definition}[Termination Sensitive Non-Interference (TSNI)]
