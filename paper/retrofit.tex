@@ -340,9 +340,9 @@ a natural embedding which preserves booleans across boundaries.}
 \subsection{Formal Guarantees}
 
 \begin{definition}[Information-flow control language]
-    An information-flow control language L is a tuple |(C, .->,
+    An information-flow control language |L| is a tuple |(C, .->,
     erasef l)|, where $c \in |C|$ is the type of machine configurations, |.->| is a
-    reduction relation between machine configurations and |erasef l : C .-> tyerase C|
+    reduction relation between machine configurations and |erasef l : C -> tyerase C|
     is an erasure function parametrized on labels from machine configurations to \emph{erased} machine
     configurations |tyerase C|.  For sequential languages, the
     language is augmented with a set of terminal configuration states $V
@@ -351,9 +351,16 @@ a natural embedding which preserves booleans across boundaries.}
 
 %{
 %format .->  = "\overset{\alpha}{\hookrightarrow}"
-Using this definition, our specification language |specLang alpha
-(targetLang nop) = ((iS,its), .->, erasef il)|, where |its| is a task
-list containing terms from the embeddeding.
+Using this definition, we can no expand the definition for the
+specification family of languages.
+%
+Specifically, |specLang alpha (targetLang nop) = (ifc C, ifc V, .->,
+erasef il)|, such that $|ifc C| = |iS| \times \prod |it|$ and $|ifc V|
+= |iS| \times |it|^*$, where $|it|^* \subset |it|$ it the type for
+tasks whose expressions have been reduced to values.\footnote{
+Here we abuse notation by using metavariables to describe types that
+we previously, e.g., |it| for the type of task.
+}
 %}
 
 \begin{definition}[$l$-equivalence]
@@ -363,7 +370,7 @@ list containing terms from the embeddeding.
 \end{definition}
 
 \begin{definition}[Termination Sensitive Non-Interference (TSNI)]
-  A language $|L|=(|C|, |C|^*, |.->|, |erasef l|)$ is termination
+  A language |(C, .->, erasef l)| is termination
   sensitive non-interfering if for any label |l|, and configurations
   |c1, c1', c2 member C|, if
   \begin{equation} \label{eq:tsni-lhs}
@@ -380,32 +387,28 @@ list containing terms from the embeddeding.
   \end{equation}
 \end{definition}
 
-
 \begin{theorem}[Concurrent specification language is TSNI]
-For any target language |targetLang nop|,
-|specLang roundrobinf (targetLang nop)| satisfies TSNI.
+For any target language |targetLang nop|, |specLang roundrobinf
+(targetLang nop)| satisfies TSNI.
 \end{theorem}
 
-
 \begin{definition}[Termination Insensitive Non-Interference (TINI)]
-  A language $|L|=(|C|, |C|^*, |.->|, |erasef l|)$ is termination
+  A language |(C, V, .->, erasef l)| is termination
   insensitive non-interfering if for any label |l|, and configurations
-  |c1, c2, V1, V2 member C|, if
+  |c1, c2 member C| and |c1', c2' member V| if
    $|c1| \approx_{|l|} |c2|$,
-   $|c1| |.->|^* |V1|$, and
-   $|c2| |.->|^* |V2|$, then
-   $|V1| \approx_{|l|} |V2|$.
+   $|c1| |.->|^* |c1'|$, and
+   $|c2| |.->|^* |c2'|$, then
+   $|c1'| \approx_{|l|} |c2'|$.
 \end{definition}
 
 
-\begin{theorem}[Termination Insensitive Non-Interference (TINI)]
-  For any label |il| and configurations |ici = iconf iSi iti|, |ici' =
-  iconf iSi' (fullconf idi ili tSi' ivi')|, where |i member {1,2}|, if
-   $|ic1| \approx_{|il|} |ic2|$,
-   $|ic1| |.->|^* |ic1'|$, and
-   $|ic2| |.->|^* |ic2'|$, then
-   $|ic1'| \approx_{|il|} |ic2'|$.
+\begin{theorem}[Sequential specification language is TINI]
+For any target language |targetLang nop|, |specLang seqf (targetLang
+nop)| satisfies TINI.
 \end{theorem}
+
+
 
 
 
