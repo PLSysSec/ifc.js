@@ -56,7 +56,7 @@ our erasure function.
 %
 A task and its corresponding message queue is completely removed from the task
 list if its label does not flow to the attacker observation level |il|;
-otherwsie, we apply the erasure function homomorphically and remove any message
+otherwise, we apply the erasure function homomorphically and remove any message
 from the task's message queue that are more sensitive than |il|.
 %}
 
@@ -89,21 +89,21 @@ For instance, in our case, by removing sensitive tasks and messages from the
 system, we assume that that the attacker cannot observe the number of sensitive
 tasks or messages.
 %
-While such assumptions are standard~\tocite{}, our defintions allow for
+While such assumptions are standard~\tocite{}, our definitions allow for
 stronger attackers that may be able to inspect resource usage.\footnote{
-  We belive that we can extend |specLang alpha (targetLang nop)| to
-  such models using the resource limits techniqes of~\tocite{}.
+  We believe that we can extend |specLang alpha (targetLang nop)| to
+  such models using the resource limits techniques of~\tocite{}.
   %
   We leave this extension to future work.
 }
 
-Non-inteference relies on the defintion of an attacker's observational power at
+Non-interference relies on the definition of an attacker's observational power at
 security level |l|, which is typically defined as an equivalence
 relation---called |l|-equivalence---on configurations, i.e., an attacker cannot
-distinguish two configurations that are |l|-equivlaent.
+distinguish two configurations that are |l|-equivalent.
 %
-Since our erasure function captures attacker mode, we simply define this
-equivalance as the syntactic-equivalence of erased configurations.
+Since our erasure function captures the attacker model, we simply define this
+equivalence as the syntactic-equivalence of erased configurations.
 %
 \begin{definition}[|l|-equivalence]
     In a language |(C, .->, erasef l)|, two machine configurations
