@@ -51,14 +51,26 @@ values.\footnote{
   task.
 }
 %
-Figure~\ref{fig:erasure} gives the precise definition for our erasure function.
+The erased configuration |tyerase (ifc C)| extends |ifc C| with configurations
+containing |bullet|; Figure~\ref{fig:erasure} gives the precise definition for
+our erasure function.
+%
+A task and its corresponding message queue is completely removed from the task
+list if its label does not flow to the attacker observation level |il|;
+otherwsie, apply the erasure function homomorphically and remove any message
+from the task's message queue that are more sensitive than |il|.\footnote{
+We note that the definition of |erasef il| precisely captures the IFC
+language's attacker model.  For instance, in our case, by removing sensitive
+tasks and messages from the system, we assume that that the attacker cannot
+observe the number of sensitive tasks or messages.
+}
 %
 %}
 
-\begin{figure}
+\begin{figure} % fig:erasure
 \begin{align*}
   &|erase il (iconf iS its) =
-  iconf (erase il iS) (fltr (\ it . it = bullet) (map (erasef il) its))| \\
+  iconf (erase il iS) (fltr (\ it . it = bullet) (map (erasef il) its))|\\
   &|fullconf id il' tS ie| \begin{cases}
     |bullet| & |il' cantFlowTo il| \\
     |fullconf id il' (erase l tS) (erase l ie)| & \text{otherwise}
@@ -72,7 +84,7 @@ Figure~\ref{fig:erasure} gives the precise definition for our erasure function.
   &|erase il Q = filter il Q|
 \end{align*}
 \caption{
-Erasure function for configurations, tasks, queue map, and message queues.
+Erasure function for tasks, queue maps, message queues, and configurations.
 In all other cases, including target-language constructs, |erasef il| is
 applied homomorphically.
 \label{fig:erasure}
