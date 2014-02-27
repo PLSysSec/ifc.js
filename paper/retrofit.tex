@@ -287,6 +287,7 @@ niconf iS id il ie
     |bullet| & |il' cantFlowTo il| \\
     |tconf id il' ie| & \text{otherwise}
   \end{cases} \\
+  &|erase il emptyset = emptyset|\\
   &|erase il (iS [id mapsto Q]) =| \begin{cases}
     |erase il iS| & \text{|il' cantFlowTo il|, where |il'| is}\\
     & \text{the label of thread |id|} \\
@@ -315,15 +316,16 @@ a natural embedding which preserves booleans across boundaries.}
 \begin{figure}
   Concurrent, round robin:
 \begin{code}
-  sched S (it1, it2, ldots)  = it2, ldots, it1
-  sched D (it1, it2, ldots)  = it2, ldots
-  sched N (it1, it2, ldots)  = it2, ldots
-  sched F (it1, it2, ldots)  = it2, ldots, it1
+  sched step (it1, it2, ldots)  = it2, ldots, it1
+  sched D (it1, it2, ldots)     = it2, ldots
+  sched N (it1, it2, ldots)     = it2, ldots
+  sched F (it1, it2, ldots)     = it2, ldots, it1
 \end{code}
   Sequential:
 \begin{code}
-  sched S (it1, it2, ldots)        = it1, it2, ldots
+  sched step (it1, it2, ldots)     = it1, it2, ldots
   sched N (it1, it2, ldots)        = it1, it2, ldots
+  sched D (it)                     = it
   sched D (it1, it2, ldots)        = it2, ldots
   sched F (it1, it2, ldots, itn)   = itn, it1, it2, ldots
 \end{code}
