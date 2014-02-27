@@ -124,29 +124,69 @@ transitions to be exercised.
 
 \Red{Move these definitions earlier}
 
+%{
+%format tyerase c = "\varepsilon("c")"
+%format tyerasef = "\varepsilon"
+%format ^ = " "
+%format c = "c"
+%format c'
+%format cc = "\con{"c"}"
+%format cc'
+%format ac = "\abs{"c"}"
+%format ac'
+%format V = "V"
+%format cV = "\con{"V"}"
+%format aV = "\abs{"V"}"
+%format ~= = "\approx_l"
+%format clequiv = "\con{"~="}"
+%format alequiv = "\abs{"~="}"
+%format creduce = "\con{".->"}"
+%format areduce = "\abs{".->"}"
+%format creducestar = "\con{".=>"}"
+%format areducestar = "\abs{".=>"}"
+%format (ap (f) (x)) = f"("x")"
+
+\begin{definition}[Information-flow control language]
+    An information-flow control language L is a tuple |(C, .->,
+    erasef l)|, where $c \in |C|$ is the type of machine configurations, |.->| is a
+    reduction relation between machine configurations and |erasef l : C .-> tyerase C|
+    is an erasure function parametrized on labels from machine configurations to \emph{erased} machine
+    configurations |tyerase C|.  For sequential languages, the
+    language is augmented with a set of terminal configuration states $V
+    \subseteq |C|$ for which there are no possible further transitions.
+\end{definition}
+
+\begin{definition}[$l$-equivalence]
+    In a language |(C, .->, erasef l)|, two machine configurations
+    $|memberf (c, c') C|$ are considered $l$-equivalent (|c ~= c'|)
+    if |erase l c = erase l c'|.
+\end{definition}
+
+\newcommand{\con}[1]{\ensuremath{{\color{red} #1}}}
+\newcommand{\abs}[1]{\ensuremath{{\color{blue} #1}}}
+
 Before we show isomorphism preserves termination sensitive
 non-interference, we'd like to remark that one can safely remove transitions
 and preserve termination \emph{insensitive} interference:
 
 \begin{definition}[Inclusion of information-flow control languages]
-    A language $(|tC|, |tC|^*, \tar{|V|}, \tar{|.->|}, \tar{|erasef l|})$ is
-    included in $(|iC|, |iC|^*, \ifc{|V|}, \ifc{|.->|}, \ifc{|erasef
-    l|})$ if there exists a total function $f : |tC -> iC|$ such that
-    $f$ is a bijection over $l$-equivalences ($|tc|\ \tar{\approx_l}\
-    |tc'|$ if and only if $f(|tc|)\ \ifc{\approx_l}\ f(|tc'|)$),
-    preserves values (if $|tc| \subseteq \tar{|V|}$ then $|ic| \subseteq
-    \ifc{|V|}$) and is functorial over $|.->|$ (if $|tc|\ \tar{|.->|}\
-    |tc'|$ then $f(|tc|)\ \ifc{|.->|}\ f(|tc'|)$).
+    A language \con{|(C, Ce, V, .->, erasef l)|} is included in another
+    language \abs{|(C, Ce, V, .->, erasef l)|} if there exists a total function |f : tC -> iC| such that
+    |f| is a bijection over |l|-equivalences (|cc clequiv cc'| if and only if
+    |(ap f cc) alequiv (ap f cc')|),
+    preserves values (if |subseteq cc cV| then |subseteq (ap f cc) aV|) and is
+    functorial over |.=>| (if
+    |cc creducestar cc'| then |(ap f cc) areducestar (ap f cc')|).
 \end{definition}
 
 \begin{theorem}[Isomorphism preserves termination insensitive non-interference]
-    If \tar{L} is included in \ifc{L}, and \ifc{L} satisfies TINI, then
-    \tar{L} satisfies TINI.
+    If a language \con{L} is included in a language \abs{L}, and \abs{L}
+    satisfies TINI, then \con{L} satisfies TINI.
 \end{theorem}
 
 \begin{proof}
     Shown by transporting configurations and reduction derivations
-    from \tar{L} to \ifc{L}, applying TINI and transporting the resulting
+    from \con{L} to \abs{L}, applying TINI and transporting the resulting
     equivalence back using bijectivity of $f$ over $l$-equivalences.
 \end{proof}
 
@@ -158,7 +198,7 @@ Now we strengthen the condition to show TSNI:
     $f : |tC -> iC|$ and $f^{-1} : |iC -> tC|$ such that $f \circ f^{-1}
     = id_{|tC|}$, $f^{-1} \circ f = id_{|iC|}$, and $f$ and $f^{-1}$ are
     functorial over both $l$-equivalences (if $|tc|\ \tar{\approx_l}\
-    |tc'|$ then $f(|tc|)\ \ifc{\approx_l}\ f(|tc'|)$ and vice-versa) and
+    |tc'|$ then $f(|tc|)\ \ifc{\approx_l}\ f(|tc'|)$ and if $|ic|\ \ifc{\approx_l}\ |ic'|$ then $f^{-1}$) and
     $|.->|$ (if $|tc|\ \tar{|.->|}\ |tc'|$ then $f(|tc|)\ \ifc{|.->|}\ f(|tc'|)$ and vice versa).
 \end{definition}
 
@@ -172,6 +212,7 @@ Now we strengthen the condition to show TSNI:
     \tar{L} to \ifc{L}, applying TSNI, and then transporting the
     resulting configuration and multi-step derivation back.
 \end{proof}
+%}
 
 
 
