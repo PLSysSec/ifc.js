@@ -287,6 +287,7 @@ niconf iS id il ie
     |bullet| & |il' cantFlowTo il| \\
     |tconf id il' ie| & \text{otherwise}
   \end{cases} \\
+  &|erase il emptyset = emptyset|\\
   &|erase il (iS [id mapsto Q]) =| \begin{cases}
     |erase il iS| & \text{|il' cantFlowTo il|, where |il'| is}\\
     & \text{the label of thread |id|} \\
@@ -315,17 +316,18 @@ a natural embedding which preserves booleans across boundaries.}
 \begin{figure}
   Concurrent, round robin:
 \begin{code}
-  sched S (it1, it2, ldots)  = it2, ldots, it1
-  sched D (it1, it2, ldots)  = it2, ldots
-  sched N (it1, it2, ldots)  = it2, ldots
-  sched F (it1, it2, ldots)  = it2, ldots, it1
+  roundrobin step (it1, it2, ldots)  = it2, ldots, it1
+  roundrobin D (it1, it2, ldots)     = it2, ldots
+  roundrobin N (it1, it2, ldots)     = it2, ldots
+  roundrobin F (it1, it2, ldots)     = it2, ldots, it1
 \end{code}
   Sequential:
 \begin{code}
-  sched S (it1, it2, ldots)        = it1, it2, ldots
-  sched N (it1, it2, ldots)        = it1, it2, ldots
-  sched D (it1, it2, ldots)        = it2, ldots
-  sched F (it1, it2, ldots, itn)   = itn, it1, it2, ldots
+  seq step (it1, it2, ldots)     = it1, it2, ldots
+  seq N (it1, it2, ldots)        = it1, it2, ldots
+  seq D (it)                     = it
+  seq D (it1, it2, ldots)        = it2, ldots
+  seq F (it1, it2, ldots, itn)   = itn, it1, it2, ldots
 \end{code}
 \caption{Scheduling policies}
 \end{figure}
@@ -334,20 +336,41 @@ a natural embedding which preserves booleans across boundaries.}
 \clearpage % TODO: remove again, but keep for now to not have the text be split across 4 pages.
 \subsection{Formal Guarantees}
 
-\begin{theorem}[Termination Sensitive Non-Interference (TSNI)]
-  For any configurations |ic1|, |ic1'|, |ic2|, and label |il| where
+\begin{definition}[Information-flow control language]
+    An information-flow control language |L| is a tuple $(|C|, |C|^*, |.->|,
+    |erasef l|)$, where $c \in |C|$ is the type of machine configurations,
+    $|C|^*$ is the type of erased machine configurations, |.->| is a
+    reduction relation between machine configurations and $|erasef l|$
+    is an erasure function from machine configurations to erased machine
+    configurations.  For sequential languages, we may also speak of
+    values, e.g. a configurations $V \subseteq |C|$ for which there are
+    no possible further transitions.
+\end{definition}
+
+\begin{definition}[$l$-equivalence]
+    Two machine configurations $c$ and $c'$ are considered $l$-equivalent ($c \approx_l c'$)
+    if $|erase l c| = |erase l c'|$.
+\end{definition}
+
+\begin{definition}[Termination Sensitive Non-Interference (TSNI)]
+  A language $|L|=(|C|, |C|^*, |.->|, |erasef l|)$ is termination
+  sensitive non-interfering if for any label |l|, and configurations
+  |c1, c1', c2 member C|, if
   \begin{equation} \label{eq:tsni-lhs}
-    |ic1| \approx_{|il|} |ic2|
+    |c1| \approx_{|l|} |c2|
     \qquad \text{and} \qquad
-    |ic1| |.->|^* |ic1'|
+    |c1| |.->|^* |c1'|
   \end{equation}
-  then there exists a configuration |ic2'| such that
+  then there exists a configuration |c2' member C| such that
   \begin{equation} \label{eq:tsni-rhs}
-    |ic1'| \approx_{|il|} |ic2'|
+    |c1'| \approx_{|l|} |c2'|
      \qquad \text{and} \qquad
-    |ic2| |.->|^* |ic2'|
+    |c2| |.->|^* |c2'|
     \ \text{.}
   \end{equation}
+\end{definition}
+
+\begin{theorem}[TSNI]
 \end{theorem}
 
 \begin{lemma}
@@ -461,6 +484,15 @@ a natural embedding which preserves booleans across boundaries.}
   \end{itemize}
 \end{proof}
 
+\begin{definition}[Termination Insensitive Non-Interference (TINI)]
+  A language $|L|=(|C|, |C|^*, |.->|, |erasef l|)$ is termination
+  insensitive non-interfering if for any label |l|, and configurations
+  |c1, c2, V1, V2 member C|, if
+   $|c1| \approx_{|l|} |c2|$,
+   $|c1| |.->|^* |V1|$, and
+   $|c2| |.->|^* |V2|$, then
+   $|V1| \approx_{|l|} |V2|$.
+\end{definition}
 
 
 \begin{theorem}[Termination Insensitive Non-Interference (TINI)]
