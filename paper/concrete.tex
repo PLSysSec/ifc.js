@@ -167,31 +167,6 @@ transitions to be exercised.
 
 \Red{Move these definitions earlier}
 
-%{
-%format tyerase c = "\varepsilon("c")"
-%format tyerasef = "\varepsilon"
-%format ^ = " "
-%format c = "c"
-%format c'
-%format cc = "\con{"c"}"
-%format cc'
-%format ac = "\abs{"c"}"
-%format ac'
-%format finv = f"^{-1}"
-%format V = "V"
-%format cV = "\con{"V"}"
-%format aV = "\abs{"V"}"
-%format ~= = "\approx_l"
-%format clequiv = "\con{"~="}"
-%format alequiv = "\abs{"~="}"
-%format creduce = "\con{".->"}"
-%format areduce = "\abs{".->"}"
-%format creducestar = "\con{".=>"}"
-%format areducestar = "\abs{".=>"}"
-%format (ap (f) (x)) = f"("x")"
-%format .. = "\circ"
-%format idf (t) = "id_{"t"}"
-
 \begin{definition}[Information-flow control language]
     An information-flow control language L is a tuple |(C, .->,
     erasef l)|, where $c \in |C|$ is the type of machine configurations, |.->| is a
@@ -267,7 +242,6 @@ as well, i.e. that we can extract a concrete reduction sequence from an abstract
     \tar{L} to \ifc{L}, applying TSNI, and then transporting the
     resulting configuration, $l$-equivalence and multi-step derivation back.
 \end{proof}
-%}
 
 
 
