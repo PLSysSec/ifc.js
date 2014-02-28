@@ -5,7 +5,7 @@
 \newcommand{\abs}[1]{\ensuremath{{\color{blue} #1}}}
 
 The operational semantics we have defined in the previous section
-satisfy termination sensitive non-interference by design.
+satisfy non-interference by design.
 We achieve this general statement that works for a large class of
 languages by having different task execute completely isolated from
 each other, such that every task has it's own state.
@@ -19,9 +19,77 @@ requires a separate heap per task, which is not very practical.
 Instead, we would like to
 more tightly couple the integration of the target and IFC
 language by reusing existing infrastructure.  In the running example,
-a concrete implementation might use a single global heap, and ensure
-that references do not cross task boundaries, and thus preserving
-non-interference.
+a concrete implementation might use a single global heap.
+More precisely, instead of using a configuration of the form
+\[|iconf iS (fullconf id1 il1 tS1 ie1, fullconf id2 il2 tS2 ie2 ldots)|\]
+we would like a single global heap as in
+|oneheapiconf iS tS (oneheapfullconf id1 il1 ie1, oneheapfullconf id2 il2 ie2, ldots)|.
+
+If the operational rules are adapted na\"ively to this new setting,
+then non-interference can be violated.  In particular, it is not
+sound to share references to a heap cell between different tasks
+in general.  Otherwise, information can be trivially leaked by copying
+secret data into a reference in one task, and then
+read again by a another task with a lower label.
+Clearly, we cannot
+modify the semantics in arbitrary ways if we are hoping to preserve
+non-interference, but how can we know if our changes to the abstract
+semantics preserve non-interference?
+The intention of our single heap implementation was to be more efficient
+by using one global heap, but conceptually maintain isolation between
+task by not allowing sharing of references between tasks.
+This intuition of having a different (potentially more efficient)
+concrete semantics that behave like the abstract semantics
+can be formalized by the following definition:
+
+\begin{definition}[Isomorphism of information-flow control languages]
+  A language \con{|(C, .->, erasef l)|} is \textit{isomorphic} to a
+  language \abs{|(iC, .->, erasef l)|} if there exist total functions |f
+  : tC -> iC| and |finv : iC -> tC| such that |f .. finv = idf tC| |finv
+  .. f = idf iC|.  Furthermore, |f| and |finv| are functorial (e.g. if
+  $\abs{x\ R\ y}$ then $f(\abs{x})\ \con{R}\ f(\abs{y})$) over both
+  $l$-equivalences and |.->|.
+  
+  If we weaken this restriction such that |finv| does
+  not have to be functorial over |.->|, we call the
+  language \con{|(C, .->, erasef l)|} \textit{weakly isomorphic} to
+  \abs{|(iC, .->, erasef l)|}.
+\end{definition}
+
+Providing an isomorphism between the two languages allows us to
+preserve (termination sensitive or insensitive) non-interference
+as the following two theorems state.
+
+\begin{theorem}[Isomorphism preserves termination sensitive non-interference]
+  If \ifc{L} is isomorphic to \tar{L} and \ifc{L} satisfies TSNI, then
+  \tar{L} satisfies TSNI.
+\end{theorem}
+
+\begin{proof}
+  Shown by transporting configurations and reduction derivations from
+  \tar{L} to \ifc{L}, applying TSNI, and then transporting the
+  resulting configuration, $l$-equivalence and multi-step derivation back.
+\end{proof}
+
+\begin{theorem}[Weak isomorphism preserves termination insensitive non-interference]
+  If a language \con{L} is weakly isomorphic to a language \abs{L}, and \abs{L}
+  satisfies TINI, then \con{L} satisfies TINI.
+\end{theorem}
+
+\begin{proof}
+  Shown by transporting configurations and reduction derivations
+  from \con{L} to \abs{L}, applying TINI and transporting the resulting
+  equivalence back using functoriality of |finv| over $l$-equivalences.
+\end{proof}
+
+A na\"ive attempt at our single heap semantics
+will not allow us to construct an isomorphism
+with the abstract language |specLangML alpha|, and instead highlights
+where things will go wrong.
+
+
+
+
 
 In this section, we will detail an approach that allows one to implement
 a concrete system guided conceptually by the ideas in the previous
@@ -33,12 +101,6 @@ generalize to arbitrary languages.
 
 \subsection{IFC-Mini-ML with a Single Heap}
 
-Instead of using a configuration of the form
-\[|iconf iS (fullconf id1 il1 tS1 ie1, fullconf id2 il2 tS2 ie2 ldots)|\]
-as is done in |specLangML alpha|
-where every task has its
-own ML heap, we would like a single global heap as in
-|oneheapiconf iS tS (oneheapfullconf id1 il1 ie1, oneheapfullconf id2 il2 ie2, ldots)|.
 To keep up a fictional separation between the portions
 of the global heap that tasks can use, we forbid references to
 cross task boundaries.  To achieve such a system, we can
