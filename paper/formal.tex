@@ -150,7 +150,6 @@ is |l|-equivalent to the first resultant configuration.
   Round robin:
 \begin{code}
   roundrobin step (it1, it2, ldots)  = it2, ldots, it1
-  roundrobin D (it1, it2, ldots)     = it2, ldots
   roundrobin N (it1, it2, ldots)     = it2, ldots
   roundrobin F (it1, it2, ldots)     = it2, ldots, it1
 \end{code}
@@ -158,8 +157,7 @@ is |l|-equivalent to the first resultant configuration.
 \begin{code}
   seq step (it1, it2, ldots)     = it1, it2, ldots
   seq N (it1, it2, ldots)        = it1, it2, ldots
-  seq D (it)                     = it
-  seq D (it1, it2, ldots)        = it2, ldots
+  seq N (it)                     = it
   seq F (it1, it2, ldots, itn)   = itn, it1, it2, ldots
 \end{code}
 \caption{Round robin and sequential scheduling policies.\label{fig:scheduler}}
