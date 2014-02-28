@@ -86,7 +86,12 @@ A na\"ive attempt at our single heap semantics
 will not allow us to construct an isomorphism
 with the abstract language |specLangML alpha|, and instead highlights
 where things will go wrong.
-
+To successfully construct an isomorphism, our concrete semantics need
+to mirror the behavior of the abstract semantics, most importantly
+in the case where tasks interact.  Namely, at a fork and when sending
+or receiving messages, we take an expression from one task and
+execute it in the context of another task.  In the abstract semantics
+the fork rule
 
 
 
