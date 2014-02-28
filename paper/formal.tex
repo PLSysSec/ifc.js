@@ -186,14 +186,42 @@ specification language is TSNI.
 %
 Here, we simply remark that even non-adversairal schedulers are not always safe.
 
-Consider the sequential scheduling policy |seqf| given in
+Consider, for example, the sequential scheduling policy |seqf| given in
 Figure~\ref{fig:scheduler}.
 %
 It is trivial to show that |specLang seqf (targetLang nop)| does not satisfy
 TSNI.
 %
-\Red{HERE}
+Concretely, consider a target language similar to |targetLang ML| with an
+additional expression terminal |diverge| that denotes a divergent computation,
+i.e., |diverge| always reduces to |diverge| and a a simple label lattice |{pub,
+sec}| such that |pub canFlowTo sec|, but |sec cantFlowTo pub|, we can write the
+following program in the specification language:
+\begin{code}
+ic1 = iS ; fullconf 1 sec tS1 (IT(when false diverge)),  fullconf 2 pub tS1 ie
+ic2 = iS ; fullconf 1 sec tS1 (IT(when true diverge)),   fullconf 2 pub tS2 ie
+\end{code}
+These two configurations are |pub|-equivalent, however |ic1| will reduce (in two
+steps) to |ic1 = iS ; fullconf 2 pub tS1 (IT diverge)|, whereas |ic2| will not make
+any progress.
+%
+Suppose that |ie| is a computation that writes to a |pub| channel,\footnote{
+Though we do not model labeled channels, extending the calculus with such a
+feature is straight forward, see Setion~\ref{}.
+} then the |sec| thread's decision to diverge or not is directly leaked to a
+public entitiy.
 
+In certain cases, however, a TSNI-safe concurrent scheduling policy such as
+|roundrobinf| cannot be considered without imposig a non-trivial burden on the
+concrete implementation.
+%
+(Section~\ref{ref:real} describes a particular embedding with JavsScript as the
+target language.)
+%
+Hence, we consider an alternative NI property---called termination insensitive
+non-interference---that can also be upheld by sequential languages at the cost
+of leaking one bit through (non)-termination.
+%
 \begin{definition}[Termination Insensitive Non-Interference (TINI)]
   A language |(C, V, .->, erasef l)| is termination
   insensitive non-interfering if for any label |l|, and configurations
@@ -204,12 +232,19 @@ TSNI.
    $|c1'| \approx_{|l|} |c2'|$.
 \end{definition}
 
-
+TSNI states that if we take two |l|-equivalent configurations, and both
+configurations reduce to terminal configuration states (for which there are no
+possible further transitions), then the end configurations are also
+|l|-equivalent.
+%
+We highlight that this statement is much weaker than TSNI: it only states that
+terminating programs do not leak sensitive data.
+ 
+Nevertheless, we believe TINI to be a useful for many scenariors and thus we
+show that our IFC language with the sequential scheduling policy |seqf|
+satisfies TINI.
+%
 \begin{theorem}[Sequential specification language is TINI]
 For any target language |targetLang nop|, |specLang seqf (targetLang
 nop)| satisfies TINI.
 \end{theorem}
-
-
-
-
