@@ -72,7 +72,7 @@ let tx = te1 in te2  @= (\tx.te2) te1
 \and
 \inferrule[T-deref]
 { }
-{| conf tS (!ta) -> conf tS (ap ts ta) |}
+{| conf tS (!ta) -> conf tS (ap tS ta) |}
 
 \and
 \inferrule[T-ass]
@@ -92,19 +92,20 @@ let tx = te1 in te2  @= (\tx.te2) te1
 \subsection{IFC language}
 
 Information flow control seeks to enforce a security policy known as
-\emph{noninterference}: public results must not depend on secret inputs.
+\emph{non-interference}: public results must not depend on secret inputs.
 Modern, dynamic IFC systems usually achieve this by associating a \emph{label}
 with data, which encodes a policy of whether or not data tagged with one
-label can flow to |canFlowTo| another label.  Since our embedding is agnostic
+label can flow to another label (written as |canFlowTo|).
+Since our embedding is agnostic
 to the choice of labeling scheme, we simply represent labels with the metavariable
 $l$, but do not discuss them in more detail.
 
 In Figure~\ref{fig:ifc}, we give the syntax and \emph{single-threaded}
 evaluation rules for a minimal information-flow control language.  The
 evaluation context $\mathcal{E}_{\ifc{\Sigma}}$ represents the context
-of the current thread which is running, including on the right-hand side
-the current label $l$ (which protects the program counter of the thread)
-and the thread ID $i$.
+of the current task which is running, including on the right-hand side
+the current label $l$ (which protects the program counter of the task)
+and the task ID $i$.
 
 Ordinarily, information flow control languages are defined by directly
 stating a base language plus information flow control operators.  In
@@ -115,20 +116,23 @@ support for the following core information flow control features:
 \begin{itemize}
     \item First-class labels, with label values $l$ as well as operations for computing on
 labels (|canFlowTo|, |lub| and |glb|),
-    \item Operations for inspecting (\textbf{getLabel}) and modifying (\textbf{setLabel}) the current label of the thread (a thread can only increase its label, and not decrease it),
-    \item Operations for non-blocking inter-thread communication (\textbf{send} and \textbf{recv}),
-        which interact with the global store of per-thread message queues |iS|, and
-    \item A forking operation, which will be described in more detail in the next section.
+    \item operations for inspecting (\textbf{getLabel}) and modifying (\textbf{setLabel}) the current label of the task (a task can only increase its label, and not decrease it),
+    \item operations for non-blocking inter-task communication (\textbf{send} and \textbf{recv}),
+        which interact with the global store of per-task message queues |iS|, and
+    \item a forking operation allowing to spawn new tasks, which will be described in more detail in the next section.
 \end{itemize}
 
-The form of \textbf{send}/\textbf{recv} are inspired by methods of inter-worker communication
-in web browser APIs \Red{cite}, however in Section~\ref{sec:extensions} we
+The form of \textbf{send}/\textbf{recv} are \Red{inspired by methods of inter-worker communication
+in web browser APIs} \Red{cite}, however in Section~\ref{sec:extensions} we
 discuss other possible choices for information flow control aware communication
-primitives.  Their rules are non-standard and worth commenting on: when a thread places
-a message on the message queue of the thread it is sending to, it also adds the current
-label when it sent the message.  When the recipient reads out messages from its queue,
-it filters out (notated using |filter il Q|) messages whose labels do not
-flow to |il|. Specifically, if |Q| is the empty list |nil|, the
+primitives.  Their rules are different from non-IFC systems
+and worth commenting on: when a task places
+a message on the message queue of receiving task, it also labels that
+message with a label |il'| (which must be above the tasks current label |il|)
+When the recipient reads out messages from its queue,
+messages whose labels do not
+flow to |il| are filtered out (denoted by |filter il Q|).
+Specifically, if |Q| is the empty list |nil|, the
 function is simply the identity function, i.e.,
 |filter il nil = nil|; otherwise:
 \[
@@ -138,6 +142,8 @@ function is simply the identity function, i.e.,
 |filter il Q| & \quad \text{otherwise}
 \end{array} \right.
 \]
+This ensures that tasks cannot receive messages that are more secret
+than their current label would allow.
 
 %   \begin{figure}
 %   Typing judgment: $|tyrule tG tS te tty|$
@@ -227,7 +233,7 @@ niconf iS' id il ie2
 { |denot (il1 lop il2) = iv|}
 { |niconf iS id il (il1 lop il2) -> niconf iS id il iv| }
 \end{mathpar}
-\caption{IFC language, single-thread operations}
+\caption{IFC language with all single-threaded operations}
 \label{fig:ifc}
 \end{figure}
 
@@ -237,13 +243,13 @@ niconf iS' id il ie2
   - move the async recv to text and out of the figure
   - clarify discussion on exceptions
   - fix the toLabled
-  - add threadId to ruls
+  - add taskIDs to ruls
 }
 Finally, in Figure~\ref{fig:embedding},
 we provide all of the rules responsible for actually carrying out the embedding.
-The most important feature of this embedding is that every thread maintains its own
+The most important feature of this embedding is that every task maintains its own
 copy of the target language global state and evaluation context, thus
-enforcing isolation between various threads.  In more detail:
+enforcing isolation between various tasks.  In more detail:
 
 \begin{figure}
 %{
@@ -351,14 +357,14 @@ niconf iS id il ie
 
 \begin{itemize}
     \item We extend the values, expressions and evaluation contexts of both languages to allow for embeddings terms in one language to be embedded in the other.
-    \item We reinterpret |CE| to be evaluation contexts on threadpools, providing definitions for $\mathcal{E}_{\tar{\Sigma}}$ and $\mathcal{E}_{\ifc{\Sigma}}$.  These rules only operate on the first thread in the threadpool, which by convention, is the only thread executing.
-    \item We reinterpret |->|, an operation on a single thread, in terms of |.->|, operation on thread pools.  The correspondence is simple: a thread executes a step and then is rescheduled in the thread pool according to schedule policy $\alpha$.  Not all schedulers preserve non-interference, so we provide two specific schedules in Figure~\ref{fig:scheduler}.
-    \item Finally, we define some rules for scheduling, handling forking threads (which interact with the state of the target language) and intermediating between the borders of the two languages.
+    \item We reinterpret |CE| to be evaluation contexts on task pools, providing definitions for $\mathcal{E}_{\tar{\Sigma}}$ and $\mathcal{E}_{\ifc{\Sigma}}$.  These rules only operate on the first task in the task pool, which by convention, is the only task executing.
+    \item We reinterpret |->|, an operation on a single task, in terms of |.->|, operation on task pools.  The correspondence is simple: a task executes a step and then is rescheduled in the task pool according to schedule policy $\alpha$.  Not all schedulers preserve non-interference, so we provide two specific schedules in Figure~\ref{fig:scheduler}.
+    \item Finally, we define some rules for scheduling, handling forking tasks (which interact with the state of the target language) and intermediating between the borders of the two languages.
 \end{itemize}
 
 The \textsc{I-fork} rule is of particular interest, as it is intended to allow users
-to create new threads.  When a new thread is created, there is a question of what the
-global state of the new thread should be; this is defined in terms of a function $\kappa$.
+to create new tasks.  When a new task is created, there is a question of what the
+global state of the new task should be; this is defined in terms of a function $\kappa$.
 Conservatively, $\kappa$ may be simply thought of as the identity function, in which
 case the semantics of fork are such that the state of the target language is \emph{cloned}
 when forking occurs.  However, this is not necessary: it is also valid for $\kappa$
@@ -370,9 +376,9 @@ discussion of the implications of the choice of $\kappa$.
 To get a feeling for how these operational semantics operate, we'd like to
 describe a few sample programs, and what their outputs are.
 
-\paragraph{Sending mutable references}  As each thread maintains its own
+\paragraph{Sending mutable references}  As each task maintains its own
 global state for the target language, one might reasonably wonder what would
-happen if you attempted to send a reference to another thread.
+happen if you attempted to send a reference to another task.
 
 \begin{align*}
     & |let i = TI (fork (x, i' <= brecv . (IT (!(TI x)))))| \\
@@ -380,9 +386,9 @@ happen if you attempted to send a reference to another thread.
 \end{align*}
 
 It would be a violation of information flow if such an operation actually
-resulted in references being shared between two threads.  In fact, the address
-will be received by the forked thread, but it will be a dangling pointer; the
-thread will become stuck and removed from execution by \textsc{I-noStep}.  (Readers
+resulted in references being shared between two tasks.  In fact, the address
+will be received by the forked task, but it will be a dangling pointer; the
+task will become stuck and removed from execution by \textsc{I-noStep}.  (Readers
 who are curious whether or not a static discipline could be enforced to
 prevent these dangling pointers should check Section~\ref{sec:extensions}.)
 
@@ -394,7 +400,7 @@ semantics depends on the definition of $\kappa$:
     & |in TI (fork (IT (!x; !x))); x := false|
 \end{align*}
 
-When $\kappa$ is the identity, the forked thread successfully dereferences
+When $\kappa$ is the identity, the forked task successfully dereferences
 the contents of the reference to be true twice (recall that references
 are cloned into the new global state).  When $\kappa$ is the constant function
 to the empty store, $x$ becomes a dangling pionter.
@@ -408,24 +414,24 @@ If the exception crosses this boundary, it can leak information about the
 inner sensitive computation.
 
 At first glance, it does not appear that our system has any such operator;
-there are only threads, and the correct behavior for a thread throwing
+there are only tasks, and the correct behavior for a task throwing
 an exception is self-evident: it should simply be removed from the scheduler.
 However, under a \emph{sequential scheduler}, the behavior of \textbf{fork}
 can be used to model the behavior of \textbf{toLabeled}:
 
 \begin{align*}
     & |toLabeled l te @= | \\
-    & |tab let pid = threadId; | \\
+    & |tab let pid = taskId; | \\
     & |tab let i = TI (fork (IT (TI (setLabel l); TI (send pid l (IT te)))))| \\
     & |tab in (\ _ . TI (setLabel l); TI ( x, _ <= recv . x ))| \\
 \end{align*}
 
-When the sequential scheduler is used, the forked thread runs to
-completion before returning to the thread that forked it.  Thus,
-a threadpool should rather be interpreted as a number of information-flow
+When the sequential scheduler is used, the forked task runs to
+completion before returning to the task that forked it.  Thus,
+a task pool should rather be interpreted as a number of information-flow
 aware stack frames.  To read the result of a |toLabeled| operation
-(which is communicated via message passing), the parent thread must raise
-its label; otherwise the label will get dropped, as per the \textsc{I-recv} rule.\footnote{A keen reader may note that with a single, per-thread
+(which is communicated via message passing), the parent task must raise
+its label; otherwise the label will get dropped, as per the \textsc{I-recv} rule.\footnote{A keen reader may note that with a single, per-task
 channel, we might mix up our messages.  Indeed, a proper development requires
 the ability to allocate fresh channels; for purposes of simplicity, this
 has been omitted.}
