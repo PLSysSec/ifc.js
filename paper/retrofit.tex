@@ -1,26 +1,42 @@
 \section{Retrofitting languages with IFC}
 \label{sec:retrofit}
 
+Our overall plan will be to take a \textbf{{\color{red} target language}} with a formal
+operational semantics and combine it with an \textit{{\color{blue} information
+flow control language}}.  For concreteness, we use a simple, untyped,
+ML-like language with mutable references as our target language.
+However, our technique will be indifferent to the actual target language
+chosen: it need only be prepared for interoperability by being expressed
+in the style of Matthews and
+Findler~\cite{Matthews:2007:OSM:1190216.1190220}.  This procedure will
+equip the target language with primitives for implementing dynamic
+information control in the style of LIO~\cite{lio}, which we will
+describe in more detail shortly.
 
+We have typeset nonterminals of the target language using \textbf{{\color{red}
+bold font}} while the nonterminals of the IFC language have been typeset
+with \textit{{\color{blue} italic font}}.  Readers are encouraged to view
+a color copy of this paper, where target language nonterminals are colored red
+while IFC language nonterminals are colored blue.
 
-While we would like to add information flow control to \emph{any}
-language, we will have to make some assumptions about the form of the
-target language.  We consider languages whose semantics can be expressed
-in the form of abstract machines |(tS, tE, te, tv, ->)|, where |tS| is the
-global machine state, |tE| is an evaluation context, |te| is an
-expression in the language, |tv| is the set of values, and |->| is the reduction relation on such
-configuration, i.e., $|->| : (|tS| \times |tE| \times |te|)
-\rightharpoonup (|tS| \times |tE| \times |te|)$.  Metavariables in this
-target language have been colored red.
+\subsection{Target language: Mini-ML}
 
-In Figure~\ref{fig:ml}, we give an example of a standard ML-like
-language with mutable references.  These semantics have been prepared
-for interoperability in the style of Matthews and Findler~\Red{XXX}; in
-particular, the evaluation rules have been expressed in terms of an
-evaluation context $\mathcal{E}_{\tar{\Sigma}}$.  Without the embedding,
-this evaluation context is defined as |conf tS te @= tS, tE[ te ]|, but
-when we perform the embedding, we will reinterpret the meaning
-of this evaluation context, lifting these semantics to an IFC setting.
+In Figure~\ref{fig:ml}, we give a simple, untyped ML-like language with
+mutable references \Red{and errors}, prepared for combination with an
+information flow control language.  The presentation is standard, but it
+is worth paying some attention to the Felleisen-Hieb reduction
+semantics~\cite{Felleisen:1992:RRS:136293.136297} used to define the
+operational semantics of the system.  Our language defines an evaluation
+context |tE|; however, the evaluation rules have been expressed in terms
+of a different evaluation context $\mathcal{E}_{\tar{\Sigma}}$.  To
+derive the usual operational semantics for this language, the evaluation
+context merely needs to be defined as |conf tS te @= tS, tE[ te ]|.
+However, when we combine this language with an IFC language, we must
+reinterpret the meaning of this evaluation context.
+In general, we require that a target language be expressed in terms
+of some global machine state |tS|, some evaluation context |tE|,
+some expressions |te|, some set of values |tv| and a reduction
+relations on full configurations $|tS| \times |tE| \times |te|$.
 
 \begin{figure}
 \begin{code}
@@ -68,15 +84,45 @@ let tx = te1 in te2  @= (\tx.te2) te1
 \label{fig:ml}
 \end{figure}
 
-Next, we describe the IFC language.  \Red{Description of the IFC language as
-a standard floating label system, or backwards reference to the
-background section.}  In Figure~\ref{fig:ifc}, we describe the syntax
-of the language, and provide rules for all operations which operate on a single
-thread.  \Red{One could imagine these rules giving the definition of a very
-boring information flow control language, by defining |niconf iS id il ie| appropriately
-and providing an appropriate erasure function.}
+\subsection{IFC language}
 
-We use the notation |filter il Q| to indicate a filter function which removes message whose labels do not
+Information flow control seeks to enforce a security policy known as
+\emph{noninterference}: public results must not depend on secret inputs.
+Modern, dynamic IFC systems usually achieve this by associating a \emph{label}
+with data, which encodes a policy of whether or not data tagged with one
+label can flow to |canflowto| another label.  Since our embedding is agnostic
+to the choice of labeling scheme, we simply represent labels with the metavariable
+$l$, but do not discuss them in more detail.
+
+In Figure~\ref{fig:ifc}, we give the syntax and \emph{single-threaded}
+evaluation rules for a minimal information-flow control language.  The
+evaluation context $\mathcal{E}_{\ifc{\Sigma}}$ represents the context
+of the current thread which is running, including on the right-hand side
+the current label $l$ (which protects the program counter of the thread)
+and the thread ID $i$.
+
+Ordinarily, information flow control languages are defined by directly
+stating a base language plus information flow control operators.  In
+contrast, our language is purposely minimal: it does not have sequencing
+operations, control flow, or other constructs.  However, it contains
+support for the following core information flow control features:
+
+\begin{itemize}
+    \item First-class labels, with label values $l$ as well as operations for computing on
+labels (|canflowto|, |lub| and |glb|),
+    \item Operations for inspecting (\textbf{getLabel}) and modifying (\textbf{setLabel}) the current label of the thread (note a thread can only increase its label, and not decrease it),
+    \item Operations for non-blocking inter-thread communication (\textbf{send} and \textbf{recv}),
+        which interact with the global store of per-thread message queues |iS|, and
+    \item A forking operation, which will be described in more detail in the next section.
+\end{itemize}
+
+The form of \textbf{send}/\textbf{recv} are inspired by methods of inter-worker communication
+in web browser APIs \Red{cite}, however in Section~\ref{sec:extensions} we
+discuss other possible choices for information flow control aware communication
+primitives.  Their rules are non-standard and worth commenting on: when a thread places
+a message on the message queue of the thread it is sending to, it also adds the current
+label when it sent the message.  When the recipient reads out messages from its queue,
+it filters out (notated using |filter il Q|) messages whose labels do not
 flow to |il|. Specifically, if |Q| is the empty list |nil|, the
 function is simply the identity function, i.e.,
 |filter il nil = nil|; otherwise:
