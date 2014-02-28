@@ -4,30 +4,32 @@
 In this section we present the formal security guarantees provided by
 our embedding.
 %
-Concretely, we show that an IFC langauge, |specLang alpha (targetLang
-nop)|, satisfies non-interference(NI)~\tocite{}.
+Concretely, we show that an IFC langauge, |specLang alpha targetLang)|, satisfies non-interference~\tocite{}, without making any reference to properties of |targetLang|.
 %
-Intuitively, non-interference states that secret values cannot be
-leaked by programs written in the language.
-%
-As we show below, the precise scheduling policy |alpha| dictates
+As it turns out, the precise scheduling policy |alpha| dictates
 whether or not the guarantee holds for programs with diverging tasks.
+For a sequential scheduler, we will only be able to show
+\emph{termination-insensitive non-interference}, where a program
+may diverge based on secret data; with the concurrent schedule,
+we can show a stronger result, \emph{termination-sensitive non-interference},
+where termination attacks cannot leak information.
 
-We prove non-interference for |specLang alpha (targetLang nop)| using
-the \emph{term erasure} technique of~\tocite{}.
+How does one characterize what the \emph{secret inputs} of a program
+are?  Like other work,~\tocite{} we show specify and prove
+noninterference using \emph{term erasure}.
 %
-Intuitively the term erasure technique allows us to show that a an
+Intuitively, term erasure allows us to show that a an
 attacker does not learn any sensitive information from a program
-written in a NI language, if the program behaves identically to the
+written in a non-interference language, if the program behaves identically to the
 same program with all sensitive data ``erased.''
-% 
+%
 To accommodate for this, we extend our formalism to account for
 programs with erased configurations and a function |erasef l| that
 performs erasures, usually by rewriting (parts of) configurations that
 are more sensitive than |l| to a new syntactic construct |bullet|.
 %
-Directly, we can now give a precise definition for the kinds of
-languages we wish to prove NI.
+We can generally characterize what features a language must have
+in order for the statement of non-interference to be well-posed:
 
 \begin{definition}[Information-flow control language]
     An information-flow control language |L| is a tuple |(C, .->,
@@ -41,9 +43,9 @@ languages we wish to prove NI.
 
 %{
 %format .->  = "\overset{\alpha}{\hookrightarrow}"
-Using this definition, |specLang alpha (targetLang nop) = (ifc C, ifc
+In our case, |specLang alpha (targetLang nop) = (ifc C, ifc
 V, .->, erasef il)|, such that $|ifc C| = |iS| \times \prod |it|$ and
-$|ifc V| = |iS| \times |it|^*$, where $|it|^* \subset |it|$ it the
+$|ifc V| = |iS| \times |it|_V$, where $|it|_V \subset |it|$ is the
 type for tasks whose expressions have been reduced to
 values.\footnote{
   Here, we abuse notation by describing types for configuration parts using the
@@ -116,7 +118,7 @@ Intuitively, we can now state that a language satisfies non-interference if an
 attacker at level |l| cannot distinguish the runs of any two |l|-equivalent
 configurations.
 %
-This precise NI property is called termination sensitive non-interference
+This precise non-interference property is called termination sensitive non-interference
 (TSNI), since it considers runs of programs, and thus does not allow for leaks
 due termination or internal timing behavior.
 %
@@ -153,7 +155,7 @@ scheduling policy.
 Specifically, we consider the language under the round-robin scheduler
 |roundrobinf| given in Figure~\ref{fig:scheduler}.
 
-\begin{theorem}[Concurrent specification language is TSNI].
+\begin{theorem}[Concurrent specification language is TSNI]
   \label{thm:rr-tsni}
 For any target language |targetLang nop|, |specLang roundrobinf
 (targetLang nop)| satisfies TSNI.
@@ -202,7 +204,7 @@ concrete implementation.
 (Section~\ref{ref:real} describes a particular embedding with JavsScript as the
 target language.)
 %
-Hence, we consider an alternative NI property---called termination insensitive
+Hence, we consider an alternative non-interference property---called termination insensitive
 non-interference---that can also be upheld by sequential languages at the cost
 of leaking one bit through (non)-termination.
 %
