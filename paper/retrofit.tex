@@ -233,6 +233,12 @@ niconf iS' id il ie2
 
 \subsection{The embedding}
 
+\Red{TODO[ds]:
+  - move the async recv to text and out of the figure
+  - clarify discussion on exceptions
+  - fix the toLabled
+  - add threadId to ruls
+}
 Finally, in Figure~\ref{fig:embedding},
 we provide all of the rules responsible for actually carrying out the embedding.
 The most important feature of this embedding is that every thread maintains its own
@@ -262,7 +268,7 @@ tE  ::= cdots | TI iE
 
 \begin{code}
 ix1, ix2 <= brecv . ie @=
-tab tab tab IT (let tx = TI (ix1, ix2 <= recv. ie  (IT tx)) in tx)
+tab tab tab (IT (let tx = TI (ix1, ix2 <= recv. ie  (IT tx)) in tx))
 conf tS te @= iconf iS (fullconf id il tS (iniEt te), ldots)
 niconf iS id il ie @= iconf iS (fullconf id il tS (iniEi ie), ldots)
 CE[e] -> iconf iS (it, ldots) @= CE[e] .-> iconf iS (sched step (it, ldots))
