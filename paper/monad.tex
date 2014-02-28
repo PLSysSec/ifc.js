@@ -20,7 +20,7 @@ monad transformers, which add an extra computation feature to a
 pre-existing monad.  In the past, this approach has been criticized for
 a number of failings, including the fact that the order in meaning of a
 monad can depend on the order in which the monad transformers are
-applied. \Red{cite} The canonical example of this phenomenon is the
+applied. The canonical example of this phenomenon is the
 composition of the state monad and the error monad: depending on the
 ordering of the two monad transformers, state is preserved or thrown away
 upon an error.
