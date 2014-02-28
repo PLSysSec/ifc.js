@@ -139,12 +139,62 @@ Formally, we define TSNI as follows.
     \ \text{.}
   \end{equation}
 \end{definition}
+%
+In other words if we take two |l|-equivalent configurations, then for every
+intermediate step taken by the first configuration, there is a corresponding
+step that the second configuration can take to result in a configuration that
+is |l|-equivalent to the first resultant configuration.
+\Red{TODO: Do we want a commutative diagram to illustrate this?}
+
+\begin{figure}
+  Round robin:
+\begin{code}
+  roundrobin step (it1, it2, ldots)  = it2, ldots, it1
+  roundrobin D (it1, it2, ldots)     = it2, ldots
+  roundrobin N (it1, it2, ldots)     = it2, ldots
+  roundrobin F (it1, it2, ldots)     = it2, ldots, it1
+\end{code}
+  Sequential:
+\begin{code}
+  seq step (it1, it2, ldots)     = it1, it2, ldots
+  seq N (it1, it2, ldots)        = it1, it2, ldots
+  seq D (it)                     = it
+  seq D (it1, it2, ldots)        = it2, ldots
+  seq F (it1, it2, ldots, itn)   = itn, it1, it2, ldots
+\end{code}
+\caption{Round robin and sequential scheduling policies.\label{fig:scheduler}}
+\end{figure}
+
+Directly, we now show that our IFC language satisfies TSNI under a particular
+scheduling policy.
+%
+Specifically, we consider the language under the round-robin scheduler
+|roundrobinf| given in Figure~\ref{fig:scheduler}.
 
 \begin{theorem}[Concurrent specification language is TSNI].
   \label{thm:rr-tsni}
 For any target language |targetLang nop|, |specLang roundrobinf
 (targetLang nop)| satisfies TSNI.
 \end{theorem}
+
+In general TSNI will not hold for an arbitrary scheduler |alpha|.
+%
+For example, |specLang alpha (targetLang nop)| with a scheduler that inspects a
+sensitive threads current state when deciding which thread to schedule next
+will clearly not satisfy TSNI.
+%
+In Section~\toref{} we detail the preceise scheduler for which our
+specification language is TSNI.
+%
+Here, we simply remark that even non-adversairal schedulers are not always safe.
+
+Consider the sequential scheduling policy |seqf| given in
+Figure~\ref{fig:scheduler}.
+%
+It is trivial to show that |specLang seqf (targetLang nop)| does not satisfy
+TSNI.
+%
+\Red{HERE}
 
 \begin{definition}[Termination Insensitive Non-Interference (TINI)]
   A language |(C, V, .->, erasef l)| is termination
