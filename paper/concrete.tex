@@ -173,7 +173,7 @@ under which it is safe to restrict the abstract IFC language
 |specLang alpha targetLang|, such that non-interference is preserved.
 
 \begin{definition}[Restricted IFC language]
-  \label{def:npri}
+  \label{def:restricted}
   For a family of predicates $\mathcal P$ (one for every reduction
   rule), we call
   |restrictedLang alpha targetLang| a restricted IFC language
@@ -264,63 +264,26 @@ non-interference for an appropriate scheduling policy |alpha|.
 \Red{Show the isomorphism.}
 
 
-
 \section{Proofs}
 \label{sec:proofs}
 
-\Red{Adapt some of this text.}
+In this section we will prove all theorems we have stated so far.
+We observe that the non-interference claims for the languages
+|specLang seqf targetLang| and |specLang roundrobin targetLang|
+in Theorems~\ref{thm:rr-tsni} and~\ref{thm:seq-tini} follow directly
+from Theorems~\ref{thm:iso-tsni} and~\ref{thm:iso-tini},
+respectively, about restricted IFC languages where the set
+of predicates is the set of always valid predicates.
 
-Before we give the actual proof, we state and proof some properties
-of isomorphisms.
-
-\begin{theorem}[Weak isomorphism preserves termination insensitive non-interference]
-  If a language \con{L} is included in a language \abs{L}, and \abs{L}
-  satisfies TINI, then \con{L} satisfies TINI.
-\end{theorem}
-
-\begin{proof}
-  Shown by transporting configurations and reduction derivations
-  from \con{L} to \abs{L}, applying TINI and transporting the resulting
-  equivalence back using functoriality of |finv| over $l$-equivalences.
-\end{proof}
-
-\begin{theorem}[Isomorphism preserves termination sensitive non-interference]
-  If \ifc{L} is isomorphic to \tar{L} and \ifc{L} satisfies TSNI, then
-  \tar{L} satisfies TSNI.
-\end{theorem}
-
-\begin{proof}
-  Shown by transporting configurations and reduction derivations from
-  \tar{L} to \ifc{L}, applying TSNI, and then transporting the
-  resulting configuration, $l$-equivalence and multi-step derivation back.
-\end{proof}
-
-For the proof of Theorem~\ref{thm:npri}, we first show that the
-abstract language, potentially augmented with predicates as described
-in the first point of Definition~\ref{def:npri}, satisfies
-non-interference.  Combining this result with the isomorphism theorems
-will prove the goal as desired.
-
-\begin{theorem}
-  \label{thm:rr-tsni-general}
-  For any target language |targetLang|,
-  the language |specLang roundrobinf targetLang| where predicates $P$
-  have potentially been added to the reduction rules as described in
-  Definition~\ref{def:npri} satisfies TSNI.
-\end{theorem}
-
-Theorem~\ref{thm:rr-tsni} is a simple consequence of this
-(for the case where without any additional predicates).
-Before we proceed with the proof of this theorem, we state a
-lemma we will use.
+Before we proceed with the proof of Theorem~\ref{thm:iso-tsni},
+we state a lemma we will use.
 
 \begin{lemma}
   \label{lemma:rr-tsni-general}
   We consider, for any target language |targetLang|,
-  the information-flow control
-  language |specLang roundrobinf targetLang| where a predicate $P$
-  has potentially been added to the reduction rules as described in
-  Definition~\ref{def:npri}.  Then,
+  the restricted IFC language |restrictedLang alpha targetLang|
+  (according to Definition~\ref{def:restricted}).
+  Then,
   for any configurations |ic1|, |ic1'|, |ic2|, and label |il| where
   \begin{equation} \label{eq:tsni-lemma-lhs}
   |ic1| \approx_{|il|} |ic2|
@@ -336,7 +299,7 @@ lemma we will use.
   \end{equation}
 \end{lemma}
 
-\begin{proof}
+\begin{proof}[Proof of Theorem~\ref{thm:iso-tsni}]
   We proof the theorem by induction on the length of the derivation sequence in~\eqref{eq:tsni-lhs}.
   The base case for derivations
   of length 0 is trivial, allowing
@@ -453,4 +416,9 @@ lemma we will use.
   \end{itemize}
 \end{proof}
 
+
+The proof of Theorem~\ref{thm:iso-tini} about TINI proceeds largely
+in the same fashion as for Theorem~\ref{thm:iso-tsni} (TSNI), except that
+some cases are simpler due to the fact termination is not an issue
+(cf.~\tocite{} for a TINI proof of a similar system).
 
