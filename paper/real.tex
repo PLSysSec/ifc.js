@@ -1,5 +1,83 @@
 \section{Real world languages}
 \label{sec:real}
+
+In this section we consider the application of our embedding to 
+real world target languages.
+%
+To illustrate the flexibility of our system and challenges in the
+embedding we chose three mainstream languages---C, Haskell, and
+JavaScript---that have vastly different features and properties.
+%
+We remark that we have implemented variants of our Haskell and
+JavaScript embeddings, which are used in the Hails~\tocite{} and
+SWAPI~\tocite{} systems; we leave the implementation of the IFC system
+for C, as describe below, to future work.
+
+\subsection{C}
+\label{sec:real:c}
+
+\subsection{Haskell}
+\label{sec:real:hs}
+While the C embedding closely resembles the specification language of
+Section~\ref{sec:retrofit}, in our Haskell IFC embedding we leverage
+Haskell's strong data abstraction and static type system, monadic
+approach to effects, and lightweight concurrency to implement the
+embedding in a more efficient manner, as library.
+
+To this end, we define a new monad, |LIO|, that wraps Haskell's |IO|
+monad---which allows for arbitrary effects---to associate labels with
+threads (tasks) and restrict computational effects according to the
+semantics of Section~\ref{sec:retrofit}.
+%
+The precise restrictions encode our IFC system as computations in the
+|LIO| monad.
+%
+By wrapping |IO|, we can use Haskell's efficient implementation of
+threads, channels, etc. (e.g., we use Haskell's \texttt{forkIO} to
+fork a lightweight thread in the case of |fork|), in contrast to
+defining them in a pure fashion (see Section~\ref{sec:monad}).
+
+Importantly, this concrete implementation approach also directly
+corresponds to the specification language.
+%
+Specifically, it is |specLang alpha targetLangHS|, for $|alpha| \in
+|{roundrobinf, seqf}|$, with the pure subset of Haskell as to target
+language |targetLangHS|, the subset of Haskell that additionally
+contains the |LIO| monad (and corresponding |LIO| computations
+encoding the language) as the IFC language.
+%
+Of course since our IFC system is implemented as a library in Haskell,
+we must ensure that these languages are indeed the subsets of Haskell
+we claim, i.e., while the concrete language is all of Haskell, we must
+ensure that we can restrict programs to our subset of Haskell that
+encodes the combined language.
+%
+
+To this end, we rely Haskell's strong data abstraction and type system
+(as enforced by Safe Haskell~\cite{Terei:2012:SH:2364506.2364524}) to
+ensure that arbitrary |IO| actions cannot be lifted into
+|LIO|.\footnote{
+Of course, our IFC guarantees only extend insofar as the program is
+written as a computation in the |LIO| monad; a program written
+directly in the |IO| monad can trivially violate information flow
+control.
+}
+%
+In other words, assuming |LIO| is implemented correctly, programs
+written in the |LIO| monad cannot perform arbitrary |IO| actions
+without breaking abstraction.
+ 
+We refer the interested reader to~\tocite{icfp,haskellsymp} for
+additional details on the various implementations of this system.
+%
+Finally, we remark that in this work unifies these systems and
+presents in addition to proving NI fo such systems with asynchronous
+communication primitives.
+
+
+\subsection{JavaScript}
+\label{sec:real:js}
+
 \cut{
 
 \subsection{Example: JavaScript}
