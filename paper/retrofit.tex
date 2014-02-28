@@ -424,6 +424,10 @@ channel, we might mix up our messages.  Indeed, a proper development requires
 the ability to allocate fresh channels; for purposes of simplicity, this
 has been omitted.}
 
+In this setting, it is also clear that exceptions should not cross boundaries,
+as seen in |toLabeled l fail; true|, which evaluates to |true| no matter even in
+the event of an exception inside of the |toLabeled| block:
+
 %   \Red{When both languages have booleans, it is relatively simple to define
 %   a natural embedding which preserves booleans across boundaries.}
 %   \begin{mathpar}
