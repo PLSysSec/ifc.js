@@ -32,10 +32,8 @@ sound to share references to a heap cell between different tasks.
 Otherwise, information can be trivially leaked by copying
 secret data into a reference in one task, and then
 reading it again by a another task with a lower label.
-Clearly, we cannot
-modify the semantics in arbitrary ways if we are hoping to preserve
-non-interference, but how can we know if our changes to the abstract
-semantics preserve non-interference?
+What we would like is a way of characterizing safe modifications to
+the semantics which preserve non-interference.
 The intention of our single heap implementation was to be more efficient
 by using one global heap, but conceptually maintain isolation between
 task by not allowing sharing of references between tasks.
@@ -43,19 +41,21 @@ This intuition of having a different (potentially more efficient)
 concrete semantics that behave like the abstract semantics
 can be formalized by the following definition:
 
-\Red{We really should not use red/blue here.  I suggest we just use primes instead of colors here.}
+% con no-prime red target
+% abs prime blue ifc
+
 \begin{definition}[Isomorphism of information-flow control languages]
-  A language \con{|(C, .->, erasef l)|} is \textit{isomorphic} to a
-  language \abs{|(iC, .->, erasef l)|} if there exist total functions |f
-  : tC -> iC| and |finv : iC -> tC| such that |f .. finv = idf tC| |finv
-  .. f = idf iC|.  Furthermore, |f| and |finv| are functorial (e.g. if
-  $\abs{x\ R\ y}$ then $f(\abs{x})\ \con{R}\ f(\abs{y})$) over both
+  A language |(C, .->, erasef l)| is \textit{isomorphic} to a
+  language |(C', tarrow', erasefp l)| if there exist total functions |f
+  : C -> C'| and |finv : C' -> C'| such that |f .. finv = idf C| |finv
+  .. f = idf C'|.  Furthermore, |f| and |finv| are functorial (e.g. if
+  $x'\ R'\ y'$ then $f(x')\ R\ f(y')$) over both
   $l$-equivalences and |.->|.
   
   If we weaken this restriction such that |finv| does
   not have to be functorial over |.->|, we call the
-  language \con{|(C, .->, erasef l)|} \textit{weakly isomorphic} to
-  \abs{|(iC, .->, erasef l)|}.
+  language |(C, .->, erasef l)| \textit{weakly isomorphic} to
+  |(C', tarrow', erasefp l)|.
 \end{definition}
 
 Providing an isomorphism between the two languages allows us to
