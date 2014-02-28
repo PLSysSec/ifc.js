@@ -14,6 +14,7 @@ language to provide IFC-aware versions of target language features.
 }
 
 \subsection{Type safety}
+\label{sec:extensions:types}
 
 One important consideration for any new language feature is whether
 or not it preserves type safety.  If implementations are allowed to
@@ -60,3 +61,17 @@ there are few general remarks to be made:
         remains the same; if $\kappa$ drops the store, however, only closed expressions
         can be forked.
 \end{itemize}
+
+\subsection{Labeled objects}
+\label{sec:extensions:labeled}
+
+\paragraph{Labeled values}
+\paragraph{Labeled references}
+\paragraph{Labeled synchronization promiitves}
+
+\subsection{External effects}
+\label{sec:extensions:external}
+Application specific, use XHR as driving example.
+General way to think of safety is internalize and treat as a labeled
+object; or message to thread that has access to unsafe API, but
+exposes labeled safe messaging API.
