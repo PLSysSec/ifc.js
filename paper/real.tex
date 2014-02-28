@@ -81,15 +81,38 @@ communication primitives.
 JavaScript (JS), as specified by ECMAScript~\tocite{}, does not have any
 built-in functionality for I/O.
 %
-Consequently, and in contrast to our C and Haskell embeddings, for
-which we must eliminate external effects, the embedding for JS is
+Consequently, and in contrast to our C and Haskell embeddings---for
+which we must eliminate external effects---the embedding for JS is
 trivial.
 %
-Hence, as a first step, we implement the IFC language functionality in the
-JS runtime and expose the new functions, e.g., |fork|, by attaching
-them to the JS global object.
+As a first step, we directly implement |specLangJS roundrobinf| by
+running multiple instances of the JS runtime, i.e., |targetLangJS|, in
+separate OS-level threads.
+
+Specifically, we implement the IFC language functionality in the JS
+runtime, much like browser layout engines implement the DOM, and
+expose the new functions, e.g., |fork|, by attaching them to the JS
+global object.
 %
-Importantly, each task runs a separate instances of this runtime.
+Importantly, each task created with |fork| is execute in a separate
+thread, running a separate, fresh instance of our modified JS runtime.
+%
+In the context of our formalism, this amounts to using |klone(tS) =
+tS0|, where |tS0| is the global object corresponding to the standard
+JS library (e.g., |tS0| contains \texttt{Object}, \texttt{Array},
+etc.).
+
+Since this implementation approach relies on multiple runtimes of the
+language, sending arbitrary objects between tasks can result in
+unexpected behavior, e.g., when the object contains reference.
+%
+Hence, as discussed in Section~\ref{sec:concrete} we restrict |send|
+to expressions that can be marshalled as strings, i.e., structurally
+clonable objects~\tocite{}.
+%
+In our formalization this amounts to restricting the IFC language rule
+for |send| as follows:
+  \Red{HERE: typeof!!!}
 
 Indeed this coarse-grained approach is already used by browsers in the
 Worker API~\tocite{}, which provides client-side JS with primitives
