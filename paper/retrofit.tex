@@ -340,13 +340,13 @@ niconf iS id il ie
   seq F (it1, it2, ldots, itn)   = itn, it1, it2, ldots
 \end{code}
 \caption{Scheduling policies}
-\label{fig:schedule}
+\label{fig:scheduler}
 \end{figure}
 
 \begin{itemize}
     \item We extend the values, expressions and evaluation contexts of both languages to allow for embeddings terms in one language to be embedded in the other.
     \item We reinterpret |CE| to be evaluation contexts on threadpools, providing definitions for $\mathcal{E}_{\tar{\Sigma}}$ and $\mathcal{E}_{\ifc{\Sigma}}$.  These rules only operate on the first thread in the threadpool, which by convention, is the only thread executing.
-    \item We reinterpret |->|, an operation on a single thread, in terms of |.->|, operation on thread pools.  The correspondence is simple: a thread executes a step and then is rescheduled in the thread pool according to schedule policy $\alpha$.  Not all schedulers preserve non-interference, so we provide two specific schedules in Figure~\ref{fig:schedule}.
+    \item We reinterpret |->|, an operation on a single thread, in terms of |.->|, operation on thread pools.  The correspondence is simple: a thread executes a step and then is rescheduled in the thread pool according to schedule policy $\alpha$.  Not all schedulers preserve non-interference, so we provide two specific schedules in Figure~\ref{fig:scheduler}.
     \item Finally, we define some rules for scheduling, handling forking threads (which interact with the state of the target language) and intermediating between the borders of the two languages.
 \end{itemize}
 

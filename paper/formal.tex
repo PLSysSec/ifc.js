@@ -146,22 +146,6 @@ number of steps that the second configuration can take to result in a
 configuration that is |l|-equivalent to the first resultant configuration.
 \Red{TODO: Do we want a commutative diagram to illustrate this?}
 
-\begin{figure}
-  Round robin:
-\begin{code}
-  roundrobin step (it1, it2, ldots)  = it2, ldots, it1
-  roundrobin N (it1, it2, ldots)     = it2, ldots
-  roundrobin F (it1, it2, ldots)     = it2, ldots, it1
-\end{code}
-  Sequential:
-\begin{code}
-  seq step (it1, it2, ldots)     = it1, it2, ldots
-  seq N (it1, it2, ldots)        = it1, it2, ldots
-  seq N (it)                     = it
-  seq F (it1, it2, ldots, itn)   = itn, it1, it2, ldots
-\end{code}
-\caption{Round robin and sequential scheduling policies.\label{fig:scheduler}}
-\end{figure}
 
 Directly, we now show that our IFC language satisfies TSNI under a particular
 scheduling policy.
