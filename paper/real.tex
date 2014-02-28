@@ -70,13 +70,74 @@ without breaking abstraction.
 We refer the interested reader to~\tocite{icfp,haskellsymp} for
 additional details on the various implementations of this system.
 %
-Finally, we remark that in this work unifies these systems and
-presents in addition to proving NI fo such systems with asynchronous
+Here, we lastly remark that our work unifies these systems and
+presents a proof of NI for such systems with asynchronous
 communication primitives.
 
 
 \subsection{JavaScript}
 \label{sec:real:js}
+
+JavaScript (JS), as specified by ECMAScript~\tocite{}, does not have any
+built-in functionality for I/O.
+%
+Consequently, and in contrast to our C and Haskell embeddings, for
+which we must eliminate external effects, the embedding for JS is
+trivial.
+%
+Hence, as a first step, we implement the IFC language functionality in the
+JS runtime and expose the new functions, e.g., |fork|, by attaching
+them to the JS global object.
+%
+Importantly, each task runs a separate instances of this runtime.
+
+Indeed this coarse-grained approach is already used by browsers in the
+Worker API~\tocite{}, which provides client-side JS with primitives
+for executing code in a separate thread, called a Worker.
+%
+Each Worker has a separate runtime with a fresh global object.
+%
+In turn, exchanging information between runtimes is accomplished with
+message-passing, i.e., \texttt{postMessage}.
+%
+The message-passing approach is, in part, due to ECMAScript's lack
+of well-defined semantics for concurrency.
+%
+Hence sharing and accessing objects such as the DOM across threads is
+undefined.
+%
+
+Hence, our implementation provides 
+
+\begin{itemize}
+\item not completely unrealist; workers provide a similar world; we
+  provide labeled workers
+
+\item actual embeddings of JS have external effects; consider the browser
+  case as in SWAPI
+\begin{itemize}
+   \item associate label with browsing context ~ task
+   \item use CSP and sandbox flags to control external effects
+   \item mediate communication by interposing on on postMessage
+   argue that browsers already have to provide isolation guarantees
+   between different compartments
+\end{itemize}
+
+\item talk about SWAPI's attach object feature that makes the concrete
+  implementation more interesting
+\end{itemize}
+
+
+Of course, applications, such as browsers, that embed JavaScript
+expose various features that perform external effects (again by
+attaching them as objects to the JS global object).
+%
+
+
+
+
+
+
 
 \cut{
 
