@@ -1,6 +1,8 @@
 \section{Retrofitting languages with IFC}
 \label{sec:retrofit}
 
+
+
 While we would like to add information flow control to \emph{any}
 language, we will have to make some assumptions about the form of the
 target language.  We consider languages whose semantics can be expressed
@@ -23,7 +25,6 @@ of this evaluation context, lifting these semantics to an IFC setting.
 \begin{figure}
 \begin{code}
 tv   ::= \tx.te | true | false | ta
-tty   ::= bool | tty -> tty | ref tty
 te   ::= tv | tx | te te | if te then te else te | ref te | !te | te := te
 tE   ::= tHole | tE te | tv tE | if tE then te else te
        | ref tE | !tE | tE := te | tv := tE 
@@ -31,8 +32,6 @@ tE   ::= tHole | tE te | tv tE | if tE then te else te
 te1 ; te2            @= (\tx.te2) te1  where  tx notmember FV(te2)
 let tx = te1 in te2  @= (\tx.te2) te1
 \end{code}
-
-\Red{Suggestion: Only give the rules for references, because otherwise this is all standard.}
 
 \begin{mathpar}
 
@@ -50,19 +49,19 @@ let tx = te1 in te2  @= (\tx.te2) te1
 
 \and
 \inferrule[T-ref]
-{| tS' = tS [ ta mapsto tv ] | } 
-{| conf tS (ref tv) -> conf tS' ta |}
-{| fresh (ta) |}
+{ }
+{| conf tS (ref tv) -> conf (tS [ ta mapsto tv ]) ta |}
+{| fresh ta |}
 
 \and
 \inferrule[T-deref]
-{| tv = tS(ta) |}
-{| conf tS (!ta) -> conf tS tv |}
+{ }
+{| conf tS (!ta) -> conf tS (ap ts ta) |}
 
 \and
 \inferrule[T-ass]
-{| tS' = tS [ ta mapsto tv ] |} 
-{| conf tS (ta := tv) -> conf tS' tv |}
+{ }
+{| conf tS (ta := tv) -> conf (tS [ ta mapsto tv ]) tv |}
 \end{mathpar}
 
 \caption{Simple ML-like language |targetLangML|}
