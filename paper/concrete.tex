@@ -61,6 +61,7 @@ preserve (termination sensitive or insensitive) non-interference
 as the following two theorems state.
 
 \begin{theorem}[Isomorphism preserves termination sensitive non-interference]
+  \label{thm:iso-tsni}
   If \ifc{L} is isomorphic to \tar{L} and \ifc{L} satisfies TSNI, then
   \tar{L} satisfies TSNI.
 \end{theorem}
@@ -72,6 +73,7 @@ as the following two theorems state.
 \end{proof}
 
 \begin{theorem}[Weak isomorphism preserves termination insensitive non-interference]
+  \label{thm:iso-tini}
   If a language \con{L} is weakly isomorphic to a language \abs{L}, and \abs{L}
   satisfies TINI, then \con{L} satisfies TINI.
 \end{theorem}
@@ -91,7 +93,136 @@ to mirror the behavior of the abstract semantics, most importantly
 in the case where tasks interact.  Namely, at a fork and when sending
 or receiving messages, we take an expression from one task and
 execute it in the context of another task.  In the abstract semantics
-the fork rule
+the fork rule is parameterized by the strategy |klone| which defines
+what heap the new task should execute in.  \Red{In Section~\ref{sec:retrofit}
+we have motivated two choices}, namely the identity (to effectively
+clone the heap), or to start with an empty heap.
+In the latter case, this effectively means that existing addresses
+in the forked expression |ie| are no longer valid and the
+task gets stuck (and then removed by \textsc{I-noStep}).
+\todo{}{Is this actually true?  Currently the semantics are unclear.}
+To get the isomorphic behavior in the concrete semantics with a
+single heap, we would have to change the forked expression |ie| in
+such a way that all addresses get rewritten to fresh addresses
+that are guaranteed to not occur in the global heap.  Similarly,
+sending a memory address should take a similar approach, as addresses
+for sent references will not exist in the receiving task.
+
+If |klone| is the identity function, then the abstract semantics
+effectively clone the heap on a fork.  To get an isomorphic
+behavior in the concrete, we would have to create a copy of everything
+reachable from the forked expression (not just the values for
+the memory addresses in the expression), and replace all addresses
+correspondingly.  Even worse, the behavior of sending a memory address
+now depends on whether that address existed at the time the receiving
+task was forked;  if it did, then the address should be rewritten to the
+new one, otherwise to a fresh address.
+Such a complicated behavior is contradictory to our initial motivation
+of implementing a single heap for efficiency.  But also the
+behavior of the simpler case where |klone| returns an empty heap is
+undesirable:  We rewrite addresses to fresh addresses, which will
+result in a stuck task whenever such an address is dereferenced.
+
+\subsection{Restricting the IFC Language}
+
+As a better solution we could forbid forked expressions as well
+as messages sent to other tasks to contain memory addresses in the
+first place.  In a statically typed language, the type system could
+prevent this from happening, and we talk more about how our
+approach integrates with typed languages in
+Section~\ref{sec:extensions:types}.
+In a dynamically type languages such as |targetLangML|, we might
+restrict the transition for |fork| and |send| to only allow expressions
+without memory addresses.
+
+Again we are modifying the IFC language semantics in a non-trivial way,
+which begs the question whether non-interference is preserved.
+Note that restricting the transitions in an information flow control
+system in general is not non-interference preserving as the following
+minimal example illustrates.
+Consider a trivial state machine as shown
+in Figure~\ref{fig:trivial-sm}, whose second projection is classified
+secret.  With all three transitions, this language fulfills
+termination sensitive non-interference.  Furthermore, if the
+dashed transition
+is removed, the language continues to satisfy TSNI.  However, if any
+solid line is removed, the language fails TSNI.
+
+\begin{figure}
+  States: $(x,y)$ for $x,y \in \{0,1\}$ \\
+  Erasure function: $f(x,y) = (x,\bullet)$
+  
+  \begin{center}\begin{tikzpicture}[node distance=2cm, auto]
+    \node (A) {$(1,1)$};
+    \node (B) [right of=A] {$(1,0)$};
+    \node (C) [below of=A] {$(0,1)$};
+    \node (D) [right of=C] {$(0,0)$};
+    \draw[->] (A) to node {} (B);
+    \draw[->] (C) to node {} (D);
+    \draw[->, dashed] (B) to node {} (D);
+    \end{tikzpicture}\end{center}
+  
+  \label{fig:trivial-sm}
+  \caption{A trivial state machine}
+\end{figure}
+
+To remedy this issue, we give a definition that gives a condition
+under which it is safe to restrict the abstract IFC language
+|specLang alpha targetLang|, such that non-interference is preserved.
+
+\begin{definition}[Restricted IFC language]
+  \label{def:npri}
+  For a family of predicates $\mathcal P$ (one for every reduction
+  rule), we call
+  |restrictedLang alpha targetLang| a restricted IFC language
+  if its definition is equivalent to the abstract language
+  |specLang alpha targetLang|, with the following exception:
+  The reduction rules are restricted
+  by adding a predicate $P$ from $\mathcal P$ to the premise of
+  any rule other than \textsc{I-noStep}.  Furthermore, the predicate $P$
+  can depend only on the \textit{erased} configuration
+  |erase il ic|, where |il| is the label of the first task
+  in the task list and |ic| the full configuration.
+\end{definition}
+
+By the following theorem, the restricted IFC language with an
+appropriate scheduling policy is non-interfering.
+
+\begin{theorem}
+  \label{thm:restricted}
+  For any target language |targetLang| and family of predicates
+  $\mathcal{P}$, the IFC language |restrictedLang roundrobinf targetLang|
+  is TSNI.  Furthermore, the IFC language
+  |restrictedLang seqf targetLang| is TSNI.
+\end{theorem}
+
+
+\subsection{IFC language with a single heap}
+
+We are now ready to make our single heap IFC language precise and
+ensure its non-interference using the techniques presented.
+First, we can construct the restricted language
+|restrictedLangNoRef alpha targetLangML|, where |noRefs| is
+the family of always valid predicates, except for the ones for
+\textsc{I-fork} and \textsc{I-send}, which we define as
+\[ P = \text{|ie| does not contain any address |ta|} \]
+Since $P$ only depends on |ie|, which is part of the current
+task and thus never erased w.r.t.\ the label of the first task,
+this language satisfies non-interference by Theorem~\ref{thm:restricted}.
+
+The essential parts of the semantics for the concrete language
+with a single heap are given in Figure~\Red{X}.  Most rules are
+straight-forward translations of the rules in Figures~\ref{fig:ifc}
+and~\ref{fig:embedding} but for a single heap.  For conciseness, we
+only show the interesting ones.
+Now, we can show an isomorphism between this language and
+|restrictedLangNoRef alpha targetLangML|, which
+(by Theorem~\ref{thm:iso-tsni} and~\ref{thm:iso-tini}) guarantees
+non-interference for an appropriate scheduling policy |alpha|.
+
+\Red{Show the isomorphism.}
+
+\subsection{Old Stuff}
 
 
 
