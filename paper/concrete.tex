@@ -8,13 +8,14 @@ The operational semantics we have defined in the previous section
 satisfy non-interference by design.
 We achieve this general statement that works for a large class of
 languages by having different task execute completely isolated from
-each other, such that every task has it's own state.
+each other, such that every task has its own state.
 In some cases, this strong separation is desirable, or even necessary.
-Languages like C provide direct access to the addresses without
+Languages like C provide direct access to memory locations without
 mechanisms in the language to achieve a separation of the heap.
-However, for other languages this isolation of tasks can be
+On the other hand, for other languages this
+strong isolation of tasks can be
 undesirable, e.g., for performance reasons.
-For instance, for the mini-ML language, our presentation so far
+For instance, for the language |targetLangML|, our presentation so far
 requires a separate heap per task, which is not very practical.
 Instead, we would like to
 more tightly couple the integration of the target and IFC
@@ -23,14 +24,14 @@ a concrete implementation might use a single global heap.
 More precisely, instead of using a configuration of the form
 \[|iconf iS (fullconf id1 il1 tS1 ie1, fullconf id2 il2 tS2 ie2 ldots)|\]
 we would like a single global heap as in
-|oneheapiconf iS tS (oneheapfullconf id1 il1 ie1, oneheapfullconf id2 il2 ie2, ldots)|.
+\[|oneheapiconf iS tS (oneheapfullconf id1 il1 ie1, oneheapfullconf id2 il2 ie2, ldots)|\]
 
 If the operational rules are adapted na\"ively to this new setting,
 then non-interference can be violated.  In particular, it is not
-sound to share references to a heap cell between different tasks
-in general.  Otherwise, information can be trivially leaked by copying
+sound to share references to a heap cell between different tasks.
+Otherwise, information can be trivially leaked by copying
 secret data into a reference in one task, and then
-read again by a another task with a lower label.
+reading it again by a another task with a lower label.
 Clearly, we cannot
 modify the semantics in arbitrary ways if we are hoping to preserve
 non-interference, but how can we know if our changes to the abstract
@@ -42,6 +43,7 @@ This intuition of having a different (potentially more efficient)
 concrete semantics that behave like the abstract semantics
 can be formalized by the following definition:
 
+\Red{We really should not use red/blue here.  I suggest we just use primes instead of colors here.}
 \begin{definition}[Isomorphism of information-flow control languages]
   A language \con{|(C, .->, erasef l)|} is \textit{isomorphic} to a
   language \abs{|(iC, .->, erasef l)|} if there exist total functions |f
@@ -93,7 +95,7 @@ to mirror the behavior of the abstract semantics, most importantly
 in the case where tasks interact.  Namely, at a fork and when sending
 or receiving messages, we take an expression from one task and
 execute it in the context of another task.  In the abstract semantics
-the fork rule is parameterized by the strategy |klone| which defines
+the fork rule is parameterized by the strategy |klone|, which defines
 what heap the new task should execute in.  \Red{In Section~\ref{sec:retrofit}
 we have motivated two choices}, namely the identity (to effectively
 clone the heap), or to start with an empty heap.
@@ -138,7 +140,7 @@ without memory addresses.
 Again we are modifying the IFC language semantics in a non-trivial way,
 which begs the question whether non-interference is preserved.
 Note that restricting the transitions in an information flow control
-system in general is not non-interference preserving as the following
+system in general does not preserve non-interference as the following
 minimal example illustrates.
 Consider a trivial state machine as shown
 in Figure~\ref{fig:trivial-sm}, whose second projection is classified
@@ -179,7 +181,7 @@ under which it is safe to restrict the abstract IFC language
   |specLang alpha targetLang|, with the following exception:
   The reduction rules are restricted
   by adding a predicate $P$ from $\mathcal P$ to the premise of
-  any rule other than \textsc{I-noStep}.  Furthermore, the predicate $P$
+  all rule other than \textsc{I-noStep}.  Furthermore, the predicates $P$
   can depend only on the \textit{erased} configuration
   |erase il ic|, where |il| is the label of the first task
   in the task list and |ic| the full configuration.
@@ -206,12 +208,51 @@ First, we can construct the restricted language
 the family of always valid predicates, except for the ones for
 \textsc{I-fork} and \textsc{I-send}, which we define as
 \[ P = \text{|ie| does not contain any address |ta|} \]
+That is, we do not restrict any rules except for \textsc{I-fork}
+and \textsc{I-send}.
 Since $P$ only depends on |ie|, which is part of the current
 task and thus never erased w.r.t.\ the label of the first task,
 this language satisfies non-interference by Theorem~\ref{thm:restricted}.
 
+\begin{figure}
+  
+  \begin{mathpar}
+    \inferrule[C-fork]
+    {
+      \text{|ie| does not contain any |ta|}\\
+      |iS' = iS [ id' mapsto nil ]|\\
+      |it1 = oneheapfullconf id il (iniE id')|\\
+      |itnew = oneheapfullconf id' il (TI ie)|\\
+      |fresh (id')|
+    }
+    {|
+      oneheapiconf iS tS (oneheapfullconf id1 il1 (iniEi (fork ie)), ldots)
+      .->
+      iS'; tS; sched F (it1, ldots, itnew)
+    |}
+    \and
+    \inferrule[C-send]
+    {
+      \text{|ie| does not contain any |ta|}\\
+      |il canFlowTo il'|\\
+      |iS(id') = Q|\\
+      |iS' = iS [ id' mapsto (il', id,  ie) , Q ]|
+    }
+    {|
+      oneheapiconf iS tS (oneheapfullconf id il (iniEi (send id' il' ie)), ldots)
+      ->
+      iS; tS; sched step (oneheapfullconf id il unit, ldots)
+    |}
+  \end{mathpar}
+  
+  \caption{A selection of the reduction rules for |concreteLangMl alpha|.}
+  \label{fig:concrete}
+\end{figure}
+
 The essential parts of the semantics for the concrete language
-with a single heap are given in Figure~\Red{X}.  Most rules are
+with a single heap,
+which we call |concreteLangMl alpha|,
+are given in Figure~\ref{fig:concrete}.  Most rules are
 straight-forward translations of the rules in Figures~\ref{fig:ifc}
 and~\ref{fig:embedding} but for a single heap.  For conciseness, we
 only show the interesting ones.
@@ -222,165 +263,12 @@ non-interference for an appropriate scheduling policy |alpha|.
 
 \Red{Show the isomorphism.}
 
-\subsection{Old Stuff}
 
 
-
-
-In this section, we will detail an approach that allows one to implement
-a concrete system guided conceptually by the ideas in the previous
-section but making different choice for ease of implementation or
-performance, and give conditions for when such a system preserves
-non-interference.
-We first explain the idea for the single heap mini-ML language, and then
-generalize to arbitrary languages.
-
-\subsection{IFC-Mini-ML with a Single Heap}
-
-To keep up a fictional separation between the portions
-of the global heap that tasks can use, we forbid references to
-cross task boundaries.  To achieve such a system, we can
-adapt most of the operational rules easily to work with these
-new configurations.  In the abstract system, the \textsc{I-fork}
-rule created a fresh heap for the new task to execute in.  Since we
-want to forbid references to cross task boundaries, we do not modify
-the global heap and instead add an additional premise that the forked
-expression |ie| must not contain any references.
-Finally, we add the same condition to the \textsc{I-send} rule.
-Tasks that try to fork or send an expression that contains a
-reference will now get stuck, and will stop executing by the
-\textsc{I-noStep} rule.
-We call this family of languages |concreteLangMl alpha|, which
-is still parametrized by the scheduling policy |alpha|.
-
-\Red{Show the key rules here.}
-
-In |concreteLangMl alpha| we
-effectively restrict the abstract semantics in some cases (namely
-to not allow the passing of references) as well as using a different
-way to represent the heap.  How can we be sure that these
-new, \textit{concrete semantics} for our system still satisfy
-non-interference?
-
-We will use two techniques to ensure non-interference.  First,
-we require some form of isomorphism to the abstract language
-|specLangML alpha| that ensures that the concrete system behaves
-in a similar way.  Secondly, we pose conditions on what kind
-of restrictions the concrete language is allowed to make
-on the abstract language.
-
-Intuitively, there are two scenarios in which non-interference
-can be violated when restricting the transition relation:
-\begin{itemize}
-  \item Adding an additional premise to one of the rules that inspects
-  information which is above the security label of the task currently
-  executing.  This would allow another task to observe the termination
-  of the other if both are at the same security level, and thus observe
-  the secret information that was used in the additional
-  premise of the rule.
-  \item Adding additional restrictions to transition rules can
-  also cause the whole configuration to get stuck, which can leak
-  information through the termination channel (which is only
-  of interest for TSNI, but not TINI, of course).
-\end{itemize}
-
-Next, we will make these two intuitions precise and give a general
-definition for how non-interference can be preserved.  Then, we
-show that the language |concreteLangMl alpha| satisfies these
-conditions.
-
-\Red{Should we give an example why removing transitions in general
-  is not OK?  Edward has already typeset one that we could
-  use.}
-
-%This isn't trivial, as it is not sound to add arbitrary additional
-%conditions on evaluation rules.  To see this, consider a contrived
-%concrete system where we add a premise to a reduction rule that
-%stops a task based on secret information.  Such a system will
-%not satisfy non-interference, as it allows other tasks on the
-%same level to observe the termination of that task and thus the
-%secret information which was used to decide if the task terminates
-%or not.
-
-\subsection{Correctness of Concrete Semantics}
-
-To formalize the conditions under which we can show the concrete
-semantics preserve non-interference, we require some notation:
-
-\begin{definition}[Isomorphism of information-flow control languages]
-  A language \con{|(C, .->, erasef l)|} is \textit{isomorphic} to a
-  language \abs{|(iC, .->, erasef l)|} if there exist total functions |f
-  : tC -> iC| and |finv : iC -> tC| such that |f .. finv = idf tC| |finv
-  .. f = idf iC|.  Furthermore, |f| and |finv| are functorial (e.g. if
-  $\abs{x\ R\ y}$ then $f(\abs{x})\ \con{R}\ f(\abs{y})$) over both
-  $l$-equivalences and |.->|.
-\end{definition}
-
-\Red{In some cases, this restriction can be weakened, where |finv| does
-not have to be functorial over |.->|}
-
-Now, we can propose the following two-step process to ensure that
-non-interference is preserved:
-\Red{We should find a better name for this, or not use a name, or something.}
-\begin{definition}[Non-interference preserving, restricted isomorphism (NPRI)]
-  \label{def:npri}
-  We call an IFC language
-  |concreteLang alpha targetLang| (the concrete language for a given
-  target language |targetLang| and scheduling policy |alpha|)
-  a \textit{non-intereference preserving,
-  restricted isomorphism} with regard to the IFC language
-  |specLang alpha targetLang|
-  (the abstract language) if the following
-  two conditions hold:
-  \begin{enumerate}
-    \item Any of the reduction rules of the abstract
-    semantics |specLang alpha targetLang|
-    presented in Section~\ref{sec:retrofit} can
-    be restricted by adding a predicate $P$ to the premise of
-    any rule other than \textsc{I-noStep}.  The predicate $P$
-    can depend only on the \textit{erased} configuration
-    |erase il ic|, where |il| is the label of the first task
-    in the task list and |ic| the full configuration.
-    \item The concrete language
-    |concreteLang alpha targetLang|
-    must be isomorphic to the abstract semantics |specLang alpha targetLang|
-    with the additional predicates $P$ on the rules.
-  \end{enumerate}
-\end{definition}
-
-\begin{theorem}[NPRI implies non-interference]
-  \label{thm:npri}
-  If a language |concreteLang alpha targetLang| is a NPRI, and |alpha|
-  is a scheduling policy that makes |specLang alpha targetLang| satisfy
-  TINI or TSNI, then also
-  |concreteLang alpha targetLang| satisfies TINI, or TSNI, respectively.
-\end{theorem}
-
-Before we give the proof of this theorem in Section~\ref{sec:proofs},
-let's consider our single-heap ML-like IFC language and
-show that it is in fact NPRI, and thus non-interfering.
-
-\begin{theorem}
-  The language |concreteLangMl alpha| is a NPRI.
-\end{theorem}
-As a trivial corollary, it follows that |concreteLangMl roundrobinf| is
-TSNI, and |concreteLangMl seqf| is TINI.
-
-\begin{proof}
-  It is easy to see that condition (1) of NPRI is satisfied, since
-  we only add a side condition to the rules \textsc{I-fork} and
-  \textsc{I-send}, and the condition only inspects the expression
-  of the current task, which is by the definition of |erasef il| not
-  erased.
-  
-  This leaves us to give an isomorphism between |concreteLangMl alpha|
-  and |concreteLang alpha targetLangMl|, which we do as follows.
-  \Red{Actually give an isomorphism.}
-\end{proof}
-
-
-\subsection{Proof of Theorem~\ref{thm:npri}}
+\section{Proofs}
 \label{sec:proofs}
+
+\Red{Adapt some of this text.}
 
 Before we give the actual proof, we state and proof some properties
 of isomorphisms.
@@ -565,70 +453,4 @@ lemma we will use.
   \end{itemize}
 \end{proof}
 
-
-\subsection{\Red{Previous Stuff (to be merged/removed as necessary)}}
-
-However, modifying operational rules poses a distinct problem for
-preserving non-interference.  Consider a trivial state machine as shown
-in Figure~\ref{fig:trivial-sm}, whose second projection is classified
-secret.  With all three transitions, this language fulfills
-termination-sensitive noninterference.  Furthermore, if the dashed line
-is removed, the language continues to satisfy TSNI.  However, if any
-solid line is removed, however, the language fails TSNI.
-
-\begin{figure}
-    States: $(x,y)$ for $x,y \in \{0,1\}$ \\
-    Erasure function: $f(x,y) = (x,\bullet)$
-
-    \begin{center}\begin{tikzpicture}[node distance=2cm, auto]
-        \node (A) {$(1,1)$};
-        \node (B) [right of=A] {$(1,0)$};
-        \node (C) [below of=A] {$(0,1)$};
-        \node (D) [right of=C] {$(0,0)$};
-        \draw[->] (A) to node {} (B);
-        \draw[->] (C) to node {} (D);
-        \draw[->, dashed] (B) to node {} (D);
-    \end{tikzpicture}\end{center}
-
-    \label{fig:trivial-sm}
-    \caption{A trivial state machine}
-\end{figure}
-
-Before we show isomorphism preserves termination sensitive
-non-interference, we'd like to remark that one can safely remove transitions
-and preserve termination \emph{insensitive} interference:
-
-
-\begin{figure}
-
-\begin{mathpar}
-\inferrule[I-stepT]
-{|
-conf tS (te) -> conf tS' te'
-|}
-{|
-coconf iS tS (cconf id il (iniE (IT te)), ldots)
-.->
-iS ; tS' ; sched step (cconf id il (iniE (IT te')), ldots)
-|}
-
-\and
-% This rule is not complete, needs the FV condition
-\inferrule[C-fork]
-{ 
-|iS' = iS [ id' mapsto nil ]|\\
-|it1 = cconf id il (iniE id')|\\
-|itnew = cconf id' il (TI ie)|\\
-|fresh (id')|
-}
-{|
-coconf iS tS (lconf id il (iniE (fork ie)), ldots)
-.->
-iS'; tS; sched fork (it1, ldots, itnew)
-|}
-\end{mathpar}
-
-\caption{ML with a single heap}
-\label{fig:comb}
-\end{figure}
 
