@@ -12,3 +12,51 @@ language to provide IFC-aware versions of target language features.
 
 
 }
+
+\subsection{Type safety}
+
+One important consideration for any new language feature is whether
+or not it preserves type safety.  If implementations are allowed to
+have undefined behavior when the system gets stuck, concerns of type
+safety can be directly applicable to security.
+
+In our presentation, we have demanded that implementations \emph{not}
+have undefined behavior when getting stuck: in such situations, the
+\textsc{I-noStep} rule applies, where the stuck thread should be dropped
+from execution.  Our combined language will be not get stuck, even if
+the target language could get stuck.  This sort of guarantee can be
+achieved at a coarse granularity for languages like C by using hard
+isolation.  However, for many other languages, this is too stringent a
+requirement.
+
+A possible way to relax this requirement is to drop the \textsc{I-noStep}
+rule, and instead demand type-safety of the combined language.  This
+depends on the type system of the target language, so it is difficult to
+make any general statements about how one would go about doing this.  However,
+there are few general remarks to be made:
+
+\begin{itemize}
+    \item In Matthews and Findlers original
+        paper~\cite{Matthews:2007:OSM:1190216.1190220}, an emphasis was
+        on using type boundaries to mediate between the type systems of
+        the two languages, i.e. handling conversions of values from
+        one language to the other.  These techniques are directly applicable here.
+
+    \item In the case of mini-ML, type safety proceeds by a preservation theorem
+        that refers to well-typed stores.  In our setting, there are now multiple
+        stores, and expressions may move from being interpreted with one store
+        to another (e.g. when an address is sent from one thread to
+        another); a clear violation of type safety.  In this case, operations
+        such as \textbf{send} have their typing rules require
+        the expressions being sent be typeable in an arbitrary well-typed store,
+        statically disallowing the sending of addresses, or any types which
+        may contain addresses.  In practice, this may be further restricted to
+        types which can be easily marshalled, e.g. strings.
+
+    \item Similarly, the choice of $\kappa$ (from Section~\ref{sec:retrofit}) directly
+        influences the difficulty of the type-safety proof for
+        \textbf{fork} when the target language has a store.  When
+        $\kappa$ is identity, most expressions can be allowed, since the store
+        remains the same; if $\kappa$ drops the store, however, only closed expressions
+        can be forked.
+\end{itemize}
