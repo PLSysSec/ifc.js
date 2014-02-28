@@ -4,14 +4,19 @@
 In this section we present the formal security guarantees provided by
 our embedding.
 %
-Concretely, we show that an IFC langauge, |specLang alpha targetLang)|, satisfies non-interference~\tocite{}, without making any reference to properties of |targetLang|.
+Concretely, we show that |specLang alpha targetLang| for an appropriate
+scheduler, satisfies non-interference~\tocite{},
+without making any reference to properties of |targetLang|.
 %
 As it turns out, the precise scheduling policy |alpha| dictates
 whether or not the guarantee holds for programs with diverging tasks.
 For a sequential scheduler, we will only be able to show
 \emph{termination-insensitive non-interference}, where a program
-may diverge based on secret data; with the concurrent schedule,
-we can show a stronger result, \emph{termination-sensitive non-interference},
+may diverge based on secret data; this allows attackers to observe
+secrets by observing the termination of tasks.
+For the concurrent round-robin schedule,
+we can show a stronger result known as
+\emph{termination-sensitive non-interference},
 where termination attacks cannot leak information.
 
 How does one characterize what the \emph{secret inputs} of a program
