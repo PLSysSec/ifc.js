@@ -18,11 +18,11 @@ for C, as describe below, to future work.
 
 \subsection{Haskell}
 \label{sec:real:hs}
-While the C embedding closely resembles the specification language of
-Section~\ref{sec:retrofit}, in our Haskell IFC embedding we leverage
-Haskell's strong data abstraction and static type system, monadic
-approach to effects, and lightweight concurrency to implement the
-embedding in a more efficient manner, as library.
+While the C embedding relies on hardware protection mechanisms to
+implement the embedding of Section~\ref{sec:retrofit}, in our Haskell
+IFC embedding we leverage Haskell's strong data abstraction and static
+type system, monadic approach to effects, and lightweight concurrency
+to implement the embedding in a more efficient manner, as library.
 
 To this end, we define a new monad, |LIO|, that wraps Haskell's |IO|
 monad---which allows for arbitrary effects---to associate labels with
