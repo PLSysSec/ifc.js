@@ -151,69 +151,57 @@ JavaScript to execute code in separate threads with separate JS
 runtimes (and fresh global objects).
 %
 In both cases, code relies on the \texttt{postMessage} message-passing
-API for communication.\footnote{
+API for communication, similar to our system.\footnote{
   The message-passing approach is, in part, due to ECMAScript's lack
   of well-defined semantics for concurrency.
   %
   Hence sharing and accessing objects such as the DOM across Worker
   threads is undefined.
 }
- 
-\Red{HERE}
-Our |specLangJS roundrobinf| implementation builds on the existing
-Worker implementat
-
-Hence, our implementation provides 
-
-\begin{itemize}
-\item not completely unrealist; workers provide a similar world; we
-  provide labeled workers
-
-\item actual embeddings of JS have external effects; consider the browser
-  case as in SWAPI
-\begin{itemize}
-   \item associate label with browsing context ~ task
-   \item use CSP and sandbox flags to control external effects
-   \item mediate communication by interposing on on postMessage
-   argue that browsers already have to provide isolation guarantees
-   between different compartments
-\end{itemize}
-
-\item talk about SWAPI's attach object feature that makes the concrete
-  implementation more interesting
-\end{itemize}
-
-
-Of course, applications, such as browsers, that embed JavaScript
-expose various features that perform external effects (again by
-attaching them as objects to the JS global object).
+  
+More interestingly, the SWAPI implementation directly leverages these
+mechanisms to implement the semantics of |specLangJS roundrobinf|
+without modifying the JS runtime or intrusively changing the browser
+layout engine~\tocite{}.
+%
+However, a simple implementation of just associating a label with
+Workers and browsing context (iframes and top-level pages) to enforce
+IFC on the executing JavaScript is not sufficient.
+%
+The initial global object of a Worker contains the
+\texttt{XMLHttpRequest} (XHR) object, while the global object of a
+browsing context additionally contains the DOM, i.e., the global
+object in a browser JS runtime is not simply |tS0|, above, and thus,
+in both cases, JS code can trivially leak information (e.g., to the
+network with XHR or persistent storage using the DOM).
 %
 
-
-
-
-
-
-
-\cut{
-
-\subsection{Example: JavaScript}
-\label{sec:real:javascript}
-
-(NB:\ the JS spec refers to execution context and state; when we refer to
-execution context, we refer to both the context AND the state)
-
-(Some background on JavaScript versus ECMAScript, since ECMAScript
-constitutes the semantics we're actually going to combine with
-IFC;\ everything else has to be locked down or made IFC-specific).
-
-(Lay out how ECMAScript semantics work. Execution context and syntax.
-Don't go into too much detail.  Point out that the execution context/state
-corresponds implementation-wise to a JavaEngine)
-g
-(Minimal IFC fragment.  Actually, this wants to be in the general section.
-So specialize this some more?)
-
-(Combined ECMAScript and IFC. Talk about serialization. Draw parallel to web
-workers, note the similarity.)
+To address this we use content security policy (CSP) and (iframe)
+sandbox~\tocite{} to restrict external effects according to the label
+of a task (Worker or browsing context), as describe
+in~\tocite{}.
+%
+Of course, simply disallowing all external effects for all browsing
+contexts would break most of the Web.
+%
+Hence SWAPI only enforces IFC, and thus restricts external effects,
+when the JS code uses the new API.\footnote{
+  Once a piece of code ``opts-in'' to use our IFC API, in addition to
+  restricting external effects we interpose ``standard''
+  \texttt{postMessage} communication to ensure that no information is
+  leaked between contexts that have opted-in and those that have not.
 }
+%
+Moreover, rather than disallowing all external effects, SWAPI allows
+controlled network communication by leveraging the fact that web
+pages already have an accompanying security policy: the same origin
+policy.
+%
+Hence, for example, a Worker that has read data only sensitive to
+\texttt{http://bank.ch} can communicate with this domain; only once
+\texttt{http://aws.com} data is also included in the context will all
+network requests be blocked.
+%
+Of course, this requires that we use a concrete label format to
+express the policies; we refer the interested reader to~\tocite{} for
+more details.
