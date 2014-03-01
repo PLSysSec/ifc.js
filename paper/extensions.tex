@@ -93,7 +93,7 @@ can measure the delay between output events.\footnote{
   complex. See~\tocite{}.
 }
 %
-More generally, we belove that deterministic schedulers that always
+More generally, we believe that deterministic schedulers that always
 make ``low-progress,'' i.e., if a task whose label is not above the
 current task's label will will eventually run, and do not decide which
 low tasks to schedule according to data more sensitive than the tasks'
@@ -106,14 +106,21 @@ We leave the proof of this claim to future work.
 Despite allowing a number of practical schedulers to be expressed, our
 scheduler parametrization is limited.
 %
-For instance, since |alpha| is a map on task lists, schedulers
-that rely on the global state |iS|, or previous task configurations
-cannot be expressed.
+For instance, since |alpha| is a map on task lists, schedulers that
+rely on the global state |iS| or previous task configurations cannot
+be expressed.
 %
-Though, we do not belove this to be a fundamental limitation, our
+Though, we do not believe this to be a fundamental limitation, our
 current formalization cannot directly be applied to more-powerful, but
 safe, scheduling policies, as considered in~\tocite{}.
-
+%
+More fundamentally, our definitions rely on deterministic relations,
+and thus extending the system to consider non-deterministic schedulers
+is non-trivial.
+%
+For instance, this may potentially require the security condition to
+consider \emph{low-determinism}, which states that a program is secure
+only if |l|-equivalent results are deterministic~\tocite{}. %both andrei and steve's papers
 
 
 \subsection{Other target languages}
