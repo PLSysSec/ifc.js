@@ -1,18 +1,26 @@
-\section{Limitations and Extensions}
+\section{Extensions and Limitations}
 \label{sec:extensions}
 
-\cut{
+In this section we consider several extensions to our IFC system.
+%
+Specifically, we discuss how the specification language can be
+extended to consider other IFC-aware features (e.g., fine-grained
+labeled values), a static type system, or more complex scheduling
+policies.
+%
+When considering these extensions we also highlight some limitations
+of our approach.
 
-The good thing about our approach is that we are indifferent to the
-functionality implemented in the IFC language: as long as you can
-prove termination sensitive non-interference with the IFC language
-\Red{What is the IFC language? Make sure it is written down}, you
-can combine it with another target language.  In this section,
-we briefly review various extensions you can make to the base IFC
-language to provide IFC-aware versions of target language features.
+\subsection{IFC-aware language features}
+\label{sec:extensions:labeled}
 
+\subsubsection{Labeled objects}
 
-}
+\paragraph{Labeled values}
+\paragraph{Labeled references}
+\paragraph{Labeled synchronization primitives}
+\subsubsection{Privileges}
+\subsubsection{Clearance}
 
 \subsection{Type safety}
 \label{sec:extensions:types}
@@ -63,29 +71,74 @@ there are few general remarks to be made:
         can be forked.
 \end{itemize}
 
-\subsection{Other IFC features}
-\label{sec:extensions:labeled}
+\subsection{Safe scheduling policies}
+Our specification language is parametrized by a scheduling policy
+|alpha|, which maps a task list to a potentially different task list.
+%
+As previously discussed, the precise definition of |alpha|
+dictates whether the language is TSNI, TINI, or neither.
+%
+For simplicity we considered two popular policies |roundrobinf| and
+|seqf| for which we showed TSNI and TINI, respectively.
+%
+However, our definitions allow for other scheduling policies that only
+rely on the current task list.
+%
+For example, this allows us to implement the scheduler of~\tocite{}
+that always schedules less sensitive threads first; this can be
+employed to address external timing covert channels where an attacker
+can measure the delay between output events.\footnote{
+  When considering a label lattice that is not totally ordered, e.g.,
+  DCLabels~\tocite{}, this scheduling policy is considerably more
+  complex. See~\tocite{}.
+}
+%
+More generally, we belove that deterministic schedulers that always
+make ``low-progress,'' i.e., if a task whose label is not above the
+current task's label will will eventually run, and do not decide which
+low tasks to schedule according to data more sensitive than the tasks'
+label, i.e., the scheduler does not schedule one public thread over
+another according to sensitive data, to be safe.
+%
+We leave the proof of this claim to future work.
+%
 
-\subsubsection{Labeled objects}
+Despite allowing a number of practical schedulers to be expressed, our
+scheduler parametrization is limited.
+%
+For instance, since |alpha| is a map on task lists, schedulers
+that rely on the global state |iS|, or previous task configurations
+cannot be expressed.
+%
+Though, we do not belove this to be a fundamental limitation, our
+current formalization cannot directly be applied to more-powerful, but
+safe, scheduling policies, as considered in~\tocite{}.
 
-\paragraph{Labeled values}
-\paragraph{Labeled references}
-\paragraph{Labeled synchronization promiitves}
 
-\subsubsection{Privileges}
-\subsubsection{Clearance}
 
-\subsection{External effects}
+\subsection{Other target languages}
+
+\subsubsection{External effects}
 \label{sec:extensions:external}
 Application specific, use XHR as driving example.
 General way to think of safety is internalize and treat as a labeled
 object; or message to thread that has access to unsafe API, but
 exposes labeled safe messaging API.
 
-\subsection{Schedulers}
-Arbitrary scheduling policies |alpha|
 
-\subsection{Other target languages}
+
+\cut{
+
+The good thing about our approach is that we are indifferent to the
+functionality implemented in the IFC language: as long as you can
+prove termination sensitive non-interference with the IFC language
+\Red{What is the IFC language? Make sure it is written down}, you
+can combine it with another target language.  In this section,
+we briefly review various extensions you can make to the base IFC
+language to provide IFC-aware versions of target language features.
+
+
+}
 \begin{itemize}
 \item Label transition systems.
 \item Non-deterministic reduction.
