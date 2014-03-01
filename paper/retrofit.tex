@@ -65,18 +65,17 @@ let tx = te1 in te2  @= (\tx.te2) te1
 
 \and
 \inferrule[T-ref]
-{ }
+{ | ap fresh ta | }
 {| conf tS (ref tv) -> conf (tS [ mapsto ta tv ]) ta |}
-{| fresh ta |}
 
 \and
 \inferrule[T-deref]
-{ }
-{| conf tS (!ta) -> conf tS (ap tS ta) |}
+{ |(ta, tv) in tS| }
+{| conf tS (!ta) -> conf tS (tv) |}
 
 \and
 \inferrule[T-ass]
-{ |(ta, tv) in tS| }
+{ }
 {| conf tS (ta := tv) -> conf (tS [ mapsto ta tv ]) tv |}
 
 %\and
@@ -289,7 +288,7 @@ CE[e] -> iconf iS (it, ldots) @= CE[e] .-> iconf iS (sched step (it, ldots))
 |tS' = klone(tS)|\\
 |it1 = fullconf id il tS (iniE id')|\\
 |itnew = fullconf id' il tS' (TI ie)|\\
-|fresh (id')|
+|ap fresh id'|
 }
 {|
 iconf iS (fullconf id il tS (iniEi (sandbox ie)), ldots)
