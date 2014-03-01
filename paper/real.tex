@@ -111,24 +111,57 @@ to expressions that can be marshalled as strings, i.e., structurally
 clonable objects~\tocite{}.
 %
 In our formalization this amounts to restricting the IFC language rule
-for |send| as follows:
-  \Red{HERE: typeof!!!}
+for |send| such that only strings can be shared:
+%{
+\newcommand{\str}{"string"}
+%format tOf (e) = "\texttt{typeOf}("e")\texttt{ === \str}"
+%format ttrue = "\texttt{true}"
+\begin{mathpar}
+\inferrule[JS-send]
+{
+|il canFlowTo il'|\\
+|iS(id') = Q|\\
+|iS' = iS [ id' mapsto (il', id,  ie') , Q ]|\\
+|ie = IT te|\\
+|conf tS (tOf te) -> conf tS ttrue|
+}
+{|
+iconf iS (fullconf id il tS (iniEi (send id' il' ie)), ldots)
+.->
+iS'; sched S (fullconf id il tS (iniEi unit), ldots)
+|}
+\end{mathpar}
+%}
+We remark that this is similar to the existing
+\texttt{postMessage} API used for iframe and Worker
+communications~\tocite{}.
+%
+Insomuch, that the SWAPI implementation provides an IFC version of
+\texttt{postMessage}, defined in terms of |send|, that additionally
+takes a label argument.
 
-Indeed this coarse-grained approach is already used by browsers in the
-Worker API~\tocite{}, which provides client-side JS with primitives
-for executing code in a separate thread, called a Worker.
+Unsurprisingly, our coarse-grained combined language approach has been
+inspired by existing browser (security) architectures.
 %
-Each Worker has a separate runtime with a fresh global object.
+Browsers, for example, isolate pages of different origins by running
+them in separate runtimes.
 %
-In turn, exchanging information between runtimes is accomplished with
-message-passing, i.e., \texttt{postMessage}.
+Similarly, they provide the Worker JS object~\tocite{}, which allows
+JavaScript to execute code in separate threads with separate JS
+runtimes (and fresh global objects).
 %
-The message-passing approach is, in part, due to ECMAScript's lack
-of well-defined semantics for concurrency.
-%
-Hence sharing and accessing objects such as the DOM across threads is
-undefined.
-%
+In both cases, code relies on the \texttt{postMessage} message-passing
+API for communication.\footnote{
+  The message-passing approach is, in part, due to ECMAScript's lack
+  of well-defined semantics for concurrency.
+  %
+  Hence sharing and accessing objects such as the DOM across Worker
+  threads is undefined.
+}
+ 
+\Red{HERE}
+Our |specLangJS roundrobinf| implementation builds on the existing
+Worker implementat
 
 Hence, our implementation provides 
 
