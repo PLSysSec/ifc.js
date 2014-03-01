@@ -1,6 +1,92 @@
 \section{Introduction}
 \label{sec:intro}
-\cite{lio}
+
+Information flow control (IFC) is a promising technique to enforce
+security policies by tracking the flow of sensitive data through
+a system.  The idea is to prevent the leaking of secret or sensitive
+data into public channels by enforcing the notion of non-interference.
+Significant research has been devoted to adding various
+forms of IFC to different kinds of programming languages and system,
+both static and dynamic in nature.  In this paper we are interested
+in the latter, where an execution monitor ensure at runtime that secret
+information is not revealed through public outputs.
+A key challenge in the design of these dynamic systems has been the
+performance cost incurred by additional security checks.
+Particularly when retrofitting an existing programming language with
+IFC it is tempting to track information flow at a fine-grained level,
+e.g., per value in the system.  This can lead to impractical
+runtime overheads even for ordinary operations.
+
+An alternative to this is a more \textit{coarse-grained} approach
+to IFC by trading off precision for efficiency.  Here, computational
+units are associated with a floating label which protects all data
+in this unit.
+A recent example dubbed SWAPI adds IFC to the web by extending
+Javascript with coarse-grained IFC by identifying web workers as
+an existing computational unit.  Communication between workers can
+efficiently be mediated in an IFC aware way to ensure a notation
+non-interference, where sensitive workers cannot influence the
+computations in less sensitive workers.
+
+This coarse-grained approach as employed by SWAPI provides a number
+of advantages; (1) reduced runtime overhead because checks need only
+be performed at isolation boundaries, (2) minimal changes to an
+existing programming language when adding IFC, which (3) allows
+the reuse of existing programs.  Finally, (4) the simplicity
+of a single security label per computational unit facilitates
+understanding and easy reasoning about the correctness of the
+system, in particular without having to reason about all the
+technical details of the semantics of the programming language
+at hand.
+
+The recognition of the simplicity of this coarse-grained approach
+to IFC allows us to generalize it to a large class of programming
+languages.  In this paper we identify the key concepts of coarse-grained
+dynamic IFC and show how these can be combined with a programming
+language, which we will call the target language.  We achieve this
+by using an embedding that combines the operational semantics
+of the core IFC calculus and the target language.
+At the core of our IFC system we use a sandboxing operation that allows
+the execution of potentially sensitive computations in isolation,
+while communicating through clearly specified interfaces with other
+sandboxed operations.
+We formally state and prove the non-interference guarantees that our
+system gives, independently of the choice of the target language.
+
+One challenge in the design of such a general IFC calculus that
+is supposed to work for a large class of programming languages is
+that the stated semantics might not correspond well to the
+semantics of a concrete implementation for a particular choice
+of target language.  We address this issue by using the notation
+of isomorphism to characterize a condition that guarantees
+non-interference of the concrete system without having to prove
+this property manually.
+
+Our key contributions can be summarized as follows:
+\begin{itemize}
+  \item We give formal semantics for a core IFC language that
+  captures the essence of coarse-grained information flow control.
+  \item We show how a large class of target languages can be combined
+  with this IFC language and prove that the resulting system provides
+  non-interference.
+%  \item We show how to extend the Matthews-Findler method from just
+%  languages that are not simply expressions evaluating to values,
+%  but may be collections of threads executing nondeterministically.
+  \item We provide a proof technique to show the non-interference
+  of a concrete semantics for a potentially optimized IFC language
+  by means of an isomorphism, and show a class of restrictions on
+  the IFC calculus that preserves non-interference.
+  \item We sketch how the core IFC language can be enriched with
+  more advanced concepts such as labeled values, privileges or a
+  notation of clearance.
+  \item We connect our formal semantics to real implementations of
+  coarse-grained IFC systems for Javascript and Haskell, and explain
+  how our system could be used to enforce IFC in C.
+  \item We informally connect our results to a monadic interpretation
+  of IFC which guided our design.
+\end{itemize}
+
+
 \cut{
 
 (Something about the importance of IFC).
