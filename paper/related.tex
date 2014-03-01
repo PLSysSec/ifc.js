@@ -1,40 +1,71 @@
 \section{Related work}
 \label{sec:related}
 
-Our paper follows a long tradition of papers on information flow
-control.  Our information flow control system is mostly closely related
+% Local Variables:
+% TeX-master: "main.lhs.tex"
+% TeX-command-default: "Make"
+% End:
+
+
+
+%Our paper follows a long tradition of papers on information flow
+%control.  
+Our information flow control system is closely related
 to the coarse-grained information systems used in operating systems such
-as Asbestos~\cite{efstathopoulos:asbestos} and
-HiStar~\cite{Zeldovich:2006}, as well as language-level
+as Asbestos~\cite{efstathopoulos:asbestos}, 
+HiStar~\cite{Zeldovich:2006}, and Flume~\cite{krohn:flume}, as well as language-based
 \emph{floating-label IFC systems} such as LIO~\cite{lio},
-Breeze~\cite{Hritcu:2013:YIB:2497621.2498098}, where there is a label
-associated with threads of execution which increases monotonically.
+and Breeze~\cite{Hritcu:2013:YIB:2497621.2498098}, where there is a
+monotonically increased label
+associated with threads of execution.
 Our treatment of termination-sensitive and termination-insensitive interference
 originates from Smith and Volpano~\cite{Smith:Volpano:MultiThreaded,Volpano:1997:ECF:794197.795081}.
-While this work often considers the interaction of information flow
-control with respect to various language features (e.g.,
-exceptions~\cite{Hritcu:2013:YIB:2497621.2498098}), none of these
-systems attempt to be generic in the choice of target language.
+%While this work often considers the interaction of information flow
+%control with respect to various language features (e.g.,
+%exceptions~\cite{Hritcu:2013:YIB:2497621.2498098}), none of these
+%systems attempt to be generic in the choice of target language.
 
-One of the primary motivations behind this paper is constructing a
-practical information flow control system for JavaScript.  Some of
-these systems attempt to perform fine-grained information flow of
-JavaScript, e.g. Hedin and Sabelfield's work~\cite{Hedin:2012} on JSFlow~\cite{JSFlow}
-and \Red{some other stuff here}.  While fine-grained information flow
-control can result in very precise analysis of legacy code, it comes
-at the cost of high theoretical complexity (the system must accomodate
-the entirety of JavaScript's semantics) and runtime performance cost.
-There are attempts to overcome this performance barrier by various means:
-Austin and Flanagan~\cite{Austin:Flanagan:PLAS09} handle this problem
-by using a \emph{sparse information labeling} scheme which reduces the
-cost of managing labels when they are not needed, while FlowFox~\cite{DeGroef:2012}
-uses an entirely different technique of \emph{secure multi-execution} to
-enforce non-interference. \Red{Probably more stuff here.}
-\todo{ds}{SME works for arbitrary language (kind of).}
+Designed to target legacy code, secure multi-execution (SME) is a black-box
+technique to enforce information-flow control~\cite{Devriese:2010}. It runs
+multiple copies of the program, one per security level, where the semantics of
+I/O interactions is altered. Besides its black-box nature, authors often present
+it considering one specific programming
+language~\cite{KULeuven-350547,Rafnson:2013}. Differently, Bielova
+al.~\cite{Biel-etal-11-TR} uses a transition system to describe SME, where the
+details of the underlying language is hidden.  Zanarini et
+al.~\cite{ZanariniJR13} propose a novel semantics for programs based on
+interaction trees~\cite{jacobs-tutorial}, which threats programs as black-boxes
+about which nothing is known except what is inferred from their I/O interactions
+with the environment. Similar to SME, our approach only mediates some I/O
+operations; differently, it runs the program once.
+
+
+One of the primary motivations behind this paper is constructing a practical
+information flow control system for JavaScript.  Some of these systems attempt
+to perform fine-grained information flow of
+JavaScript~\cite{Hedin:2012,ConDOM,JSFlow}. While fine-grained information flow
+control can result in less false alarms and target legacy code, it comes at the
+cost of complexity (the system must accomodate the entirety of JavaScript's
+semantics). Moreover, the runtime performance cost are sometimes too high, e.g.,
+higher than 100\%!\cite{JSFlow}.  Alternatively, coarse-grained approaches have
+also been proposed for the web
+scenario~\cite{Yip:2009:PBS,DeGroef:2012,conf/esorics/AkhaweLHSS13}. Different
+from them, we rely on programming level abstraction to isolate
+computations.
+
+
+%There are attempts to overcome this performance barrier by various means:
+%Austin and Flanagan~\cite{Austin:Flanagan:PLAS09} handle this problem
+%by using a \emph{sparse information labeling} scheme which reduces the
+%cost of managing labels when they are not needed, while FlowFox~\cite{DeGroef:2012}
+%uses an entirely different technique of \emph{secure multi-execution} to
+%enforce non-interference. \Red{Probably more stuff here.}
+%\todo{ds}{SME works for arbitrary language (kind of).}
+
 
 The constructs in our IFC language, as well as the behavior of
 inter-thread communication, is reminiscent of distributed systems
-like Erlang.~\cite{Armstrong03makingreliable}  There is a close
+like Erlang~\cite{Armstrong03makingreliable}.  There is a close
 correspondence: in distributed systems, isolation is required due to
 physical constraints; in information flow control, isolation is
 required to enforce noninterference.  Papagiannis et al.~\cite{Papagiannis_enforcinguser}
@@ -43,15 +74,16 @@ similar to ours.  However, they do not use a floating label system (processes
 can find out when sending a message failed due to a forbidden information flow),
 and they include no security proofs.
 
-There appears to be limited literature in general techniques for
-retrofitting information flow control to arbitrary languages; however,
-one time-honored technique is defining a fundamental calculus, for which
-other languages can be desugared into.  Abadi et al.~\cite{abadi+:core}
-motivate their core calculus of dependency by showing how various
-previous systems can be encoded in it; Tse and
-Zdancewic~\cite{Tse:Zdancewic:ICFP04}, in turn, show how this calculus
-can be encoded in System F via parametricity.  However, this work is
-primarily focused on static information flow control systems.
+There appears to be limited literature in general techniques for retrofitting
+information flow control to arbitrary languages; however, one time-honored
+technique is defining a fundamental calculus, for which other languages can be
+desugared into.  Abadi et al.~\cite{abadi+:core} motivate their core calculus of
+dependency by showing how various previous systems can be encoded in it; Tse and
+Zdancewic~\cite{Tse:Zdancewic:ICFP04}, in turn, show how this calculus can be
+encoded in System F via parametricity.  Broberg and Sands~\cite{Broberg:2010}
+encodes several IFC systems into Paralocks.  However, this line of work is
+primarily focused on static enforcements. 
+%information flow control systems.
 
 Our definition of isomorphism of information flow control languages in
 Section~\ref{sec:concrete} is closely related to the idea of
@@ -62,18 +94,19 @@ deep way.
 It has long been observed that information flow control and monads are
 closely related.  This observation has been used by Abadi et
 al.~\cite{abadi+:core} to structure access to private data by protecting
-it using a lattice of monads, one per security level.  Our system uses
+it using a lattice of monads, one per security level. Russo et. al.~\cite{Russo+:Haskell08} extend this 
+idea to languages with side-effects. Our system uses
 monads in a conceptually different manner, where there is a single monad
 representing the information flow control computational effects; this
-is inline with the use of monads in other systems.~\cite{Harrison05,lio,Devriese:2011}.
-Devriese and Piessens~\cite{Devriese:2011} utilized monad
+is inline with the use of monads in other systems~\cite{Harrison05,lio,Devriese:2011}.
+Devriese and Piessens~\cite{Devriese:2011} utilize monad
 transformers as an essential component in their work.  However, their use
 of monad transformers is to explain when extra constraints on a non-information
 flow control aware base monad should be applied (i.e., during lifting).
 Harrison and Hook~\cite{Harrison05} define a notion of \emph{atomic noninterference},
 which is preserved through monad transformer application.  However, it is not
-clear what the relationship between this notion and traditional noninterference is,
-and in their paper they prove only a weaker property of no write down.
+clear what is the relationship between this notion and traditional noninterference,
+and their paper only proves a weaker property of no write down.
 
 \cut{
 \begin{itemize}
