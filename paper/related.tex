@@ -1,6 +1,90 @@
 \section{Related work}
 \label{sec:related}
 
+Our paper follows a long tradition of papers on information flow
+control.  Our information flow control system is mostly closely related
+to the coarse-grained information systems used in operating systems such
+as Asbestos~\cite{efstathopoulos:asbestos} and
+HiStar~\cite{Zeldovich:2006}, as well as language-level
+\emph{floating-label IFC systems} such as LIO~\cite{lio},
+Breeze~\cite{Hritcu:2013:YIB:2497621.2498098}, where there is a label
+associated with threads of execution which increases monotonically.
+Our treatment of termination-sensitive and termination-insensitive interference
+originates from Smith and Volpano~\cite{Smith:Volpano:MultiThreaded,Volpano:1997:ECF:794197.795081}.
+While this work often considers the interaction of information flow
+control with respect to various language features (e.g.,
+exceptions~\cite{Hritcu:2013:YIB:2497621.2498098}), none of these
+systems attempt to be generic in the choice of target language.
+
+One of the primary motivations behind this paper is constructing a
+practical information flow control system for JavaScript.  Some of
+these systems attempt to perform fine-grained information flow of
+JavaScript, e.g. Hedin and Sabelfield's work~\cite{Hedin:2012} on JSFlow~\cite{JSFlow}
+and \Red{some other stuff here}.  While fine-grained information flow
+control can result in very precise analysis of legacy code, it comes
+at the cost of high theoretical complexity (the system must accomodate
+the entirety of JavaScript's semantics) and runtime performance cost.
+There are attempts to overcome this performance barrier by various means:
+Austin and Flanagan~\cite{Austin:Flanagan:PLAS09} handle this problem
+by using a \emph{sparse information labeling} scheme which reduces the
+cost of managing labels when they are not needed, while FlowFox~\cite{DeGroef:2012}
+uses an entirely different technique of \emph{secure multi-execution} to
+enforce non-interference. \Red{Probably more stuff here.}
+
+The constructs in our IFC language, as well as the behavior of
+inter-thread communication, is reminiscent of distributed systems
+like Erlang.~\cite{Armstrong03makingreliable}  There is a close
+correspondence: in distributed systems, isolation is required due to
+physical constraints; in information flow control, isolation is
+required to enforce noninterference.  Papagiannis et al.~\cite{Papagiannis_enforcinguser}
+built an information flow control system on top of Erlang which is quite
+similar to ours.  However, they do not use a floating label system (processes
+can find out when sending a message failed due to a forbidden information flow),
+and they include no security proofs.
+
+There appears to be limited literature in general techniques for
+retrofitting information flow control to arbitrary languages; however,
+one time-honored technique is defining a fundamental calculus, for which
+other languages can be desugared into.  Abadi et al.~\cite{abadi+:core}
+motivate their core calculus of dependency by showing how various
+previous systems can be encoded in it; Tse and
+Zdancewic~\cite{Tse:Zdancewic:ICFP04}, in turn, show how this calculus
+can be encoded in System F via parametricity.  However, this work is
+primarily focused on static information flow control systems.
+
+Our definition of isomorphism of information flow control languages in
+Section~\ref{sec:concrete} is closely related to the idea of
+\emph{bisimulation}~\cite{Milner:1989:CC:534666} and process calculi,
+although as our system is deterministic, we do not use the theory in any
+deep way.
+
+It has long been observed that information flow control and monads are
+closely related.  This observation has been used by Abadi et
+al.~\cite{abadi+:core} to structure access to private data by protecting
+it using a lattice of monads, one per security level.  Our system uses
+monads in a conceptually different manner, where there is a single monad
+representing the information flow control computational effects; this
+is inline with the use of monads in other systems.~\cite{Harrison05,lio,Devriese:2011}.
+Devriese and Piessens~\cite{Devriese:2011} utilized monad
+transformers as an essential component in their work.  However, their use
+of monad transformers is to explain when extra constraints on a non-information
+flow control aware base monad should be applied (i.e., during lifting).
+Harrison and Hook~\cite{Harrison05} define a notion of \emph{atomic noninterference},
+which is preserved through monad transformer application.  However, it is not
+clear what the relationship between this notion and traditional noninterference is,
+and in their paper they prove only a weaker property of no write down.
+
+\cut{
+\begin{itemize}
+    \item Monads and IFC (Abadi~\cite{Abadi+:Core}, Tse~\cite{Tse:Zdancewic:ICFP04}, Harrison-Hook~\cite{Harrison05}, Crary~\cite{Crary:2005}, Devriese-Piessens~\cite{Devriese:2011})
+    \item \Red{Operating systems approaches to IFC, which use coarse grained (Asbestos~\cite{efstathopoulos:asbestos}, HiStar~\cite{Zeldovich:2006})}
+    \item \Red{Floating-label IFC systems, look at LIO paper (LIO~\cite{lio}, Breeze~\cite{Hritcu:2013:YIB:2497621.2498098})}
+    \item JavaScript IFC related work, look at BrowBound. (ADSafe, xBook \Red{needs lookup})  Classify approaches into fine-grained (Hedin-Sabelfield~\cite{Hedin:2012}+JSFlow~\cite{JSFlow}, FlowFox~\cite{DeGroef:2012}, ConDOM~\cite{ConDOM}, Austin-Flanagan (sparse information labeling)~\cite{Austin:Flanagan:PLAS09}) or coarse-grained (BFlow~\cite{Yip:2009:PBS}, see Deian)
+\item Secure multi-execution (FlowFox~\cite{DeGroef:2012}, Russo~\cite{Jaskelioff:SME})
+\item Distributed programming languages (Cloud Haskell) plus IFC (Erlang (they check IFC when sending messages, no security proofs, assumes true isolation, not a floating labels)~\cite{Papagiannis_enforcinguser})
+\end{itemize}
+
+
 \Red{
 Monads and IFC:
 
@@ -19,3 +103,4 @@ A Core Calculus of Dependency (Abadi et al): define a calculus, which calculi yo
 IFC for any language:
 
 Gotta talk about secure multi-execution
+}
