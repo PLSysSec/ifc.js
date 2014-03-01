@@ -87,7 +87,15 @@ trivial.
 %
 As a first step, we directly implement |specLangJS roundrobinf| by
 running multiple instances of the JS runtime, i.e., |targetLangJS|, in
-separate OS-level threads.
+separate OS-level threads.\footnote{
+ The Firefox implementation of SWAPI also considers the case where
+ tasks share the JavaScript runtime event-loop, but the heap and
+ execution context of each task is disjoint. This is similar to the
+ single-heap language of Section~\ref{sec:concrete}.  However, since the heap
+ separation is provided by the browser the browser, we do not discuss
+ this further. The interested reader is referred to~\tocite{} for more
+ details.
+}
 
 Specifically, we implement the IFC language functionality in the JS
 runtime, much like browser layout engines implement the DOM, and
@@ -106,7 +114,7 @@ Since this implementation approach relies on multiple runtimes of the
 language, sending arbitrary objects between tasks can result in
 unexpected behavior, e.g., when the object contains reference.
 %
-Hence, as discussed in Section~\ref{sec:concrete} we restrict |send|
+As discussed in Section~\ref{sec:concrete} we thus restrict |send|
 to expressions that can be marshalled as strings, i.e., structurally
 clonable objects~\tocite{}.
 %
@@ -176,9 +184,9 @@ in both cases, JS code can trivially leak information (e.g., to the
 network with XHR or persistent storage using the DOM).
 %
 
-To address this we use content security policy (CSP) and (iframe)
-sandbox~\tocite{} to restrict external effects according to the label
-of a task (Worker or browsing context), as describe
+To address this, we additionally use content security policy (CSP) and
+(iframe) sandbox~\tocite{} to restrict external effects according to
+the label of a task (Worker or browsing context), as describe
 in~\tocite{}.
 %
 Of course, simply disallowing all external effects for all browsing
