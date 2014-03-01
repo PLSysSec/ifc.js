@@ -220,7 +220,7 @@ this language satisfies non-interference by Theorem~\ref{thm:restricted}.
     \inferrule[C-fork]
     {
       \text{|ie| does not contain any |ta|}\\
-      |iS' = iS [ mapsto id' nil ]|\\
+      |iS' = bracket iS (mapsto id' nil)|\\
       |it1 = oneheapfullconf id il (iniE id')|\\
       |itnew = oneheapfullconf id' il (TI ie)|\\
       |fresh (id')|
@@ -236,7 +236,7 @@ this language satisfies non-interference by Theorem~\ref{thm:restricted}.
       \text{|ie| does not contain any |ta|}\\
       |il canFlowTo il'|\\
       |iS(id') = Q|\\
-      |iS' = iS [ mapsto id' (il', id,  ie) , Q ]|
+      |iS' = bracket iS (mapsto id' (il', id,  ie) , Q)|
     }
     {|
       oneheapiconf iS tS (oneheapfullconf id il (iniEi (send id' il' ie)), ldots)

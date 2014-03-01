@@ -79,10 +79,10 @@ from the task's message queue that are more sensitive than |il|.
     |fullconf id il' tS ie| & \text{otherwise}
   \end{cases} \\
   &|erase il emptyset = emptyset|\\
-  &|erase il (iS [mapsto id Q]) =| \begin{cases}
+  &|erase il (bracket iS (mapsto id Q)) =| \begin{cases}
     |erase il iS| & \text{|il' cantFlowTo il|, where |il'| is}\\
     & \text{the label of thread |id|} \\
-    |(erase il iS) [mapsto id (erase il Q)]| & \text{otherwise}
+    |bracket (erase il iS) (mapsto id (erase il Q))| & \text{otherwise}
   \end{cases} \\
   &|erase il Q = filter il Q|\\
   &|erase il v = v|
