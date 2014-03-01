@@ -37,9 +37,9 @@
 %format <=  = "\Leftarrow"
 %format =>  = "\Rightarrow"
 %format (sched (t) (p) ) = "\alpha_{{\tiny\mathrm{"t"}}}("p")"
-%format roundrobinf = "\textbf{RR}"
+%format roundrobinf = "\textsc{RR}"
 %format (roundrobin (t) (p) ) = roundrobinf"_{{\tiny\mathrm{"t"}}}("p")"
-%format seqf = "\textbf{SEQ}"
+%format seqf = "\textsc{Seq}"
 %format (seq (t) (p) ) = seqf"_{{\tiny\mathrm{"t"}}}("p")"
 
 
@@ -480,7 +480,8 @@
 
 %format getLabel  = "\mathbf{getLabel}"
 %format setLabel  = "\mathbf{setLabel}"
-%format fork      = "\mathbf{fork}"
+%format fork      = "\mathbf{sandbox}"
+%format sandbox   = "\mathbf{sandbox}"
 %format send      = "\mathbf{send}"
 %format recv      = "\mathbf{recv}"
 %format brecv     = "\mathbf{recv}_{\infty}"
@@ -494,9 +495,10 @@
 %format sec      = "\mathsf{sec}"
 %format pub      = "\mathsf{pub}"
 
-%format done      = "D"
-%format noStep    = "N"
-%format step      = "S"
+%format done      = "\text{done}"
+%format nostep    = "\text{noStep}"
+%format step      = "\text{step}"
+%format box       = "\text{sandbox}"
 
 %format (TI (x))  = "\tar{_{\textrm{TI}}\lfloor}"x"\tar{\rfloor}"
 %format (IT (x))  = "\ifc{^{\textrm{IT}}\lceil}"x"\ifc{\rceil}"

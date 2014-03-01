@@ -40,8 +40,8 @@ relations on full configurations $|tS| \times |tE| \times |te|$.
 
 \begin{figure}
 \begin{code}
-tv   ::= \tx.te | true | false | ta | unit
-te   ::= tv | tx | te te | if te then te else te | ref te | !te | te := te | fail
+tv   ::= \tx.te | true | false | ta
+te   ::= tv | tx | te te | if te then te else te | ref te | !te | te := te
 tE   ::= tHole | tE te | tv tE | if tE then te else te
        | ref tE | !tE | tE := te | tv := tE 
 
@@ -76,13 +76,13 @@ let tx = te1 in te2  @= (\tx.te2) te1
 
 \and
 \inferrule[T-ass]
-{ }
-{| conf tS (ta := tv) -> conf (tS [ ta mapsto tv ]) unit |}
+{ |(ta, tv) in tS| }
+{| conf tS (ta := tv) -> conf (tS [ ta mapsto tv ]) tv |}
 
-\and
-\inferrule[T-fail]
-{ }
-{| conf tS ( tE [ fail ] ) -> conf tS fail |}
+%\and
+%\inferrule[T-fail]
+%{ }
+%{| conf tS ( tE [ fail ] ) -> conf tS fail |}
 \end{mathpar}
 
 \caption{Simple ML-like language |targetLangML|}
@@ -119,7 +119,9 @@ labels (|canFlowTo|, |lub| and |glb|),
     \item operations for inspecting (\textbf{getLabel}) and modifying (\textbf{setLabel}) the current label of the task (a task can only increase its label, and not decrease it),
     \item operations for non-blocking inter-task communication (\textbf{send} and \textbf{recv}),
         which interact with the global store of per-task message queues |iS|, and
-    \item a forking operation allowing to spawn new tasks, which will be described in more detail in the next section.
+    \item a sandboxing operation allowing to spawn new
+    isolated tasks, which will be described in more detail in the
+    next section.
 \end{itemize}
 
 The form of \textbf{send}/\textbf{recv} are \Red{inspired by methods of inter-worker communication
@@ -162,8 +164,8 @@ than their current label would allow.
 lop  ::=  canFlowTo | lub | glb
 iv   ::=  id | il | true | false | unit
 ie   ::=  iv | ix | ie lop ie | getLabel | setLabel ie
-       |  fork ie | send ie ie ie | ix1, ix2 <= recv. ie ie
-iE   ::=  iHole | iE lop ie | iv lop iE | setLabel iE | fork iE 
+       |  sandbox ie | send ie ie ie | ix1, ix2 <= recv. ie ie
+iE   ::=  iHole | iE lop ie | iv lop iE | setLabel iE | sandbox iE 
        |  send iE ie ie | send iv iE ie | send iv iv iE
        |  ix1, ix2 <= recv. ie ie
 io   ::=  (il, id ie)
@@ -281,7 +283,7 @@ CE[e] -> iconf iS (it, ldots) @= CE[e] .-> iconf iS (sched step (it, ldots))
 \end{code}
 
 \begin{mathpar}
-\inferrule[I-fork]
+\inferrule[I-sandbox]
 { 
 |iS' = iS [ id' mapsto nil ]|\\
 |tS' = klone(tS)|\\
@@ -290,7 +292,7 @@ CE[e] -> iconf iS (it, ldots) @= CE[e] .-> iconf iS (sched step (it, ldots))
 |fresh (id')|
 }
 {|
-iconf iS (fullconf id il tS (iniEi (fork ie)), ldots)
+iconf iS (fullconf id il tS (iniEi (sandbox ie)), ldots)
 .->
 iS'; sched F (it1, ldots, itnew)
 |}
@@ -339,17 +341,17 @@ niconf iS id il ie
   Concurrent, round robin:
 \begin{code}
   roundrobin step (it1, it2, ldots)  = it2, ldots, it1
-  roundrobin D (it1, it2, ldots)     = it2, ldots
-  roundrobin N (it1, it2, ldots)     = it2, ldots
-  roundrobin F (it1, it2, ldots)     = it2, ldots, it1
+  roundrobin done (it1, it2, ldots)     = it2, ldots
+  roundrobin nostep (it1, it2, ldots)     = it2, ldots
+  roundrobin box (it1, it2, ldots)     = it2, ldots, it1
 \end{code}
   Sequential:
 \begin{code}
   seq step (it1, it2, ldots)     = it1, it2, ldots
-  seq N (it1, it2, ldots)        = it1, it2, ldots
-  seq D (it)                     = it
-  seq D (it1, it2, ldots)        = it2, ldots
-  seq F (it1, it2, ldots, itn)   = itn, it1, it2, ldots
+  seq nostep (it1, it2, ldots)        = it1, it2, ldots
+  seq done (it)                     = it
+  seq done (it1, it2, ldots)        = it2, ldots
+  seq box (it1, it2, ldots, itn)   = itn, it1, it2, ldots
 \end{code}
 \caption{Scheduling policies}
 \label{fig:scheduler}
@@ -359,15 +361,15 @@ niconf iS id il ie
     \item We extend the values, expressions and evaluation contexts of both languages to allow for embeddings terms in one language to be embedded in the other.
     \item We reinterpret |CE| to be evaluation contexts on task pools, providing definitions for $\mathcal{E}_{\tar{\Sigma}}$ and $\mathcal{E}_{\ifc{\Sigma}}$.  These rules only operate on the first task in the task pool, which by convention, is the only task executing.
     \item We reinterpret |->|, an operation on a single task, in terms of |.->|, operation on task pools.  The correspondence is simple: a task executes a step and then is rescheduled in the task pool according to schedule policy $\alpha$.  Not all schedulers preserve non-interference, so we provide two specific schedules in Figure~\ref{fig:scheduler}.
-    \item Finally, we define some rules for scheduling, handling forking tasks (which interact with the state of the target language) and intermediating between the borders of the two languages.
+    \item Finally, we define some rules for scheduling, handling sandboxing tasks (which interact with the state of the target language) and intermediating between the borders of the two languages.
 \end{itemize}
 
-The \textsc{I-fork} rule is of particular interest, as it is intended to allow users
+The \textsc{I-sandbox} rule is of particular interest, as it is intended to allow users
 to create new tasks.  When a new task is created, there is a question of what the
 global state of the new task should be; this is defined in terms of a function $\kappa$.
 Conservatively, $\kappa$ may be simply thought of as the identity function, in which
-case the semantics of fork are such that the state of the target language is \emph{cloned}
-when forking occurs.  However, this is not necessary: it is also valid for $\kappa$
+case the semantics of sandbox are such that the state of the target language is \emph{cloned}
+when sandboxing occurs.  However, this is not necessary: it is also valid for $\kappa$
 to remove entries from the state.  In Section~\ref{sec:concrete}, we give a more detailed
 discussion of the implications of the choice of $\kappa$.
 
@@ -385,26 +387,26 @@ global state for the target language, one might reasonably wonder what would
 happen if you attempted to send a reference to another task.
 
 \begin{align*}
-    & |let i = TI (fork (x, i' <= brecv . (IT (!(TI x)))))| \\
+    & |let i = TI (sandbox (x, i' <= brecv . (IT (!(TI x)))))| \\
     & |in TI (send (IT (ref true)))|
 \end{align*}
 
 It would be a violation of information flow if such an operation actually
 resulted in references being shared between two tasks.  In fact, the address
-will be received by the forked task, but it will be a dangling pointer; the
+will be received by the sandboxed task, but it will be a dangling pointer; the
 task will become stuck and removed from execution by \textsc{I-noStep}.  (Readers
 who are curious whether or not a static discipline could be enforced to
 prevent these dangling pointers should check Section~\ref{sec:extensions}.)
 
-\paragraph{Status of the heap after a fork}  Here is a program whose
+\paragraph{Status of the heap after a sandbox}  Here is a program whose
 semantics depends on the definition of $\kappa$:
 
 \begin{align*}
     & |let x = ref true| \\
-    & |in TI (fork (IT (!x; !x))); x := false|
+    & |in TI (sandbox (IT (!x; !x))); x := false|
 \end{align*}
 
-When $\kappa$ is the identity, the forked task successfully dereferences
+When $\kappa$ is the identity, the sandboxed task successfully dereferences
 the contents of the reference to be true twice (recall that references
 are cloned into the new global state).  When $\kappa$ is the constant function
 to the empty store, $x$ becomes a dangling pionter.
@@ -420,18 +422,18 @@ inner sensitive computation.
 At first glance, it does not appear that our system has any such operator;
 there are only tasks, and the correct behavior for a task throwing
 an exception is self-evident: it should simply be removed from the scheduler.
-However, under a \emph{sequential scheduler}, the behavior of \textbf{fork}
+However, under a \emph{sequential scheduler}, the behavior of |sandbox|
 can be used to model the behavior of \textbf{toLabeled}:
 
 \begin{align*}
     & |toLabeled l te @= | \\
     & |tab let pid = taskId; | \\
-    & |tab let i = TI (fork (IT (TI (setLabel l); TI (send pid l (IT te)))))| \\
+    & |tab let i = TI (sandbox (IT (TI (setLabel l); TI (send pid l (IT te)))))| \\
     & |tab in (\ _ . TI (setLabel l); TI ( x, _ <= recv . x ))| \\
 \end{align*}
 
-When the sequential scheduler is used, the forked task runs to
-completion before returning to the task that forked it.  Thus,
+When the sequential scheduler is used, the sandboxed task runs to
+completion before returning to the task that sandboxed it.  Thus,
 a task pool should rather be interpreted as a number of information-flow
 aware stack frames.  To read the result of a |toLabeled| operation
 (which is communicated via message passing), the parent task must raise

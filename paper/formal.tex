@@ -19,30 +19,32 @@ we can show a stronger result known as
 \emph{termination-sensitive non-interference},
 where termination attacks cannot leak information.
 
-How does one characterize what the \emph{secret inputs} of a program
-are?  Like other work,~\tocite{} we show specify and prove
-noninterference using \emph{term erasure}.
+How can we characterize what the \emph{secret inputs} of a program
+are?  Like other work,~\tocite{} we specify and prove
+non-interference using \emph{term erasure}.
 %
+Intuitively, in this approach we proving that an attacker does not learn
+any sensitive information from a program by 
 Intuitively, term erasure allows us to show that a an
-attacker does not learn any sensitive information from a program
-written in a non-interference language, if the program behaves identically to the
-same program with all sensitive data ``erased.''
+attacker does not learn any sensitive information from a program if the
+program behaves identically to a program with all sensitive data ``erased''.
 %
 To accommodate for this, we extend our formalism to account for
-programs with erased configurations and a function |erasef l| that
+programs with erased configurations and a function |erasef il| that
 performs erasures, usually by rewriting (parts of) configurations that
-are more sensitive than |l| to a new syntactic construct |bullet|.
+are more sensitive than |il| to a new syntactic construct |bullet|.
 %
-We can generally characterize what features a language must have
-in order for the statement of non-interference to be well-posed:
+We can characterize the types of languages for which one can state
+a non-interference claim.
 
-\begin{definition}[Information-flow control language]
-    An information-flow control language |L| is a tuple |(C, .->,
-    erasef l)|, where $c \in |C|$ is the type of machine configurations, |.->| is a
+\begin{definition}[Information flow control language]
+    An information flow control language |L| is a tuple |(C, .->,
+    erasef l)|, where $|C|$ is the type of machine configurations (members
+    of which are usually denoted by the meta-variable |c|), |.->| is a
     reduction relation between machine configurations and |erasef l : C -> tyerase C|
     is an erasure function parametrized on labels from machine configurations to \emph{erased} machine
-    configurations |tyerase C|.  For sequential languages, the
-    language is augmented with a set of terminal configuration states $V
+    configurations |tyerase C|.  This tuple is sometimes
+    augmented with a set of terminal configuration states $V
     \subseteq |C|$ for which there are no possible further transitions.
 \end{definition}
 
@@ -59,7 +61,7 @@ values.\footnote{
 }
 The erased configuration |tyerase (ifc C)| extends |ifc C| with configurations
 containing |bullet|; Figure~\ref{fig:erasure} gives the precise definition for
-our erasure function.
+our erasure function |erasef il|.
 %
 A task and its corresponding message queue is completely removed from the task
 list if its label does not flow to the attacker observation level |il|;
@@ -73,7 +75,7 @@ from the task's message queue that are more sensitive than |il|.
   iconf (erase il iS) (fltr (\ it . it = bullet) (map (erasef il) its))|\\
   &|fullconf id il' tS ie| \begin{cases}
     |bullet| & |il' cantFlowTo il| \\
-    |fullconf id il' (erase l tS) (erase l ie)| & \text{otherwise}
+    |fullconf id il' tS ie| & \text{otherwise}
   \end{cases} \\
   &|erase il emptyset = emptyset|\\
   &|erase il (iS [id mapsto Q]) =| \begin{cases}
@@ -114,8 +116,8 @@ equivalence as the syntactic-equivalence of erased configurations.
 %
 \begin{definition}[|l|-equivalence]
     In a language |(C, .->, erasef l)|, two machine configurations
-    |memberf (c, c') C| are considered $l$-equivalent (|c ~= c'|)
-    if |erase l c = erase l c'|.
+    |memberf (c, c') C| are considered $l$-equivalent, written as |c ~= c'|,
+    if |erase l c = erase il c'|.
 \end{definition}
 %
 
@@ -154,7 +156,7 @@ configuration that is |l|-equivalent to the first resultant configuration.
 \Red{TODO: Do we want a commutative diagram to illustrate this?}
 
 
-Directly, we now show that our IFC language satisfies TSNI under a particular
+We now show that our IFC language satisfies TSNI under a particular
 scheduling policy.
 %
 Specifically, we consider the language under the round-robin scheduler
@@ -168,7 +170,7 @@ For any target language |targetLang nop|, |specLang roundrobinf
 
 In general TSNI will not hold for an arbitrary scheduler |alpha|.
 %
-For example, |specLang alpha (targetLang nop)| with a scheduler that inspects a
+For example, |specLang alpha targetLang| with a scheduler that inspects a
 sensitive threads current state when deciding which thread to schedule next
 will clearly not satisfy TSNI.
 %
@@ -180,13 +182,13 @@ Here, we simply remark that even non-adversairal schedulers are not always safe.
 Consider, for example, the sequential scheduling policy |seqf| given in
 Figure~\ref{fig:scheduler}.
 %
-It is trivial to show that |specLang seqf (targetLang nop)| does not satisfy
+It is easy to show that |specLang seqf targetLang| does not satisfy
 TSNI.
 %
-Concretely, consider a target language similar to |targetLang ML| with an
+Concretely, consider a target language similar to |targetLangML| with an
 additional expression terminal |diverge| that denotes a divergent computation,
-i.e., |diverge| always reduces to |diverge| and a a simple label lattice |{pub,
-sec}| such that |pub canFlowTo sec|, but |sec cantFlowTo pub|, we can write the
+i.e., |diverge| always reduces to |diverge| and a simple label lattice |{pub,
+sec}| such that |pub canFlowTo sec|, but |sec cantFlowTo pub|.  We can write the
 following program in the specification language:
 \begin{code}
 ic1 = iS ; fullconf 1 sec tS1 (IT(when false diverge)),  fullconf 2 pub tS1 ie
@@ -199,7 +201,7 @@ any progress.
 Suppose that |ie| is a computation that writes to a |pub| channel,\footnote{
 Though we do not model labeled channels, extending the calculus with such a
 feature is straight forward, see Setion~\ref{}.
-} then the |sec| thread's decision to diverge or not is directly leaked to a
+} then the |sec| tasks's decision to diverge or not is directly leaked to a
 public entitiy.
 
 In certain cases, however, a TSNI-safe concurrent scheduling policy such as
@@ -213,7 +215,7 @@ Hence, we consider an alternative non-interference property---called termination
 non-interference---that can also be upheld by sequential languages at the cost
 of leaking one bit through (non)-termination.
 %
-\begin{definition}[Termination Insensitive Non-Interference (TINI)]
+\begin{definition}[Termination insensitive non-interference (TINI)]
   A language |(C, V, .->, erasef l)| is termination
   insensitive non-interfering if for any label |l|, and configurations
   |c1, c2 member C| and |c1', c2' member V| if
