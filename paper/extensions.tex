@@ -71,7 +71,7 @@ there are few general remarks to be made:
         can be forked.
 \end{itemize}
 
-\subsection{Safe scheduling policies}
+\subsection{Scheduling policies}
 Our specification language is parametrized by a scheduling policy
 |alpha|, which maps a task list to a potentially different task list.
 %
@@ -126,13 +126,44 @@ only if |l|-equivalent results are deterministic~\tocite{}. %both andrei and ste
 
 \subsubsection{External effects}
 \label{sec:extensions:external}
-Application specific, use XHR as driving example.
-General way to think of safety is internalize and treat as a labeled
-object; or message to thread that has access to unsafe API, but
-exposes labeled safe messaging API.
+Our embedding assumes that the target language not have any
+primitives that can external-world effects.
+%
+Indeed, as discussed in Section~\ref{sec:real}, part of the challenge
+when considering real languages is precisely imposing this restriction
+on the concrete implementation.
+%
+Yet, external effects are crucial when implementing more complex
+real-world applications.
+%
+For example, code in our modified IFC browser must load resources or
+perform XHR to be useful.
+
+Like labeled references, features with external effects must be
+modeled in the IFC language; we must reason about the precise security
+implications of features that otherwise inherently leak data.
+%
+Previous approaches have modeled external effects by internalizing the
+effects as writes/reads to labeled channels/references~\tocite{}.
+%
+An alternative approach is to model such effects as messages to/from
+certain labeled tasks.
+%
+These ``special'' tasks are trusted with access to the unlabeled
+primitives that can be used to perform the external effects; since the
+interface to these tasks is already part of the IFC language, the
+proof only requires showing that this task does not leak information.
+%
+This latter approach of wrapping unsafe primitives is, for example,
+used in SWAPI to allow for controlled network communication.
+%
+By wrapping the default XHR object, for example, we can allow code
+to communicate with hosts according to the task's current label.
+
 
 \subsection{Other target languages}
 
+Non-deterministic reduction.
 
 
 \cut{
@@ -147,8 +178,4 @@ language to provide IFC-aware versions of target language features.
 
 
 }
-\begin{itemize}
-\item Label transition systems.
-\item Non-deterministic reduction.
-\end{itemize}
 

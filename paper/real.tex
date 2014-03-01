@@ -252,31 +252,31 @@ To address this, SWAPI additionally uses content security policy (CSP) and
 the label of a task (worker or browsing context).  Accomodating these
 features lies outside the purview of our formalism.
 
-\Red{
-EZY:  This seems like useless detail about the SWAPI implementation
-that is not relevant to this paper.
-
-Of course, simply disallowing all external effects for all browsing
-contexts would break most of the Web.
-%
-Hence SWAPI only enforces IFC, and thus restricts external effects,
-when the JS code uses the new API.\footnote{
-  Once a piece of code ``opts-in'' to use our IFC API, in addition to
-  restricting external effects we interpose ``standard''
-  \texttt{postMessage} communication to ensure that no information is
-  leaked between contexts that have opted-in and those that have not.
-}
-%
-Moreover, rather than disallowing all external effects, SWAPI allows
-controlled network communication by leveraging the fact that web
-pages already have an accompanying security policy: the same origin
-policy.
-%
-Hence, for example, a Worker that has read data only sensitive to
-\texttt{http://bank.ch} can communicate with this domain; only once
-\texttt{http://aws.com} data is also included in the context will all
-network requests be blocked.
-%
-Of course, this requires that we use a concrete label format to
-express the policies; we refer the interested reader to~\tocite{} for
-more details.}
+%% \Red{
+%% EZY:  This seems like useless detail about the SWAPI implementation
+%% that is not relevant to this paper.
+%% 
+%% Of course, simply disallowing all external effects for all browsing
+%% contexts would break most of the Web.
+%% %
+%% Hence SWAPI only enforces IFC, and thus restricts external effects,
+%% when the JS code uses the new API.\footnote{
+%%   Once a piece of code ``opts-in'' to use our IFC API, in addition to
+%%   restricting external effects we interpose ``standard''
+%%   \texttt{postMessage} communication to ensure that no information is
+%%   leaked between contexts that have opted-in and those that have not.
+%% }
+%% %
+%% Moreover, rather than disallowing all external effects, SWAPI allows
+%% controlled network communication by leveraging the fact that web
+%% pages already have an accompanying security policy: the same origin
+%% policy.
+%% %
+%% Hence, for example, a Worker that has read data only sensitive to
+%% \texttt{http://bank.ch} can communicate with this domain; only once
+%% \texttt{http://aws.com} data is also included in the context will all
+%% network requests be blocked.
+%% %
+%% Of course, this requires that we use a concrete label format to
+%% express the policies; we refer the interested reader to~\tocite{} for
+%% more details.}
