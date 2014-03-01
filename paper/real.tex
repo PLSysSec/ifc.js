@@ -1,64 +1,61 @@
 \section{Real world languages}
 \label{sec:real}
 
-In this section we consider the application of our embedding to 
-real world target languages.
+In the introduction, we stated that the original motivation behind
+developing this embedding was in order to formally specify a
+coarse-grained information flow control language for JavaScript.
 %
-To illustrate the flexibility of our system and challenges in the
-embedding we chose three mainstream languages---C, Haskell, and
-JavaScript---that have vastly different features and properties.
+In Section~\ref{sec:retrofit}, however, we used only a simplified
+language as an example target language.
 %
-We remark that we have implemented variants of our Haskell and
-JavaScript embeddings, which are used in the Hails~\tocite{} and
-SWAPI~\tocite{} systems; we leave the implementation of the IFC system
-for C, as describe below, to future work.
+In this section, we consider the application of our embedding to
+JavaScript and two other real world target languages, C and Haskell.
+%
+Our goal is to show the flexibility of the embedding in settings with
+vastly different features and properties, as well as discuss the
+semantic gap that must be overcome in some cases to apply our formalism
+to other systems.
+%
+Two of the systems we describe have been implemented: the Haskell
+system~\cite{lio} and the SWAPI~\tocite{} system; we leave the
+implementation of the IFC system for C to future work.
 
 \subsection{C}
 \label{sec:real:c}
 %
-Within the confine of a process, C program can execute arbitrary
-(machine) code, access arbitrary memory, and perform arbitrary
-syscalls.
+C programs are able to execute arbitrary (machine) code, access
+arbitrary memory, and perform arbitrary syscalls.
 %
-C code is only confined to degree imposed by by underlying OS and
-hardware.
+Thus, the confinement of C programs must be imposed by the underlying OS
+and hardware.
 %
-Hence implementing an IFC system according to the specification
-language of Section~\ref{sec:retrofit} must address these concerns.
-
-Nevertheless, we believe that an implementation that adheres to our
-specification under the |roundrobinf| scheduler can be achieved
-without too much effort.
+This isolation can be achieved using hardware protection
+mechanisms~\cite{Belay:2012:DSU:2387880.2387913} (similar to a simpler
+version of Wedge~\cite{Bittau:2008:WSA:1387589.1387611} with an
+information flow control policy).
 %
-(Our proposed approach, below, is very similar to a simpler version of
-Wedge~\tocite{}, with an IFC policy.)
-%
-Specifically, we propose a system, HIPStar, that uses hardware
-protection mechanisms to isolate untrusted code according to an IFC
-policy (implemented by a small runtime) in user-space, with
-Dune~\tocite{}.
-%
-Using pages tables, our (trusted) IFC runtime ensures that each task,
-implemented as a lightweight process can only access the memory it
+Using pages tables, a (trusted) IFC runtime could ensure that each task,
+implemented as a lightweight process, can only access the memory it
 allocates--tasks do not have access to any shared memory.
 %
-In addition, we use ring protection to intercept syscalls performed by
+In addition, ring protection could be used to intercept syscalls performed by
 a task and only permit those corresponding to our IFC language (e.g.,
 |getLabel|, |send|).
 %
-
 Although other sandboxing mechanisms can be used in place of Dune, we
-believe Dune's hardware protection mechanism allow us to provide a 
-concrete implementation that is simpler to reason about.
+believe Dune's hardware protection mechanism would allow us to provide a 
+concrete implementation that is more efficient and simpler to reason about.
+
+In this setting, the combined language of Section~\ref{sec:retrofit}
+can be interpreted in the following way: calling from the target
+language to the IFC language corresponds to invoking a syscall.
 %
-The ability to provide a new syscall interface allows us to precisely
-define the combined language of Section~\ref{sec:retrofit} as C with
-(only) IFC syscalls.
-%
-Page tables limits what memory a task can access; hence, we can ensure
-that new task created with the |fork| syscall will not have any shared
-memory, i.e., we effectively define |kappa(tS) = tS0|, where |tS0| is
-the set of pages necessary in bootstrap a lightweight process.
+Creating a new task with the |sandbox| syscall is corresponds to
+\emph{forking} a process.  Here, page tables limit what memory
+a task can access: we can ensure there will be no memory (effectively
+defining |klone(tS)
+= tS0|, where |tS0| is the set of pages necessary to bootstrap a
+lightweight process.)
 %
 Similarly, control over page tables and protection bits allows us to
 define a |send| syscall that copies pages to our
@@ -68,86 +65,89 @@ the pages from the runtime queue to the (untrusted) receiver.
 Since C is not memory safe, conditions on these syscalls are
 meaningless.
 %
-Of course, a more efficient message-passing approach, such as that of
+\Red{
+EZY: Suggest chopping
+
+    Of course, a more efficient message-passing approach, such as that of
 Singularity~\tocite{}, which simply passes a pointer to data the
 receiver at the cost of revoking the sender's access to the pages is
 also possible.
 %
 However, since we do not consider the isomorphism condition for this,
-we do not discuss it further.
+we do not discuss it further.}
 
 
 \subsection{Haskell}
 \label{sec:real:hs}
-While the C embedding relies on hardware protection mechanisms to
-implement the embedding of Section~\ref{sec:retrofit}, in our Haskell
-IFC embedding we leverage Haskell's strong data abstraction and static
-type system, monadic approach to effects, and lightweight concurrency
-to implement the embedding in a more efficient manner, as library.
+In contrast with the C embedding which relies on hardware protection
+mechanisms, a Haskell implementation can leverage Haskell's strong data
+abstraction and static type system, monadic approach to effects, and
+lightweight concurrency to implement the embedding in a more lightweight
+manner.  We briefly describe one such system, LIO,~\cite{lio} which
+implements IFC as a library.
 
-To this end, we define a new monad, |LIO|, that wraps Haskell's |IO|
-monad---which allows for arbitrary effects---to associate labels with
-threads (tasks) and restrict computational effects according to the
-semantics of Section~\ref{sec:retrofit}.
+LIO is implemented by defining a new monad, \verb|LIO|, which wraps Haskell's \verb|IO|
+monad.
 %
-The precise restrictions encode our IFC system as computations in the
-|LIO| monad.
+The purpose of this monad is twofold: it restricts the use of
+arbitrary effects that would ordinarily be allowed by the \verb|IO| monad,
+and it associates labels with threads (tasks).
 %
-By wrapping |IO|, we can use Haskell's efficient implementation of
+Computations in the \verb|LIO|
+monad can be thought to be operating within the IFC system.
+%
+One important aspect of using \verb|IO| as the base for this
+implementation is that it allows use of Haskell's efficient implementation of
 threads, channels, etc. (e.g., we use Haskell's \texttt{forkIO} to
 fork a lightweight thread in the case of |fork|), in contrast to
-defining them in a pure fashion (see Section~\ref{sec:monad}).
+defining them in a completely pure fashion (as suggested in Section~\ref{sec:monad}).
 
-Importantly, this concrete implementation approach also directly
-corresponds to the specification language.
+What is the interpretation of this system as per Section~\ref{sec:retrofit}?
 %
-Specifically, it is |specLang alpha targetLangHS|, for $|alpha| \in
-|{roundrobinf, seqf}|$, with the pure subset of Haskell as to target
-language |targetLangHS|, the subset of Haskell that additionally
-contains the |LIO| monad (and corresponding |LIO| computations
-encoding the language) as the IFC language.
+Here, the \emph{pure subset} of Haskell is the target language
+|targetLangHS|, while the monadic subset of Haskell in the \verb|LIO|
+monad is the IFC language.
 %
-Of course since our IFC system is implemented as a library in Haskell,
-we must ensure that these languages are indeed the subsets of Haskell
+Crucially, the lack of unrestricted mutation in the pure fragment of
+Haskell prevents direct communication between tasks, even when memory is
+shared between them.\footnote{However, lazy evaluation can still produce
+a covert channel.}
+
+Since this IFC system is implemented as a library in Haskell,
+implementation-wise, we must ensure that these languages are indeed the subsets of Haskell
 we claim, i.e., while the concrete language is all of Haskell, we must
 ensure that we can restrict programs to our subset of Haskell that
 encodes the combined language.
 %
-
-To this end, we rely Haskell's strong data abstraction and type system
+To this end, \verb|LIO| relies on Haskell's strong data abstraction and type system
 (as enforced by Safe Haskell~\cite{Terei:2012:SH:2364506.2364524}) to
-ensure that arbitrary |IO| actions cannot be lifted into
-|LIO|.\footnote{
-Of course, our IFC guarantees only extend insofar as the program is
-written as a computation in the |LIO| monad; a program written
-directly in the |IO| monad can trivially violate information flow
-control.
-}
+ensure that arbitrary \verb|IO| actions cannot be lifted into
+\verb|LIO|.
 %
-In other words, assuming |LIO| is implemented correctly, programs
-written in the |LIO| monad cannot perform arbitrary |IO| actions
+In other words, assuming \verb|LIO| is implemented correctly, programs
+written in the \verb|LIO| monad cannot perform arbitrary \verb|IO| actions
 without breaking abstraction.
- 
+
 We refer the interested reader to~\cite{lio,stefan:addressing-covert} for
-additional details on the various implementations of this system.
-%
-Here, we lastly remark that our work unifies these systems and
-presents a proof of non-interference for such systems with asynchronous
-communication primitives.
+additional details on the various implementations of this system.\footnote{It's worth noting that the proofs of non-interference we have given for asynchronous communication primitives are new and not in the original presentation of LIO.}
 
 
 \subsection{JavaScript}
 \label{sec:real:js}
 
 JavaScript (JS), as specified by ECMAScript~\tocite{}, does not have any
-built-in functionality for I/O.
+built-in functionality for I/O. (Capabilities such as the ability to
+mutate the DOM and read user input are APIs defined on top of the ECMAScript
+specification.)
 %
 Consequently, and in contrast to our C and Haskell embeddings---for
 which we must eliminate external effects---the embedding for JS is
 trivial.
+
+We describe SWAPI,~\tocite{} an implementation of this system for JavaScript.
 %
-As a first step, we directly implement |specLangJS roundrobinf| by
-running multiple instances of the JS runtime, i.e., |targetLangJS|, in
+The direct approach for implementing the embedded language |specLangJS roundrobinf| is
+by running multiple instances of the JS runtime, i.e., |targetLangJS|, in
 separate OS-level threads.\footnote{
  The Firefox implementation of SWAPI also considers the case where
  tasks share the JavaScript runtime event-loop, but the heap and
@@ -158,28 +158,29 @@ separate OS-level threads.\footnote{
  details.
 }
 
-Specifically, we implement the IFC language functionality in the JS
+From here, the IFC language functionality is implemented in the JS
 runtime, much like browser layout engines implement the DOM, and
-expose the new functions, e.g., |fork|, by attaching them to the JS
+expose the new functions, e.g., |sandbox|, by attaching them to the JS
 global object.
 %
-Importantly, each task created with |fork| is execute in a separate
-thread, running a separate, fresh instance of our modified JS runtime.
+To avoid termination timing attacks, each task created with |sandbox| is
+executed in a separate thread, running a separate, \emph{fresh} instance of our
+modified JS runtime.
 %
-In the context of our formalism, this amounts to using |klone(tS) =
+Formally, \verb|sandbox| is defined with |klone(tS) =
 tS0|, where |tS0| is the global object corresponding to the standard
 JS library (e.g., |tS0| contains \texttt{Object}, \texttt{Array},
 etc.).
 
 Since this implementation approach relies on multiple runtimes of the
 language, sending arbitrary objects between tasks can result in
-unexpected behavior, e.g., when the object contains reference.
+unexpected behavior, e.g., when the object contains references.
 %
-As discussed in Section~\ref{sec:concrete} we thus restrict |send|
+As discussed in Section~\ref{sec:concrete}, we need to restrict |send|
 to expressions that can be marshalled as strings, i.e., structurally
-clonable objects~\tocite{}.
+clonable objects.
 %
-In our formalization this amounts to restricting the IFC language rule
+In our formalization, this amounts to restricting the IFC language rule
 for |send| such that only strings can be shared:
 %{
 \newcommand{\str}{"string"}
@@ -203,9 +204,9 @@ iS'; sched S (fullconf id il tS (iniEi unit), ldots)
 %}
 We remark that this is similar to the existing
 \texttt{postMessage} API used for iframe and Worker
-communications~\tocite{}.
+communications~\cite{webworkers}.
 %
-Insomuch, that the SWAPI implementation provides an IFC version of
+Thus, the SWAPI implementation provides an IFC version of
 \texttt{postMessage}, defined in terms of |send|, that additionally
 takes a label argument.
 
@@ -215,7 +216,7 @@ inspired by existing browser (security) architectures.
 Browsers, for example, isolate pages of different origins by running
 them in separate runtimes.
 %
-Similarly, they provide the Worker JS object~\tocite{}, which allows
+Similarly, they provide the Worker JS object~\cite{webworkers}, which allows
 JavaScript to execute code in separate threads with separate JS
 runtimes (and fresh global objects).
 %
@@ -227,29 +228,34 @@ API for communication, similar to our system.\footnote{
   Hence sharing and accessing objects such as the DOM across Worker
   threads is undefined.
 }
-  
-More interestingly, the SWAPI implementation directly leverages these
+%
+As suggested by our formal semantics, SWAPI can directly leverage these
 mechanisms to implement the semantics of |specLangJS roundrobinf|
 without modifying the JS runtime or intrusively changing the browser
-layout engine~\tocite{}.
-%
+layout engine.
+
 However, a simple implementation of just associating a label with
 Workers and browsing context (iframes and top-level pages) to enforce
-IFC on the executing JavaScript is not sufficient.
+IFC on the executing JavaScript is not sufficient, as APIs which
+introduce extra computational effects must be manually made aware of information flow
+control.
 %
-The initial global object of a Worker contains the
+For example, the initial global object of a Worker contains the
 \texttt{XMLHttpRequest} (XHR) object, while the global object of a
-browsing context additionally contains the DOM, i.e., the global
-object in a browser JS runtime is not simply |tS0|, above, and thus,
-in both cases, JS code can trivially leak information (e.g., to the
+browsing context additionally contains the DOM.
+%
+In both cases, JS code can trivially leak information (e.g., to the
 network with XHR or persistent storage using the DOM).
 %
+To address this, SWAPI additionally uses content security policy (CSP) and
+(iframe) sandboxes~\tocite{} to restrict external effects according to
+the label of a task (worker or browsing context).  Accomodating these
+features lies outside the purview of our formalism.
 
-To address this, we additionally use content security policy (CSP) and
-(iframe) sandbox~\tocite{} to restrict external effects according to
-the label of a task (Worker or browsing context), as describe
-in~\tocite{}.
-%
+\Red{
+EZY:  This seems like useless detail about the SWAPI implementation
+that is not relevant to this paper.
+
 Of course, simply disallowing all external effects for all browsing
 contexts would break most of the Web.
 %
@@ -273,4 +279,4 @@ network requests be blocked.
 %
 Of course, this requires that we use a concrete label format to
 express the policies; we refer the interested reader to~\tocite{} for
-more details.
+more details.}
