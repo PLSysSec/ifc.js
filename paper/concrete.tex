@@ -47,7 +47,7 @@ can be formalized by the following definition:
 \begin{definition}[Isomorphism of information-flow control languages]
   A language |(C, .->, erasef l)| is \textit{isomorphic} to a
   language |(C', tarrow', erasefp l)| if there exist total functions |f
-  : C -> C'| and |finv : C' -> C'| such that |f .. finv = idf C| |finv
+  : C -> C'| and |finv : C' -> C| such that |f .. finv = idf C| |finv
   .. f = idf C'|.  Furthermore, |f| and |finv| are functorial (e.g. if
   $x'\ R'\ y'$ then $f(x')\ R\ f(y')$) over both
   $l$-equivalences and |.->|.
@@ -64,25 +64,25 @@ as the following two theorems state.
 
 \begin{theorem}[Isomorphism preserves termination sensitive non-interference]
   \label{thm:iso-tsni}
-  If \ifc{L} is isomorphic to \tar{L} and \ifc{L} satisfies TSNI, then
-  \tar{L} satisfies TSNI.
+  If L is isomorphic to L' and L' satisfies TSNI, then
+  L satisfies TSNI.
 \end{theorem}
 
 \begin{proof}
   Shown by transporting configurations and reduction derivations from
-  \tar{L} to \ifc{L}, applying TSNI, and then transporting the
+  L to L', applying TSNI, and then transporting the
   resulting configuration, $l$-equivalence and multi-step derivation back.
 \end{proof}
 
 \begin{theorem}[Weak isomorphism preserves termination insensitive non-interference]
   \label{thm:iso-tini}
-  If a language \con{L} is weakly isomorphic to a language \abs{L}, and \abs{L}
-  satisfies TINI, then \con{L} satisfies TINI.
+  If a language L is weakly isomorphic to a language L', and L'
+  satisfies TINI, then L satisfies TINI.
 \end{theorem}
 
 \begin{proof}
   Shown by transporting configurations and reduction derivations
-  from \con{L} to \abs{L}, applying TINI and transporting the resulting
+  from L to L', applying TINI and transporting the resulting
   equivalence back using functoriality of |finv| over $l$-equivalences.
 \end{proof}
 
