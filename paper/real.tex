@@ -51,20 +51,30 @@ Although other sandboxing mechanisms can be used in place of Dune, we
 believe Dune's hardware protection mechanism allow us to provide a 
 concrete implementation that is simpler to reason about.
 %
-To this end, the combined language of Section~\ref{sec:retrofict}
-corresponds to C with the additional IFC syscalls.
+The ability to provide a new syscall interface allows us to precisely
+define combined language of Section~\ref{sec:retrofit} as C with only
+IFC syscalls.
 %
-Creating a new task with the |fork| syscall ensures that no memory is
-shared, by defining |kappa(tS) = tS0|, where |tS0| is the set of pages
-we copy to bootstrap the lightweight process.
+Page tables limits what memory a task can access; hence, we can ensure
+that new task created with the |fork| syscall will no have any shared
+memory, i.e., we can effectively define |kappa(tS) = tS0|, where |tS0|
+is the set of pages necessary in bootstrap a lightweight process.
 %
-Similarly, sending a message with |send| results in a copying the
-pages to our (trusted) runtime, and, then the (untrusted) receiver.
+Similarly, control over page tables and protection bits allows us to
+define a |send| syscall that satisfies the concrete/abstract
+isomorphism.
+%
+Specifically, we can implement a |send| that copies pages to our
+(trusted) runtime queue; and, correspondingly, a |recv| that copies
+the pages from the runtime queue to the (untrusted) receiver.
 %
 Of course, a more efficient message-passing approach, such as that of
 Singularity~\tocite{}, which simply passes a pointer to data the
 receiver at the cost of revoking the sender's access to the pages is
 also possible.
+%
+However, since we do not consider the isomorphism condition for this,
+we do not discuss it further.
 
 
 \subsection{Haskell}
