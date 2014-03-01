@@ -50,8 +50,9 @@ a non-interference claim.
 
 %{
 %format .->  = "\overset{\alpha}{\hookrightarrow}"
-In our case, |specLang alpha (targetLang nop) = (ifc C, ifc
-V, .->, erasef il)|, such that $|ifc C| = |iS| \times \prod |it|$ and
+Our language |specLang alpha (targetLang nop)| can be
+represented as |(ifc C, ifc V, .->, erasef il)|, such that
+$|ifc C| = |iS| \times \prod |it|$ and
 $|ifc V| = |iS| \times |it|_V$, where $|it|_V \subset |it|$ is the
 type for tasks whose expressions have been reduced to
 values.\footnote{
@@ -60,12 +61,12 @@ values.\footnote{
   task.
 }
 The erased configuration |tyerase (ifc C)| extends |ifc C| with configurations
-containing |bullet|; Figure~\ref{fig:erasure} gives the precise definition for
+containing |bullet|, and Figure~\ref{fig:erasure} gives the precise definition for
 our erasure function |erasef il|.
 %
 A task and its corresponding message queue is completely removed from the task
-list if its label does not flow to the attacker observation level |il|;
-otherwise, we apply the erasure function homomorphically and remove any message
+list if its label does not flow to the attacker observation level |il|.
+Otherwise, we apply the erasure function homomorphically and remove any message
 from the task's message queue that are more sensitive than |il|.
 %}
 
@@ -91,12 +92,11 @@ configurations.  In all other cases, including target-language constructs,
 |erasef il| is applied homomorphically.  \label{fig:erasure} }
 \end{figure}
 
-We note that the definition of |erasef il| precisely captures the IFC
+We note that the definition of |erasef il| captures the IFC
 language's attacker model. 
 %
-For instance, in our case, by removing sensitive tasks and messages from the
-system, we assume that that the attacker cannot observe the number of sensitive
-tasks or messages.
+In our case, we assume that the attacker cannot observe sensitive tasks or
+messages, or even just the number of such entities.
 %
 While such assumptions are standard~\tocite{}, our definitions allow for
 stronger attackers that may be able to inspect resource usage.\footnote{
@@ -108,7 +108,8 @@ stronger attackers that may be able to inspect resource usage.\footnote{
 
 Non-interference relies on the definition of an attacker's observational power at
 security level |l|, which is typically defined as an equivalence
-relation---called |l|-equivalence---on configurations, i.e., an attacker cannot
+relation---called |l|-equivalence---on configurations.  An attacker
+at level |l| cannot
 distinguish two configurations that are |l|-equivalent.
 %
 Since our erasure function captures the attacker model, we simply define this
@@ -126,8 +127,9 @@ attacker at level |l| cannot distinguish the runs of any two |l|-equivalent
 configurations.
 %
 This precise non-interference property is called termination sensitive non-interference
-(TSNI), since it considers runs of programs, and thus does not allow for leaks
-due termination or internal timing behavior.
+(TSNI).  Besides the obvious requirement to not leak secret information
+to public channels, this definition also requires the termination
+of public tasks to be independent of secret tasks.
 %
 Formally, we define TSNI as follows.
 
@@ -162,23 +164,23 @@ scheduling policy.
 Specifically, we consider the language under the round-robin scheduler
 |roundrobinf| given in Figure~\ref{fig:scheduler}.
 
-\begin{theorem}[Concurrent specification language is TSNI]
+\begin{theorem}[Concurrent IFC language is TSNI]
   \label{thm:rr-tsni}
-For any target language |targetLang nop|, |specLang roundrobinf
-(targetLang nop)| satisfies TSNI.
+For any target language |targetLang|, |specLang roundrobinf
+targetLang| satisfies TSNI.
 \end{theorem}
 
 In general TSNI will not hold for an arbitrary scheduler |alpha|.
 %
 For example, |specLang alpha targetLang| with a scheduler that inspects a
 sensitive threads current state when deciding which thread to schedule next
-will clearly not satisfy TSNI.
+will in general not satisfy TSNI.
 %
-In Section~\toref{} we detail the preceise scheduler for which our
-specification language is TSNI.
+%In Section~\toref{} we detail the preceise scheduler for which our
+%specification language is TSNI.
 %
-Here, we simply remark that even non-adversairal schedulers are not always safe.
 
+However, even non-adversairal schedulers are not always safe.
 Consider, for example, the sequential scheduling policy |seqf| given in
 Figure~\ref{fig:scheduler}.
 %
@@ -188,57 +190,64 @@ TSNI.
 Concretely, consider a target language similar to |targetLangML| with an
 additional expression terminal |diverge| that denotes a divergent computation,
 i.e., |diverge| always reduces to |diverge| and a simple label lattice |{pub,
-sec}| such that |pub canFlowTo sec|, but |sec cantFlowTo pub|.  We can write the
-following program in the specification language:
+sec}| such that |pub canFlowTo sec|, but |sec cantFlowTo pub|.
+Consider the following two configurations in this language:
 \begin{code}
 ic1 = iS ; fullconf 1 sec tS1 (IT(when false diverge)),  fullconf 2 pub tS1 ie
 ic2 = iS ; fullconf 1 sec tS1 (IT(when true diverge)),   fullconf 2 pub tS2 ie
 \end{code}
-These two configurations are |pub|-equivalent, however |ic1| will reduce (in two
+These two configurations are |pub|-equivalent, but |ic1| will reduce (in two
 steps) to |ic1 = iS ; fullconf 2 pub tS1 (IT diverge)|, whereas |ic2| will not make
 any progress.
 %
 Suppose that |ie| is a computation that writes to a |pub| channel,\footnote{
 Though we do not model labeled channels, extending the calculus with such a
-feature is straight forward, see Setion~\ref{}.
-} then the |sec| tasks's decision to diverge or not is directly leaked to a
+feature is straight forward, see Setion~\ref{sec:extensions}.}
+then the |sec| tasks's decision to diverge or not is directly leaked to a
 public entitiy.
 
-In certain cases, however, a TSNI-safe concurrent scheduling policy such as
-|roundrobinf| cannot be considered without imposig a non-trivial burden on the
-concrete implementation.
+% sheule: I feel like this forward reference is not useful here.
+%In certain cases, however, a TSNI-safe concurrent scheduling policy such as
+%|roundrobinf| cannot be considered without imposing a non-trivial burden on the
+%concrete implementation.
+%(Section~\ref{ref:real} describes a particular embedding with JavsScript as the
+%target language.)
 %
-(Section~\ref{ref:real} describes a particular embedding with JavsScript as the
-target language.)
-%
-Hence, we consider an alternative non-interference property---called termination insensitive
-non-interference---that can also be upheld by sequential languages at the cost
+To accomodate for sequential languages, or cases where a weaker guarantee
+is sufficient, we consider an alternative non-interference property called termination insensitive
+non-interference (TINI).  This property can also be upheld by sequential languages at the cost
 of leaking one bit through (non)-termination.
 %
 \begin{definition}[Termination insensitive non-interference (TINI)]
   A language |(C, V, .->, erasef l)| is termination
   insensitive non-interfering if for any label |l|, and configurations
-  |c1, c2 member C| and |c1', c2' member V| if
-   $|c1| \approx_{|l|} |c2|$,
-   $|c1| |.->|^* |c1'|$, and
-   $|c2| |.->|^* |c2'|$, then
-   $|c1'| \approx_{|l|} |c2'|$.
+  |c1, c2 member C| and |c1', c2' member V|, it holds that
+  \[
+    (|c1| \approx_{|l|} |c2|
+    \;\;\land\;\;
+    |c1| |.->|^* |c1'|
+    \;\;\land\;\;
+    |c2| |.->|^* |c2'|)
+    \implies
+    |c1'| \approx_{|l|} |c2'|
+  \]
 \end{definition}
 
 TSNI states that if we take two |l|-equivalent configurations, and both
-configurations reduce to terminal configuration states (for which there are no
+configurations reduce to final configurations (i.e.,
+configurations for which there are no
 possible further transitions), then the end configurations are also
 |l|-equivalent.
 %
 We highlight that this statement is much weaker than TSNI: it only states that
-terminating programs do not leak sensitive data.
- 
-Nevertheless, we believe TINI to be a useful for many scenariors and thus we
+terminating programs do not leak sensitive data, but makes no statement
+about non-terminating programs.
+
+Nevertheless, we believe TINI to be a useful for many scenarios and thus we
 show that our IFC language with the sequential scheduling policy |seqf|
 satisfies TINI.
 %
-\begin{theorem}[Sequential specification language is TINI]
+\begin{theorem}[Sequential IFC language is TINI]
   \label{thm:seq-tini}
-For any target language |targetLang nop|, |specLang seqf (targetLang
-nop)| satisfies TINI.
+For any target language |targetLang|, |specLang seqf targetLang| satisfies TINI.
 \end{theorem}
