@@ -66,7 +66,7 @@ let tx = te1 in te2  @= (\tx.te2) te1
 \and
 \inferrule[T-ref]
 { }
-{| conf tS (ref tv) -> conf (tS [ ta mapsto tv ]) ta |}
+{| conf tS (ref tv) -> conf (tS [ mapsto ta tv ]) ta |}
 {| fresh ta |}
 
 \and
@@ -77,7 +77,7 @@ let tx = te1 in te2  @= (\tx.te2) te1
 \and
 \inferrule[T-ass]
 { |(ta, tv) in tS| }
-{| conf tS (ta := tv) -> conf (tS [ ta mapsto tv ]) tv |}
+{| conf tS (ta := tv) -> conf (tS [ mapsto ta tv ]) tv |}
 
 %\and
 %\inferrule[T-fail]
@@ -170,7 +170,7 @@ iE   ::=  iHole | iE lop ie | iv lop iE | setLabel iE | sandbox iE
        |  ix1, ix2 <= recv. ie ie
 io   ::=  (il, id ie)
 Q    ::=  nil | io , Q
-iS   ::=  emptyset | iS [ id mapsto Q ]
+iS   ::=  emptyset | iS [ mapsto id Q ]
 \end{code}
 
 \begin{mathpar}
@@ -199,7 +199,7 @@ niconf iS id il' unit
 {
 |il canFlowTo il'|\\
 |iS(id') = Q|\\
-|iS' = iS [ id' mapsto (il', id,  ie) , Q ]|
+|iS' = iS [ mapsto id' (il', id,  ie) , Q ]|
 }
 {|
 niconf iS  id il (send id' il' ie)
@@ -211,7 +211,7 @@ niconf iS' id il unit
 \inferrule[I-recv]
 {
 | filter il (iS(id)) = io1 , ... , iok , (il', id', ie')|\\
-| iS' = iS[id mapsto io1 , ... , iok]|\\
+| iS' = iS[mapsto id (io1 , ... , iok)]|\\
 }
 {|
 niconf iS  id il (ix1, ix2 <= recv. ie1 ie2)
@@ -223,7 +223,7 @@ niconf iS' id il ({ie'/ix1,id'/ix2} ie1)
 \inferrule[I-noRecv]
 {
 | filter il (iS(id)) = nil|\\
-| iS' = iS[id mapsto nil]|
+| iS' = iS[mapsto id nil]|
 }
 {|
 niconf iS  id il (ix1, ix2 <= recv. ie1 ie2)
@@ -285,7 +285,7 @@ CE[e] -> iconf iS (it, ldots) @= CE[e] .-> iconf iS (sched step (it, ldots))
 \begin{mathpar}
 \inferrule[I-sandbox]
 { 
-|iS' = iS [ id' mapsto nil ]|\\
+|iS' = iS [ mapsto id' nil ]|\\
 |tS' = klone(tS)|\\
 |it1 = fullconf id il tS (iniE id')|\\
 |itnew = fullconf id' il tS' (TI ie)|\\
