@@ -53,20 +53,20 @@ concrete implementation that is simpler to reason about.
 %
 The ability to provide a new syscall interface allows us to precisely
 define the combined language of Section~\ref{sec:retrofit} as C with
-with (only) IFC syscalls.
+(only) IFC syscalls.
 %
 Page tables limits what memory a task can access; hence, we can ensure
-that new task created with the |fork| syscall will no have any shared
-memory, i.e., we can effectively define |kappa(tS) = tS0|, where |tS0|
-is the set of pages necessary in bootstrap a lightweight process.
+that new task created with the |fork| syscall will not have any shared
+memory, i.e., we effectively define |kappa(tS) = tS0|, where |tS0| is
+the set of pages necessary in bootstrap a lightweight process.
 %
 Similarly, control over page tables and protection bits allows us to
-define a |send| syscall that satisfies the concrete/abstract
-isomorphism.
-%
-Specifically, we can implement a |send| that copies pages to our
+define a |send| syscall that copies pages to our
 (trusted) runtime queue; and, correspondingly, a |recv| that copies
 the pages from the runtime queue to the (untrusted) receiver.
+%
+Since C is not memory safe, conditions on these syscalls are
+meaningless.
 %
 Of course, a more efficient message-passing approach, such as that of
 Singularity~\tocite{}, which simply passes a pointer to data the
