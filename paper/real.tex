@@ -15,6 +15,57 @@ for C, as describe below, to future work.
 
 \subsection{C}
 \label{sec:real:c}
+%
+Within the confine of a process, C program can execute arbitrary
+(machine) code, access arbitrary memory, and perform arbitrary
+syscalls.
+%
+C code is only confined to degree imposed by by underlying OS and
+hardware.
+%
+Hence implementing an IFC system according to the specification
+language of Section~\ref{sec:retrofit} must address these concerns.
+
+Nevertheless, we believe that an implementation that adheres to our
+specification under the |roundrobinf| scheduler can be achieved
+without too much effort.
+%
+(Our proposed approach, below, is very similar to a simpler version of
+Wedge~\tocite{}, with an IFC policy.)
+%
+Specifically, we propose a system, HIPStar, that uses hardware
+protection mechanisms to isolate untrusted code according to an IFC
+policy (implemented by a small runtime) in user-space, with
+Dune~\tocite{}.
+%
+Using pages tables, our (trusted) IFC runtime ensures that each task,
+implemented as a lightweight process can only access the memory it
+allocates--tasks do not have access to any shared memory.
+%
+In addition, we use ring protection to intercept syscalls performed by
+a task and only permit those corresponding to our IFC language (e.g.,
+|getLabel|, |send|).
+%
+
+Although other sandboxing mechanisms can be used in place of Dune, we
+believe Dune's hardware protection mechanism allow us to provide a 
+concrete implementation that is simpler to reason about.
+%
+To this end, the combined language of Section~\ref{sec:retrofict}
+corresponds to C with the additional IFC syscalls.
+%
+Creating a new task with the |fork| syscall ensures that no memory is
+shared, by defining |kappa(tS) = tS0|, where |tS0| is the set of pages
+we copy to bootstrap the lightweight process.
+%
+Similarly, sending a message with |send| results in a copying the
+pages to our (trusted) runtime, and, then the (untrusted) receiver.
+%
+Of course, a more efficient message-passing approach, such as that of
+Singularity~\tocite{}, which simply passes a pointer to data the
+receiver at the cost of revoking the sender's access to the pages is
+also possible.
+
 
 \subsection{Haskell}
 \label{sec:real:hs}
