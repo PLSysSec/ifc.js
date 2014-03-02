@@ -86,73 +86,42 @@ as the following two theorems state.
   equivalence back using functoriality of |finv| over $l$-equivalences.
 \end{proof}
 
-
+Unfortunately, an isomorphism is often too strong of a requirement.
 To obtain an isomorphism with our single heap semantics, we need to mimic the
 behavior of several heaps with a single actual heap.
 The interesting cases are when we sandbox
-an expression, and when messages are sent and received.
+an expression and when messages are sent and received.
 The rule for sandboxing is
 parameterized by the strategy |klone| (cf.\ Section~\ref{sec:retrofit}),
 which defines what heap the new task
-should execute with.  We have motivated two choices, namely the identity (to
-effectively clone the heap), or to start with an empty heap.  
+should execute with.  We have considered two choices:
 
-{\color{red}
-In the first choice, the concrete semantics should essentially implement several
-heaps into one. For that, it creates a copy of everything reachable from the
-forked expression (not just the values for the memory addresses in the
-expression \Red{Ale:why not only the addresses?}), and replace all addresses
-correspondingly.  behavior of sending a memory address now depends on whether
-that address existed at the time the receiving task was forked; if it did, then
-the address should be rewritten to the new one, otherwise to a fresh one.
+\begin{itemize}
+    \item When we sandbox into an empty heap, existing addresses
+in the forked expression are no longer valid and the
+task will get stuck (and then removed by \textsc{I-noStep}).
+Thus, we must rewrite the forked expression so that
+all addresses point to fresh addresses
+guaranteed to not occur in the heap.  Similarly,
+sending a memory address should be rewritten.
 
-
-In the latter case, this effectively means that the concrete semantics must
-change the forked expression |ie| in such a way that all addresses get rewritten
-to fresh addresses that are guaranteed to not occur in the global heap. As a
-consequence, existing addresses in the forked expression |ie| are no longer
-valid and the task gets stuck (and then removed by \textsc{I-noStep}).
-%To get the isomorphic behavior in the concrete semantics with a
-%single heap, we would have to change the forked expression |ie| in
-%such a way that all addresses get rewritten to fresh addresses
-%that are guaranteed to not occur in the global heap.  
-Similarly, sending a memory address should take a similar approach, as addresses
-for sent references will not exist in the receiving task.
-}
-
-{\color{blue}
-In the latter case, this effectively means that existing addresses
-in the forked expression |ie| are no longer valid and the
-task gets stuck (and then removed by \textsc{I-noStep}).
-To get the isomorphic behavior in the concrete semantics with a
-single heap, we would have to change the forked expression |ie| in
-such a way that all addresses get rewritten to fresh addresses
-that are guaranteed to not occur in the heap.  Similarly,
-sending a memory address should take a similar approach, as addresses
-for sent references will not exist in the receiving task.
-
-If |klone| is the identity function, then the abstract semantics
-effectively clone the heap on a fork.  To get an isomorphic
-behavior in the concrete, we would have to create a copy of everything
+\item When we clone the heap, we have to create a copy of everything
 reachable from the forked expression (not just the values for
 the memory addresses in the expression), and replace all addresses
 correspondingly.  Even worse, the behavior of sending a memory address
 now depends on whether that address existed at the time the receiving
 task was forked;  if it did, then the address should be rewritten to the
 new one, otherwise to a fresh address.
+\end{itemize}
 
-Such a complicated behavior is contradictory to our initial motivation
-of implementing a single heap for efficiency.  But even the
-behavior of the simpler case where |klone| returns an empty heap is
-undesirable:  We rewrite addresses to fresh addresses, which will
-result in a stuck task whenever such an address is dereferenced.
-}
+This complicated behavior is counter to our initial motivation
+of implementing a single heap for efficiency.
 
 
 
 \subsection{Restricting the IFC Language}
 
-As a better solution we could forbid forked expressions as well
+A better solution is to forbid forked expressions as well
 as messages sent to other tasks to contain memory addresses in the
 first place.  In a statically typed language, the type system could
 prevent this from happening, and we talk more about how our
@@ -162,10 +131,10 @@ In a dynamically type languages such as |targetLangML|, we might
 restrict the transition for |fork| and |send| to only allow expressions
 without memory addresses.
 
-Again, we are modifying the IFC language semantics in a non-trivial way,
-which begs the question whether non-interference is preserved.
-Restricting the transitions in an information flow control
-system in general does not preserve non-interference.  Intuitively
+While this sounds plausible, it is worth noting that we are modifying the IFC language semantics,
+which raises the question whether non-interference is preserved.
+This question can be subtle: it is easy to remove a transition from
+a language and invalidate TSNI.  Intuitively
 if the restriction depends on secret data, then a public thread
 can observe if some other task terminates or not, and by that obtain
 information about the secret data that was used to restrict the
