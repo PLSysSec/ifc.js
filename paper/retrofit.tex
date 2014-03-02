@@ -1,4 +1,4 @@
-\section{Retrofitting languages with IFC}
+\section{Retrofitting Languages with IFC}
 \label{sec:retrofit}
 
 Our overall plan will be to take a \textbf{{\color{red} target
@@ -18,7 +18,7 @@ with \textit{{\color{blue} italic font}}.  Readers are encouraged to view
 a color copy of this paper, where target language nonterminals are colored \textbf{{\color{red} red}}
 while IFC language nonterminals are colored \textit{{\color{blue} blue}}.
 
-\subsection{Target language: Mini-ES}
+\subsection{Target Language: Mini-ES}
 
 In Figure~\ref{fig:ml}, we give a simple, untyped lambda calculus with
 mutable references and fixpoint, prepared for combination with an
@@ -94,7 +94,7 @@ let tx = te1 in te2  @= (\tx.te2) te1
 \label{fig:ml}
 \end{figure}
 
-\subsection{IFC language}
+\subsection{IFC Language}
 
 Most modern, dynamic information flow control languages encode
 policy by associating a \emph{label}
@@ -273,7 +273,7 @@ niconf iS' id il ie2
 \label{fig:ifc}
 \end{figure}
 
-\subsection{The embedding}
+\subsection{The Embedding}
 Figure~\ref{fig:embedding}
 provides all of the rules responsible for actually carrying out the embedding of the IFC language with the target language.
 The most important feature of this embedding is that every task maintains its own
