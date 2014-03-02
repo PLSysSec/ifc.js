@@ -3,9 +3,8 @@
 
 Our overall plan will be to take a \textbf{{\color{red} target language}} with a formal
 operational semantics and combine it with an \textit{{\color{blue} information
-flow control language}}.  While our technique will be indifferent to the
-actual target language, for concreteness we give a simple, untyped,
-ML-like language to illustrate some examples, as well as express
+flow control language}}. While our technique will be indifferent to the
+actual target language, for concreteness we give a simple, untyped lambda calculus to illustrate some examples, as well as express
 how the language should be prepared for interoperability
 in the style of Matthews and
 Findler~\cite{Matthews:2007:OSM:1190216.1190220}.
@@ -19,9 +18,9 @@ with \textit{{\color{blue} italic font}}.  Readers are encouraged to view
 a color copy of this paper, where target language nonterminals are colored \textbf{{\color{red} red}}
 while IFC language nonterminals are colored \textit{{\color{blue} blue}}.
 
-\subsection{Target language: Mini-ML}
+\subsection{Target language: Mini-ES}
 
-In Figure~\ref{fig:ml}, we give a simple, untyped ML-like language with
+In Figure~\ref{fig:ml}, we give a simple, untyped lambda calculus with
 mutable references, prepared for combination with an
 information flow control language.  The presentation is standard, but it
 is worth paying some attention to the Felleisen-Hieb reduction
@@ -86,7 +85,7 @@ let tx = te1 in te2  @= (\tx.te2) te1
 %{| conf tS ( tE [ fail ] ) -> conf tS fail |}
 \end{mathpar}
 
-\caption{Simple ML-like language |targetLangML|}
+\caption{Simple untyped lambda calculus |targetLangML|}
 \label{fig:ml}
 \end{figure}
 
@@ -166,17 +165,6 @@ our asynchronous primitives as follows:
   tab tab tab (IT (let tx = TI (recvf ix1 ix2 ie (IT tx)) in tx))
 \end{code}
 
-%   \begin{figure}
-%   Typing judgment: $|tyrule tG tS te tty|$
-%   \begin{mathpar}
-%   \inferrule[T-ty-address]
-%   {}
-%   {| tyrule tG tS a (ref (tyLookup tS a)) |}
-%   \end{mathpar}
-
-%   \caption{Selected typing rules for ML-like language}
-%   \label{fig:ml-typing}
-%   \end{figure}
 
 \begin{figure}
 \begin{code}
