@@ -55,7 +55,7 @@ Following LIO, we say that the value |tv| is protected by label |il|,
 while the label |il| itself is protected by the task's current label.
 %
 %
-Directly, the label of such values can be inspected the task without
+The label of such values can be inspected the task without
 requiring the current label to be raised.
 %
 However, when a task wishes to inspect the protected value |tv|, it
@@ -121,7 +121,7 @@ straight forward.
 However, the challenge with such an extension lies in the precise
 security guarantees that must be proved.
 %
-Addressing this problem is a natural direction for this work.
+%Addressing this problem is a natural direction for this work.
 
 \paragraph{Clearance}
 %
@@ -215,8 +215,6 @@ current task's label will will eventually run, and do not decide which
 low tasks to schedule according to data more sensitive than the tasks'
 label, i.e., the scheduler does not schedule one public thread over
 another according to sensitive data, to be safe.
-%
-We leave the proof of this claim to future work.
 %
 
 Despite allowing a number of practical schedulers to be expressed, our
