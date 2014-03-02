@@ -22,18 +22,19 @@ while IFC language nonterminals are colored \textit{{\color{blue} blue}}.
 
 In Figure~\ref{fig:ml}, we give a simple, untyped lambda calculus with
 mutable references and fixpoint, prepared for combination with an
-information flow control language.  The presentation is standard, and utilizes Felleisen-Hieb reduction
+information flow control language.  The presentation is mostly standard, and utilizes Felleisen-Hieb reduction
 semantics~\cite{Felleisen:1992:RRS:136293.136297} to define the
-operational semantics of the system.  Our language defines an evaluation
-context |tE|; however, the evaluation rules have been expressed in terms
-of a different evaluation context |curlyRedE|,
-following the approach of Matthews and
-Findler~\cite{Matthews:2007:OSM:1190216.1190220} to simplify combining
-semantics of multiple languages.  To
-derive the usual operational semantics for this language, the evaluation
+operational semantics of the system.  One peculiarity is that our language
+defines an evaluation context |tE|, but, the evaluation rules have been
+expressed in terms of a different evaluation context |curlyRedE|;
+Here, we following the approach of Matthews and
+Findler~\cite{Matthews:2007:OSM:1190216.1190220} in order to simplify combining
+semantics of multiple languages. 
+To derive the usual operational semantics for this language, the evaluation
 context merely needs to be defined as |conf tS te @= tS, bracket tE te|.
 However, when we combine this language with an IFC language, we
 reinterpret the meaning of this evaluation context.
+
 In general, we require that a target language be expressed in terms
 of some global machine state |tS|, some evaluation context |tE|,
 some expressions |te|, some set of values |tv| and a \emph{deterministic}
@@ -108,7 +109,28 @@ with the partial order |canFlowTo|, join |lub|, and meet |glb|.
 In this paper, we simply represent labels with the metavariable
 $l$, but do not discuss them in more detail.
 
-In Figure~\ref{fig:ifc}, we give the syntax and \emph{single-threaded}
+Different from more traditional fine-grained language-based IFC systems that
+associate labels with values~\cite{sabelfeld2003language,
+Austin:Flanagan:PLAS09}, we follow~\cite{Zeldovich:2006, lio} in taking a
+coarse-grained floating-label approach and associating labels with
+\emph{tasks}.
+%
+The task label---we refer to the label of the currently executing task as the
+\emph{current label}---serves to protect everything in the task's scope;
+all data in a task shares this common label.
+%
+Hence before performing a reads or a write, the IFC monitor inspects the
+current label to decide whether the operation is permitted.
+%
+A task can only write to entities that are at least as sensitive.
+%
+Similarly, it can only read from entities that are less sensitive.
+%
+However, as in other floating-label systems, this current label can be raised
+to allow the task to read from more sensitive entities at the cost of giving up
+the ability to write to certain entities.
+
+In Figure~\ref{fig:ifc}, we give the syntax and \emph{single-task}
 evaluation rules for a minimal information-flow control language.  
 Ordinarily, information flow control languages are defined by directly
 stating a base language plus information flow control operators.  In
@@ -118,44 +140,43 @@ support for the following core information flow control features:
 
 \begin{itemize}
     \item First-class labels, with label values $l$ as well as operations for computing on
-labels (|canFlowTo|, |lub| and |glb|),
-    \item Operations for inspecting (\textbf{getLabel}) and modifying (\textbf{setLabel}) the current label of the task (since the current label's role is to protect everything in the task, the task can only increase its label),
-    \item Operations for non-blocking inter-task communication (\textbf{send} and \textbf{recv}),
-        which interact with the global store of per-task message queues |iS|, and
+labels (|canFlowTo|, |lub| and |glb|).
+    \item Operations for inspecting (\textbf{getLabel}) and modifying
+    (\textbf{setLabel}) the current label of the task (a task can only increase its label),
+    \item Operations for non-blocking inter-task communication (\textbf{send}
+    and \textbf{recv}), which interact with the global store of per-task
+    message queues |iS|, and
+%%     Labels are associated with message at the time of
+%%     the send; the label on a message must always be at least as sensitive as that
+%%     of the sending thread, since, conceptually, once a message is put on a
+%%     message queue it is no longer protected by the current label, rather it is
+%%     protected by the message label.
+%%     Dually, when reading a message with |recv| the current label of the
+%%     receiver must be at least as high as the message label.
     \item A sandboxing operation used to spawn new isolated tasks. In
-    concurrent settings |fork| corresponds to a fork-lie primitive; in a
+    concurrent settings |fork| corresponds to a fork-like primitive; in a
     sequential setting, it more closely resembles the LIO's
     |toLabeled|~\cite{lio}, and the Breeze
     bracket~\cite{Hritcu:2013:YIB:2497621.2498098}.
 \end{itemize}
 
 These operations are all defined with respect to an evaluation context
-|curlyBlueE| represents the context of the current task which is running, which
-has three important pieces of state: the global message queues |iS|, the
-current label |il| and the task ID |id|.
+|curlyBlueE| that represents the context of the current task which, by
+conventions is running; the evaluation context has three important pieces of
+state: the global message queues |iS|, the current label |il| and the task ID |id|.
+ 
+We note that first class labels, tasks (albeit named differently), and
+operations for inspecting the current label are are essentially universal to
+all floating-label systems.
+%
+However, our choice of communication primitives is motivated by
+those present in browsers, namely \texttt{postMessage}~\cite{webmessaging}.
+%
+Of course, other choices, such as blocking communication or labeled channels,
+are possible (see Section~\ref{sec:extensions}).
+%
 
-At a high level, the semantics define a coarse-grained floating-label IFC
-system~\cite{Zeldovich:2006, lio}, i.e., a system in which the current label of
-the task can be raised to protect everything in scope;
-%
-this is different from traditional fine-grained language-based IFC systems that
-associate labels with values~\cite{sabelfeld2003language,Austin:Flanagan:PLAS09}.
-%
-We note that while first class labels and operations for inspecting the current
-label are are essentially universal to all floating-label systems, our choice
-of communication and isolation primitives is motivated by those present in
-browsers, namely \texttt{postMessage} and Workers~\cite{webworkers,webmessaging}.
-%
-Of course, other choices such as blocking communication or labeled channels are
-possible and further discussed in Section~\ref{sec:extensions}.
-%
-Though motivated by Web Workers, our notion of a task generalizes previous
-primitives considered by floating-label dynamic IFC
-systems~\cite{Zeldovich:2006, lio, stefan:addressing-covert,
-Hritcu:2013:YIB:2497621.2498098}.
-
-
-Our asynchronous communication primitives are worth some further
+These asynchronous communication primitives are worth further
 discussion.  When a task is sending a message using |send|, it also labels that
 message with a label |il'| (which must be above the tasks current label |il|).
 Messages can only be received by a task if its current label is
@@ -401,7 +422,7 @@ case the semantics of sandbox are such that the state of the target language is 
 when sandboxing occurs.  However, this is not necessary: it is also valid for |klone|
 to remove entries from the state.  In Section~\ref{sec:concrete}, we give a more detailed
 discussion of the implications of the choice of |klone|, but all our
-non-interference claims will hold regardless of the choice of |klone|.
+security claims will hold regardless of the choice of |klone|.
 
 %
 As in~\cite{Matthews:2007:OSM:1190216.1190220}, rules \textsc{T-border} and
