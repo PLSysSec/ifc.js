@@ -26,7 +26,12 @@ flow control on top of it.  A key challenge in dynamic information
 flow control is implementation efficiency: when
 information flow is tracked at a fine-grained level,
 e.g., per value in the system, systems may incur
-impractical runtime overhead.
+impractical runtime overhead~\cite{JSFlow}.
+%
+Moreover, the task of adding fine-grained IFC event to a simple language is
+non-trivial~\cite{hritcu2013testing}; when considering a real-world language,
+such as JavaScript, this challenge becomes almost insurmountable.
+
 
 In the alternative \textit{coarse-grained} approach to IFC,
 a system is divided into relatively course computational units,
@@ -34,8 +39,8 @@ each with a single label dictating its security policy.
 Only
 communication between isolated computational units must be tracked.
 A recent system named SWAPI adds IFC to the
-browser by identifying \emph{web workers} as an existing computational
-unit.  Communication between workers is mediated using
+browser by identifying \emph{Web workers} as an existing computational
+unit~\cite{swapi}.  Communication between workers is mediated using
 IFC to ensure non-interference, preventing sensitive workers from
 influencing the computation of less sensitive workers.
 This coarse-grained approach provides a number of advantages:
@@ -85,12 +90,12 @@ Our contributions can be summarized as follows:
   of a concrete semantics for a potentially optimized IFC language
   by means of an isomorphism, and show a class of restrictions on
   the IFC language that preserves non-interference. (Section~\ref{sec:formal})
-  \item We briefly describe ways to enrich the core IFC language with
-  more advanced concepts such as labeled values, privileges, or a
-  notation of clearance. (Section~\ref{sec:extensions})
   \item We connect our formal semantics to real implementations of
   coarse-grained IFC systems for Javascript and Haskell, and explain
   how our system could be used to enforce IFC in C. (Section~\ref{sec:real})
+  \item We briefly describe ways to enrich the core IFC language with
+  more advanced concepts such as labeled values, privileges, or a
+  notation of clearance. (Section~\ref{sec:extensions})
   \item We informally relate our results to a monadic interpretation
       of IFC which guided our design. (Section~\ref{sec:monad})     
 \end{itemize}

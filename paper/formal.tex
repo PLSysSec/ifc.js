@@ -27,13 +27,13 @@ where termination attacks cannot leak information.
 \subsection{Erasure Function}
 
 When defining the security guarantees of an information flow control,
-we must characterize what the \emph{secret inputs} of a program.  Like
+we must characterize what the \emph{secret inputs} of a program are.  Like
 other work~\cite{Li+:2010:arrows,Russo+:Haskell08,lio,stefan:addressing-covert},
 we specify and prove non-interference using \emph{term erasure}.
 %
 Intuitively, term erasure allows us to show that an attacker does not learn
 any sensitive information from a program if the program behaves identically
-(from the attacker point of view) to a program with all sensitive data
+(from the attackers point of view) to a program with all sensitive data
 ``erased''.
 %
 To interpret a language under information flow control, we define a function |erasef l| that
@@ -45,19 +45,19 @@ an information flow control language as follows:
 \begin{definition}[Information flow control language]
     An information flow control language |L| is a tuple |(C, .->,
     erasef l)|, where $|C|$ is the type of machine configurations (members
-    of which are usually denoted by the meta-variable |c|), |.->| is a
+    of which are usually denoted by the metavariable |c|), |.->| is a
     reduction relation between machine configurations and |erasef l : C -> tyerase C|
     is an erasure function parametrized on labels from machine configurations to \emph{erased} machine
-    configurations |tyerase C|.  Sometimes, we refer as |V| to set of
-     terminal configurations in |C|, i.e., configurations states where
+    configurations |tyerase C|.  Sometimes, we use |V| to refer to set of
+     terminal configurations in |C|, i.e., configurations where
      no further transitions are possible.
 \end{definition}
 
 %{
 %format .->  = "\overset{\alpha}{\hookrightarrow}"
 Our language |specLang alpha (targetLang nop)| fulfills
-this definition as|(ifc C, .->, erasef il)|, where
-$|ifc C| = |iS| \times \prod |it|$.  The set of terminal conditions
+this definition as |(ifc C, .->, erasef il)|, where
+$|ifc C| = |iS| \times \operatorname{List}(|it|)$.  The set of terminal conditions
 $|ifc V|$ is $|iS| \times |it|_V$, where $|it|_V \subset |it|$ is the
 type for tasks whose expressions have been reduced to
 values.\footnote{
@@ -114,7 +114,7 @@ stronger attackers that may be able to inspect resource usage.\footnote{
 
 \subsection{Non-Interference}
 
-Given an information flow-control language, we can now define non-interference.
+Given an information flow control language, we can now define non-interference.
 Intuitively, we want to make statements about the attacker's observational
 power at some security level |l|.  This is done by defining an equivalence
 relation called |l|-equivalence on configurations: an attacker should
@@ -144,13 +144,13 @@ Formally, we define TSNI as follows:
 \begin{definition}[Termination Sensitive Non-Interference (TSNI)]
   A language |(C, .->, erasef l)| satisfies termination
   sensitive non-interference if for any label |l|, and configurations
-  |c1, c1', c2 member C|, if
+  $|c1, c1', c2|\in|C|$, if
   \begin{equation} \label{eq:tsni-lhs}
     |c1| \approx_{|l|} |c2|
     \qquad \text{and} \qquad
     |c1| |.->|^* |c1'|
   \end{equation}
-  then there exists a configuration |c2' member C| such that
+  then there exists a configuration $|c2'|\in|C|$ such that
   \begin{equation} \label{eq:tsni-rhs}
     |c1'| \approx_{|l|} |c2'|
      \qquad \text{and} \qquad
@@ -181,7 +181,7 @@ targetLang| satisfies TSNI.
 In general, however, non-interference will not hold for an arbitrary scheduler |alpha|.
 %
 For example, |specLang alpha targetLang| with a scheduler that inspects a
-sensitive threads current state when deciding which thread to schedule next
+sensitive tasks current state when deciding which task to schedule next
 will in general break non-interference~\cite{russo2006securing,BartheRRS07}.
 %
 %In Section~\toref{} we detail the preceise scheduler for which our
@@ -198,7 +198,7 @@ TSNI:
 consider a target language similar to |targetLangML| with an
 additional expression terminal |diverge| that denotes a divergent computation,
 i.e., |diverge| always reduces to |diverge| and a simple label lattice |{pub,
-sec}| such that |pub canFlowTo sec|, but |sec cantFlowTo pub|.
+sec}| such that |canFlowTo2 pub sec|, but |cantFlowTo2 sec pub|.
 Consider the following two configurations in this language:
 \begin{code}
 ic1 = iS ; fullconf 1 sec tS1 (IT(if false then diverge else true)),  fullconf 2 pub tS1 ie
@@ -222,7 +222,7 @@ public entity.
 %(Section~\ref{ref:real} describes a particular embedding with JavsScript as the
 %target language.)
 %
-To accomodate for sequential languages, or cases where a weaker guarantee
+To accommodate for sequential languages, or cases where a weaker guarantee
 is sufficient, we consider an alternative non-interference property called termination insensitive
 non-interference (TINI).  This property can also be upheld by sequential languages at the cost
 of leaking through (non)-termination~\cite{Askarov:2008}.
@@ -230,7 +230,7 @@ of leaking through (non)-termination~\cite{Askarov:2008}.
 \begin{definition}[Termination insensitive non-interference (TINI)]
   A language |(C, V, .->, erasef l)| is termination
   insensitive non-interfering if for any label |l|, and configurations
-  |c1, c2 member C| and |c1', c2' member V|, it holds that
+  $|c1, c2|\in|C|$ and $|c1', c2'|\in|V|$, it holds that
   \[
     (|c1| \approx_{|l|} |c2|
     \;\;\land\;\;
