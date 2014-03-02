@@ -1,16 +1,15 @@
 \section{Retrofitting languages with IFC}
 \label{sec:retrofit}
 
-Our overall plan will be to take a \textbf{{\color{red} target language}} with a formal
-operational semantics and combine it with an \textit{{\color{blue} information
-flow control language}}. While our technique will be indifferent to the
-actual target language, for concreteness we give a simple, untyped lambda calculus to illustrate some examples, as well as express
-how the language should be prepared for interoperability
-in the style of Matthews and
-Findler~\cite{Matthews:2007:OSM:1190216.1190220}.
-We then equip this target language with primitives for implementing dynamic
-information control in the style of LIO~\cite{lio}, which we will
-describe in more detail shortly.
+Our overall plan will be to take a \textbf{{\color{red} target
+language}} with a formal operational semantics and combine it with an
+\textit{{\color{blue} information flow control language}}.  For example,
+taking ECMAScript as the target language and combining it with our IFC
+language should produce the formal semantics for SWAPI.  In this
+presentation, we use a simple, untyped lambda calculus with mutable
+references in place of ECMAScript, to demonstrate some of the key
+properties without having too much detail; we discuss the proper
+embedding in more detail in Section~\ref{sec:real}.
 
 We have typeset nonterminals of the target language using \textbf{{\color{red}
 bold font}} while the nonterminals of the IFC language have been typeset
@@ -22,9 +21,8 @@ while IFC language nonterminals are colored \textit{{\color{blue} blue}}.
 
 In Figure~\ref{fig:ml}, we give a simple, untyped lambda calculus with
 mutable references, prepared for combination with an
-information flow control language.  The presentation is standard, but it
-is worth paying some attention to the Felleisen-Hieb reduction
-semantics~\cite{Felleisen:1992:RRS:136293.136297} used to define the
+information flow control language.  The presentation is standard, and utilizes Felleisen-Hieb reduction
+semantics~\cite{Felleisen:1992:RRS:136293.136297} to define the
 operational semantics of the system.  Our language defines an evaluation
 context |tE|; however, the evaluation rules have been expressed in terms
 of a different evaluation context |curlyRedE|,
