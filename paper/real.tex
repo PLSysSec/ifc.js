@@ -17,7 +17,7 @@ semantic gap that must be overcome in some cases to apply our formalism
 to other systems.
 %
 Two of the systems we describe have been implemented: the Haskell
-system~\cite{lio} and the SWAPI~\tocite{} system; we leave the
+system~\cite{lio} and the SWAPI~\cite{swapi} system; we leave the
 implementation of the IFC system for C to future work.
 
 \subsection{C}
@@ -127,7 +127,7 @@ additional details on the various implementations of this system.\footnote{It's 
 \subsection{JavaScript}
 \label{sec:real:js}
 
-JavaScript (JS), as specified by ECMAScript~\tocite{}, does not have any
+JavaScript (JS), as specified by ECMAScript~\cite{ecma}, does not have any
 built-in functionality for I/O. Capabilities such as the ability to
 mutate the DOM and read user input are APIs defined on top of the ECMAScript
 specification.
@@ -136,7 +136,7 @@ Consequently, and in contrast to our C and Haskell embeddings---for
 which we must eliminate external effects---the embedding for JS is
 trivial.
 
-We describe SWAPI~\tocite{}, an implementation of this system for JavaScript
+We describe SWAPI~\cite{swapi}, an implementation of this system for JavaScript
 (which we here denote by |targetLangJS|).
 %
 The direct approach for implementing the embedded language |specLangJS roundrobinf| is
@@ -148,7 +148,7 @@ separate OS-level threads.\footnote{
  is disjoint. This is similar to the single-heap language of
  Section~\ref{sec:concrete}.  However, since the heap separation is
  provided by the browser the browser, we do not discuss this further.
- The interested reader is referred to~\tocite{} for more details.
+ The interested reader is referred to~\cite{swapi} for more details.
 }
 %
 In SWAPI, the IFC language functionality is implemented in the JS
@@ -241,8 +241,8 @@ In both cases, JS code can trivially leak information (e.g., to the
 network with XHR or persistent storage using the DOM).
 %
 To address this, SWAPI additionally uses content security policy (CSP) and
-(iframe) sandboxes~\tocite{} to restrict external effects according to
-the label of a task (worker or browsing context).  Accomodating these
+(iframe) sandboxes~\cite{csp1.1,html5} to restrict external effects according
+to the label of a task (worker or browsing context).  Accomodating these
 features lies outside the purview of our formalism.
 
 %% \Red{
