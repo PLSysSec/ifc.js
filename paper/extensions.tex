@@ -240,16 +240,15 @@ sabelfeld2003language}.
 \subsection{External Effects}
 \label{sec:extensions:external}
 Our embedding assumes that the target language not have any
-primitives that can external-world effects.
+primitives that can induce external-world effects.
 %
-Indeed, as discussed in Section~\ref{sec:real}, part of the challenge
-when considering real languages is precisely imposing this restriction
-on the concrete implementation.
+As discussed in Section~\ref{sec:real}, imposing this restriction
+can be challenging.
 %
 Yet, external effects are crucial when implementing more complex
 real-world applications.
 %
-For example, code in our modified IFC browser must load resources or
+For example, code in an IFC browser must load resources or
 perform XHR to be useful.
 
 Like labeled references, features with external effects must be

@@ -285,7 +285,7 @@ niconf iS' id il ie2
 { |denot (il1 lop il2) = iv|}
 { |niconf iS id il (il1 lop il2) -> niconf iS id il iv| }
 \end{mathpar}
-\caption{IFC language with all single-threaded operations}
+\caption{IFC language with all single-task operations.}
 \label{fig:ifc}
 \end{figure}
 
@@ -423,6 +423,21 @@ when sandboxing occurs.  However, this is not necessary: it is also valid for |k
 to remove entries from the state.  In Section~\ref{sec:concrete}, we give a more detailed
 discussion of the implications of the choice of |klone|, but all our
 security claims will hold regardless of the choice of |klone|.
+
+Rules \textsc{I-done} and \textsc{I-noStep} define the behavior of the system
+when the current thread has reduced to a value, or gotten stuck, respectively.
+%
+While these definitions simply rely on the underlying scheduling policy,
+|alpha|, to modify the task list, as we describe in Sections~\ref{sec:formal}
+and~\ref{sec:extensions}, these rules (notably, \textsc{I-noStep}) are crucial
+to proving our security guarantees.
+%
+For instance, it is unsafe for the whole system to get stuck if a particular
+task gets stuck, since a sensitive thread may then leverage this to leak
+information through the termination channel.
+%
+Instead, as our example |roundrobinf| scheduler shows, such tasks should simply
+be removed from the task list.
 
 %
 As in~\cite{Matthews:2007:OSM:1190216.1190220}, rules \textsc{T-border} and
