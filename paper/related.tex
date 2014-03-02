@@ -25,19 +25,19 @@ originates from Smith and Volpano~\cite{Smith:Volpano:MultiThreaded,Volpano:1997
 %exceptions~\cite{Hritcu:2013:YIB:2497621.2498098}), none of these
 %systems attempt to be generic in the choice of target language.
 
-Designed to target legacy code, secure multi-execution (SME) is a black-box
-technique to enforce information-flow control~\cite{Devriese:2010}. It runs
+One information flow control technique designed to handle legacy code is
+secure multi-execution (SME)~\cite{Devriese:2010}. It runs
 multiple copies of the program, one per security level, where the semantics of
-I/O interactions is altered. Besides its black-box nature, authors often present
-it considering one specific programming
-language~\cite{KULeuven-350547,Rafnson:2013}. Differently, Bielova
+I/O interactions is altered. Authors often present
+SME considering one specific programming
+language~\cite{KULeuven-350547,Rafnson:2013}. However, Bielova
 al.~\cite{Biel-etal-11-TR} uses a transition system to describe SME, where the
 details of the underlying language is hidden.  Zanarini et
 al.~\cite{ZanariniJR13} propose a novel semantics for programs based on
-interaction trees~\cite{jacobs-tutorial}, which threats programs as black-boxes
+interaction trees~\cite{jacobs-tutorial}, which treats programs as black-boxes
 about which nothing is known except what is inferred from their I/O interactions
-with the environment. Similar to SME, our approach only mediates some I/O
-operations; differently, it runs the program once.
+with the environment. Similar to SME, our approach mediates I/O
+operations; however, our approach only runs the program once.
 
 
 One of the primary motivations behind this paper is constructing a practical
@@ -47,11 +47,11 @@ JavaScript~\cite{Hedin:2012,ConDOM,JSFlow}. While fine-grained information flow
 control can result in less false alarms and target legacy code, it comes at the
 cost of complexity (the system must accomodate the entirety of JavaScript's
 semantics). Moreover, the runtime performance cost are sometimes too high, e.g.,
-higher than 100\%!\cite{JSFlow}.  Alternatively, coarse-grained approaches have
+higher than 100\%!~\cite{JSFlow}.  Alternatively, coarse-grained approaches have
 also been proposed for the web
-scenario~\cite{Yip:2009:PBS,DeGroef:2012,conf/esorics/AkhaweLHSS13}. Different
+scenario~\cite{Yip:2009:PBS,DeGroef:2012,conf/esorics/AkhaweLHSS13}. \Red{Different
 from them, we rely on programming level abstraction to isolate
-computations.
+computations.}
 
 
 %There are attempts to overcome this performance barrier by various means:
