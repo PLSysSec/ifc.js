@@ -133,13 +133,11 @@ We consider asynchronous communication primitives that allow different
 tasks to exchange messages.
 When a task is sending a message using |send|, it also labels that
 message with a label |il'| (which must be above the tasks current label |il|).
-Now, messages can only be received by a task if its current label is
+Messages can only be received by a task if its current label is
 at least as high as the label of the message.
-
-
 Specifically, receiving a message using
 \[ |recvf ix1 ix2 ie1 ie2| \]
-binds the senders task identifier and the message
+binds the message and the senders task identifier
 to local variables |ix1| and |ix2|, respectively, and then executes |ie1|.
 Otherwise the message gets removed from the queue by rule \textsc{I-noRecv},
 and that tasks continues its execution with |ie2|.
@@ -275,7 +273,7 @@ niconf iS' id il ie2
   - fix the toLabled
 }
 Finally, in Figure~\ref{fig:embedding},
-we provide all of the rules responsible for actually carrying out the embedding.
+we provide all of the rules responsible for actually carrying out the embedding of the IFC language with the target language.
 The most important feature of this embedding is that every task maintains its own
 copy of the target language global state and evaluation context, thus
 enforcing isolation between various tasks.  In more detail:
@@ -387,8 +385,7 @@ niconf iS id il ie
     \item We reinterpret |CE| to be evaluation contexts on task pools, providing definitions for |curlyRedE| and |curlyBlueE|.  These rules only operate on the first task in the task pool, which by convention is the only task executing.
     \item We reinterpret |->|, an operation on a single task, in terms of |.->|, operation on task pools.  The correspondence is simple: a task executes a step and then is rescheduled in the task pool according to schedule policy |alpha|.  Not all schedulers preserve non-interference, and we provide two specific schedules in Figure~\ref{fig:scheduler}.
     \item Finally, we define some rules for scheduling, handling sandboxing tasks (which interact with the state of the target language),
-    primitives for asynchronously communicating between
-    tasks and intermediating between the borders of the two languages.
+    and intermediating between the borders of the two languages.
 \end{itemize}
 
 The \textsc{I-sandbox} rule allows to create a new isolated task that
@@ -404,68 +401,76 @@ to remove entries from the state.  In Section~\ref{sec:concrete}, we give a more
 discussion of the implications of the choice of |klone|, but all our
 non-interference claims will hold regardless of the choice of |klone|.
 
+We note that it is possible to add rules for a natuaral embedding of
+expressions that occur in both languages.  In our specific example
+with |targetLangML|, we can choose to preserve booleans across
+language boundaries as follows:
+\begin{mathpar}
+\inferrule[I-bool]
+{ |b member {true, false}|  } {| iniE (IT b) -> iniE b |}
+\and
+\inferrule[T-bool]
+{ |b member {true, false}| } {| intE (TI b) -> intE b |}
+\end{mathpar}
+
 For any target language |targetLang| and scheduling policy |alpha|, this
 embedding defines an information flow control language, which we will
 refer to as |specLang alpha targetLang|.
 
 \subsection{Examples}
 
-To get a feeling for how these operational semantics operate, we'd like to
+To get a feeling for how these operational semantics operate, we
+would like to
 describe a few sample programs, and what their outputs are.
 
 \paragraph{Sending mutable references}  As each task maintains its own
 global state for the target language, one might reasonably wonder what would
 happen if you attempted to send a reference to another task.
-
 \begin{align*}
     & |let i = TI (sandbox (brecvf x i' (IT (!(TI x)))))| \\
     & |in TI (send (IT (ref true)))|
 \end{align*}
-
 It would be a violation of information flow if such an operation actually
 resulted in references being shared between two tasks.  In fact, the address
 will be received by the sandboxed task, but it will be a dangling pointer; the
-task will become stuck and removed from execution by \textsc{I-noStep}.  (Readers
+task will become stuck and removed from execution by \textsc{I-noStep}.  Readers
 who are curious whether or not a static discipline could be enforced to
-prevent these dangling pointers should check Section~\ref{sec:extensions}.)
+prevent these dangling pointers should check Section~\ref{sec:extensions}.
 
 \paragraph{Status of the heap after a sandbox}  Here is a program whose
-semantics depends on the definition of $\kappa$:
-
+semantics depends on the definition of |klone|:
 \begin{align*}
     & |let x = ref true| \\
     & |in TI (sandbox (IT (!x; !x))); x := false|
 \end{align*}
-
-When $\kappa$ is the identity, the sandboxed task successfully dereferences
+When |klone| is the identity, the sandboxed task successfully dereferences
 the contents of the reference to be true twice (recall that references
 are cloned into the new global state).  When $\kappa$ is the constant function
 to the empty store, $x$ becomes a dangling pionter.
 
 \paragraph{Exceptions}  One language feature that has caused difficulty
 for many information flow control systems is handling
-exceptions.~\cite{Hritcu:2013:YIB:2497621.2498098}  The key difficulty
+exceptions~\cite{Hritcu:2013:YIB:2497621.2498098}.  The key difficulty
 appears when an exception must cross a stack boundary where the current
-label reverts back, i.e. across a \textbf{toLabeled} operator.~\cite{lio}
+label reverts back, i.e. across a |toLabeled| operator~\cite{lio}.
 If the exception crosses this boundary, it can leak information about the
 inner sensitive computation.
 
 At first glance, it does not appear that our system has any such operator;
 there are only tasks, and the correct behavior for a task throwing
 an exception is self-evident: it should simply be removed from the scheduler.
-However, under a \emph{sequential scheduler}, the behavior of |sandbox|
-can be used to model the behavior of \textbf{toLabeled}:
-
+However, under a \emph{sequential scheduler} (such as |seqf|),
+the behavior of |sandbox|
+can be used to model the behavior of such an operator:
 \begin{align*}
     & |toLabeled l te @= | \\
     & |tab let i = taskId; | \\
     & |tab let j = TI (sandbox (IT (TI (setLabel l); TI (send i l (IT te)))))| \\
-    & |tab in (\ _ . TI (setLabel l); TI (recvf x _ x unit))| \\
+    & |tab in (\ _ . TI (setLabel l); TI (recvf x _ x unit))|
 \end{align*}
-
 When the sequential scheduler is used, the sandboxed task runs to
 completion before returning to the task that sandboxed it.  Thus,
-a task pool should rather be interpreted as a number of information-flow
+a task pool should rather be interpreted as a number of information flow
 aware stack frames.  To read the result of a |toLabeled| operation
 (which is communicated via message passing), the parent task must raise
 its label; otherwise the label will get dropped, as per the \textsc{I-recv} rule.\footnote{A keen reader may note that with a single, per-task
@@ -476,6 +481,7 @@ has been omitted.}
 In this setting, it is also clear that exceptions should not cross boundaries,
 as seen in |toLabeled l fail; true|, which evaluates to |true| no matter even in
 the event of an exception inside of the |toLabeled| block:
+\todo{sh}{leaving this to ds, who wanted to finish the example}
 
 %   \Red{When both languages have booleans, it is relatively simple to define
 %   a natural embedding which preserves booleans across boundaries.}
