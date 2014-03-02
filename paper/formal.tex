@@ -1,13 +1,17 @@
 \section{Security guarantees}
 \label{sec:formal}
 
-In this section, we present the formal security guarantees provided by
-our embedding.
-%
-Concretely, we show that |specLang alpha targetLang|, with an appropriate
+We are interested in proving non-interference about many programming
+languages.  This requires an appropriate definition of this notion
+that is language agnostic, so in this section, we present a few
+general definitions for what an information flow control language is
+and what non-interference properties it may have.  We also state
+theorems about our system which we prove in Section~\ref{sec:proofs}.
+In particular, we show that |specLang alpha targetLang|, with an appropriate
 scheduler |alpha|, satisfies non-interference~\cite{Goguen82},
 without making any reference to properties of |targetLang|.
-%
+
+\cut{
 The precise scheduling policy dictates
 what guarantee we can achieve for programs with diverging tasks.
 For a sequential scheduler |seqf|, we will only be able to show
@@ -18,8 +22,12 @@ For the concurrent round-robin schedule |roundrobinf|,
 we can show a stronger result known as
 \emph{termination-sensitive non-interference},
 where termination attacks cannot leak information.
+}
 
-How can we characterize what the \emph{secret inputs} of a program are?  Like
+\subsection{Erasure function}
+
+When defining the security guarantees of an information flow control,
+we must characterize what the \emph{secret inputs} of a program.  Like
 other work~\cite{Li+:2010:arrows,Russo+:Haskell08,lio,stefan:addressing-covert},
 we specify and prove non-interference using \emph{term erasure}.
 %
@@ -28,16 +36,12 @@ any sensitive information from a program if the program behaves identically
 (from the attacker point of view) to a program with all sensitive data
 ``erased''.
 %
-To accommodate for this, we extend our formalism with a function |erasef l| that
+To interpret a language under information flow control, we define a function |erasef l| that
 performs erasures by mapping configurations to erased configurations,
 usually by rewriting (parts of) configurations that are more sensitive
-than |l| to a new syntactic construct |bullet|.
-%
-In order for us to state non-interference, a language needs to include an
-erasure function:
+than |l| to a new syntactic construct |bullet|.  We can the define
+an information flow control language as follows:
 
-%\Red{should be the environment colored in the definition?}
-%EZY: No, I don't think so.
 \begin{definition}[Information flow control language]
     An information flow control language |L| is a tuple |(C, .->,
     erasef l)|, where $|C|$ is the type of machine configurations (members
@@ -51,10 +55,10 @@ erasure function:
 
 %{
 %format .->  = "\overset{\alpha}{\hookrightarrow}"
-Our language |specLang alpha (targetLang nop)| can be
-represented as |(ifc C, .->, erasef il)|, such that
-$|ifc C| = |iS| \times \prod |it|$.  Here,
-$|ifc V| = |iS| \times |it|_V$, where $|it|_V \subset |it|$ is the
+Our language |specLang alpha (targetLang nop)| fulfills
+this definition as|(ifc C, .->, erasef il)|, where
+$|ifc C| = |iS| \times \prod |it|$.  The set of terminal conditions
+$|ifc V|$ is $|iS| \times |it|_V$, where $|it|_V \subset |it|$ is the
 type for tasks whose expressions have been reduced to
 values.\footnote{
   Here, we abuse notation by describing types for configuration parts using the
@@ -65,7 +69,7 @@ The erased configuration |tyerase (ifc C)| extends |ifc C| with configurations
 containing |bullet|, and Figure~\ref{fig:erasure} gives the precise definition for
 our erasure function |erasef il|.
 %
-A task and its corresponding message queue is completely removed from the task
+Essentially, a task and its corresponding message queue is completely erased from the task
 list if its label does not flow to the attacker observation level |il|.
 Otherwise, we apply the erasure function homomorphically and remove any message
 from the task's message queue that are more sensitive than |il|.
@@ -93,9 +97,8 @@ configurations.  In all other cases, including target-language constructs,
 |erasef il| is applied homomorphically.  \label{fig:erasure} }
 \end{figure}
 
-The definition of |erasef il| is quite important, as it captures the IFC
-language's attacker model: elements that are erased cannot be observed
-by the attacker.
+The definition of an erasure function is quite important: it captures
+the attack model, stating what can and cannot be observed by the attacker.
 %
 In our case, we assume that the attacker cannot observe sensitive tasks or
 messages, or even the number of such entities.
@@ -109,13 +112,15 @@ stronger attackers that may be able to inspect resource usage.\footnote{
   We leave this extension to future work.
 }
 
-Non-interference relies on the definition of an attacker's observational power at
-security level |l|, which is typically defined as an equivalence
-relation---called |l|-equivalence---on configurations.  An attacker
-at level |l| cannot
-distinguish two configurations that are |l|-equivalent.
+\subsection{Non-interference}
+
+Given an information flow-control language, we can now define non-interference.
+Intuitively, we want to make statements about the attacker's observational
+power at some security level |l|.  This is done by defining an equivalence
+relation called |l|-equivalence on configurations: an attacker should
+not be able to distinguish two configuration that are |l|-equivalent.
 %
-Since our erasure function captures the attacker model, we simply define this
+Since our erasure function captures what an attacker can or cannot observe, we simply define this
 equivalence as the syntactic-equivalence of erased configurations~\cite{stefan:addressing-covert}.
 %
 \begin{definition}[|l|-equivalence]
@@ -125,20 +130,20 @@ equivalence as the syntactic-equivalence of erased configurations~\cite{stefan:a
 \end{definition}
 %
 
-Intuitively, we can now state that a language satisfies non-interference if an
+We can now state that a language satisfies non-interference if an
 attacker at level |l| cannot distinguish the runs of any two |l|-equivalent
 configurations.
 %
-This precise non-interference property is called termination sensitive non-interference
+This particular property is called termination sensitive non-interference
 (TSNI).  Besides the obvious requirement to not leak secret information
 to public channels, this definition also requires the termination
 of public tasks to be independent of secret tasks.
 %
-Formally, we define TSNI as follows.
+Formally, we define TSNI as follows:
 
 \begin{definition}[Termination Sensitive Non-Interference (TSNI)]
-  A language |(C, .->, erasef l)| is termination
-  sensitive non-interfering if for any label |l|, and configurations
+  A language |(C, .->, erasef l)| satisfies termination
+  sensitive non-interference if for any label |l|, and configurations
   |c1, c1', c2 member C|, if
   \begin{equation} \label{eq:tsni-lhs}
     |c1| \approx_{|l|} |c2|
@@ -160,7 +165,7 @@ number of steps that the second configuration can take to result in a
 configuration that is |l|-equivalent to the first resultant configuration.
 
 
-We now show that our IFC language satisfies TSNI %under a particular
+Our IFC language satisfies TSNI %under a particular
 %scheduling policy.
 %
 %Specifically, we consider the language 
@@ -173,7 +178,7 @@ For any target language |targetLang|, |specLang roundrobinf
 targetLang| satisfies TSNI.
 \end{theorem}
 
-In general TSNI will not hold for an arbitrary scheduler |alpha|.
+In general, however, non-interference will not hold for an arbitrary scheduler |alpha|.
 %
 For example, |specLang alpha targetLang| with a scheduler that inspects a
 sensitive threads current state when deciding which thread to schedule next
@@ -188,9 +193,9 @@ Consider, for example, the sequential scheduling policy |seqf| given in
 Figure~\ref{fig:scheduler}.
 %
 It is easy to show that |specLang seqf targetLang| does not satisfy
-TSNI.
+TSNI:
 %
-Concretely, consider a target language similar to |targetLangML| with an
+consider a target language similar to |targetLangML| with an
 additional expression terminal |diverge| that denotes a divergent computation,
 i.e., |diverge| always reduces to |diverge| and a simple label lattice |{pub,
 sec}| such that |pub canFlowTo sec|, but |sec cantFlowTo pub|.
@@ -199,7 +204,6 @@ Consider the following two configurations in this language:
 ic1 = iS ; fullconf 1 sec tS1 (IT(if false then diverge else true)),  fullconf 2 pub tS1 ie
 ic2 = iS ; fullconf 1 sec tS1 (IT(if true then diverge else true)),   fullconf 2 pub tS2 ie
 \end{code}
-\Red{Ale: |when| was not defined, so I changed it to if-then-else}
 These two configurations are |pub|-equivalent, but |ic1| will reduce 
 (in two steps) 
 to |ic1 = iS ; fullconf 2 pub tS1 (IT true)|, whereas |ic2| will not make
@@ -250,7 +254,7 @@ about non-terminating programs.
 
 As shown by compilers~\cite{jif,FlowCaml}, interpreters~\cite{JSFlow}, and
 libraries~\cite{Russo+:Haskell08,lio}, TINI is useful for sequential
-settings. We show that our IFC language with the sequential scheduling policy
+settings. In our case, we show that our IFC language with the sequential scheduling policy
 |seqf| satisfies TINI.
 %
 \begin{theorem}[Sequential IFC language is TINI]

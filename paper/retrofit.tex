@@ -11,6 +11,7 @@ references and fixpoint in place of ECMAScript, to demonstrate some of the key
 properties without having too much detail; we discuss the proper
 embedding in more detail in Section~\ref{sec:real}.
 
+\paragraph{Notation}
 We have typeset nonterminals of the target language using \textbf{{\color{red}
 bold font}} while the nonterminals of the IFC language have been typeset
 with \textit{{\color{blue} italic font}}.  Readers are encouraged to view
@@ -27,11 +28,11 @@ operational semantics of the system.  Our language defines an evaluation
 context |tE|; however, the evaluation rules have been expressed in terms
 of a different evaluation context |curlyRedE|,
 following the approach of Matthews and
-Findler~\cite{Matthews:2007:OSM:1190216.1190220} to combine operational
+Findler~\cite{Matthews:2007:OSM:1190216.1190220} to simplify combining
 semantics of multiple languages.  To
 derive the usual operational semantics for this language, the evaluation
 context merely needs to be defined as |conf tS te @= tS, bracket tE te|.
-However, when we combine this language with an IFC language, we must
+However, when we combine this language with an IFC language, we
 reinterpret the meaning of this evaluation context.
 In general, we require that a target language be expressed in terms
 of some global machine state |tS|, some evaluation context |tE|,
@@ -101,7 +102,7 @@ with data, which encodes whether or not data tagged with one
 label |l1| can flow to another label |l2| (written as |canFlowTo2 l1 l2|).
 Our embedding is agnostic to the choice of labeling scheme; we only
 require the labels to form a lattice~\cite{Denning:1976:LMS:360051.360056}
-with the partial order |canFlowTo|.
+with the partial order |canFlowTo|, join |lub|, and meet |glb|.
 In this paper, we simply represent labels with the metavariable
 $l$, but do not discuss them in more detail.
 
@@ -116,24 +117,39 @@ support for the following core information flow control features:
 \begin{itemize}
     \item First-class labels, with label values $l$ as well as operations for computing on
 labels (|canFlowTo|, |lub| and |glb|),
-    \item Operations for inspecting (\textbf{getLabel}) and modifying (\textbf{setLabel}) the current label of the task (a task can only increase its label, and not decrease it),
+    \item Operations for inspecting (\textbf{getLabel}) and modifying (\textbf{setLabel}) the current label of the task (since the current label's role is to protect everything in the task, the task can only increase its label),
     \item Operations for non-blocking inter-task communication (\textbf{send} and \textbf{recv}),
         which interact with the global store of per-task message queues |iS|, and
     \item A sandboxing operation allowing to spawn new
-    isolated tasks, which will be described in more detail in the
+    isolated tasks, described in more detail in the
     next section.
 \end{itemize}
 
-While the first two bullet points are essentially universal to all
-floating-label systems, our choice of communication primitives is motivated
-by inter-worker communication in web browser APIs~\cite{webworkers}, but
-other choices such as blocking communication or labeled channels are possible.
-We describe some of the alternate possibilities in Section~\ref{sec:extensions}.
-These operations are all defined with respect to an evaluation context |curlyBlueE| represents the context
-of the current task which is running, which has three important pieces
-of state: the global message queues |iS|,
-the current label |il| (which protects the program counter of the task)
-and the task ID |id|.
+These operations are all defined with respect to an evaluation context
+|curlyBlueE| represents the context of the current task which is running, which
+has three important pieces of state: the global message queues |iS|, the
+current label |il| and the task ID |id|.
+
+At a high level, the semantics define a coarse-grained floating-label IFC
+system~\cite{Zeldovich:2006, lio}, i.e., a system in which the current label of
+the task can be raised to protect everything in scope;
+%
+this is different from traditional fine-grained language-based IFC systems that
+associate labels with values~\cite{sabelfeld2003language,Austin:Flanagan:PLAS09}.
+%
+We note that while first class labels and operations for inspecting the current
+label are are essentially universal to all floating-label systems, our choice
+of communication and isolation primitives is motivated by those present in
+browsers, namely \texttt{postMessage} and Workers~\cite{webworkers,webmessaging}.
+%
+Of course, other choices such as blocking communication or labeled channels are
+possible and further discussed in Section~\ref{sec:extensions}.
+%
+Though motivated by Web Workers, our notion of a task generalizes previous
+primitives considered by floating-label dynamic IFC
+systems~\cite{Zeldovich:2006, lio, stefan:addressing-covert,
+Hritcu:2013:YIB:2497621.2498098}.
+
 
 Our asynchronous communication primitives are worth some further
 discussion.  When a task is sending a message using |send|, it also labels that
@@ -158,9 +174,10 @@ function is simply the identity function, i.e.,
 |filter il Q| & \quad \text{otherwise}
 \end{array} \right.
 \]
-This ensures that tasks cannot receive messages that are more secret
+This ensures that tasks cannot receive messages that are more sensitive
 than their current label would allow.
 
+\Red{MOVE:}
 As a final remark, blocking receive can be (inefficiently) implemented using
 our asynchronous primitives as follows:
 \begin{code}
@@ -257,13 +274,8 @@ niconf iS' id il ie2
 \end{figure}
 
 \subsection{The embedding}
-
-\Red{TODO[ds]:
-  - clarify discussion on exceptions
-  - fix the toLabled
-}
-Finally, in Figure~\ref{fig:embedding},
-we provide all of the rules responsible for actually carrying out the embedding of the IFC language with the target language.
+Figure~\ref{fig:embedding}
+provides all of the rules responsible for actually carrying out the embedding of the IFC language with the target language.
 The most important feature of this embedding is that every task maintains its own
 copy of the target language global state and evaluation context, thus
 enforcing isolation between various tasks.  In more detail:
@@ -350,6 +362,19 @@ niconf iS id il ie
 %}
 \end{figure}
 
+\begin{itemize}
+    \item We extend the values, expressions and evaluation contexts of both languages to allow for embeddings terms in one language to be embedded in the other.
+    %
+In the target language, an IFC expression appears as |TI ie| (``target-outside,
+IFC-inside''); in the IFC language, a target language expression appears as |IT
+te| ( ``IFC-outside, target-inside'').
+    \item We reinterpret |CE| to be evaluation contexts on task lists, providing definitions for |curlyRedE| and |curlyBlueE|.  These rules only operate on the first task in the task list, which by convention is the only task executing.
+    \item We reinterpret |->|, an operation on a single task, in terms of |.->|, operation on task lists.  The correspondence is simple: a task executes a step and then is rescheduled in the task list according to schedule policy |alpha|;
+    Figure~\ref{fig:scheduler} defines two concrete schedulers.
+    \item Finally, we define some rules for scheduling, handling sandboxing tasks (which interact with the state of the target language),
+    and intermediating between the borders of the two languages.
+\end{itemize}
+
 \begin{figure}
   Concurrent, round robin:
 \begin{code}
@@ -370,15 +395,7 @@ niconf iS id il ie
 \label{fig:scheduler}
 \end{figure}
 
-\begin{itemize}
-    \item We extend the values, expressions and evaluation contexts of both languages to allow for embeddings terms in one language to be embedded in the other.
-    \item We reinterpret |CE| to be evaluation contexts on task pools, providing definitions for |curlyRedE| and |curlyBlueE|.  These rules only operate on the first task in the task pool, which by convention is the only task executing.
-    \item We reinterpret |->|, an operation on a single task, in terms of |.->|, operation on task pools.  The correspondence is simple: a task executes a step and then is rescheduled in the task pool according to schedule policy |alpha|.  Not all schedulers preserve non-interference, and we provide two specific schedules in Figure~\ref{fig:scheduler}.
-    \item Finally, we define some rules for scheduling, handling sandboxing tasks (which interact with the state of the target language),
-    and intermediating between the borders of the two languages.
-\end{itemize}
-
-The \textsc{I-sandbox} rule allows to create a new isolated task that
+The \textsc{I-sandbox} rule is used to create a new isolated task that
 executes separately from the existing tasks (and can be communicated
 with via |send| and |recv|).  When the new task is created, there
 is the question of what the target language state of the new task should
@@ -391,27 +408,35 @@ to remove entries from the state.  In Section~\ref{sec:concrete}, we give a more
 discussion of the implications of the choice of |klone|, but all our
 non-interference claims will hold regardless of the choice of |klone|.
 
+%
+As in~\cite{Matthews:2007:OSM:1190216.1190220}, rules \textsc{T-border} and
+\textsc{I-border} define the syntactic boundaries between the IFC and target
+languages.
+%
+Intuitively, the boundaries respectively correspond to an upcall into and
+downcall from the IFC runtime.
+%
+
 We note that it is possible to add rules for a natural embedding of
 expressions that occur in both languages.  In our specific example
 with |targetLangML|, we can choose to preserve booleans across
 language boundaries as follows:
 \begin{mathpar}
-\inferrule[I-bool]
+\inferrule
 { |b member {true, false}|  } {| iniE (IT b) -> iniE b |}
 \and
-\inferrule[T-bool]
+\inferrule
 { |b member {true, false}| } {| intE (TI b) -> intE b |}
 \end{mathpar}
 
 For any target language |targetLang| and scheduling policy |alpha|, this
-embedding defines an information flow control language, which we will
+embedding defines an IFC language, which we will
 refer to as |specLang alpha targetLang|.
 
 \subsection{Examples}
 
 To get a feeling for how these operational semantics operate, we
-would like to
-describe a few sample programs, and what their outputs are.
+describe a few sample programs, and their corresponding outputs.
 
 \paragraph{Sending mutable references}  As each task maintains its own
 global state for the target language, one might reasonably wonder what would
@@ -460,7 +485,7 @@ can be used to model the behavior of such an operator:
 \end{align*}
 When the sequential scheduler is used, the sandboxed task runs to
 completion before returning to the task that sandboxed it.  Thus,
-a task pool should rather be interpreted as a number of information flow
+a task list should rather be interpreted as a number of information flow
 aware stack frames.  To read the result of a |toLabeled| operation
 (which is communicated via message passing), the parent task must raise
 its label; otherwise the label will get dropped, as per the \textsc{I-recv} rule.\footnote{A keen reader may note that with a single, per-task
