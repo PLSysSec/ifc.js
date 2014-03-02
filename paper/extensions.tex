@@ -15,16 +15,17 @@ of our approach.
 \label{sec:extensions:labeled}
 
 \paragraph{Labeled values}
-Blah
+Adding labeled values 
 
 %{
 %format unlabel = "\mathbf{unlabel}"
 %format label = "\mathbf{label}"
 %format labelOf = "\mathbf{labelOf}"
 \begin{code}
-label il te  @= let x = te in (il, toLabeled il te)
-labelOf te   @= te.ifc 1
-unlabel te   @= te.ifc 2 unit
+te  ::= cdots | (te, te) | proji te
+label il te  @= let x = te in (il, toLabeled il x)
+labelOf te   @= proj1 te
+unlabel te   @= (proj2 te) (TI unit)
 \end{code}
 %}
 
