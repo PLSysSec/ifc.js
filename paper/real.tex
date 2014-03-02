@@ -29,10 +29,11 @@ arbitrary memory, and perform arbitrary syscalls.
 Thus, the confinement of C programs must be imposed by the underlying OS
 and hardware.
 %
-This isolation can be achieved using hardware protection
-mechanisms~\cite{Belay:2012:DSU:2387880.2387913} (similar to a simpler
-version of Wedge~\cite{Bittau:2008:WSA:1387589.1387611} with an
-information flow control policy).
+This isolation can be achieved using Dune's hardware protection
+mechanisms~\cite{Belay:2012:DSU:2387880.2387913}, similar to a simpler
+version of Wedge~\cite{Belay:2012:DSU:2387880.2387913,
+Bittau:2008:WSA:1387589.1387611} with an information flow control
+policy.
 %
 Using pages tables, a (trusted) IFC runtime could ensure that each task,
 implemented as a lightweight process, can only access the memory it
@@ -64,17 +65,6 @@ the pages from the runtime queue to the (untrusted) receiver.
 %
 Since C is not memory safe, conditions on these syscalls are
 meaningless.
-%
-\Red{
-EZY: Suggest chopping
-
-    Of course, a more efficient message-passing approach, such as that of
-Singularity~\tocite{}, which simply passes a pointer to data the
-receiver at the cost of revoking the sender's access to the pages is
-also possible.
-%
-However, since we do not consider the isomorphism condition for this,
-we do not discuss it further.}
 
 
 \subsection{Haskell}
@@ -83,7 +73,7 @@ In contrast with the C embedding which relies on hardware protection
 mechanisms, a Haskell implementation can leverage Haskell's strong data
 abstraction and static type system, monadic approach to effects, and
 lightweight concurrency to implement the embedding in a more lightweight
-manner.  We briefly describe one such system, LIO,~\cite{lio} which
+manner.  We briefly describe one such system, LIO~\cite{lio}, which
 implements IFC as a library.
 
 LIO is implemented by defining a new monad, \verb|LIO|, which wraps Haskell's \verb|IO|
@@ -91,22 +81,24 @@ monad.
 %
 The purpose of this monad is twofold: it restricts the use of
 arbitrary effects that would ordinarily be allowed by the \verb|IO| monad,
-and it associates labels with threads (tasks).
+and it associates labels with tasks.
 %
 Computations in the \verb|LIO|
 monad can be thought to be operating within the IFC system.
 %
 One important aspect of using \verb|IO| as the base for this
-implementation is that it allows use of Haskell's efficient implementation of
-threads, channels, etc. (e.g., we use Haskell's \texttt{forkIO} to
-fork a lightweight thread in the case of |fork|), in contrast to
-defining them in a completely pure fashion (as suggested in Section~\ref{sec:monad}).
+implementation is that it allows use of Haskell's efficient
+implementation of threads, channels, etc. (e.g., in the concurrent
+version of LIO, we use Haskell's \texttt{forkIO} to fork a lightweight
+thread in the case of |fork|~\cite{stefan:addressing-covert}), in
+contrast to defining them in a completely pure fashion (as suggested
+in Section~\ref{sec:monad}).
 
 What is the interpretation of this system as per Section~\ref{sec:retrofit}?
 %
-Here, the \emph{pure subset} of Haskell is the target language
-|targetLangHS|, while the monadic subset of Haskell in the \verb|LIO|
-monad is the IFC language.
+Here, the \emph{pure subset} of Haskell is the target language, while
+the monadic subset of Haskell in the \verb|LIO| monad is the IFC
+language.
 %
 Crucially, the lack of unrestricted mutation in the pure fragment of
 Haskell prevents direct communication between tasks, even when memory is
@@ -144,30 +136,30 @@ Consequently, and in contrast to our C and Haskell embeddings---for
 which we must eliminate external effects---the embedding for JS is
 trivial.
 
-We describe SWAPI,~\tocite{} an implementation of this system for JavaScript.
+We describe SWAPI~\tocite{}, an implementation of this system for JavaScript.
 %
 The direct approach for implementing the embedded language |specLangJS roundrobinf| is
 by running multiple instances of the JS runtime, i.e., |targetLangJS|, in
 separate OS-level threads.\footnote{
  The Firefox implementation of SWAPI also considers the case where
- tasks share the JavaScript runtime event-loop, but the heap and
- execution context of each task is disjoint. This is similar to the
- single-heap language of Section~\ref{sec:concrete}.  However, since the heap
- separation is provided by the browser the browser, we do not discuss
- this further. The interested reader is referred to~\tocite{} for more
- details.
+ tasks share the JavaScript runtime (and are cooperatively scheduled
+ on the event-loop), but the heap and execution context of each task
+ is disjoint. This is similar to the single-heap language of
+ Section~\ref{sec:concrete}.  However, since the heap separation is
+ provided by the browser the browser, we do not discuss this further.
+ The interested reader is referred to~\tocite{} for more details.
 }
-
-From here, the IFC language functionality is implemented in the JS
-runtime, much like browser layout engines implement the DOM, and
-expose the new functions, e.g., |sandbox|, by attaching them to the JS
-global object.
 %
-To avoid termination timing attacks, each task created with |sandbox| is
+In SWAPI, the IFC language functionality is implemented in the JS
+runtime much like browser layout engines implement the DOM, and expose
+the new functions, e.g., \verb|getElementById|, by attaching them to
+the global JS object.
+%
+In turn, each task created with |sandbox| is
 executed in a separate thread, running a separate, \emph{fresh} instance of our
 modified JS runtime.
 %
-Formally, \verb|sandbox| is defined with |klone(tS) =
+Formally, |sandbox| is defined with |klone(tS) =
 tS0|, where |tS0| is the global object corresponding to the standard
 JS library (e.g., |tS0| contains \texttt{Object}, \texttt{Array},
 etc.).
@@ -191,7 +183,7 @@ for |send| such that only strings can be shared:
 {
 |il canFlowTo il'|\\
 |iS(id') = Q|\\
-|iS' = iS [ id' mapsto (il', id,  ie') , Q ]|\\
+|iS' = iS [ mapsto id' (il', id,  ie') , Q ]|\\
 |ie = IT te|\\
 |conf tS (tOf te) -> conf tS ttrue|
 }

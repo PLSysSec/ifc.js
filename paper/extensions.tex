@@ -11,16 +11,49 @@ policies.
 When considering these extensions we also highlight some limitations
 of our approach.
 
-\subsection{IFC-aware language features}
+\subsection{IFC language features}
 \label{sec:extensions:labeled}
-
-\subsubsection{Labeled objects}
 
 \paragraph{Labeled values}
 \paragraph{Labeled references}
 \paragraph{Labeled synchronization primitives}
-\subsubsection{Privileges}
-\subsubsection{Clearance}
+
+\paragraph{Privileges}
+Decentralized IFC extends IFC with the decentralized label model of
+Myers and Liskov~\cite{myers:dlm} to allow for more general
+applications, including systems consisting of mutually distrustful
+parties.  In a decentralized system, a computation is executed with a
+set of \emph{privileges}, which, when exercised, allow the computation
+to declassify data (e.g., by lowering the current label).
+%
+Practical IFC systems
+(e.g.,~\cite{Zeldovich:2006, lio,
+Hritcu:2013:YIB:2497621.2498098, myers:jif}) rely on privileges to
+implement many applications.
+%
+Since both the LIO and SWAPI implementations already support such features,
+we believe that extending our calculus to consider privileges is
+straight forward.
+%
+However, the challenge with such an extension lies in the precise
+security guarantees that must be proved.
+%
+Addressing this problem is a natural direction for this work.
+
+\paragraph{Clearance}
+%
+LIO, SWAPI, and Breeze additionally provide a discretionary access
+control mechanism---called \emph{clearance}---at the language
+level~\cite{Hritcu:2013:YIB:2497621.2498098, lio}; this mechanisms is
+used to restrict a computation from accessing data (or communicating
+with entities) above a specified label, the clearance.
+%
+For simplicity, we omitted clearance from our formalism.
+%
+We only remark that the mechanism generalizes beyond these IFC systems
+in a straight forward manner and does not affect our definitions or
+proofs in any meaningful way.
+
 
 \subsection{Type safety}
 \label{sec:extensions:types}
@@ -116,15 +149,13 @@ safe, scheduling policies, as considered in~\tocite{}.
 %
 More fundamentally, our definitions rely on deterministic relations,
 and thus extending the system to consider non-deterministic schedulers
-is non-trivial.
+(or even non-deterministic target languages) is non-trivial.
 %
 For instance, this may potentially require the security condition to
 consider \emph{low-determinism}, which states that a program is secure
 only if |l|-equivalent results are deterministic~\tocite{}. %both andrei and steve's papers
 
-
-
-\subsubsection{External effects}
+\subsection{External effects}
 \label{sec:extensions:external}
 Our embedding assumes that the target language not have any
 primitives that can external-world effects.
@@ -159,23 +190,3 @@ used in SWAPI to allow for controlled network communication.
 %
 By wrapping the default XHR object, for example, we can allow code
 to communicate with hosts according to the task's current label.
-
-
-\subsection{Other target languages}
-
-Non-deterministic reduction.
-
-
-\cut{
-
-The good thing about our approach is that we are indifferent to the
-functionality implemented in the IFC language: as long as you can
-prove termination sensitive non-interference with the IFC language
-\Red{What is the IFC language? Make sure it is written down}, you
-can combine it with another target language.  In this section,
-we briefly review various extensions you can make to the base IFC
-language to provide IFC-aware versions of target language features.
-
-
-}
-
