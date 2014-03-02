@@ -13,8 +13,10 @@
 \newcommand{\flows}{\sqsubseteq}
 \newcommand{\lub}{\sqcup}
 \newcommand{\glb}{\sqcap}
-%format canFlowTo = "\flows"
-%format cantFlowTo = "\not\flows"
+%format canFlowTo = "\flows{}"
+%format cantFlowTo = "\not\flows{}"
+%format canFlowTo2 a b = a"\flows{}"b
+%format cantFlowTo2 a b = a"\not\flows{}"b
 %format canFlowToStrict = "\sqsubset"
 %format canFlowTo_p
 %format canFlowTo_Alice
@@ -474,10 +476,26 @@
 %format L2''
 %format L3''
 
+%format l = "l"
+%format l'
+%format l''
+%format li = l"_"i
+%format li' = l'"_"i
+%format li'' = l''"_"i
+%format l1
+%format l2
+%format l3
+%format l1'
+%format l2'
+%format l3'
+%format l1''
+%format l2''
+%format l3''
+
 %format not (x) = "{\not "x"}"
 
 
-
+%format getTaskId = "\mathbf{taskId}"
 %format getLabel  = "\mathbf{getLabel}"
 %format setLabel  = "\mathbf{setLabel}"
 %format fork      = "\mathbf{sandbox}"
@@ -485,6 +503,8 @@
 %format send      = "\mathbf{send}"
 %format recv      = "\mathbf{recv}"
 %format brecv     = "\mathbf{recv}_{\infty}"
+%format otherwise = "\mathbf{else}"
+%format recvf x y e f = recv "\ " x,y in e "\ " otherwise "\ " f
 %format lop       = "\otimes"
 %format blk       = "B"
 %format nonblk    = "N"
@@ -680,7 +700,9 @@
 %format (oneheapfullconf (i) (l) (e)) = "\langle "e"\rangle^{"i"}_{"l"}"
 %format iconf (t) (s) = t ; s
 %format oneheapiconf (t) (s) (u) = t ; s ; u
-%format niconf (t) (i) (l) (e) = CE"_{"t"}\left["e"\right]^{"i"}_{"l"}"
+%format niconf (t) (i) (l) (e) = CE"_{"t"}^{"i,l"}\left["e"\right]"
+%format curlyBlueE = "\mathcal{E}_{\ifc{\Sigma}}^{"id,il"}"
+%format curlyRedE = "\mathcal{E}_{\tar{\Sigma}}"
 
 %format (erase (l) (e)) = "\varepsilon_{"l"}("e")"
 %format (erasef (l)) = "\varepsilon_{"l"}"

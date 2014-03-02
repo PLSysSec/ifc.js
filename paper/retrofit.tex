@@ -8,7 +8,9 @@ ML-like language with mutable references as our target language.
 However, our technique will be indifferent to the actual target language
 chosen: it need only be prepared for interoperability by being expressed
 in the style of Matthews and
-Findler~\cite{Matthews:2007:OSM:1190216.1190220}.  This procedure will
+Findler~\cite{Matthews:2007:OSM:1190216.1190220},
+and for simplicity, we require the semantics to be deterministic.
+This procedure will
 equip the target language with primitives for implementing dynamic
 information control in the style of LIO~\cite{lio}, which we will
 describe in more detail shortly.
@@ -16,27 +18,30 @@ describe in more detail shortly.
 We have typeset nonterminals of the target language using \textbf{{\color{red}
 bold font}} while the nonterminals of the IFC language have been typeset
 with \textit{{\color{blue} italic font}}.  Readers are encouraged to view
-a color copy of this paper, where target language nonterminals are colored red
-while IFC language nonterminals are colored blue.
+a color copy of this paper, where target language nonterminals are colored \textbf{{\color{red} red}}
+while IFC language nonterminals are colored \textit{{\color{blue} blue}}.
 
 \subsection{Target language: Mini-ML}
 
 In Figure~\ref{fig:ml}, we give a simple, untyped ML-like language with
-mutable references and errors, prepared for combination with an
+mutable references, prepared for combination with an
 information flow control language.  The presentation is standard, but it
 is worth paying some attention to the Felleisen-Hieb reduction
 semantics~\cite{Felleisen:1992:RRS:136293.136297} used to define the
 operational semantics of the system.  Our language defines an evaluation
 context |tE|; however, the evaluation rules have been expressed in terms
-of a different evaluation context $\mathcal{E}_{\tar{\Sigma}}$.  To
+of a different evaluation context |curlyRedE|,
+following the approach of Matthews and
+Findler~\cite{Matthews:2007:OSM:1190216.1190220} to combine operational
+semantics of multiple languages.  To
 derive the usual operational semantics for this language, the evaluation
-context merely needs to be defined as |conf tS te @= tS, tE[ te ]|.
+context merely needs to be defined as |conf tS te @= tS, bracket tE te|.
 However, when we combine this language with an IFC language, we must
 reinterpret the meaning of this evaluation context.
 In general, we require that a target language be expressed in terms
 of some global machine state |tS|, some evaluation context |tE|,
-some expressions |te|, some set of values |tv| and a reduction
-relations on full configurations $|tS| \times |tE| \times |te|$.
+some expressions |te|, some set of values |tv| and a deterministic
+reduction relation on full configurations $|tS| \times |tE| \times |te|$.
 
 \begin{figure}
 \begin{code}
@@ -51,7 +56,6 @@ let tx = te1 in te2  @= (\tx.te2) te1
 
 \begin{mathpar}
 
-\and
 \inferrule[T-app]
 { } {| conf tS ((\x.te) tv) -> conf tS ({tv/x} te) |}
 
@@ -70,7 +74,7 @@ let tx = te1 in te2  @= (\tx.te2) te1
 
 \and
 \inferrule[T-deref]
-{ |(ta, tv) in tS| }
+{ |memberf (ta, tv) tS| }
 {| conf tS (!ta) -> conf tS (tv) |}
 
 \and
@@ -94,17 +98,19 @@ Information flow control seeks to enforce a security policy known as
 \emph{non-interference}: public results must not depend on secret inputs.
 Modern, dynamic IFC systems usually achieve this by associating a \emph{label}
 with data, which encodes a policy of whether or not data tagged with one
-label can flow to another label (written as |canFlowTo|).
-Since our embedding is agnostic
-to the choice of labeling scheme, we simply represent labels with the metavariable
+label |l1| can flow to another label |l2| (written as |canFlowTo2 l1 l2|).
+Our embedding is agnostic to the choice of labeling scheme; we only
+require the labels to form a lattice~\cite{Denning:1976:LMS:360051.360056}
+with the partial order |canFlowTo|.
+In this paper, we simply represent labels with the metavariable
 $l$, but do not discuss them in more detail.
 
 In Figure~\ref{fig:ifc}, we give the syntax and \emph{single-threaded}
 evaluation rules for a minimal information-flow control language.  The
-evaluation context $\mathcal{E}_{\ifc{\Sigma}}$ represents the context
+evaluation context |curlyBlueE| represents the context
 of the current task which is running, including on the right-hand side
-the current label $l$ (which protects the program counter of the task)
-and the task ID $i$.
+the current label |il| (which protects the program counter of the task)
+and the task ID |id|.
 
 Ordinarily, information flow control languages are defined by directly
 stating a base language plus information flow control operators.  In
@@ -123,17 +129,23 @@ labels (|canFlowTo|, |lub| and |glb|),
     next section.
 \end{itemize}
 
-The form of \textbf{send}/\textbf{recv} are \Red{inspired by methods of inter-worker communication
-in web browser APIs} \Red{cite}, however in Section~\ref{sec:extensions} we
-discuss other possible choices for information flow control aware communication
-primitives.  Their rules are different from non-IFC systems
-and worth commenting on: when a task places
-a message on the message queue of receiving task, it also labels that
-message with a label |il'| (which must be above the tasks current label |il|)
-When the recipient reads out messages from its queue,
-messages whose labels do not
-flow to |il| are filtered out (denoted by |filter il Q|).
-Specifically, if |Q| is the empty list |nil|, the
+We consider asynchronous communication primitives that allow different
+tasks to exchange messages.
+When a task is sending a message using |send|, it also labels that
+message with a label |il'| (which must be above the tasks current label |il|).
+Now, messages can only be received by a task if its current label is
+at least as high as the label of the message.
+
+
+Specifically, receiving a message using
+\[ |recvf ix1 ix2 ie1 ie2| \]
+binds the senders task identifier and the message
+to local variables |ix1| and |ix2|, respectively, and then executes |ie1|.
+Otherwise the message gets removed from the queue by rule \textsc{I-noRecv},
+and that tasks continues its execution with |ie2|.
+We denote the filtering of the message queue by |filter il Q|,
+which is defined as follows.
+If |Q| is the empty list |nil|, the
 function is simply the identity function, i.e.,
 |filter il nil = nil|; otherwise:
 \[
@@ -145,6 +157,11 @@ function is simply the identity function, i.e.,
 \]
 This ensures that tasks cannot receive messages that are more secret
 than their current label would allow.
+
+The particular choice of communication primitives has been motivated by
+inter-worker communication in web browser APIs~\Red{cite}, but
+other choices such as blocking communication or labeled channels
+would also be possible.
 
 %   \begin{figure}
 %   Typing judgment: $|tyrule tG tS te tty|$
@@ -162,17 +179,24 @@ than their current label would allow.
 \begin{code}
 lop  ::=  canFlowTo | lub | glb
 iv   ::=  id | il | true | false | unit
-ie   ::=  iv | ix | ie lop ie | getLabel | setLabel ie
-       |  sandbox ie | send ie ie ie | ix1, ix2 <= recv. ie ie
-iE   ::=  iHole | iE lop ie | iv lop iE | setLabel iE | sandbox iE 
+ie   ::=  iv | ix | ie lop ie | getLabel | setLabel ie | getTaskId
+       |  sandbox ie | send ie ie ie | recvf ix ix ie ie
+iE   ::=  iHole | iE lop ie | iv lop iE | setLabel iE | sandbox iE
        |  send iE ie ie | send iv iE ie | send iv iv iE
-       |  ix1, ix2 <= recv. ie ie
 io   ::=  (il, id ie)
 Q    ::=  nil | io , Q
 iS   ::=  emptyset | bracket iS (mapsto id Q)
 \end{code}
 
 \begin{mathpar}
+
+\inferrule[I-getTaskId]
+{ }
+{|
+niconf iS id il getTaskId
+->
+niconf iS id il id
+|}
 
 \and
 \inferrule[I-getLabel]
@@ -198,10 +222,10 @@ niconf iS id il' unit
 {
 |il canFlowTo il'|\\
 |iS(id') = Q|\\
-|iS' = bracket iS (mapsto id' (il', id,  ie) , Q)|
+|iS' = bracket iS (mapsto id' (il', id,  iv) , Q)|
 }
 {|
-niconf iS  id il (send id' il' ie)
+niconf iS  id il (send id' il' iv)
 ->
 niconf iS' id il unit
 |}
@@ -209,13 +233,13 @@ niconf iS' id il unit
 \and
 \inferrule[I-recv]
 {
-| filter il (iS(id)) = io1 , ... , iok , (il', id', ie')|\\
+| (filter il (iS(id))) = io1 , ... , iok , (il', id', iv)|\\
 | iS' = bracket iS (mapsto id (io1 , ... , iok))|\\
 }
 {|
-niconf iS  id il (ix1, ix2 <= recv. ie1 ie2)
+niconf iS  id il (recvf ix1 ix2 ie1 ie2)
 ->
-niconf iS' id il ({ie'/ix1,id'/ix2} ie1)
+niconf iS' id il ({iv/ix1,id'/ix2} ie1)
 |}
 
 \and
@@ -225,7 +249,7 @@ niconf iS' id il ({ie'/ix1,id'/ix2} ie1)
 | iS' = bracket iS (mapsto id nil)|
 }
 {|
-niconf iS  id il (ix1, ix2 <= recv. ie1 ie2)
+niconf iS  id il (recvf ix1 ix2 ie1 ie2)
 ->
 niconf iS' id il ie2
 |}
@@ -244,7 +268,6 @@ niconf iS' id il ie2
   - move the async recv to text and out of the figure
   - clarify discussion on exceptions
   - fix the toLabled
-  - add taskIDs to ruls
 }
 Finally, in Figure~\ref{fig:embedding},
 we provide all of the rules responsible for actually carrying out the embedding.
@@ -293,7 +316,7 @@ CE[e] -> iconf iS (it, ldots) @= CE[e] .-> iconf iS (sched step (it, ldots))
 {|
 iconf iS (fullconf id il tS (iniEi (sandbox ie)), ldots)
 .->
-iS'; sched F (it1, ldots, itnew)
+iS'; sched box (it1, ldots, itnew)
 |}
 
 \and
@@ -303,7 +326,7 @@ iS'; sched F (it1, ldots, itnew)
 {|
 iconf iS (fullconf id il tS iv, ldots)
 .->
-iS ; sched D (fullconf id il tS iv, ldots)
+iS ; sched done (fullconf id il tS iv, ldots)
 |}
 
 \and
@@ -314,7 +337,7 @@ iconf iS (it, ldots) .-/>
 {|
 iconf iS (it, ldots)
 .->
-iS ; sched N (it, ldots)
+iS ; sched nostep (it, ldots)
 |}
 
 \and
@@ -358,19 +381,25 @@ niconf iS id il ie
 
 \begin{itemize}
     \item We extend the values, expressions and evaluation contexts of both languages to allow for embeddings terms in one language to be embedded in the other.
-    \item We reinterpret |CE| to be evaluation contexts on task pools, providing definitions for $\mathcal{E}_{\tar{\Sigma}}$ and $\mathcal{E}_{\ifc{\Sigma}}$.  These rules only operate on the first task in the task pool, which by convention, is the only task executing.
-    \item We reinterpret |->|, an operation on a single task, in terms of |.->|, operation on task pools.  The correspondence is simple: a task executes a step and then is rescheduled in the task pool according to schedule policy $\alpha$.  Not all schedulers preserve non-interference, so we provide two specific schedules in Figure~\ref{fig:scheduler}.
-    \item Finally, we define some rules for scheduling, handling sandboxing tasks (which interact with the state of the target language) and intermediating between the borders of the two languages.
+    \item We reinterpret |CE| to be evaluation contexts on task pools, providing definitions for |curlyRedE| and |curlyBlueE|.  These rules only operate on the first task in the task pool, which by convention is the only task executing.
+    \item We reinterpret |->|, an operation on a single task, in terms of |.->|, operation on task pools.  The correspondence is simple: a task executes a step and then is rescheduled in the task pool according to schedule policy |alpha|.  Not all schedulers preserve non-interference, and we provide two specific schedules in Figure~\ref{fig:scheduler}.
+    \item Finally, we define some rules for scheduling, handling sandboxing tasks (which interact with the state of the target language),
+    primitives for asynchronously communicating between
+    tasks and intermediating between the borders of the two languages.
 \end{itemize}
 
-The \textsc{I-sandbox} rule is of particular interest, as it is intended to allow users
-to create new tasks.  When a new task is created, there is a question of what the
-global state of the new task should be; this is defined in terms of a function $\kappa$.
-Conservatively, $\kappa$ may be simply thought of as the identity function, in which
+The \textsc{I-sandbox} rule allows to create a new isolated task that
+executes separately from the existing tasks (and can be communicated
+with via |send| and |recv|).  When the new task is created, there
+is the question of what the target language state of the new task should
+be.  Our rule is stated generically in terms of a function |klone|.
+Conservatively, |klone| may be simply thought of as the identity
+function, in which
 case the semantics of sandbox are such that the state of the target language is \emph{cloned}
-when sandboxing occurs.  However, this is not necessary: it is also valid for $\kappa$
+when sandboxing occurs.  However, this is not necessary: it is also valid for |klone|
 to remove entries from the state.  In Section~\ref{sec:concrete}, we give a more detailed
-discussion of the implications of the choice of $\kappa$.
+discussion of the implications of the choice of |klone|, but all our
+non-interference claims will hold regardless of the choice of |klone|.
 
 For any target language |targetLang| and scheduling policy |alpha|, this
 embedding defines an information flow control language, which we will
