@@ -29,23 +29,23 @@ arbitrary memory, and perform arbitrary syscalls.
 Thus, the confinement of C programs must be imposed by the underlying OS
 and hardware.
 %
-This isolation can be achieved using Dune's hardware protection
+For instance, this isolation can be achieved using Dune's hardware protection
 mechanisms~\cite{Belay:2012:DSU:2387880.2387913}, similar to a simpler
 version of Wedge~\cite{Belay:2012:DSU:2387880.2387913,
 Bittau:2008:WSA:1387589.1387611} with an information flow control
 policy.
 %
-Using pages tables, a (trusted) IFC runtime could ensure that each task,
+Using page tables, a (trusted) IFC runtime could ensure that each task,
 implemented as a lightweight process, can only access the memory it
 allocates--tasks do not have access to any shared memory.
 %
 In addition, ring protection could be used to intercept syscalls performed by
-a task and only permit those corresponding to our IFC language (e.g.,
-|getLabel|, |send|).
+a task and only permit those corresponding to our IFC language (such as
+|getLabel| or |send|).
 %
-Although other sandboxing mechanisms can be used in place of Dune, we
-believe Dune's hardware protection mechanism would allow us to provide a 
-concrete implementation that is more efficient and simpler to reason about.
+Dunes hardware protection mechanism allows us to provide a concrete
+implementation that is efficient and relatively simple to reason
+about, but other sandboxing mechanisms could be used in place of Dune.
 
 In this setting, the combined language of Section~\ref{sec:retrofit}
 can be interpreted in the following way: calling from the target
@@ -128,18 +128,19 @@ additional details on the various implementations of this system.\footnote{It's 
 \label{sec:real:js}
 
 JavaScript (JS), as specified by ECMAScript~\tocite{}, does not have any
-built-in functionality for I/O. (Capabilities such as the ability to
+built-in functionality for I/O. Capabilities such as the ability to
 mutate the DOM and read user input are APIs defined on top of the ECMAScript
-specification.)
+specification.
 %
 Consequently, and in contrast to our C and Haskell embeddings---for
 which we must eliminate external effects---the embedding for JS is
 trivial.
 
-We describe SWAPI~\tocite{}, an implementation of this system for JavaScript.
+We describe SWAPI~\tocite{}, an implementation of this system for JavaScript
+(which we here denote by |targetLangJS|).
 %
 The direct approach for implementing the embedded language |specLangJS roundrobinf| is
-by running multiple instances of the JS runtime, i.e., |targetLangJS|, in
+by running multiple instances of the JS runtime, i.e., in
 separate OS-level threads.\footnote{
  The Firefox implementation of SWAPI also considers the case where
  tasks share the JavaScript runtime (and are cooperatively scheduled
@@ -183,19 +184,19 @@ for |send| such that only strings can be shared:
 {
 |il canFlowTo il'|\\
 |iS(id') = Q|\\
-|iS' = iS [ mapsto id' (il', id,  ie') , Q ]|\\
+|iS' = iS [ mapsto id' (il', id,  iv) , Q ]|\\
 |ie = IT te|\\
 |conf tS (tOf te) -> conf tS ttrue|
 }
 {|
-iconf iS (fullconf id il tS (iniEi (send id' il' ie)), ldots)
+iconf iS (fullconf id il tS (iniEi (send id' il' iv)), ldots)
 .->
 iS'; sched S (fullconf id il tS (iniEi unit), ldots)
 |}
 \end{mathpar}
 %}
 We remark that this is similar to the existing
-\texttt{postMessage} API used for iframe and Worker
+\texttt{postMessage} API used for iframe and worker
 communications~\cite{webworkers}.
 %
 Thus, the SWAPI implementation provides an IFC version of
@@ -208,7 +209,7 @@ inspired by existing browser (security) architectures.
 Browsers, for example, isolate pages of different origins by running
 them in separate runtimes.
 %
-Similarly, they provide the Worker JS object~\cite{webworkers}, which allows
+Similarly, they provide the worker JS object~\cite{webworkers}, which allows
 JavaScript to execute code in separate threads with separate JS
 runtimes (and fresh global objects).
 %
@@ -217,7 +218,7 @@ API for communication, similar to our system.\footnote{
   The message-passing approach is, in part, due to ECMAScript's lack
   of well-defined semantics for concurrency.
   %
-  Hence sharing and accessing objects such as the DOM across Worker
+  Hence sharing and accessing objects such as the DOM across worker
   threads is undefined.
 }
 %
@@ -227,12 +228,12 @@ without modifying the JS runtime or intrusively changing the browser
 layout engine.
 
 However, a simple implementation of just associating a label with
-Workers and browsing context (iframes and top-level pages) to enforce
+workers and browsing context (iframes and top-level pages) to enforce
 IFC on the executing JavaScript is not sufficient, as APIs which
 introduce extra computational effects must be manually made aware of information flow
 control.
 %
-For example, the initial global object of a Worker contains the
+For example, the initial global object of a worker contains the
 \texttt{XMLHttpRequest} (XHR) object, while the global object of a
 browsing context additionally contains the DOM.
 %
@@ -264,7 +265,7 @@ features lies outside the purview of our formalism.
 %% pages already have an accompanying security policy: the same origin
 %% policy.
 %% %
-%% Hence, for example, a Worker that has read data only sensitive to
+%% Hence, for example, a worker that has read data only sensitive to
 %% \texttt{http://bank.ch} can communicate with this domain; only once
 %% \texttt{http://aws.com} data is also included in the context will all
 %% network requests be blocked.
