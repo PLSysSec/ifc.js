@@ -1,5 +1,20 @@
 \documentclass{sigplanconf}
 %include polycode.fmt
+\newif\ifextended
+
+
+
+
+
+% ------------------------------------------
+% CONFIGURATION: are we building the exteded version?
+%\extendedtrue
+\extendedfalse
+% ------------------------------------------
+
+
+
+
 
 \usepackage{array, amssymb, amsthm, amsmath, mathpartir,thmtools}
 \usepackage[usenames,dvipsnames]{color}
@@ -30,8 +45,9 @@
 % thmstyle: remark
 \declaretheorem[name=Proof sketch, style=remark]{proofsketch}
 
-
 \usepackage{url}
+
+
 
 \begin{document}
 %include notation.lhs.tex
@@ -45,6 +61,9 @@
 \title{
 IFC Inside: A General Approach to Retrofitting Languages with Dynamic Information Flow Control
 }
+\ifextended
+\subtitle{Extended Version}
+\fi
 %   Generic, Efficient, Coarse-grained Information Flow Control
 %   IFC For Me
 %   Who knew adding IFC could be us easy?
@@ -83,10 +102,11 @@ IFC Inside: A General Approach to Retrofitting Languages with Dynamic Informatio
   \bibliography{local}
 }
 
+\ifextended
 \clearpage
 %include appendix.tex
 \balance
-
+\fi
 
 
 \end{document}
