@@ -17,6 +17,7 @@ of our approach.
 \paragraph{Labeled values}
 %{
 %format Lb = "\textbf{Labeled}"
+%format label = "\textbf{label}"
 In traditional language-based dynamic IFC systems, a label is
 associated with values.
 %
@@ -32,7 +33,7 @@ labeled values is essential.
 %
 To this end, we extend the IFC calculus with explicitly labeled
 values, much like those of LIO and
-Breeze~\cite{Hritcu:2013:YIB:2497621.2498098, lio}: |tv ::= cdots
+Breeze~\cite{lio, Hritcu:2013:YIB:2497621.2498098}: |tv ::= cdots
 inlinesep Lb il tv|.
 %
 Following LIO, we say that the value |tv| is protected by label |il|,
@@ -46,14 +47,20 @@ However, when a task wishes to inspect the protected value |tv|, it
 must first raise it label to at least |il| to reflect that it is
 incorporating data at such sensitivity level in its scope.
 %
-Similarly, when creating labeled values the label |il| must be above
-the current label; otherwise |il| cannot be said to protect the value.
+When creating labeled values the label |il| must be above
+the current label; otherwise it cannot be said that protection has
+been transferred from the current label to |il|.
 %
-(Importantly, we assumes that the |Lb| constructor cannot be accessed
-directly to construct or destruct such values without label checks.)
-%
+(For these rules, we assume that the |Lb| constructor is not part of
+the surface syntax and thus cannot be accessed directly to construct
+or destruct such values without label checks.)
+% 
 We omit the reduction rules for labeled values since they closely
 follow those presented in~\cite{lio}.
+%
+Here, we lastly remark that that---albeit in a straight forward
+way---the TSNI proof must account for this new construct, since it
+appears in the IFC calculus.
 %}
 
 \paragraph{Labeled references}
