@@ -7,7 +7,7 @@
 The operational semantics we have defined in the previous section
 satisfy non-interference by design.
 We achieve this general statement that works for a large class of
-languages by having different task execute completely isolated from
+languages by having different tasks executing completely isolated from
 each other, such that every task has its own state.
 In some cases, this strong separation is desirable, or even necessary.
 Languages like C provide direct access to memory locations without
@@ -36,7 +36,7 @@ What we would like is a way of characterizing safe modifications to
 the semantics which preserve non-interference.
 The intention of our single heap implementation was to be more efficient
 by using one global heap, but conceptually maintain isolation between
-task by not allowing sharing of references between tasks.
+task by not allowing sharing of references between them.
 This intuition of having a different (potentially more efficient)
 concrete semantics that behave like the abstract semantics
 can be formalized by the following definition:
@@ -86,6 +86,9 @@ as the following two theorems state.
   equivalence back using functoriality of |finv| over $l$-equivalences.
 \end{proof}
 
+\Red{the next paragraph needs some rephrasing. We should say that if we 
+condense everything into one environment, then we need to ``simulate'' 
+the different policies. A bit more intro}
 A na\"ive attempt at our single heap semantics
 will not allow us to construct an isomorphism
 with the abstract language |specLangML alpha|, and instead highlights
@@ -137,11 +140,13 @@ In a dynamically type languages such as |targetLangML|, we might
 restrict the transition for |fork| and |send| to only allow expressions
 without memory addresses.
 
-Again we are modifying the IFC language semantics in a non-trivial way,
+Again, we are modifying the IFC language semantics in a non-trivial way,
 which begs the question whether non-interference is preserved.
-Note that restricting the transitions in an information flow control
+Restricting the transitions in an information flow control
 system in general does not preserve non-interference as the following
-minimal example illustrates.
+minimal example illustrates. \Red{Ale: I am not sure that the example is clear,
+  too abstract, at least, I don't get it. Propose to remove it, and just say 
+the top level idea: ``the restriction should not be based on secret data!''} 
 Consider a trivial state machine as shown
 in Figure~\ref{fig:trivial-sm}, whose second projection is classified
 secret.  With all three transitions, this language fulfills
@@ -180,7 +185,7 @@ under which it is safe to restrict the abstract IFC language
   if its definition is equivalent to the abstract language
   |specLang alpha targetLang|, with the following exception:
   The reduction rules are restricted
-  by adding a predicate $P$ from $\mathcal P$ to the premise of
+  by adding a predicate $P \in \mathcal P$ to the premise of
   all rule other than \textsc{I-noStep}.  Furthermore, the predicates $P$
   can depend only on the \textit{erased} configuration
   |erase il ic|, where |il| is the label of the first task
@@ -193,9 +198,9 @@ appropriate scheduling policy is non-interfering.
 \begin{theorem}
   \label{thm:restricted}
   For any target language |targetLang| and family of predicates
-  $\mathcal{P}$, the IFC language |restrictedLang roundrobinf targetLang|
+  $\mathcal{P}$, the restricted IFC language |restrictedLang roundrobinf targetLang|
   is TSNI.  Furthermore, the IFC language
-  |restrictedLang seqf targetLang| is TSNI.
+  |restrictedLang seqf targetLang| is TINI.
 \end{theorem}
 
 
@@ -207,7 +212,7 @@ First, we can construct the restricted language
 |restrictedLangNoRef alpha targetLangML|, where |noRefs| is
 the family of always valid predicates, except for the ones for
 \textsc{I-fork} and \textsc{I-send}, which we define as
-\[ P = \text{|ie| does not contain any address |ta|} \]
+\[ P(e) = \text{|ie| does not contain any address |ta|} \]
 That is, we do not restrict any rules except for \textsc{I-fork}
 and \textsc{I-send}.
 Since $P$ only depends on |ie|, which is part of the current
