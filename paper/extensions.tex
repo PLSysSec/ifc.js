@@ -173,7 +173,7 @@ there are few general remarks to be made:
         stores, and expressions may move from being interpreted with one store
         to another (e.g. when an address is sent from one thread to
         another); a clear violation of type safety.  In this case, operations
-        such as \textbf{send} have their typing rules require
+        such as |send| have their typing rules require
         the expressions being sent be typeable in an arbitrary well-typed store,
         statically disallowing the sending of addresses, or any types which
         may contain addresses.  In practice, this may be further restricted to
@@ -181,10 +181,10 @@ there are few general remarks to be made:
 
     \item Similarly, the choice of $\kappa$ (from Section~\ref{sec:retrofit}) directly
         influences the difficulty of the type-safety proof for
-        \textbf{fork} when the target language has a store.  When
+        |sandbox| when the target language has a store.  When
         $\kappa$ is identity, most expressions can be allowed, since the store
         remains the same; if $\kappa$ drops the store, however, only closed expressions
-        can be forked.
+        can be sandboxed.
 \end{itemize}
 
 \subsection{Scheduling Policies}
