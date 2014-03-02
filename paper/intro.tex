@@ -17,23 +17,20 @@ confining untrusted code so that it cannot exfiltrate data, except as
 per a information flow policy.  Significant research has been devoted to
 adding various forms of IFC to different kinds of programming languages
 and systems.  In the context of the web, however, there is a strong
-motivation to preserve the language JavaScript, and retrofit information
+motivation to preserve the language JavaScript, and retrofit dynamic information
 flow control on top of it.  A key challenge in the design of these
 systems is ensuring they can be implemented efficiently: when the
 semantics specify that information flow must be tracked at a
 fine-grained level, e.g., per value in the system,  it can lead to
 impractical runtime overheads even for ordinary operations.
 
-An alternative to this is a more \textit{coarse-grained} approach
-to IFC by trading off precision for efficiency.  Here, computational
-units are associated with a floating label which protects all data
-in this unit.
-A recent example dubbed SWAPI adds IFC to the web by extending
-Javascript with coarse-grained IFC by identifying web workers as
-an existing computational unit.  Communication between workers can
-efficiently be mediated in an IFC aware way to ensure a notation
-non-interference, where sensitive workers cannot influence the
-computations in less sensitive workers.
+One alternative is a \textit{coarse-grained} approach to IFC.  Here,
+computational units are associated with a floating label which protects
+all data in this unit.  A recent system named SWAPI adds IFC to the
+browser by identifying \emph{web workers} as an existing computational
+unit.  Communication between workers can efficiently be mediated in an
+IFC aware way to ensure non-interference, where sensitive workers cannot
+influence the computations in less sensitive workers.
 
 This coarse-grained approach as employed by SWAPI provides a number
 of advantages; (1) reduced runtime overhead because checks need only
