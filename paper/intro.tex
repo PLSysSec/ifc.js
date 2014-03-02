@@ -1,36 +1,28 @@
 \section{Introduction}
 \label{sec:intro}
 
+A defining aspect of web platforms is the combinability of many
+components of various providence.  This pattern shows up in browser
+extensions, which run JavaScript code alongside third-party website
+code, web applications, which include possibly untrusted third-party
+libraries, and mash-up websites, which combine code and data from
+websites which may not even be aware of each other's existence.  While
+this combinability has offered great flexibility, it also poses a set of
+unique security challenges: in particular, maintaining the privacy of
+data in these settings is difficult, if not impossible.
 
-\Red{
-    \begin{itemize}
-        \item Complex software systems are composed of modules of different provenance
-        \item Web applications have profilerated..components reuse libraries but also network accessible components
-        \item IFC is a promising approach to preserving confidentiality
-        \item Covert channels arise when programming features are misused to leak information
-    \end{itemize}
-
-Information flow control (IFC) has been shown to be useful in a variety
-of settings, with applicability to web applications~\tocite{}, operating systems~\tocite{},
-machine architectures~\tocite{}, and other contexts.  To this end, signifant research
-has been devoted to adding IFC to various programming languages and systems.
-}
-
-Information flow control (IFC) is a promising technique to enforce
-security policies by tracking the flow of sensitive data through
-a system.  The usual policy one enforces prevent the leaking of secret or sensitive
-data into public channels by enforcing the notion of non-interference.
-Significant research has been devoted to adding various
-forms of IFC to different kinds of programming languages and system,
-both static and dynamic in nature.  In this paper we are interested
-in the latter, where an execution monitor ensure at runtime that secret
-information is not revealed through public outputs.
-A key challenge in the design of these dynamic systems has been the
-performance cost incurred by additional security checks.
-Particularly when retrofitting an existing programming language with
-IFC it is tempting to track information flow at a fine-grained level,
-e.g., per value in the system.  This can lead to impractical
-runtime overheads even for ordinary operations.
+Information flow control (IFC) is a promising technique for addressing these
+problems, by tracking the flow of sensitive data through a system and
+confining untrusted code so that it cannot exfiltrate data, except as
+per a information flow policy.  Significant research has been devoted to
+adding various forms of IFC to different kinds of programming languages
+and systems.  In the context of the web, however, there is a strong
+motivation to preserve the language JavaScript, and retrofit information
+flow control on top of it.  A key challenge in the design of these
+systems is ensuring they can be implemented efficiently: when the
+semantics specify that information flow must be tracked at a
+fine-grained level, e.g., per value in the system,  it can lead to
+impractical runtime overheads even for ordinary operations.
 
 An alternative to this is a more \textit{coarse-grained} approach
 to IFC by trading off precision for efficiency.  Here, computational
