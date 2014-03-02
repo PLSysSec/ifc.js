@@ -16,9 +16,7 @@ of our approach.
 
 \paragraph{Labeled values}
 %{
-%format unlabel = "\mathbf{unlabel}"
-%format label = "\mathbf{label}"
-%format labelOf = "\mathbf{labelOf}"
+%format Lb = "\textbf{Labeled}"
 In traditional language-based dynamic IFC systems, a label is
 associated with values.
 %
@@ -32,38 +30,30 @@ to reflect the fact that such data is in scope.
 Thus, an extension that allows supports such fine-grained explicitly
 labeled values is essential.
 %
-While both LIO and Breeze have such values built-in, our IFC calculus
-can be used to encode the labeled values in terms of the |toLabeled|
-construct presented in Section~\ref{sec:retrofit}.
+To this end, we extend the IFC calculus with explicitly labeled
+values, much like those of LIO and
+Breeze~\cite{Hritcu:2013:YIB:2497621.2498098, lio}: |tv ::= cdots
+inlinesep Lb il tv|.
 %
-However, to allow for the inspection of the label of such values (as
-in LIO and Breeze) we assume, for simplicity, that the target
-language, e.g., the ML-like language from Figure~\ref{fig:ml},
-contains pairs: |te  ::= cdots inlinesep (te, te) inlinesep proji te|.
+Following LIO, we say that the value |tv| is protected by label |il|,
+while the label |il| itself is protected by the task's current label.
 %
-Directly, we can define constructs for labeling a value (|label|),
-inspecting the label of such values (|labelOf|), and inspecting the
-protected value (|unlabel|):
-\begin{code}
-label il te  @= let x = te in (il, toLabeled il x)
-labelOf te   @= proj1 te
-unlabel te   @= (proj2 te) (TI unit)
-\end{code}
-Here, the first projection of the pair contains the label, which is
-effectively public (to the task), while the second contains the
-``wrapped'' value.
 %
-Note that |label| first reduces to a values and then wraps it by
-sending it to task whose sole role is to protect the value with its
-current label (|il|).
+Directly, the label of such values can be inspected the task without
+requiring the current label to be raised.
 %
-The latter task protects the value with the supplied label by ensuring
-that any task that wishes to inspect the ```labeled value'' must 
-raise their current label before calling |unlabel|.
-% 
-We remark that this simply gives an encoding for labeled values; 
-a concrete implementation would likely rely on constructs that are
-cheaper than tasks, e.g., abstract data types.
+However, when a task wishes to inspect the protected value |tv|, it
+must first raise it label to at least |il| to reflect that it is
+incorporating data at such sensitivity level in its scope.
+%
+Similarly, when creating labeled values the label |il| must be above
+the current label; otherwise |il| cannot be said to protect the value.
+%
+(Importantly, we assumes that the |Lb| constructor cannot be accessed
+directly to construct or destruct such values without label checks.)
+%
+We omit the reduction rules for labeled values since they closely
+follow those presented in~\cite{lio}.
 %}
 
 \paragraph{Labeled references}

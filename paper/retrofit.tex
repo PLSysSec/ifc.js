@@ -3,15 +3,12 @@
 
 Our overall plan will be to take a \textbf{{\color{red} target language}} with a formal
 operational semantics and combine it with an \textit{{\color{blue} information
-flow control language}}.  For concreteness, we use a simple, untyped,
-ML-like language with mutable references as our target language.
-However, our technique will be indifferent to the actual target language
-chosen: it need only be prepared for interoperability by being expressed
+flow control language}}. While our technique will be indifferent to the
+actual target language, for concreteness we give a simple, untyped lambda calculus to illustrate some examples, as well as express
+how the language should be prepared for interoperability
 in the style of Matthews and
-Findler~\cite{Matthews:2007:OSM:1190216.1190220},
-and for simplicity, we require the semantics to be deterministic.
-This procedure will
-equip the target language with primitives for implementing dynamic
+Findler~\cite{Matthews:2007:OSM:1190216.1190220}.
+We then equip this target language with primitives for implementing dynamic
 information control in the style of LIO~\cite{lio}, which we will
 describe in more detail shortly.
 
@@ -21,9 +18,9 @@ with \textit{{\color{blue} italic font}}.  Readers are encouraged to view
 a color copy of this paper, where target language nonterminals are colored \textbf{{\color{red} red}}
 while IFC language nonterminals are colored \textit{{\color{blue} blue}}.
 
-\subsection{Target language: Mini-ML}
+\subsection{Target language: Mini-ES}
 
-In Figure~\ref{fig:ml}, we give a simple, untyped ML-like language with
+In Figure~\ref{fig:ml}, we give a simple, untyped lambda calculus with
 mutable references, prepared for combination with an
 information flow control language.  The presentation is standard, but it
 is worth paying some attention to the Felleisen-Hieb reduction
@@ -40,7 +37,7 @@ However, when we combine this language with an IFC language, we must
 reinterpret the meaning of this evaluation context.
 In general, we require that a target language be expressed in terms
 of some global machine state |tS|, some evaluation context |tE|,
-some expressions |te|, some set of values |tv| and a deterministic
+some expressions |te|, some set of values |tv| and a \emph{deterministic}
 reduction relation on full configurations $|tS| \times |tE| \times |te|$.
 
 \begin{figure}
@@ -88,7 +85,7 @@ let tx = te1 in te2  @= (\tx.te2) te1
 %{| conf tS ( tE [ fail ] ) -> conf tS fail |}
 \end{mathpar}
 
-\caption{Simple ML-like language |targetLangML|}
+\caption{Simple untyped lambda calculus |targetLangML|}
 \label{fig:ml}
 \end{figure}
 
@@ -108,7 +105,8 @@ $l$, but do not discuss them in more detail.
 In Figure~\ref{fig:ifc}, we give the syntax and \emph{single-threaded}
 evaluation rules for a minimal information-flow control language.  The
 evaluation context |curlyBlueE| represents the context
-of the current task which is running, including on the right-hand side
+of the current task which is running, which has three important pieces
+of state: the global message queues |iS|,
 the current label |il| (which protects the program counter of the task)
 and the task ID |id|.
 
@@ -167,17 +165,6 @@ our asynchronous primitives as follows:
   tab tab tab (IT (let tx = TI (recvf ix1 ix2 ie (IT tx)) in tx))
 \end{code}
 
-%   \begin{figure}
-%   Typing judgment: $|tyrule tG tS te tty|$
-%   \begin{mathpar}
-%   \inferrule[T-ty-address]
-%   {}
-%   {| tyrule tG tS a (ref (tyLookup tS a)) |}
-%   \end{mathpar}
-
-%   \caption{Selected typing rules for ML-like language}
-%   \label{fig:ml-typing}
-%   \end{figure}
 
 \begin{figure}
 \begin{code}
