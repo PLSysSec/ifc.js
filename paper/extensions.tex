@@ -15,18 +15,55 @@ of our approach.
 \label{sec:extensions:labeled}
 
 \paragraph{Labeled values}
-Adding labeled values 
-
 %{
 %format unlabel = "\mathbf{unlabel}"
 %format label = "\mathbf{label}"
 %format labelOf = "\mathbf{labelOf}"
+In traditional language-based dynamic IFC systems, a label is
+associated with values.
+%
+Hence, a program that, for example, simply writes labeled messages to
+a labeled log can operate on both public and sensitive values.
+%
+In its simplest form, our coarse grained system requires that the
+current label of a task be at least at the level of the sensitive data
+to reflect the fact that such data is in scope.
+ 
+Thus, an extension that allows supports such fine-grained explicitly
+labeled values is essential.
+%
+While both LIO and Breeze have such values built-in, our IFC calculus
+can be used to encode the labeled values in terms of the |toLabeled|
+construct presented in Section~\ref{sec:retrofit}.
+%
+However, to allow for the inspection of the label of such values (as
+in LIO and Breeze) we assume, for simplicity, that the target
+language, e.g., the ML-like language from Figure~\ref{fig:ml},
+contains pairs: |te  ::= cdots inlinesep (te, te) inlinesep proji te|.
+%
+Directly, we can define constructs for labeling a value (|label|),
+inspecting the label of such values (|labelOf|), and inspecting the
+protected value (|unlabel|):
 \begin{code}
-te  ::= cdots | (te, te) | proji te
 label il te  @= let x = te in (il, toLabeled il x)
 labelOf te   @= proj1 te
 unlabel te   @= (proj2 te) (TI unit)
 \end{code}
+Here, the first projection of the pair contains the label, which is
+effectively public (to the task), while the second contains the
+``wrapped'' value.
+%
+Note that |label| first reduces to a values and then wraps it by
+sending it to task whose sole role is to protect the value with its
+current label (|il|).
+%
+The latter task protects the value with the supplied label by ensuring
+that any task that wishes to inspect the ```labeled value'' must 
+raise their current label before calling |unlabel|.
+% 
+We remark that this simply gives an encoding for labeled values; 
+a concrete implementation would likely rely on constructs that are
+cheaper than tasks, e.g., abstract data types.
 %}
 
 \paragraph{Labeled references}
