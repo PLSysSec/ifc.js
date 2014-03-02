@@ -26,8 +26,8 @@ information flow control language.  The presentation is mostly standard, and uti
 semantics~\cite{Felleisen:1992:RRS:136293.136297} to define the
 operational semantics of the system.  One peculiarity is that our language
 defines an evaluation context |tE|, but, the evaluation rules have been
-expressed in terms of a different evaluation context |curlyRedE|;
-Here, we following the approach of Matthews and
+expressed in terms of a different evaluation context |curlyRedE|.
+We follow the approach of Matthews and
 Findler~\cite{Matthews:2007:OSM:1190216.1190220} in order to simplify combining
 semantics of multiple languages. 
 To derive the usual operational semantics for this language, the evaluation
@@ -119,7 +119,7 @@ The task label---we refer to the label of the currently executing task as the
 \emph{current label}---serves to protect everything in the task's scope;
 all data in a task shares this common label.
 %
-Hence before performing a reads or a write, the IFC monitor inspects the
+Hence before performing a read or a write, the IFC monitor inspects the
 current label to decide whether the operation is permitted.
 %
 A task can only write to entities that are at least as sensitive.
