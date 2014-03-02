@@ -34,12 +34,12 @@ such as JavaScript, this challenge becomes almost insurmountable.
 
 
 In the alternative \textit{coarse-grained} approach to IFC,
-a system is divided into relatively course computational units,
+a system is divided into relatively coarse computational units,
 each with a single label dictating its security policy.
 Only
 communication between isolated computational units must be tracked.
 A recent system named SWAPI adds IFC to the
-browser by identifying \emph{Web workers} as an existing computational
+browser by identifying \emph{web workers} as an existing computational
 unit~\cite{swapi}.  Communication between workers is mediated using
 IFC to ensure non-interference, preventing sensitive workers from
 influencing the computation of less sensitive workers.
@@ -49,8 +49,8 @@ be performed at isolation boundaries, (2) minimal changes to an
 existing programming language when adding IFC, which (3) allows
 the reuse of existing programs.  Finally, (4) associating
 a single security label with the entire computational unit simplifies
-understanding and easy reasoning about the correctness of the
-system, without information-flow reasoning about the
+understanding and reasoning about the correctness of the
+system, without information flow reasoning about the
 technical details of the semantics of the programming language.
 
 A further benefit of the coarse-grained approach
@@ -73,7 +73,7 @@ implementation details of a particular target language.
 We discuss and partially address this issue
 by characterizing isomorphisms between the operational semantics of our
 defined language and a concrete implementation, showing that if this
-relationship holds, then noninterference in the abstract specification
+relationship holds, then non-interference in the abstract specification
 carries over to the concrete specification.
 
 Our contributions can be summarized as follows:
