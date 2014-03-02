@@ -74,7 +74,7 @@ let tx = te1 in te2  @= (\tx.te2) te1
 
 \and
 \inferrule[T-deref]
-{ |memberf (ta, tv) tS| }
+{ |memberf ((ta, tv)) tS| }
 {| conf tS (!ta) -> conf tS (tv) |}
 
 \and
