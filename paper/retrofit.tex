@@ -531,7 +531,7 @@ explicitly ensure that |toLabeled| does not propagate exceptions.
 
 Our general embedding approach provides these semantics by construction.
 %
-To show this, consider, first, the encoding of the sequential |toLabeled|
+To show this, we first define an encoding of the sequential |toLabeled|
 construct in our framework:
 \begin{align*}
     & |toLabeled l te @= | \\
@@ -550,7 +550,7 @@ rule.\footnote{A keen reader may note that with a single, per-task channel, we
 might mix up our messages.  Indeed, a proper development requires the ability
 to allocate fresh channels; for purposes of simplicity, this has been omitted.}
 
-Second, suppose that our |targetLangML| is extended with a single exception
+Now suppose that our |targetLangML| is extended with a single exception
 expression |fail|, which reduces to |fail|, removing all containing |tE|
 evaluation contexts, i.e., it propagates up to a |IT (-)| boundary.
 %
@@ -562,7 +562,7 @@ TI(toLabeled l (IT (if te then fail else true))); true
 \end{code}
 always evaluates to |true|, regardless of the value of |te|.
 %
-As in both LIO and Breeze, however, only when calling |recv| on such messages
+Just like in both LIO and Breeze, however, only when calling |recv| on such messages
 will the exception be propagated.
 %
 This of course, is not a leak since the current label must be raised before
