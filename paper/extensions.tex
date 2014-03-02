@@ -14,6 +14,22 @@ of our approach.
 \subsection{IFC language features}
 \label{sec:extensions:labeled}
 
+Different concrete IFC implementations may wish to extend our minimal
+system with labeled constructs appropriate for their envisioned
+applications.
+%
+For example, SWAPI provides a labeled version of the XHR object, while
+LIO implements a labeled file system, use in severer-side web
+applications~\cite{hails}.
+%
+However, since proving non-interference for a concrete implementation
+follows by isomorphism to the specification language, below we
+consider the addition of several labeled constructs to the latter.
+%
+We remark that that the non-interference proofs must account for the
+new constructs, since they amend the IFC calculus semantics (usually
+by addition).
+
 \paragraph{Labeled values}
 %{
 %format Lb = "\textbf{Labeled}"
@@ -57,14 +73,11 @@ or destruct such values without label checks.)
 % 
 We omit the reduction rules for labeled values since they closely
 follow those presented in~\cite{lio}.
-%
-Here, we lastly remark that that---albeit in a straight forward
-way---the TSNI proof must account for this new construct, since it
-appears in the IFC calculus.
 %}
 
-\paragraph{Labeled references}
-\paragraph{Labeled synchronization primitives}
+\paragraph{Labeled mutable references/variables/channels}
+%
+In a similar manner, extending the 
 
 \paragraph{Privileges}
 Decentralized IFC extends IFC with the decentralized label model of
