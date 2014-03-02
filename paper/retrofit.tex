@@ -154,7 +154,8 @@ labels (|canFlowTo|, |lub| and |glb|).
 %%     Dually, when reading a message with |recv| the current label of the
 %%     receiver must be at least as high as the message label.
     \item A sandboxing operation used to spawn new isolated tasks. In
-    concurrent settings |fork| corresponds to a fork-like primitive; in a
+    concurrent settings |fork| corresponds to a fork-like primitive,
+    whereas in a
     sequential setting, it more closely resembles the LIO's
     |toLabeled|~\cite{lio}, and the Breeze
     bracket~\cite{Hritcu:2013:YIB:2497621.2498098}.
@@ -162,7 +163,7 @@ labels (|canFlowTo|, |lub| and |glb|).
 
 These operations are all defined with respect to an evaluation context
 |curlyBlueE| that represents the context of the current task which, by
-conventions is running; the evaluation context has three important pieces of
+conventions is running. The evaluation context has three important pieces of
 state: the global message queues |iS|, the current label |il| and the task ID |id|.
  
 We note that first class labels, tasks (albeit named differently), and
@@ -191,7 +192,7 @@ We denote the filtering of the message queue by |filter il Q|,
 which is defined as follows.
 If |Q| is the empty list |nil|, the
 function is simply the identity function, i.e.,
-|filter il nil = nil|; otherwise:
+|filter il nil = nil|, and otherwise:
 \[
 |filter il ((il', id, ie) , Q )| = \left\{
 \begin{array}{l l}
@@ -385,7 +386,7 @@ In the target language, an IFC expression appears as |TI ie| (``target-outside,
 IFC-inside''); in the IFC language, a target language expression appears as |IT
 te| ( ``IFC-outside, target-inside'').
     \item We reinterpret |CE| to be evaluation contexts on task lists, providing definitions for |curlyRedE| and |curlyBlueE|.  These rules only operate on the first task in the task list, which by convention is the only task executing.
-    \item We reinterpret |->|, an operation on a single task, in terms of |.->|, operation on task lists.  The correspondence is simple: a task executes a step and then is rescheduled in the task list according to schedule policy |alpha|;
+    \item We reinterpret |->|, an operation on a single task, in terms of |.->|, operation on task lists.  The correspondence is simple: a task executes a step and then is rescheduled in the task list according to schedule policy |alpha|.
     Figure~\ref{fig:scheduler} defines two concrete schedulers.
     \item Finally, we define some rules for scheduling, handling sandboxing tasks (which interact with the state of the target language),
     and intermediating between the borders of the two languages.
@@ -424,6 +425,14 @@ to remove entries from the state.  In Section~\ref{sec:concrete}, we give a more
 discussion of the implications of the choice of |klone|, but all our
 security claims will hold regardless of the choice of |klone|.
 
+The rule \textsc{I-noStep} says something about configurations for which
+it is not possible to take a transition.  The notation
+$|ic|\not\overset{\alpha}{\hookrightarrow}$ in the premise
+is meant to be understood as
+follows:  If the configuration |ic| cannot take a step by any rule other
+than \textsc{I-noStep}, then \textsc{I-noStep} applies and the
+stuck task gets removed.
+
 Rules \textsc{I-done} and \textsc{I-noStep} define the behavior of the system
 when the current thread has reduced to a value, or gotten stuck, respectively.
 %
@@ -456,7 +465,7 @@ of cross-language calls:
 \end{code}
 
 We note that our embedding corresponds to the lump embedding
-of~\cite{Matthews:2007:OSM:1190216.1190220}, terms in one language are
+of~\cite{Matthews:2007:OSM:1190216.1190220} where terms in one language are
 treated opaquely in the other.
 %
 Indeed since our embedding is defined for an arbitrary language |targetLang|,
