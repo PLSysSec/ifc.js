@@ -1,25 +1,40 @@
-\cut{
+%\cut{
 \section{Conclusion}
 \label{sec:conclusion}
 
-In this paper, we develop a general coarse-grained approach to IFC
-based on dividing a system into relatively course computational units
-and tracking only communication between these isolated units.
-We give formal semantics for the core coarse-grained
-information flow control language and show how a large class of target languages
-can be combined with it to achieve provable
-non-interference.
-We then give a proof technique for showing  non-interference
-of a concrete semantics for a potentially optimized IFC language
-by means of an isomorphism, and identify a class of IFC language restrictions
-that preserves non-interference.
-We briefly describe ways to enrich the core IFC language with
-more advanced concepts such as labeled values, privileges, or a
-notation of clearance and
-connect our formal semantics to real implementations of
-coarse-grained IFC systems for Javascript, Haskell, and
-(in less detail) enforcing IFC in C.
-Leaving more detailed presentation to later work,
-we informally relate our results to a monadic interpretation
-of IFC which guided our design.
-}
+We present a formal semantics which describes how to extend arbitrary languages
+with language-based coarse-grained IFC. We provably show the security guarantees
+TSNI and TINI non-interference, where the proof technique is parametrized on the
+target language, and it is developed for two ubiquitous scheduling policies. In
+addition, we provide conditions to securely refine our formal semantics to
+consider optimizations required in practice. Finally, we describe extensions to
+the core IFC language with more advanced concepts like labeled values, privileges,
+and a notation of clearance, and therefore connecting it with existing
+IFC implementations for Javascript, Haskell, and (in
+less detail) proposing IFC for C.
+
+With this work, we set a global framework which describes how ideas from
+OS can be systematically applied in programming languages. 
+
+
+% In this paper, we develop a general coarse-grained approach to IFC
+% based on dividing a system into relatively course computational units
+% and tracking only communication between these isolated units.
+% We give formal semantics for the core coarse-grained
+% information flow control language and show how a large class of target languages
+% can be combined with it to achieve provable
+% non-interference.
+% We then give a proof technique for showing  non-interference
+% of a concrete semantics for a potentially optimized IFC language
+% by means of an isomorphism, and identify a class of IFC language restrictions
+% that preserves non-interference.
+% We briefly describe ways to enrich the core IFC language with
+% more advanced concepts such as labeled values, privileges, or a
+% notation of clearance and
+% connect our formal semantics to real implementations of
+% coarse-grained IFC systems for Javascript, Haskell, and
+% (in less detail) enforcing IFC in C.
+% Leaving more detailed presentation to later work,
+% we informally relate our results to a monadic interpretation
+% of IFC which guided our design.
+% }
