@@ -8,15 +8,31 @@ extended to consider other IFC-aware features (e.g., fine-grained
 labeled values), a static type system, or more complex scheduling
 policies.
 %
-When considering these extensions we also highlight some limitations
+When considering these extensions we also discuss some limitations
 of our approach.
 
 \subsection{IFC language features}
 \label{sec:extensions:labeled}
 
+Different concrete IFC implementations may wish to extend our minimal
+system with labeled constructs appropriate for their envisioned
+applications.
+%
+For example, SWAPI provides a labeled version of the XHR object, while
+LIO implements a labeled file system, use in server-side web
+applications~\cite{hails}.
+%
+Below we
+consider the addition of several labeled constructs to the abstract specification.
+%
+We remark that that the non-interference proofs must account for the
+new constructs, since they amend the IFC calculus semantics (usually
+by addition).
+
 \paragraph{Labeled values}
 %{
 %format Lb = "\textbf{Labeled}"
+%format label = "\textbf{label}"
 In traditional language-based dynamic IFC systems, a label is
 associated with values.
 %
@@ -32,7 +48,7 @@ labeled values is essential.
 %
 To this end, we extend the IFC calculus with explicitly labeled
 values, much like those of LIO and
-Breeze~\cite{Hritcu:2013:YIB:2497621.2498098, lio}: |tv ::= cdots
+Breeze~\cite{lio, Hritcu:2013:YIB:2497621.2498098}: |tv ::= cdots
 inlinesep Lb il tv|.
 %
 Following LIO, we say that the value |tv| is protected by label |il|,
@@ -46,18 +62,44 @@ However, when a task wishes to inspect the protected value |tv|, it
 must first raise it label to at least |il| to reflect that it is
 incorporating data at such sensitivity level in its scope.
 %
-Similarly, when creating labeled values the label |il| must be above
-the current label; otherwise |il| cannot be said to protect the value.
+When creating labeled values the label |il| must be above
+the current label; otherwise it cannot be said that protection has
+been transferred from the current label to |il|.
 %
-(Importantly, we assumes that the |Lb| constructor cannot be accessed
-directly to construct or destruct such values without label checks.)
-%
+(For these rules, we assume that the |Lb| constructor is not part of
+the surface syntax and thus cannot be accessed directly to construct
+or destruct such values without label checks.)
+% 
 We omit the reduction rules for labeled values since they closely
 follow those presented in~\cite{lio}.
 %}
 
-\paragraph{Labeled references}
-\paragraph{Labeled synchronization primitives}
+\paragraph{Labeled mutable references/variables/channels}
+%
+Extending the calculus with other labeled features, such as
+references, mutable variables (MVars)~\cite{CH96}, or channels,
+follows in a similar way.
+%
+In these cases, however, we must keep track of the additional state
+(as opposed to the labeled value case which requires no additional
+bookkeeping).
+%
+While we can modify the IFC calculus to add such labeled state to each
+individual task, adding it to the system state |iS| leads to more
+interesting use cases.
+%
+Specifically, by amending |iS|, as in~\cite{lio,
+stefan:addressing-covert}, we can allow threads to use these
+constructs to synchronize, or communicate with constructs other than
+|send|/|recv| in a safe manner.
+%
+For example, when extending the calculus with labeled references, |iS|
+additionally contains a store that maps addresses to |(il, tv)| pairs
+which can be read and written to by different tasks through a labeled
+|ref| implementations.
+%
+Since such labeled constructs have also been considered before in other
+concurrent systems, we do not discuss them further.
 
 \paragraph{Privileges}
 Decentralized IFC extends IFC with the decentralized label model of
@@ -158,13 +200,13 @@ For simplicity we considered two popular policies |roundrobinf| and
 However, our definitions allow for other scheduling policies that only
 rely on the current task list.
 %
-For example, this allows us to implement the scheduler of~\tocite{}
+For example, this allows us to implement the scheduler of~\cite{Kashyap:2011}
 that always schedules less sensitive threads first; this can be
 employed to address external timing covert channels where an attacker
 can measure the delay between output events.\footnote{
   When considering a label lattice that is not totally ordered, e.g.,
-  DCLabels~\tocite{}, this scheduling policy is considerably more
-  complex. See~\tocite{}.
+  DCLabels~\cite{myers:dlm,dclabels}, this scheduling policy is
+  considerably more complex. See~\cite{Kashyap:2011}.
 }
 %
 More generally, we believe that deterministic schedulers that always
@@ -186,7 +228,7 @@ be expressed.
 %
 Though, we do not believe this to be a fundamental limitation, our
 current formalization cannot directly be applied to more-powerful, but
-safe, scheduling policies, as considered in~\tocite{}.
+safe, scheduling policies, as considered by~\cite{russo2006securing}.
 %
 More fundamentally, our definitions rely on deterministic relations,
 and thus extending the system to consider non-deterministic schedulers
@@ -194,7 +236,8 @@ and thus extending the system to consider non-deterministic schedulers
 %
 For instance, this may potentially require the security condition to
 consider \emph{low-determinism}, which states that a program is secure
-only if |l|-equivalent results are deterministic~\tocite{}. %both andrei and steve's papers
+only if |l|-equivalent results are deterministic~\cite{Zdancewic:Myers:CSFW03,
+sabelfeld2003language}.
 
 \subsection{External effects}
 \label{sec:extensions:external}
