@@ -30,7 +30,7 @@ If the operational rules are adapted na\"ively to this new setting,
 then non-interference can be violated.  In particular, it is not
 sound to share references to a heap cell between different tasks.
 Otherwise, information can be trivially leaked by copying
-secret data into a reference in one task, and then
+secret data to a shared reference in one task, and then
 reading it again by a another task with a lower label.
 What we would like is a way of characterizing safe modifications to
 the semantics which preserve non-interference.
@@ -88,12 +88,16 @@ as the following two theorems state.
 
 
 To obtain an isomorphism with our single heap semantics, we need to mimic the
-behavior of several heaps into one. The interesting cases are when forking and
-sending or receiving messages. These rules (see Section~\ref{sec:retrofit}) are
-parameterized by the strategy |klone|, which defines what heap the new task
+behavior of several heaps with a single actual heap.
+The interesting cases are when we sandbox
+an expression, and when messages are sent and received.
+The rule for sandboxing is
+parameterized by the strategy |klone| (cf.\ Section~\ref{sec:retrofit}),
+which defines what heap the new task
 should execute with.  We have motivated two choices, namely the identity (to
 effectively clone the heap), or to start with an empty heap.  
 
+{\color{red}
 In the first choice, the concrete semantics should essentially implement several
 heaps into one. For that, it creates a copy of everything reachable from the
 forked expression (not just the values for the memory addresses in the
@@ -108,53 +112,43 @@ change the forked expression |ie| in such a way that all addresses get rewritten
 to fresh addresses that are guaranteed to not occur in the global heap. As a
 consequence, existing addresses in the forked expression |ie| are no longer
 valid and the task gets stuck (and then removed by \textsc{I-noStep}).
-%\todo{}{Is this actually true?  Currently the semantics are unclear.}
 %To get the isomorphic behavior in the concrete semantics with a
 %single heap, we would have to change the forked expression |ie| in
 %such a way that all addresses get rewritten to fresh addresses
 %that are guaranteed to not occur in the global heap.  
 Similarly, sending a memory address should take a similar approach, as addresses
 for sent references will not exist in the receiving task.
+}
+
+{\color{blue}
+In the latter case, this effectively means that existing addresses
+in the forked expression |ie| are no longer valid and the
+task gets stuck (and then removed by \textsc{I-noStep}).
+To get the isomorphic behavior in the concrete semantics with a
+single heap, we would have to change the forked expression |ie| in
+such a way that all addresses get rewritten to fresh addresses
+that are guaranteed to not occur in the heap.  Similarly,
+sending a memory address should take a similar approach, as addresses
+for sent references will not exist in the receiving task.
+
+If |klone| is the identity function, then the abstract semantics
+effectively clone the heap on a fork.  To get an isomorphic
+behavior in the concrete, we would have to create a copy of everything
+reachable from the forked expression (not just the values for
+the memory addresses in the expression), and replace all addresses
+correspondingly.  Even worse, the behavior of sending a memory address
+now depends on whether that address existed at the time the receiving
+task was forked;  if it did, then the address should be rewritten to the
+new one, otherwise to a fresh address.
+
+Such a complicated behavior is contradictory to our initial motivation
+of implementing a single heap for efficiency.  But even the
+behavior of the simpler case where |klone| returns an empty heap is
+undesirable:  We rewrite addresses to fresh addresses, which will
+result in a stuck task whenever such an address is dereferenced.
+}
 
 
-% A na\"ive attempt at our single heap semantics
-% will not allow us to construct an isomorphism
-% with the abstract language |specLangML alpha|, and instead highlights
-% where things will go wrong.
-% To successfully construct an isomorphism, our concrete semantics need
-% to mirror the behavior of the abstract semantics, most importantly
-% in the case where tasks interact.  Namely, at a fork and when sending
-% or receiving messages, we take an expression from one task and
-% execute it in the context of another task.  In the abstract semantics
-% the fork rule is parameterized by the strategy |klone|, which defines
-% what heap the new task should execute in.  \Red{In Section~\ref{sec:retrofit}
-% we have motivated two choices}, namely the identity (to effectively
-% clone the heap), or to start with an empty heap.
-% In the latter case, this effectively means that existing addresses
-% in the forked expression |ie| are no longer valid and the
-% task gets stuck (and then removed by \textsc{I-noStep}).
-% \todo{}{Is this actually true?  Currently the semantics are unclear.}
-% To get the isomorphic behavior in the concrete semantics with a
-% single heap, we would have to change the forked expression |ie| in
-% such a way that all addresses get rewritten to fresh addresses
-% that are guaranteed to not occur in the global heap.  Similarly,
-% sending a memory address should take a similar approach, as addresses
-% for sent references will not exist in the receiving task.
-
-% If |klone| is the identity function, then the abstract semantics
-% effectively clone the heap on a fork.  To get an isomorphic
-% behavior in the concrete, we would have to create a copy of everything
-% reachable from the forked expression (not just the values for
-% the memory addresses in the expression), and replace all addresses
-% correspondingly.  Even worse, the behavior of sending a memory address
-% now depends on whether that address existed at the time the receiving
-% task was forked;  if it did, then the address should be rewritten to the
-% new one, otherwise to a fresh address.
-% Such a complicated behavior is contradictory to our initial motivation
-% of implementing a single heap for efficiency.  But also the
-% behavior of the simpler case where |klone| returns an empty heap is
-% undesirable:  We rewrite addresses to fresh addresses, which will
-% result in a stuck task whenever such an address is dereferenced.
 
 \subsection{Restricting the IFC Language}
 
@@ -168,17 +162,20 @@ In a dynamically type languages such as |targetLangML|, we might
 restrict the transition for |fork| and |send| to only allow expressions
 without memory addresses.
 
-Generally speaking, we are modifying the IFC language semantics in a non-trivial
-way, which begs the question whether non-interference is preserved.  With this
-in mind, we device a general condition under which restrictions on transitions
-preserve non-interference. We require semantic rules to get restricted only
-based on information observable by the task triggering them. In that manner, the
-restriction does not depend on confidential information---a possible risk to
-jeopardize security. Below, the formal definition of such conditions for the
+Again, we are modifying the IFC language semantics in a non-trivial way,
+which begs the question whether non-interference is preserved.
+Restricting the transitions in an information flow control
+system in general does not preserve non-interference.  Intuitively
+if the restriction depends on secret data, then a public thread
+can observe if some other task terminates or not, and by that obtain
+information about the secret data that was used to restrict the
+transition.
+With this in mind, we require semantic rules to get restricted only
+based on information observable by the task triggering them.
+This ensures that non-interference is preserved, as the
+restriction does not depend on confidential information.
+Below, we give the formal definition of this condition for the
 abstract IFC language |specLang alpha targetLang|.
-
-%, such that non-interference is preserved.
-
 
 %system in general does not preserve non-interference as the following
 %minimal example illustrates. 
@@ -254,7 +251,8 @@ First, we can construct the restricted language
 |restrictedLangNoRef alpha targetLangML|, where |noRefs| is
 the family of always valid predicates, except for the ones for
 \textsc{I-fork} and \textsc{I-send}, which we define as
-\[ P(e) = \text{|ie| does not contain any address |ta|} \]
+\[ P(|ie|) = (\mathcal{AV}(|ie|) = \emptyset{}) \]
+where $\mathcal{AV}(|ie|)$ denotes the set of address variables in |ie|.
 That is, we do not restrict any rules except for \textsc{I-fork}
 and \textsc{I-send}.
 Since $P$ only depends on |ie|, which is part of the current
@@ -266,7 +264,7 @@ this language satisfies non-interference by Theorem~\ref{thm:restricted}.
   \begin{mathpar}
     \inferrule[C-fork]
     {
-      \text{|ie| does not contain any |ta|}\\
+      \mathcal{AV}(|ie|) = \emptyset{}\\
       |iS' = bracket iS (mapsto id' nil)|\\
       |it1 = oneheapfullconf id il (iniE id')|\\
       |itnew = oneheapfullconf id' il (TI ie)|\\
@@ -280,7 +278,7 @@ this language satisfies non-interference by Theorem~\ref{thm:restricted}.
     \and
     \inferrule[C-send]
     {
-      \text{|ie| does not contain any |ta|}\\
+      \mathcal{AV}(|ie|) = \emptyset{}\\
       |canFlowTo2 il il'|\\
       |iS(id') = Q|\\
       |iS' = bracket iS (mapsto id' (il', id,  ie) , Q)|
