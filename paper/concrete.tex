@@ -98,19 +98,19 @@ should execute with.  We have considered two choices:
 
 \begin{itemize}
     \item When we sandbox into an empty heap, existing addresses
-in the forked expression are no longer valid and the
+in the sandboxed expression are no longer valid and the
 task will get stuck (and then removed by \textsc{I-noStep}).
-Thus, we must rewrite the forked expression so that
+Thus, we must rewrite the sandboxed expression so that
 all addresses point to fresh addresses
 guaranteed to not occur in the heap.  Similarly,
 sending a memory address should be rewritten.
 
 \item When we clone the heap, we have to create a copy of everything
-reachable from the forked expression (not just the values for
+reachable from the sandboxed expression (not just the values for
 the memory addresses in the expression), and replace all addresses
 correspondingly.  Even worse, the behavior of sending a memory address
 now depends on whether that address existed at the time the receiving
-task was forked;  if it did, then the address should be rewritten to the
+task was sandboxed;  if it did, then the address should be rewritten to the
 new one, otherwise to a fresh address.
 \end{itemize}
 
@@ -121,14 +121,14 @@ of implementing a single heap for efficiency.
 
 \subsection{Restricting the IFC Language}
 
-A better solution is to forbid forked expressions as well
+A better solution is to forbid sandboxed expressions as well
 as messages sent to other tasks to contain memory addresses in the
 first place.  In a statically typed language, the type system could
 prevent this from happening, and we talk more about how our
 approach integrates with typed languages in
 Section~\ref{sec:extensions:types}.
 In a dynamically type languages such as |targetLangML|, we might
-restrict the transition for |fork| and |send| to only allow expressions
+restrict the transition for |sandbox| and |send| to only allow expressions
 without memory addresses.
 
 While this sounds plausible, it is worth noting that we are modifying the IFC language semantics,
@@ -219,10 +219,10 @@ ensure its non-interference using the techniques presented.
 First, we can construct the restricted language
 |restrictedLangNoRef alpha targetLangML|, where |noRefs| is
 the family of always valid predicates, except for the ones for
-\textsc{I-fork} and \textsc{I-send}, which we define as
+\textsc{I-sandbox} and \textsc{I-send}, which we define as
 \[ P(|ie|) = (\mathcal{AV}(|ie|) = \emptyset{}) \]
 where $\mathcal{AV}(|ie|)$ denotes the set of address variables in |ie|.
-That is, we do not restrict any rules except for \textsc{I-fork}
+That is, we do not restrict any rules except for \textsc{I-sandbox}
 and \textsc{I-send}.
 Since $P$ only depends on |ie|, which is part of the current
 task and thus never erased w.r.t.\ the label of the first task,
@@ -231,7 +231,7 @@ this language satisfies non-interference by Theorem~\ref{thm:restricted}.
 \begin{figure}
   
   \begin{mathpar}
-    \inferrule[C-fork]
+    \inferrule[C-sandbox]
     {
       \mathcal{AV}(|ie|) = \emptyset{}\\
       |iS' = bracket iS (mapsto id' nil)|\\
@@ -240,7 +240,7 @@ this language satisfies non-interference by Theorem~\ref{thm:restricted}.
       |fresh (id')|
     }
     {|
-      oneheapiconf iS tS (oneheapfullconf id1 il1 (iniEi (fork ie)), ldots)
+      oneheapiconf iS tS (oneheapfullconf id1 il1 (iniEi (sandbox ie)), ldots)
       .->
       iS'; tS; sched F (it1, ldots, itnew)
     |}
@@ -250,10 +250,10 @@ this language satisfies non-interference by Theorem~\ref{thm:restricted}.
       \mathcal{AV}(|ie|) = \emptyset{}\\
       |canFlowTo2 il il'|\\
       |iS(id') = Q|\\
-      |iS' = bracket iS (mapsto id' (il', id,  ie) , Q)|
+      |iS' = bracket iS (mapsto id' (il', id,  iv) , Q)|
     }
     {|
-      oneheapiconf iS tS (oneheapfullconf id il (iniEi (send id' il' ie)), ldots)
+      oneheapiconf iS tS (oneheapfullconf id il (iniEi (send id' il' iv)), ldots)
       ->
       iS; tS; sched step (oneheapfullconf id il unit, ldots)
     |}
