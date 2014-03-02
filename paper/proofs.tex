@@ -7,7 +7,7 @@ We first observe that the non-interference claims for the languages
 in Theorems~\ref{thm:rr-tsni} and~\ref{thm:seq-tini} follow directly
 from Theorems~\ref{thm:iso-tsni} and~\ref{thm:iso-tini},
 respectively, where the set
-of predicates is the set of always valid predicates.
+of predicates is the set of always valid predicates (i.e., no restriction).
 
 Before we proceed with the proof of Theorem~\ref{thm:iso-tsni},
 we state a lemma we will use.
@@ -79,10 +79,10 @@ we state a lemma we will use.
     task |it1''|.  Since both |it1'| and |it1''| have a label that is
     at least as high as the label of |it1| (can be seen
     by inspecting all reduction rules), they will get filtered
-    by |erasef il| in |ic1'|.  Therefore, the |il| equivalence of the
+    by |erasef il| in |ic1'|.  Therefore, the |il|-equivalence of the
     task list is guaranteed.
     Lets consider the possible changes to |iS1|:
-    Only three reduction rules change |iS1|,
+    Only three reduction interact with |iS1|,
     thus it suffices to consider these cases:
     \begin{description}
       \item[Case \textsc{I-send}]
@@ -101,7 +101,7 @@ we state a lemma we will use.
     Here, there must be a corresponding
     task |it2| in |ic2|,
     such that |it1=it2| (otherwise |ic1| and
-    |ic2| could not be |il| equivalent).
+    |ic2| could not be |il|-equivalent).
     However, |it2| might not be at the beginning of the task list yet, but
     all tasks occurring before it must get erased by |erasef il|.
     In |ic2|, we can first take some number of steps until |it2| moves
@@ -124,21 +124,21 @@ we state a lemma we will use.
     respectively, don't get erased and are thus equivalent.
     The task |it2| can now take exactly the same step as |it1|;  this
     is true even with arbitrary additional premises $P$ that follow
-    the condition in \Red{Definition (EZY: NPRI is missing)}, since those
+    the condition in Definition~\ref{def:restricted}, since those
     predicates only depend on |erase il ic1|, which is equivalent
     to |erase il ic2|, and thus those predicates evaluate in the same way.
     Thus, we only
     need to argue that the potential differences in |iS1| and |iS2| cannot
     have an influence on the execution (and we know |iS1| and |iS2| are
-    |il| equivalent).
+    |il|-equivalent).
     Again, only sending and receiving will depend on, or change |iS|,
     so we consider all these cases.
     \begin{description}
       \item[Case \textsc{I-send}]
       Here, the task |it2| will send the same message to the same
       receiver queue. This
-      queue is either completely erased, or it is |il| equivalent.  In both
-      cases, |il| equivalence of |iS1'| and |iS2'| is preserved.
+      queue is either completely erased, or it is |il|-equivalent.  In both
+      cases, |il|-equivalence of |iS1'| and |iS2'| is preserved.
       \item[Case \textsc{I-recv} and \textsc{I-noRecv}]
       When the tasks are receiving a message, then by the reduction rules
       we know that they first filter the queue by the label
@@ -149,8 +149,6 @@ we state a lemma we will use.
     \end{description}
   \end{itemize}
 \end{proof}
-
-
 The proof of Theorem~\ref{thm:iso-tini} about TINI proceeds largely
 in the same fashion as for Theorem~\ref{thm:iso-tsni} (TSNI), except that
 some cases are simpler due to the fact termination is not an issue
