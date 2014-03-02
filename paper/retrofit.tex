@@ -526,33 +526,46 @@ to public, as done by LIO's |toLabeled| and Breeze's
 brackets~\cite{Hritcu:2013:YIB:2497621.2498098, stefan:2012:arxiv-flexible}.
 %
 If the exception crosses this boundary, it can leak information about the
-inner secret computation into a public computation.
+inner secret computation into a public computation; hence, both systems
+explicitly ensure that |toLabeled| does not propagate exceptions.
 
-At first glance, it does not appear that our system has any such operator;
-there are only tasks, and the correct behavior for a task throwing
-an exception is self-evident: it should simply be removed from the scheduler.
-However, under a \emph{sequential scheduler} (such as |seqf|),
-the behavior of |sandbox|
-can be used to model the behavior of such an operator:
+Our general embedding approach provides these semantics by construction.
+%
+To show this, consider, first, the encoding of the sequential |toLabeled|
+construct in our framework:
 \begin{align*}
     & |toLabeled l te @= | \\
     & |tab let i = taskId; | \\
     & |tab let j = TI (sandbox (IT (TI (setLabel l); TI (send i l (IT te)))))| \\
     & |tab in (\ _ . TI (setLabel l); TI (recvf x _ x unit))|
 \end{align*}
-When the sequential scheduler is used, the sandboxed task runs to
-completion before returning to the task that sandboxed it.  Thus,
-a task list should rather be interpreted as a number of information flow
-aware stack frames.  To read the result of a |toLabeled| operation
+When using the sequential scheduler |seqf|, the sandboxed task runs to
+completion before returning to the task that sandboxed it. 
+(Here, a task list can be interpreted as a number of information flow aware
+stack frames.)
+To read the result of a |toLabeled| operation
 (which is communicated via message passing), the parent task must raise
-its label; otherwise the label will get dropped, as per the \textsc{I-recv} rule.\footnote{A keen reader may note that with a single, per-task
-channel, we might mix up our messages.  Indeed, a proper development requires
-the ability to allocate fresh channels; for purposes of simplicity, this
-has been omitted.}
+its label; otherwise the label will get dropped, as per the \textsc{I-recv}
+rule.\footnote{A keen reader may note that with a single, per-task channel, we
+might mix up our messages.  Indeed, a proper development requires the ability
+to allocate fresh channels; for purposes of simplicity, this has been omitted.}
 
-In this setting, it is also clear that exceptions should not cross boundaries,
-as seen in |toLabeled l fail; true|, which evaluates to |true| no matter even in
-the event of an exception inside of the |toLabeled| block:
-\todo{sh}{leaving this to ds, who wanted to finish the example}
+Second, suppose that our |targetLangML| is extended with a single exception
+expression |fail|, which reduces to |fail|, removing all containing |tE|
+evaluation contexts, i.e., it propagates up to a |IT (-)| boundary.
+%
+In this setting, it is clear that exceptions cannot cross boundaries.
+%
+For instance, 
+\begin{code}
+TI(toLabeled l (IT (if te then fail else true))); true
+\end{code}
+always evaluates to |true|, regardless of the value of |te|.
+%
+As in both LIO and Breeze, however, only when calling |recv| on such messages
+will the exception be propagated.
+%
+This of course, is not a leak since the current label must be raised before
+receiving sensitive message, regardless of their content.
 
 
