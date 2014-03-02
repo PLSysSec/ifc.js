@@ -90,7 +90,9 @@ let tx = te1 in te2  @= (\tx.te2) te1
 %{| conf tS ( tE [ fail ] ) -> conf tS fail |}
 \end{mathpar}
 
-\caption{Simple untyped lambda calculus |targetLangML|}
+\caption{|targetLangML|: simple untyped lambda calculus extended with booleans,
+mutable references and general recursion. |FV(te)| returns the set of free
+variables in express |te|.}
 \label{fig:ml}
 \end{figure}
 
@@ -120,9 +122,11 @@ labels (|canFlowTo|, |lub| and |glb|),
     \item Operations for inspecting (\textbf{getLabel}) and modifying (\textbf{setLabel}) the current label of the task (since the current label's role is to protect everything in the task, the task can only increase its label),
     \item Operations for non-blocking inter-task communication (\textbf{send} and \textbf{recv}),
         which interact with the global store of per-task message queues |iS|, and
-    \item A sandboxing operation allowing to spawn new
-    isolated tasks, described in more detail in the
-    next section.
+    \item A sandboxing operation used to spawn new isolated tasks. In
+    concurrent settings |fork| corresponds to a fork-lie primitive; in a
+    sequential setting, it more closely resembles the LIO's
+    |toLabeled|~\cite{lio}, and the Breeze
+    bracket~\cite{Hritcu:2013:YIB:2497621.2498098}.
 \end{itemize}
 
 These operations are all defined with respect to an evaluation context
@@ -176,15 +180,6 @@ function is simply the identity function, i.e.,
 \]
 This ensures that tasks cannot receive messages that are more sensitive
 than their current label would allow.
-
-\Red{MOVE:}
-As a final remark, blocking receive can be (inefficiently) implemented using
-our asynchronous primitives as follows:
-\begin{code}
-  brecvf ix1 ix2 ie @=
-  tab tab tab (IT (fix (\ k . TI (recvf ix1 ix2 ie (IT k)) )))
-\end{code}
-
 
 \begin{figure}
 \begin{code}
@@ -416,11 +411,25 @@ languages.
 Intuitively, the boundaries respectively correspond to an upcall into and
 downcall from the IFC runtime.
 %
+As an example, taking |targetLangML| as the target languge, we can now define a
+blocking receive (inefficiently) in terms of the asynchronous |recv| as series
+of cross-language calls:
+\begin{code}
+  brecvf ix1 ix2 ie @=
+  tab tab tab (IT (fix (\ k . TI (recvf ix1 ix2 ie (IT k)) )))
+\end{code}
 
-We note that it is possible to add rules for a natural embedding of
-expressions that occur in both languages.  In our specific example
-with |targetLangML|, we can choose to preserve booleans across
-language boundaries as follows:
+We note that our embedding corresponds to the lump embedding
+of~\cite{Matthews:2007:OSM:1190216.1190220}, terms in one language are
+treated opaquely in the other.
+%
+Indeed since our embedding is defined for an arbitrary language |targetLang|,
+we cannot do better.
+%
+However, when we have more information about the target language, it is
+possible to add rules for a natural embedding of expressions that occur in both
+languages.  In our specific example with |targetLangML|, we can choose to
+preserve booleans across language boundaries as follows:
 \begin{mathpar}
 \inferrule
 { |b member {true, false}|  } {| iniE (IT b) -> iniE b |}
