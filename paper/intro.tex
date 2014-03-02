@@ -57,13 +57,13 @@ A further benefit of the coarse-grained approach
 is that a single IFC design and semantics can be generalized
 to a large class of programming languages.
 Leveraging this insight, we define a general form of coarse-grained
-dynamic IFC and show how IFC can be combined with \emph{any} programming
+dynamic IFC and show how it can be combined with \emph{any} programming
 language conforming to a general semantic framework.
 At the core of our IFC system is a sandboxing construct that isolates
 potentially sensitive computations, allowing them to
 communicate only through clearly specified interfaces.
-Based on a framework for combining the operational semantics
-of our core IFC calculus with the operational semantics of any target language,
+Using the Matthews-Findler approach~\cite{Matthews:2007:OSM:1190216.1190220}
+for combining operational semantics,
 we formally state and prove non-interference guarantees that are
 independent of the choice of specific target language.
 
