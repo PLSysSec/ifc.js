@@ -77,7 +77,30 @@ follow those presented in~\cite{lio}.
 
 \paragraph{Labeled mutable references/variables/channels}
 %
-In a similar manner, extending the 
+Extending the calculus with other labeled features, such as
+references, mutable variables (MVars)~\tocite{CH96}, or channels,
+follows in a similar way.
+%
+In these cases, however, we must keep track of the additional state
+(as opposed to the labeled value case which requires no additional
+bookkeeping).
+%
+While we can modify the IFC calculus to add such labeled state to each
+individual task, adding it to the system state |iS| leads to more
+interesting use cases.
+%
+Specifically, by amending |iS|, as in~\cite{lio,
+stefan;addressing-covert}, we can allow threads to use these
+constructs to synchronize, or communicate with constructs other than
+|send|/|recv| in a safe manner.
+%
+For example, when extending the calculus with labeled references, |iS|
+additionally contains a store that maps addresses to |(il, tv)| pairs
+which can be read and written to by different tasks through a labeled
+|ref| implementations.
+%
+Since such labeled constructs have also been considered before in other
+concurrent systems, we do not discuss them further.
 
 \paragraph{Privileges}
 Decentralized IFC extends IFC with the decentralized label model of
