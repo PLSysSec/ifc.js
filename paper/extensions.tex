@@ -8,7 +8,7 @@ extended to consider other IFC-aware features (e.g., fine-grained
 labeled values), a static type system, or more complex scheduling
 policies.
 %
-When considering these extensions we also highlight some limitations
+When considering these extensions we also discuss some limitations
 of our approach.
 
 \subsection{IFC language features}
@@ -19,12 +19,11 @@ system with labeled constructs appropriate for their envisioned
 applications.
 %
 For example, SWAPI provides a labeled version of the XHR object, while
-LIO implements a labeled file system, use in severer-side web
+LIO implements a labeled file system, use in server-side web
 applications~\cite{hails}.
 %
-However, since proving non-interference for a concrete implementation
-follows by isomorphism to the specification language, below we
-consider the addition of several labeled constructs to the latter.
+Below we
+consider the addition of several labeled constructs to the abstract specification.
 %
 We remark that that the non-interference proofs must account for the
 new constructs, since they amend the IFC calculus semantics (usually
