@@ -19,7 +19,8 @@ of our approach.
 \paragraph{Labeled values}
 \paragraph{Labeled references}
 \paragraph{Labeled synchronization primitives}
-\subsubsection{Privileges}
+
+\paragraph{Privileges}
 Decentralized IFC extends IFC with the decentralized label model of
 Myers and Liskov~\cite{myers:dlm} to allow for more general
 applications, including systems consisting of mutually distrustful
@@ -41,8 +42,20 @@ security guarantees that must be proved.
 %
 Addressing this problem is a natural direction for this work.
 
+\paragraph{Clearance}
+%
+LIO, SWAPI, and Breeze additionally provide a discretionary access
+control mechanism---called \emph{clearance}---at the language
+level~\cite{Hritcu:2013:YIB:2497621.2498098, lio}; this mechanisms is
+used to restrict a computation from accessing data (or communicating
+with entities) above a specified label, the clearance.
+%
+For simplicity, we omitted clearance from our formalism.
+%
+We only remark that the mechanism generalizes beyond these IFC systems
+in a straight forward manner and does not affect our definitions or
+proofs in any meaningful way.
 
-\subsubsection{Clearance}
 
 \subsection{Type safety}
 \label{sec:extensions:types}
@@ -143,8 +156,6 @@ and thus extending the system to consider non-deterministic schedulers
 For instance, this may potentially require the security condition to
 consider \emph{low-determinism}, which states that a program is secure
 only if |l|-equivalent results are deterministic~\tocite{}. %both andrei and steve's papers
-
-
 
 \subsubsection{External effects}
 \label{sec:extensions:external}
