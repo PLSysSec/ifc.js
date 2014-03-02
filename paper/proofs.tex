@@ -1,0 +1,157 @@
+\section{Proofs}
+\label{sec:proofs}
+
+In this section we will prove all theorems we have stated so far.
+We observe that the non-interference claims for the languages
+|specLang seqf targetLang| and |specLang roundrobinf targetLang|
+in Theorems~\ref{thm:rr-tsni} and~\ref{thm:seq-tini} follow directly
+from Theorems~\ref{thm:iso-tsni} and~\ref{thm:iso-tini},
+respectively, about restricted IFC languages where the set
+of predicates is the set of always valid predicates.
+
+Before we proceed with the proof of Theorem~\ref{thm:iso-tsni},
+we state a lemma we will use.
+
+\begin{lemma}
+  \label{lemma:rr-tsni-general}
+  We consider, for any target language |targetLang|,
+  the restricted IFC language |restrictedLang alpha targetLang|
+  (according to Definition~\ref{def:restricted}).
+  Then,
+  for any configurations |ic1|, |ic1'|, |ic2|, and label |il| where
+  \begin{equation} \label{eq:tsni-lemma-lhs}
+  |ic1| \approx_{|il|} |ic2|
+  \qquad \text{and} \qquad
+  |ic1| |.->| |ic1'|
+  \end{equation}
+  there exists a configuration |ic2'| such that
+  \begin{equation} \label{eq:tsni-lemma-rhs}
+  |ic1'| \approx_{|il|} |ic2'|
+  \qquad \text{and} \qquad
+  |ic2| |.->|^* |ic2'|
+  \ \text{.}
+  \end{equation}
+\end{lemma}
+
+\begin{proof}[Proof of Theorem~\ref{thm:iso-tsni}]
+  We proof the theorem by induction on the length of the derivation sequence in~\eqref{eq:tsni-lhs}.
+  The base case for derivations
+  of length 0 is trivial, allowing
+  us to simple chose $|ic2'=ic2|$.  In the step case, we assume
+  the theorem holds for derivation sequences of length up to $n$, and show that it also
+  holds for those of length $n+1$.  We split the derivation sequence from~\eqref{eq:tsni-lhs} as follows:
+  \[
+  |ic1| |.->| |ic1''| |.->|^n |ic1'|
+  \]
+  for some configuration |ic1''|.  By Lemma~\ref{lemma:rr-tsni-general}, we get
+  |ic''| with
+  \begin{equation} \label{eq:tsni-proof-1}
+  |ic1''| \approx_{|il|} |ic2''|
+  \qquad \text{and} \qquad
+  |ic2| |.->|^* |ic2''|
+  \end{equation}
+  Applying the induction hypothesis to
+  $|ic1''| |.->|^n |ic1'|$, we get |ic2'| with
+  \begin{equation} \label{eq:tsni-proof-2}
+  |ic1'| \approx_{|il|} |ic2'|
+  \qquad \text{and} \qquad
+  |ic2''| |.->|^* |ic2'|
+  \end{equation}
+  Stitching together the derivation sequences from~\eqref{eq:tsni-proof-1} and~\eqref{eq:tsni-proof-2} directly gives
+  us the right-hand side of the implication in the TSNI
+  definition~\eqref{eq:tsni-rhs}, which concludes the proof.
+\end{proof}
+\begin{proof}[Proof of Lemma~\ref{lemma:rr-tsni-general}]
+  First, we observe there must be at least one task in |ic1|, otherwise
+  it could not take a step.  Thus, |ic1| is of the form
+  |iconf iS1 (it1, its1)|.  Consider two cases:
+  \begin{itemize}
+    \item $|erase il it1|=|bullet|$.
+    By the definition of |erasef il|, we know that |il canFlowTo lcurr|
+    where |lcurr| is the label of |it1|.
+    In this case, we do not need to take a step for
+    |ic2|, because |ic2'=ic2| will already be |il|-equivalent to |ic1'|.
+    To see that, note that the tasks |its1| in |ic1| are left in the
+    same order and unmodified (the scheduling policy only
+    modifies the first task). The task |it1| either
+    gets dropped (by \textsc{I-noStep}), or
+    transforms into a task |it1'| as well as potentially spawning a new
+    task |it1''|.  Since both |it1'| and |it1''| have a label that is
+    at least as high as the label of |it1| (can be seen
+    by inspecting all reduction rules), they will get filtered
+    by |erasef il| in |ic1'|.  Therefore, the |il| equivalence of the
+    task list is guaranteed.
+    Lets consider the possible changes to |iS1|:
+    Only three reduction rules change |iS1|,
+    thus it suffices to consider these cases:
+    \begin{description}
+      \item[Case \textsc{I-send}]
+      A new message triple with label |il'| gets added to the message
+      queue of the receiving thread.  However, since |lcurr canFlowTo il'|,
+      the triple will get erased.
+      \item[Case \textsc{I-recv} and \textsc{I-noRecv}]
+      In this case, only the queue of
+      task |it1| can change, which gets erased.
+    \end{description}
+    This ensures that $|ic1'|\approx_{|il|}|ic2'|=|ic2|$.
+    %    \alphacondition{We need all scheduling policies to not change the order
+    %      of any tasks (except for the first one).  Newly spawned task can appear
+    %      anywhere in the list.}
+    \item $|erase il it1|\neq|bullet|$.
+    Here, there must be a corresponding
+    task |it2| in |ic2|,
+    such that |it1=it2| (otherwise |ic1| and
+    |ic2| could not be |il| equivalent).
+    However, |it2| might not be at the beginning of the task list yet, but
+    all tasks occurring before it must get erased by |erasef il|.
+    In |ic2|, we can first take some number of steps until |it2| moves
+    to the front of the list.
+    This is the case regardless of any additional side conditions $P$ on
+    rules, because for all of these tasks, it can either take an actual
+    step, or it gets dropped by \textsc{I-noStep} (which is always
+    possible, as there cannot be an additional side condition on this
+    rule).  All tasks that didn't get dropped are still at a label
+    that isn't below |il| and thus get erased.
+    
+    %    \alphacondition{The scheduling policy must eventually let any task in
+    %      the task list evaluate.  In particular, it cannot get stuck when the
+    %      first task gets stuck, or keep executing a small number of tasks
+    %      exclusively forever (e.g. just execute the first task all the time
+    %      if it gets into an infinite loop).}
+    
+    Therefore, after |ic2| has potentially executed some number of steps
+    to arrive at |ic2''|, we are now in the situation where $|ic1|\approx_{|il|}|ic2''|$, and the first tasks |it1| and |it2|,
+    respectively, don't get erased and are thus equivalent.
+    The task |it2| can now take exactly the same step as |it1|;  this
+    is true even with arbitrary additional premises $P$ that follow
+    the condition in \Red{Definition (EZY: NPRI is missing)}, since those
+    predicates only depend on |erase il ic1|, which is equivalent
+    to |erase il ic2|, and thus those predicates evaluate in the same way.
+    Thus, we only
+    need to argue that the potential differences in |iS1| and |iS2| cannot
+    have an influence on the execution (and we know |iS1| and |iS2| are
+    |il| equivalent).
+    Again, only sending and receiving will depend on, or change |iS|,
+    so we consider all these cases.
+    \begin{description}
+      \item[Case \textsc{I-send}]
+      Here, the task |it2| will send the same message to the same
+      receiver queue. This
+      queue is either completely erased, or it is |il| equivalent.  In both
+      cases, |il| equivalence of |iS1'| and |iS2'| is preserved.
+      \item[Case \textsc{I-recv} and \textsc{I-noRecv}]
+      When the tasks are receiving a message, then by the reduction rules
+      we know that they first filter the queue by the label
+      |lcurr| of |it1|.  We
+      also know that the queues are equivalent when filtered by the less
+      restrictive label |il|, thus the messages received (or dropped) from the
+      queue are equivalent.
+    \end{description}
+  \end{itemize}
+\end{proof}
+
+
+The proof of Theorem~\ref{thm:iso-tini} about TINI proceeds largely
+in the same fashion as for Theorem~\ref{thm:iso-tsni} (TSNI), except that
+some cases are simpler due to the fact termination is not an issue
+(cf.~\tocite{} for a TINI proof of a similar system).
