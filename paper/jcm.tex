@@ -288,6 +288,7 @@
 \declaretheorem[name=Proof sketch, style=remark]{proofsketch}
 
 
+\usepackage{url}
 
 \begin{document}
 
@@ -404,6 +405,8 @@
 %%%%%
 %% From concrete
 
+
+
 % ----------
 %% \conferenceinfo{ICFP'14,} {September 1--3, 2013, Gothenburg, Sweden.}
 %% \CopyrightYear{2014}
@@ -411,7 +414,7 @@
 % ----------
 
 \title{
-Just Add IFC! A General Approach to Retrofitting Languages with Dynamic Information Flow Control
+IFC Inside: A General Approach to Retrofitting Languages with Dynamic Information Flow Control
 }
 %   Generic, Efficient, Coarse-grained Information Flow Control
 %   IFC For Me
@@ -432,49 +435,48 @@ Just Add IFC! A General Approach to Retrofitting Languages with Dynamic Informat
 }
 
 \maketitle
-
 \input{abstract}
 \input{intro}
 
 \section{Retrofitting languages with IFC}
 \label{sec:retrofit}
 
-Our overall plan will be to take a \textbf{{\color{red} target language}} with a formal
-operational semantics and combine it with an \textit{{\color{blue} information
-flow control language}}.  For concreteness, we use a simple, untyped,
-ML-like language with mutable references as our target language.
-However, our technique will be indifferent to the actual target language
-chosen: it need only be prepared for interoperability by being expressed
-in the style of Matthews and
-Findler~\cite{Matthews:2007:OSM:1190216.1190220}.  This procedure will
-equip the target language with primitives for implementing dynamic
-information control in the style of LIO~\cite{lio}, which we will
-describe in more detail shortly.
+Our overall plan will be to take a \textbf{{\color{red} target
+language}} with a formal operational semantics and combine it with an
+\textit{{\color{blue} information flow control language}}.  For example,
+taking ECMAScript as the target language and combining it with our IFC
+language should produce the formal semantics for SWAPI.  In this
+presentation, we use a simple, untyped lambda calculus with mutable
+references and fixpoint in place of ECMAScript, to demonstrate some of the key
+properties without having too much detail; we discuss the proper
+embedding in more detail in Section~\ref{sec:real}.
 
 We have typeset nonterminals of the target language using \textbf{{\color{red}
 bold font}} while the nonterminals of the IFC language have been typeset
 with \textit{{\color{blue} italic font}}.  Readers are encouraged to view
-a color copy of this paper, where target language nonterminals are colored red
-while IFC language nonterminals are colored blue.
+a color copy of this paper, where target language nonterminals are colored \textbf{{\color{red} red}}
+while IFC language nonterminals are colored \textit{{\color{blue} blue}}.
 
-\subsection{Target language: Mini-ML}
+\subsection{Target language: Mini-ES}
 
-In Figure~\ref{fig:ml}, we give a simple, untyped ML-like language with
-mutable references and errors, prepared for combination with an
-information flow control language.  The presentation is standard, but it
-is worth paying some attention to the Felleisen-Hieb reduction
-semantics~\cite{Felleisen:1992:RRS:136293.136297} used to define the
+In Figure~\ref{fig:ml}, we give a simple, untyped lambda calculus with
+mutable references and fixpoint, prepared for combination with an
+information flow control language.  The presentation is standard, and utilizes Felleisen-Hieb reduction
+semantics~\cite{Felleisen:1992:RRS:136293.136297} to define the
 operational semantics of the system.  Our language defines an evaluation
 context \ensuremath{\tar{E}}; however, the evaluation rules have been expressed in terms
-of a different evaluation context $\mathcal{E}_{\tar{\Sigma}}$.  To
+of a different evaluation context \ensuremath{\mathcal{E}_{\tar{\Sigma}}},
+following the approach of Matthews and
+Findler~\cite{Matthews:2007:OSM:1190216.1190220} to combine operational
+semantics of multiple languages.  To
 derive the usual operational semantics for this language, the evaluation
-context merely needs to be defined as \ensuremath{\mathcal{E}_{\tar{\Sigma}}\left[\tar{e}\right]\triangleq{}\tar{\Sigma},\tar{E}\;[\mskip1.5mu \tar{e}\mskip1.5mu]}.
+context merely needs to be defined as \ensuremath{\mathcal{E}_{\tar{\Sigma}}\left[\tar{e}\right]\triangleq{}\tar{\Sigma},\tar{E}\left[\tar{e}\right]}.
 However, when we combine this language with an IFC language, we must
 reinterpret the meaning of this evaluation context.
 In general, we require that a target language be expressed in terms
 of some global machine state \ensuremath{\tar{\Sigma}}, some evaluation context \ensuremath{\tar{E}},
-some expressions \ensuremath{\tar{e}}, some set of values \ensuremath{\tar{v}} and a reduction
-relations on full configurations $\ensuremath{\tar{\Sigma}} \times \ensuremath{\tar{E}} \times \ensuremath{\tar{e}}$.
+some expressions \ensuremath{\tar{e}}, some set of values \ensuremath{\tar{v}} and a \emph{deterministic}
+reduction relation on full configurations $\ensuremath{\tar{\Sigma}} \times \ensuremath{\tar{E}} \times \ensuremath{\tar{e}}$.
 
 \begin{figure}
 \begin{hscode}\SaveRestoreHook
@@ -489,13 +491,16 @@ relations on full configurations $\ensuremath{\tar{\Sigma}} \times \ensuremath{\
 \>[6]{}\Coloneqq\lambda \tar{x}.\tar{e}\mid \mathbf{true}\mid \mathbf{false}\mid \tar{a}{}\<[E]%
 \\
 \>[B]{}\tar{e}{}\<[6]%
-\>[6]{}\Coloneqq\tar{v}\mid \tar{x}\mid \tar{e}\;\tar{e}\mid \mathbf{if}\;\tar{e}\;\mathbf{then}\;\tar{e}\;\mathbf{else}\;\tar{e}\mid \mathbf{ref}\;\tar{e}\mid \mathbin{!}\tar{e}\mid \tar{e}\mathbin{:=}\tar{e}{}\<[E]%
+\>[6]{}\Coloneqq\tar{v}\mid \tar{x}\mid \tar{e}\;\tar{e}\mid \mathbf{if}\;\tar{e}\;\mathbf{then}\;\tar{e}\;\mathbf{else}\;\tar{e}{}\<[E]%
+\\
+\>[6]{}\hsindent{2}{}\<[8]%
+\>[8]{}\mid \mathbf{ref}\;\tar{e}\mid \mathbin{!}\tar{e}\mid \tar{e}\mathbin{:=}\tar{e}\mid \mathbf{fix}\;\Varid{e}{}\<[E]%
 \\
 \>[B]{}\tar{E}{}\<[6]%
 \>[6]{}\Coloneqq\tar{[\cdot ]_T}\mid \tar{E}\;\tar{e}\mid \tar{v}\;\tar{E}\mid \mathbf{if}\;\tar{E}\;\mathbf{then}\;\tar{e}\;\mathbf{else}\;\tar{e}{}\<[E]%
 \\
 \>[6]{}\hsindent{2}{}\<[8]%
-\>[8]{}\mid \mathbf{ref}\;\tar{E}\mid \mathbin{!}\tar{E}\mid \tar{E}\mathbin{:=}\tar{e}\mid \tar{v}\mathbin{:=}\tar{E}{}\<[E]%
+\>[8]{}\mid \mathbf{ref}\;\tar{E}\mid \mathbin{!}\tar{E}\mid \tar{E}\mathbin{:=}\tar{e}\mid \tar{v}\mathbin{:=}\tar{E}\mid \mathbf{fix}\;E{}\<[E]%
 \\[\blanklineskip]%
 \>[B]{}\tar{e}_{1};\tar{e}_{2}{}\<[22]%
 \>[22]{}\triangleq{}(\lambda \tar{x}.\tar{e}_{2})\;\tar{e}_{1}\;{}\<[40]%
@@ -509,7 +514,6 @@ relations on full configurations $\ensuremath{\tar{\Sigma}} \times \ensuremath{\
 
 \begin{mathpar}
 
-\and
 \inferrule[T-app]
 { } {\ensuremath{\mathcal{E}_{\tar{\Sigma}}\left[(\lambda \Varid{x}.\tar{e})\;\tar{v}\right]\rightarrow\mathcal{E}_{\tar{\Sigma}}\left[\{\mskip1.5mu \tar{v}\mathbin{/}\Varid{x}\mskip1.5mu\}\;\tar{e}\right]}}
 
@@ -528,7 +532,7 @@ relations on full configurations $\ensuremath{\tar{\Sigma}} \times \ensuremath{\
 
 \and
 \inferrule[T-deref]
-{ \ensuremath{(\tar{a},\tar{v})\;\mathbf{in}\;\tar{\Sigma}} }
+{ \ensuremath{(\tar{a},\tar{v})\in\tar{\Sigma}} }
 {\ensuremath{\mathcal{E}_{\tar{\Sigma}}\left[\mathbin{!}\tar{a}\right]\rightarrow\mathcal{E}_{\tar{\Sigma}}\left[\tar{v}\right]}}
 
 \and
@@ -536,33 +540,34 @@ relations on full configurations $\ensuremath{\tar{\Sigma}} \times \ensuremath{\
 { }
 {\ensuremath{\mathcal{E}_{\tar{\Sigma}}\left[\tar{a}\mathbin{:=}\tar{v}\right]\rightarrow\mathcal{E}_{\tar{\Sigma}\left[\tar{a}\mapsto{}\tar{v}\right]}\left[\tar{v}\right]}}
 
+\and
+\inferrule[T-fix]
+{ }
+{\ensuremath{\mathcal{E}_{\tar{\Sigma}}\left[\mathbf{fix}\;(\lambda \Varid{x}.\Varid{e})\right]\rightarrow\mathcal{E}_{\tar{\Sigma}}\left[\{\mskip1.5mu \mathbf{fix}\;(\lambda \Varid{x}.\Varid{e})\mathbin{/}\Varid{x}\mskip1.5mu\}\;\Varid{e}\right]}}
+
 %\and
 %\inferrule[T-fail]
 %{| conf tS ( tE [ fail ] ) -> conf tS fail |}
 \end{mathpar}
 
-\caption{Simple ML-like language \ensuremath{\Red{\lambda_{\text{ML}}}}}
+\caption{Simple untyped lambda calculus \ensuremath{\Red{\lambda_{\text{ES}}}}}
 \label{fig:ml}
 \end{figure}
 
 \subsection{IFC language}
 
-Information flow control seeks to enforce a security policy known as
-\emph{non-interference}: public results must not depend on secret inputs.
-Modern, dynamic IFC systems usually achieve this by associating a \emph{label}
-with data, which encodes a policy of whether or not data tagged with one
-label can flow to another label (written as \ensuremath{\flows}).
-Since our embedding is agnostic
-to the choice of labeling scheme, we simply represent labels with the metavariable
+Most modern, dynamic information flow control languages encode
+policy by associating a \emph{label}
+with data, which encodes whether or not data tagged with one
+label \ensuremath{l_{1}} can flow to another label \ensuremath{l_{2}} (written as \ensuremath{l_{1}\flows{}l_{2}}).
+Our embedding is agnostic to the choice of labeling scheme; we only
+require the labels to form a lattice~\cite{Denning:1976:LMS:360051.360056}
+with the partial order \ensuremath{\flows{}}.
+In this paper, we simply represent labels with the metavariable
 $l$, but do not discuss them in more detail.
 
 In Figure~\ref{fig:ifc}, we give the syntax and \emph{single-threaded}
-evaluation rules for a minimal information-flow control language.  The
-evaluation context $\mathcal{E}_{\ifc{\Sigma}}$ represents the context
-of the current task which is running, including on the right-hand side
-the current label $l$ (which protects the program counter of the task)
-and the task ID $i$.
-
+evaluation rules for a minimal information-flow control language.  
 Ordinarily, information flow control languages are defined by directly
 stating a base language plus information flow control operators.  In
 contrast, our language is purposely minimal: it does not have sequencing
@@ -571,49 +576,64 @@ support for the following core information flow control features:
 
 \begin{itemize}
     \item First-class labels, with label values $l$ as well as operations for computing on
-labels (\ensuremath{\flows}, \ensuremath{\lub} and \ensuremath{\glb}),
-    \item operations for inspecting (\textbf{getLabel}) and modifying (\textbf{setLabel}) the current label of the task (a task can only increase its label, and not decrease it),
-    \item operations for non-blocking inter-task communication (\textbf{send} and \textbf{recv}),
+labels (\ensuremath{\flows{}}, \ensuremath{\lub} and \ensuremath{\glb}),
+    \item Operations for inspecting (\textbf{getLabel}) and modifying (\textbf{setLabel}) the current label of the task (a task can only increase its label, and not decrease it),
+    \item Operations for non-blocking inter-task communication (\textbf{send} and \textbf{recv}),
         which interact with the global store of per-task message queues \ensuremath{\ifc{\Sigma}}, and
-    \item a sandboxing operation allowing to spawn new
+    \item A sandboxing operation allowing to spawn new
     isolated tasks, which will be described in more detail in the
     next section.
 \end{itemize}
 
-The form of \textbf{send}/\textbf{recv} are \Red{inspired by methods of inter-worker communication
-in web browser APIs} \Red{cite}, however in Section~\ref{sec:extensions} we
-discuss other possible choices for information flow control aware communication
-primitives.  Their rules are different from non-IFC systems
-and worth commenting on: when a task places
-a message on the message queue of receiving task, it also labels that
-message with a label \ensuremath{\ifc{\Varid{l}}'} (which must be above the tasks current label \ensuremath{\ifc{\Varid{l}}})
-When the recipient reads out messages from its queue,
-messages whose labels do not
-flow to \ensuremath{\ifc{\Varid{l}}} are filtered out (denoted by \ensuremath{\ifc{\Theta}\preceq\ifc{\Varid{l}}}).
-Specifically, if \ensuremath{\ifc{\Theta}} is the empty list \ensuremath{\epsilon}, the
+While the first two bullet points are essentially universal to all
+floating-label systems, our choice of communication primitives is motivated
+by inter-worker communication in web browser APIs~\cite{webworkers}, but
+other choices such as blocking communication or labeled channels are possible.
+We describe some of the alternate possibilities in Section~\ref{sec:extensions}.
+These operations are all defined with respect to an evaluation context \ensuremath{\mathcal{E}_{\ifc{\Sigma}}^{\ifc{\Varid{i}},\ifc{l}}} represents the context
+of the current task which is running, which has three important pieces
+of state: the global message queues \ensuremath{\ifc{\Sigma}},
+the current label \ensuremath{\ifc{l}} (which protects the program counter of the task)
+and the task ID \ensuremath{\ifc{\Varid{i}}}.
+
+Our asynchronous communication primitives are worth some further
+discussion.  When a task is sending a message using \ensuremath{\mathbf{send}}, it also labels that
+message with a label \ensuremath{\ifc{l}'} (which must be above the tasks current label \ensuremath{\ifc{l}}).
+Messages can only be received by a task if its current label is
+at least as high as the label of the message.
+Specifically, receiving a message using
+\[ \ensuremath{\mathbf{recv}\ \ifc{\Varid{x}}_{1},\ifc{\Varid{x}}_{2}\;\mathbf{in}\;\ifc{\Varid{e}}_{1}\ \mathbf{else}\ \ifc{\Varid{e}}_{2}} \]
+binds the message and the senders task identifier
+to local variables \ensuremath{\ifc{\Varid{x}}_{1}} and \ensuremath{\ifc{\Varid{x}}_{2}}, respectively, and then executes \ensuremath{\ifc{\Varid{e}}_{1}}.
+Otherwise the message gets removed from the queue by rule \textsc{I-noRecv},
+and that tasks continues its execution with \ensuremath{\ifc{\Varid{e}}_{2}}.
+We denote the filtering of the message queue by \ensuremath{\ifc{\Theta}\preceq\ifc{l}},
+which is defined as follows.
+If \ensuremath{\ifc{\Theta}} is the empty list \ensuremath{\epsilon}, the
 function is simply the identity function, i.e.,
-\ensuremath{\epsilon\preceq\ifc{\Varid{l}}\mathrel{=}\epsilon}; otherwise:
+\ensuremath{\epsilon\preceq\ifc{l}\mathrel{=}\epsilon}; otherwise:
 \[
-\ensuremath{(\ifc{\Varid{l}}',\ifc{\Varid{i}},\ifc{\Varid{e}}),\ifc{\Theta}\preceq\ifc{\Varid{l}}} = \left\{
+\ensuremath{(\ifc{l}',\ifc{\Varid{i}},\ifc{\Varid{e}}),\ifc{\Theta}\preceq\ifc{l}} = \left\{
 \begin{array}{l l}
-\ensuremath{(\ifc{\Varid{l}}',\ifc{\Varid{i}},\ifc{\Varid{e}}),\ifc{\Theta}\preceq\ifc{\Varid{l}}} & \quad \text{if \ensuremath{\ifc{\Varid{l}}'\;\flows\;\ifc{\Varid{l}}}}\\
-\ensuremath{\ifc{\Theta}\preceq\ifc{\Varid{l}}} & \quad \text{otherwise}
+\ensuremath{(\ifc{l}',\ifc{\Varid{i}},\ifc{\Varid{e}}),\ifc{\Theta}\preceq\ifc{l}} & \quad \text{if \ensuremath{\ifc{l}'\;\flows{}\;\ifc{l}}}\\
+\ensuremath{\ifc{\Theta}\preceq\ifc{l}} & \quad \text{otherwise}
 \end{array} \right.
 \]
 This ensures that tasks cannot receive messages that are more secret
 than their current label would allow.
 
-%   \begin{figure}
-%   Typing judgment: $|tyrule tG tS te tty|$
-%   \begin{mathpar}
-%   \inferrule[T-ty-address]
-%   {}
-%   {| tyrule tG tS a (ref (tyLookup tS a)) |}
-%   \end{mathpar}
+As a final remark, blocking receive can be (inefficiently) implemented using
+our asynchronous primitives as follows:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{blockingRecv}\ \ifc{\Varid{x}}_{1},\ifc{\Varid{x}}_{2}\;\mathbf{in}\;\ifc{\Varid{e}}\triangleq{}{}\<[E]%
+\\
+\>[3]{}\ \ \;\ \ \;\ \ \;\ifc{^{\textrm{IT}}\lceil}\mathbf{fix}\;(\lambda \Varid{k}.\tar{_{\textrm{TI}}\lfloor}\mathbf{recv}\ \ifc{\Varid{x}}_{1},\ifc{\Varid{x}}_{2}\;\mathbf{in}\;\ifc{\Varid{e}}\ \mathbf{else}\ \ifc{^{\textrm{IT}}\lceil}\Varid{k}\ifc{\rceil}\tar{\rfloor})\ifc{\rceil}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
 
-%   \caption{Selected typing rules for ML-like language}
-%   \label{fig:ml-typing}
-%   \end{figure}
 
 \begin{figure}
 \begin{hscode}\SaveRestoreHook
@@ -626,19 +646,19 @@ than their current label would allow.
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\otimes{}\<[6]%
 \>[6]{}\Coloneqq{}\<[6E]%
-\>[11]{}\flows\mid \lub\mid \glb{}\<[E]%
+\>[11]{}\flows{}\mid \lub\mid \glb{}\<[E]%
 \\
 \>[B]{}\ifc{\Varid{v}}{}\<[6]%
 \>[6]{}\Coloneqq{}\<[6E]%
-\>[11]{}\ifc{\Varid{i}}\mid \ifc{\Varid{l}}\mid \mathbf{true}\mid \mathbf{false}\mid \langle\rangle{}\<[E]%
+\>[11]{}\ifc{\Varid{i}}\mid \ifc{l}\mid \mathbf{true}\mid \mathbf{false}\mid \langle\rangle{}\<[E]%
 \\
 \>[B]{}\ifc{\Varid{e}}{}\<[6]%
 \>[6]{}\Coloneqq{}\<[6E]%
-\>[11]{}\ifc{\Varid{v}}\mid \ifc{\Varid{x}}\mid \ifc{\Varid{e}}\;\otimes\;\ifc{\Varid{e}}\mid \mathbf{getLabel}\mid \mathbf{setLabel}\;\ifc{\Varid{e}}{}\<[E]%
+\>[11]{}\ifc{\Varid{v}}\mid \ifc{\Varid{x}}\mid \ifc{\Varid{e}}\;\otimes\;\ifc{\Varid{e}}\mid \mathbf{getLabel}\mid \mathbf{setLabel}\;\ifc{\Varid{e}}\mid \mathbf{taskId}{}\<[E]%
 \\
 \>[6]{}\hsindent{2}{}\<[8]%
 \>[8]{}\mid {}\<[8E]%
-\>[11]{}\mathbf{sandbox}\;\ifc{\Varid{e}}\mid \mathbf{send}\;\ifc{\Varid{e}}\;\ifc{\Varid{e}}\;\ifc{\Varid{e}}\mid \ifc{\Varid{x}}_{1},\ifc{\Varid{x}}_{2}\Leftarrow\mathbf{recv}.\ifc{\Varid{e}}\;\ifc{\Varid{e}}{}\<[E]%
+\>[11]{}\mathbf{sandbox}\;\ifc{\Varid{e}}\mid \mathbf{send}\;\ifc{\Varid{e}}\;\ifc{\Varid{e}}\;\ifc{\Varid{e}}\mid \mathbf{recv}\ \ifc{\Varid{x}},\ifc{\Varid{x}}\;\mathbf{in}\;\ifc{\Varid{e}}\ \mathbf{else}\ \ifc{\Varid{e}}{}\<[E]%
 \\
 \>[B]{}\ifc{E}{}\<[6]%
 \>[6]{}\Coloneqq{}\<[6E]%
@@ -648,13 +668,9 @@ than their current label would allow.
 \>[8]{}\mid {}\<[8E]%
 \>[11]{}\mathbf{send}\;\ifc{E}\;\ifc{\Varid{e}}\;\ifc{\Varid{e}}\mid \mathbf{send}\;\ifc{\Varid{v}}\;\ifc{E}\;\ifc{\Varid{e}}\mid \mathbf{send}\;\ifc{\Varid{v}}\;\ifc{\Varid{v}}\;\ifc{E}{}\<[E]%
 \\
-\>[6]{}\hsindent{2}{}\<[8]%
-\>[8]{}\mid {}\<[8E]%
-\>[11]{}\ifc{\Varid{x}}_{1},\ifc{\Varid{x}}_{2}\Leftarrow\mathbf{recv}.\ifc{\Varid{e}}\;\ifc{\Varid{e}}{}\<[E]%
-\\
 \>[B]{}\ifc{\theta}{}\<[6]%
 \>[6]{}\Coloneqq{}\<[6E]%
-\>[11]{}(\ifc{\Varid{l}},\ifc{\Varid{i}}\;\ifc{\Varid{e}}){}\<[E]%
+\>[11]{}(\ifc{l},\ifc{\Varid{i}}\;\ifc{\Varid{e}}){}\<[E]%
 \\
 \>[B]{}\ifc{\Theta}{}\<[6]%
 \>[6]{}\Coloneqq{}\<[6E]%
@@ -668,45 +684,49 @@ than their current label would allow.
 
 \begin{mathpar}
 
+\inferrule[I-getTaskId]
+{ }
+{\ensuremath{\mathcal{E}_{\ifc{\Sigma}}^{\ifc{\Varid{i}},\ifc{l}}\left[\mathbf{taskId}\right]\rightarrow\mathcal{E}_{\ifc{\Sigma}}^{\ifc{\Varid{i}},\ifc{l}}\left[\ifc{\Varid{i}}\right]}}
+
 \and
 \inferrule[I-getLabel]
 { }
-{\ensuremath{\mathcal{E}_{\ifc{\Sigma}}\left[\mathbf{getLabel}\right]^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}}\rightarrow\mathcal{E}_{\ifc{\Sigma}}\left[\ifc{\Varid{l}}\right]^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}}}}
+{\ensuremath{\mathcal{E}_{\ifc{\Sigma}}^{\ifc{\Varid{i}},\ifc{l}}\left[\mathbf{getLabel}\right]\rightarrow\mathcal{E}_{\ifc{\Sigma}}^{\ifc{\Varid{i}},\ifc{l}}\left[\ifc{l}\right]}}
 
 \and
 \inferrule[I-setLabel]
-{ \ensuremath{\ifc{\Varid{l}}\;\flows\;\ifc{\Varid{l}}'} }
-{\ensuremath{\mathcal{E}_{\ifc{\Sigma}}\left[\mathbf{setLabel}\;\ifc{\Varid{l}}'\right]^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}}\rightarrow\mathcal{E}_{\ifc{\Sigma}}\left[\langle\rangle\right]^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}'}}}
+{ \ensuremath{\ifc{l}\;\flows{}\;\ifc{l}'} }
+{\ensuremath{\mathcal{E}_{\ifc{\Sigma}}^{\ifc{\Varid{i}},\ifc{l}}\left[\mathbf{setLabel}\;\ifc{l}'\right]\rightarrow\mathcal{E}_{\ifc{\Sigma}}^{\ifc{\Varid{i}},\ifc{l}'}\left[\langle\rangle\right]}}
 %{|fresh (id')|}
 
 \and
 \inferrule[I-send]
 {
-\ensuremath{\ifc{\Varid{l}}\;\flows\;\ifc{\Varid{l}}'}\\
+\ensuremath{\ifc{l}\;\flows{}\;\ifc{l}'}\\
 \ensuremath{\ifc{\Sigma}\;(\ifc{\Varid{i}}')\mathrel{=}\ifc{\Theta}}\\
-\ensuremath{\ifc{\Sigma}'\mathrel{=}\ifc{\Sigma}\left[\ifc{\Varid{i}}'\mapsto{}(\ifc{\Varid{l}}',\ifc{\Varid{i}},\ifc{\Varid{e}}),\ifc{\Theta}\right]}
+\ensuremath{\ifc{\Sigma}'\mathrel{=}\ifc{\Sigma}\left[\ifc{\Varid{i}}'\mapsto{}(\ifc{l}',\ifc{\Varid{i}},\ifc{\Varid{v}}),\ifc{\Theta}\right]}
 }
-{\ensuremath{\mathcal{E}_{\ifc{\Sigma}}\left[\mathbf{send}\;\ifc{\Varid{i}}'\;\ifc{\Varid{l}}'\;\ifc{\Varid{e}}\right]^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}}\rightarrow\mathcal{E}_{\ifc{\Sigma}'}\left[\langle\rangle\right]^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}}}}
+{\ensuremath{\mathcal{E}_{\ifc{\Sigma}}^{\ifc{\Varid{i}},\ifc{l}}\left[\mathbf{send}\;\ifc{\Varid{i}}'\;\ifc{l}'\;\ifc{\Varid{v}}\right]\rightarrow\mathcal{E}_{\ifc{\Sigma}'}^{\ifc{\Varid{i}},\ifc{l}}\left[\langle\rangle\right]}}
 
 \and
 \inferrule[I-recv]
 {
-\ensuremath{\ifc{\Sigma}\;(\ifc{\Varid{i}})\preceq\ifc{\Varid{l}}\mathrel{=}\ifc{\theta}_{1},\mathbin{...},\ifc{\theta}_\Varid{k},(\ifc{\Varid{l}}',\ifc{\Varid{i}}',\ifc{\Varid{e}}')}\\
+\ensuremath{(\ifc{\Sigma}\;(\ifc{\Varid{i}})\preceq\ifc{l})\mathrel{=}\ifc{\theta}_{1},\mathbin{...},\ifc{\theta}_\Varid{k},(\ifc{l}',\ifc{\Varid{i}}',\ifc{\Varid{v}})}\\
 \ensuremath{\ifc{\Sigma}'\mathrel{=}\ifc{\Sigma}\left[\ifc{\Varid{i}}\mapsto{}(\ifc{\theta}_{1},\mathbin{...},\ifc{\theta}_\Varid{k})\right]}\\
 }
-{\ensuremath{\mathcal{E}_{\ifc{\Sigma}}\left[\ifc{\Varid{x}}_{1},\ifc{\Varid{x}}_{2}\Leftarrow\mathbf{recv}.\ifc{\Varid{e}}_{1}\;\ifc{\Varid{e}}_{2}\right]^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}}\rightarrow\mathcal{E}_{\ifc{\Sigma}'}\left[\{\mskip1.5mu \ifc{\Varid{e}}'\mathbin{/}\ifc{\Varid{x}}_{1},\ifc{\Varid{i}}'\mathbin{/}\ifc{\Varid{x}}_{2}\mskip1.5mu\}\;\ifc{\Varid{e}}_{1}\right]^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}}}}
+{\ensuremath{\mathcal{E}_{\ifc{\Sigma}}^{\ifc{\Varid{i}},\ifc{l}}\left[\mathbf{recv}\ \ifc{\Varid{x}}_{1},\ifc{\Varid{x}}_{2}\;\mathbf{in}\;\ifc{\Varid{e}}_{1}\ \mathbf{else}\ \ifc{\Varid{e}}_{2}\right]\rightarrow\mathcal{E}_{\ifc{\Sigma}'}^{\ifc{\Varid{i}},\ifc{l}}\left[\{\mskip1.5mu \ifc{\Varid{v}}\mathbin{/}\ifc{\Varid{x}}_{1},\ifc{\Varid{i}}'\mathbin{/}\ifc{\Varid{x}}_{2}\mskip1.5mu\}\;\ifc{\Varid{e}}_{1}\right]}}
 
 \and
 \inferrule[I-noRecv]
 {
-\ensuremath{\ifc{\Sigma}\;(\ifc{\Varid{i}})\preceq\ifc{\Varid{l}}\mathrel{=}\epsilon}\\
+\ensuremath{\ifc{\Sigma}\;(\ifc{\Varid{i}})\preceq\ifc{l}\mathrel{=}\epsilon}\\
 \ensuremath{\ifc{\Sigma}'\mathrel{=}\ifc{\Sigma}\left[\ifc{\Varid{i}}\mapsto{}\epsilon\right]}
 }
-{\ensuremath{\mathcal{E}_{\ifc{\Sigma}}\left[\ifc{\Varid{x}}_{1},\ifc{\Varid{x}}_{2}\Leftarrow\mathbf{recv}.\ifc{\Varid{e}}_{1}\;\ifc{\Varid{e}}_{2}\right]^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}}\rightarrow\mathcal{E}_{\ifc{\Sigma}'}\left[\ifc{\Varid{e}}_{2}\right]^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}}}}
+{\ensuremath{\mathcal{E}_{\ifc{\Sigma}}^{\ifc{\Varid{i}},\ifc{l}}\left[\mathbf{recv}\ \ifc{\Varid{x}}_{1},\ifc{\Varid{x}}_{2}\;\mathbf{in}\;\ifc{\Varid{e}}_{1}\ \mathbf{else}\ \ifc{\Varid{e}}_{2}\right]\rightarrow\mathcal{E}_{\ifc{\Sigma}'}^{\ifc{\Varid{i}},\ifc{l}}\left[\ifc{\Varid{e}}_{2}\right]}}
 
 \inferrule[I-labelOp]
-{ \ensuremath{\llbracket \ifc{\Varid{l}}_{1}\;\otimes\;\ifc{\Varid{l}}_{2}\rrbracket\mathrel{=}\ifc{\Varid{v}}}}
-{ \ensuremath{\mathcal{E}_{\ifc{\Sigma}}\left[\ifc{\Varid{l}}_{1}\;\otimes\;\ifc{\Varid{l}}_{2}\right]^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}}\rightarrow\mathcal{E}_{\ifc{\Sigma}}\left[\ifc{\Varid{v}}\right]^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}}} }
+{ \ensuremath{\llbracket \ifc{l}_{1}\;\otimes\;\ifc{l}_{2}\rrbracket\mathrel{=}\ifc{\Varid{v}}}}
+{ \ensuremath{\mathcal{E}_{\ifc{\Sigma}}^{\ifc{\Varid{i}},\ifc{l}}\left[\ifc{l}_{1}\;\otimes\;\ifc{l}_{2}\right]\rightarrow\mathcal{E}_{\ifc{\Sigma}}^{\ifc{\Varid{i}},\ifc{l}}\left[\ifc{\Varid{v}}\right]} }
 \end{mathpar}
 \caption{IFC language with all single-threaded operations}
 \label{fig:ifc}
@@ -715,13 +735,11 @@ than their current label would allow.
 \subsection{The embedding}
 
 \Red{TODO[ds]:
-  - move the async recv to text and out of the figure
   - clarify discussion on exceptions
   - fix the toLabled
-  - add taskIDs to ruls
 }
 Finally, in Figure~\ref{fig:embedding},
-we provide all of the rules responsible for actually carrying out the embedding.
+we provide all of the rules responsible for actually carrying out the embedding of the IFC language with the target language.
 The most important feature of this embedding is that every task maintains its own
 copy of the target language global state and evaluation context, thus
 enforcing isolation between various tasks.  In more detail:
@@ -764,16 +782,10 @@ enforcing isolation between various tasks.  In more detail:
 
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{53}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\ifc{\Varid{x}}_{1},\ifc{\Varid{x}}_{2}\Leftarrow\mathbf{recv}_{\infty}.\ifc{\Varid{e}}\triangleq{}{}\<[E]%
+\>[B]{}\mathcal{E}_{\tar{\Sigma}}\left[\tar{e}\right]\triangleq{}\ifc{\Sigma};\langle \tar{\Sigma}, \ifc{E}\ifc{[}\tar{e}\ifc{]}_\tar{T}\rangle^{\ifc{\Varid{i}}}_{\ifc{l}},\ldots{}\<[E]%
 \\
-\>[B]{}\ \ \;\ \ \;\ \ \;\ifc{^{\textrm{IT}}\lceil}\;\mathbf{let}\;\tar{x}\mathrel{=}\tar{_{\textrm{TI}}\lfloor}\ifc{\Varid{x}}_{1},\ifc{\Varid{x}}_{2}\Leftarrow\mathbf{recv}.\ifc{\Varid{e}}\;{}\<[53]%
-\>[53]{}\ifc{^{\textrm{IT}}\lceil}\tar{x}\ifc{\rceil}\tar{\rfloor}\;\mathbf{in}\;\tar{x}\ifc{\rceil}{}\<[E]%
-\\
-\>[B]{}\mathcal{E}_{\tar{\Sigma}}\left[\tar{e}\right]\triangleq{}\ifc{\Sigma};\langle \tar{\Sigma}, \ifc{E}\ifc{[}\tar{e}\ifc{]}_\tar{T}\rangle^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}},\ldots{}\<[E]%
-\\
-\>[B]{}\mathcal{E}_{\ifc{\Sigma}}\left[\ifc{\Varid{e}}\right]^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}}\triangleq{}\ifc{\Sigma};\langle \tar{\Sigma}, \ifc{E}\ifc{[}\ifc{\Varid{e}}\ifc{]}_\ifc{I}\rangle^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}},\ldots{}\<[E]%
+\>[B]{}\mathcal{E}_{\ifc{\Sigma}}^{\ifc{\Varid{i}},\ifc{l}}\left[\ifc{\Varid{e}}\right]\triangleq{}\ifc{\Sigma};\langle \tar{\Sigma}, \ifc{E}\ifc{[}\ifc{\Varid{e}}\ifc{]}_\ifc{I}\rangle^{\ifc{\Varid{i}}}_{\ifc{l}},\ldots{}\<[E]%
 \\
 \>[B]{}\mathcal{E}\;[\mskip1.5mu \Varid{e}\mskip1.5mu]\rightarrow\ifc{\Sigma};\ifc{\Varid{t}},\ldots\triangleq{}\mathcal{E}\;[\mskip1.5mu \Varid{e}\mskip1.5mu]\overset{\alpha}{\hookrightarrow}\ifc{\Sigma};\alpha_{{\tiny\mathrm{\text{step}}}}(\ifc{\Varid{t}},\ldots){}\<[E]%
 \ColumnHook
@@ -784,26 +796,26 @@ enforcing isolation between various tasks.  In more detail:
 { 
 \ensuremath{\ifc{\Sigma}'\mathrel{=}\ifc{\Sigma}\left[\ifc{\Varid{i}}'\mapsto{}\epsilon\right]}\\
 \ensuremath{\tar{\Sigma}'\mathrel{=}\kappa\;(\tar{\Sigma})}\\
-\ensuremath{\ifc{\Varid{t}}_{1}\mathrel{=}\langle \tar{\Sigma}, \ifc{E}\ifc{[}\ifc{\Varid{i}}'\ifc{]}\rangle^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}}}\\
-\ensuremath{\ifc{\Varid{t}}_\textrm{new}\mathrel{=}\langle \tar{\Sigma}', \tar{_{\textrm{TI}}\lfloor}\ifc{\Varid{e}}\tar{\rfloor}\rangle^{\ifc{\Varid{i}}'}_{\ifc{\Varid{l}}}}\\
+\ensuremath{\ifc{\Varid{t}}_{1}\mathrel{=}\langle \tar{\Sigma}, \ifc{E}\ifc{[}\ifc{\Varid{i}}'\ifc{]}\rangle^{\ifc{\Varid{i}}}_{\ifc{l}}}\\
+\ensuremath{\ifc{\Varid{t}}_\textrm{new}\mathrel{=}\langle \tar{\Sigma}', \tar{_{\textrm{TI}}\lfloor}\ifc{\Varid{e}}\tar{\rfloor}\rangle^{\ifc{\Varid{i}}'}_{\ifc{l}}}\\
 \ensuremath{\textrm{fresh}(\ifc{\Varid{i}}')}
 }
-{\ensuremath{\ifc{\Sigma};\langle \tar{\Sigma}, \ifc{E}\ifc{[}\mathbf{sandbox}\;\ifc{\Varid{e}}\ifc{]}_\ifc{I}\rangle^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}},\ldots\overset{\alpha}{\hookrightarrow}\ifc{\Sigma}';\alpha_{{\tiny\mathrm{\Conid{F}}}}(\ifc{\Varid{t}}_{1},\ldots,\ifc{\Varid{t}}_\textrm{new})}}
+{\ensuremath{\ifc{\Sigma};\langle \tar{\Sigma}, \ifc{E}\ifc{[}\mathbf{sandbox}\;\ifc{\Varid{e}}\ifc{]}_\ifc{I}\rangle^{\ifc{\Varid{i}}}_{\ifc{l}},\ldots\overset{\alpha}{\hookrightarrow}\ifc{\Sigma}';\alpha_{{\tiny\mathrm{\text{sandbox}}}}(\ifc{\Varid{t}}_{1},\ldots,\ifc{\Varid{t}}_\textrm{new})}}
 
 \and
 \inferrule[I-done]
 {\ensuremath{}}
-{\ensuremath{\ifc{\Sigma};\langle \tar{\Sigma}, \ifc{\Varid{v}}\rangle^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}},\ldots\overset{\alpha}{\hookrightarrow}\ifc{\Sigma};\alpha_{{\tiny\mathrm{\Conid{D}}}}(\langle \tar{\Sigma}, \ifc{\Varid{v}}\rangle^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}},\ldots)}}
+{\ensuremath{\ifc{\Sigma};\langle \tar{\Sigma}, \ifc{\Varid{v}}\rangle^{\ifc{\Varid{i}}}_{\ifc{l}},\ldots\overset{\alpha}{\hookrightarrow}\ifc{\Sigma};\alpha_{{\tiny\mathrm{\text{done}}}}(\langle \tar{\Sigma}, \ifc{\Varid{v}}\rangle^{\ifc{\Varid{i}}}_{\ifc{l}},\ldots)}}
 
 \and
 \inferrule[I-noStep]
 {\ensuremath{\ifc{\Sigma};\ifc{\Varid{t}},\ldots\not\overset{\alpha}{\hookrightarrow}}}
-{\ensuremath{\ifc{\Sigma};\ifc{\Varid{t}},\ldots\overset{\alpha}{\hookrightarrow}\ifc{\Sigma};\alpha_{{\tiny\mathrm{\Conid{N}}}}(\ifc{\Varid{t}},\ldots)}}
+{\ensuremath{\ifc{\Sigma};\ifc{\Varid{t}},\ldots\overset{\alpha}{\hookrightarrow}\ifc{\Sigma};\alpha_{{\tiny\mathrm{\text{noStep}}}}(\ifc{\Varid{t}},\ldots)}}
 
 \and
 \inferrule[I-border]
 { }
-{\ensuremath{\mathcal{E}_{\ifc{\Sigma}}\left[\ifc{^{\textrm{IT}}\lceil}\tar{_{\textrm{TI}}\lfloor}\ifc{\Varid{e}}\tar{\rfloor}\ifc{\rceil}\right]^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}}\rightarrow\mathcal{E}_{\ifc{\Sigma}}\left[\ifc{\Varid{e}}\right]^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}}}}
+{\ensuremath{\mathcal{E}_{\ifc{\Sigma}}^{\ifc{\Varid{i}},\ifc{l}}\left[\ifc{^{\textrm{IT}}\lceil}\tar{_{\textrm{TI}}\lfloor}\ifc{\Varid{e}}\tar{\rfloor}\ifc{\rceil}\right]\rightarrow\mathcal{E}_{\ifc{\Sigma}}^{\ifc{\Varid{i}},\ifc{l}}\left[\ifc{\Varid{e}}\right]}}
 
 \and
 \inferrule[T-border]
@@ -868,19 +880,36 @@ enforcing isolation between various tasks.  In more detail:
 
 \begin{itemize}
     \item We extend the values, expressions and evaluation contexts of both languages to allow for embeddings terms in one language to be embedded in the other.
-    \item We reinterpret \ensuremath{\mathcal{E}} to be evaluation contexts on task pools, providing definitions for $\mathcal{E}_{\tar{\Sigma}}$ and $\mathcal{E}_{\ifc{\Sigma}}$.  These rules only operate on the first task in the task pool, which by convention, is the only task executing.
-    \item We reinterpret \ensuremath{\rightarrow}, an operation on a single task, in terms of \ensuremath{\hookrightarrow}, operation on task pools.  The correspondence is simple: a task executes a step and then is rescheduled in the task pool according to schedule policy $\alpha$.  Not all schedulers preserve non-interference, so we provide two specific schedules in Figure~\ref{fig:scheduler}.
-    \item Finally, we define some rules for scheduling, handling sandboxing tasks (which interact with the state of the target language) and intermediating between the borders of the two languages.
+    \item We reinterpret \ensuremath{\mathcal{E}} to be evaluation contexts on task pools, providing definitions for \ensuremath{\mathcal{E}_{\tar{\Sigma}}} and \ensuremath{\mathcal{E}_{\ifc{\Sigma}}^{\ifc{\Varid{i}},\ifc{l}}}.  These rules only operate on the first task in the task pool, which by convention is the only task executing.
+    \item We reinterpret \ensuremath{\rightarrow}, an operation on a single task, in terms of \ensuremath{\hookrightarrow}, operation on task pools.  The correspondence is simple: a task executes a step and then is rescheduled in the task pool according to schedule policy \ensuremath{\alpha}.  Not all schedulers preserve non-interference, and we provide two specific schedules in Figure~\ref{fig:scheduler}.
+    \item Finally, we define some rules for scheduling, handling sandboxing tasks (which interact with the state of the target language),
+    and intermediating between the borders of the two languages.
 \end{itemize}
 
-The \textsc{I-sandbox} rule is of particular interest, as it is intended to allow users
-to create new tasks.  When a new task is created, there is a question of what the
-global state of the new task should be; this is defined in terms of a function $\kappa$.
-Conservatively, $\kappa$ may be simply thought of as the identity function, in which
+The \textsc{I-sandbox} rule allows to create a new isolated task that
+executes separately from the existing tasks (and can be communicated
+with via \ensuremath{\mathbf{send}} and \ensuremath{\mathbf{recv}}).  When the new task is created, there
+is the question of what the target language state of the new task should
+be.  Our rule is stated generically in terms of a function \ensuremath{\kappa}.
+Conservatively, \ensuremath{\kappa} may be simply thought of as the identity
+function, in which
 case the semantics of sandbox are such that the state of the target language is \emph{cloned}
-when sandboxing occurs.  However, this is not necessary: it is also valid for $\kappa$
+when sandboxing occurs.  However, this is not necessary: it is also valid for \ensuremath{\kappa}
 to remove entries from the state.  In Section~\ref{sec:concrete}, we give a more detailed
-discussion of the implications of the choice of $\kappa$.
+discussion of the implications of the choice of \ensuremath{\kappa}, but all our
+non-interference claims will hold regardless of the choice of \ensuremath{\kappa}.
+
+We note that it is possible to add rules for a natural embedding of
+expressions that occur in both languages.  In our specific example
+with \ensuremath{\Red{\lambda_{\text{ES}}}}, we can choose to preserve booleans across
+language boundaries as follows:
+\begin{mathpar}
+\inferrule[I-bool]
+{ \ensuremath{\Varid{b}\;\in\;\{\mskip1.5mu \mathbf{true},\mathbf{false}\mskip1.5mu\}}  } {\ensuremath{\ifc{E}\ifc{[}\ifc{^{\textrm{IT}}\lceil}\Varid{b}\ifc{\rceil}\ifc{]}\rightarrow\ifc{E}\ifc{[}\Varid{b}\ifc{]}}}
+\and
+\inferrule[T-bool]
+{ \ensuremath{\Varid{b}\;\in\;\{\mskip1.5mu \mathbf{true},\mathbf{false}\mskip1.5mu\}} } {\ensuremath{\tar{E}\tar{[}\tar{_{\textrm{TI}}\lfloor}\Varid{b}\tar{\rfloor}\tar{]}\rightarrow\tar{E}\tar{[}\Varid{b}\tar{]}}}
+\end{mathpar}
 
 For any target language \ensuremath{\Red{\lambda}} and scheduling policy \ensuremath{\alpha}, this
 embedding defines an information flow control language, which we will
@@ -888,62 +917,58 @@ refer to as \ensuremath{L_\text{IFC}(\alpha,\Red{\lambda})}.
 
 \subsection{Examples}
 
-To get a feeling for how these operational semantics operate, we'd like to
+To get a feeling for how these operational semantics operate, we
+would like to
 describe a few sample programs, and what their outputs are.
 
 \paragraph{Sending mutable references}  As each task maintains its own
 global state for the target language, one might reasonably wonder what would
 happen if you attempted to send a reference to another task.
-
 \begin{align*}
-    & \ensuremath{\mathbf{let}\;\Varid{i}\mathrel{=}\tar{_{\textrm{TI}}\lfloor}\mathbf{sandbox}\;(\Varid{x},\Varid{i'}\Leftarrow\mathbf{recv}_{\infty}.\ifc{^{\textrm{IT}}\lceil}\mathbin{!}\tar{_{\textrm{TI}}\lfloor}\Varid{x}\tar{\rfloor}\ifc{\rceil})\tar{\rfloor}} \\
+    & \ensuremath{\mathbf{let}\;\Varid{i}\mathrel{=}\tar{_{\textrm{TI}}\lfloor}\mathbf{sandbox}\;(\mathbf{blockingRecv}\ \Varid{x},\Varid{i'}\;\mathbf{in}\;\ifc{^{\textrm{IT}}\lceil}\mathbin{!}\tar{_{\textrm{TI}}\lfloor}\Varid{x}\tar{\rfloor}\ifc{\rceil})\tar{\rfloor}} \\
     & \ensuremath{\mathbf{in}\;\tar{_{\textrm{TI}}\lfloor}\mathbf{send}\;\ifc{^{\textrm{IT}}\lceil}\mathbf{ref}\;\mathbf{true}\ifc{\rceil}\tar{\rfloor}}
 \end{align*}
-
 It would be a violation of information flow if such an operation actually
 resulted in references being shared between two tasks.  In fact, the address
 will be received by the sandboxed task, but it will be a dangling pointer; the
-task will become stuck and removed from execution by \textsc{I-noStep}.  (Readers
+task will become stuck and removed from execution by \textsc{I-noStep}.  Readers
 who are curious whether or not a static discipline could be enforced to
-prevent these dangling pointers should check Section~\ref{sec:extensions}.)
+prevent these dangling pointers should check Section~\ref{sec:extensions}.
 
 \paragraph{Status of the heap after a sandbox}  Here is a program whose
-semantics depends on the definition of $\kappa$:
-
+semantics depends on the definition of \ensuremath{\kappa}:
 \begin{align*}
     & \ensuremath{\mathbf{let}\;\Varid{x}\mathrel{=}\mathbf{ref}\;\mathbf{true}} \\
     & \ensuremath{\mathbf{in}\;\tar{_{\textrm{TI}}\lfloor}\mathbf{sandbox}\;\ifc{^{\textrm{IT}}\lceil}\mathbin{!}\Varid{x};\mathbin{!}\Varid{x}\ifc{\rceil}\tar{\rfloor};\Varid{x}\mathbin{:=}\mathbf{false}}
 \end{align*}
-
-When $\kappa$ is the identity, the sandboxed task successfully dereferences
+When \ensuremath{\kappa} is the identity, the sandboxed task successfully dereferences
 the contents of the reference to be true twice (recall that references
 are cloned into the new global state).  When $\kappa$ is the constant function
 to the empty store, $x$ becomes a dangling pionter.
 
 \paragraph{Exceptions}  One language feature that has caused difficulty
 for many information flow control systems is handling
-exceptions.~\cite{Hritcu:2013:YIB:2497621.2498098}  The key difficulty
+exceptions~\cite{Hritcu:2013:YIB:2497621.2498098}.  The key difficulty
 appears when an exception must cross a stack boundary where the current
-label reverts back, i.e. across a \textbf{toLabeled} operator.~\cite{lio}
+label reverts back, i.e. across a \ensuremath{\mathbf{toLabeled}} operator~\cite{lio}.
 If the exception crosses this boundary, it can leak information about the
 inner sensitive computation.
 
 At first glance, it does not appear that our system has any such operator;
 there are only tasks, and the correct behavior for a task throwing
 an exception is self-evident: it should simply be removed from the scheduler.
-However, under a \emph{sequential scheduler}, the behavior of \ensuremath{\mathbf{sandbox}}
-can be used to model the behavior of \textbf{toLabeled}:
-
+However, under a \emph{sequential scheduler} (such as \ensuremath{\textsc{Seq}}),
+the behavior of \ensuremath{\mathbf{sandbox}}
+can be used to model the behavior of such an operator:
 \begin{align*}
-    & \ensuremath{\mathbf{toLabeled}\;\Varid{l}\;\tar{e}\triangleq{}} \\
-    & \ensuremath{\ \ \;\mathbf{let}\;\Varid{pid}\mathrel{=}\mathbf{taskId};} \\
-    & \ensuremath{\ \ \;\mathbf{let}\;\Varid{i}\mathrel{=}\tar{_{\textrm{TI}}\lfloor}\mathbf{sandbox}\;\ifc{^{\textrm{IT}}\lceil}\tar{_{\textrm{TI}}\lfloor}\mathbf{setLabel}\;\Varid{l}\tar{\rfloor};\tar{_{\textrm{TI}}\lfloor}\mathbf{send}\;\Varid{pid}\;\Varid{l}\;\ifc{^{\textrm{IT}}\lceil}\tar{e}\ifc{\rceil}\tar{\rfloor}\ifc{\rceil}\tar{\rfloor}} \\
-    & \ensuremath{\ \ \;\mathbf{in}\;(\lambda \anonymous .\tar{_{\textrm{TI}}\lfloor}\mathbf{setLabel}\;\Varid{l}\tar{\rfloor};\tar{_{\textrm{TI}}\lfloor}\Varid{x},\anonymous \Leftarrow\mathbf{recv}.\Varid{x}\tar{\rfloor})} \\
+    & \ensuremath{\mathbf{toLabeled}\;l\;\tar{e}\triangleq{}} \\
+    & \ensuremath{\ \ \;\mathbf{let}\;\Varid{i}\mathrel{=}\mathbf{taskId};} \\
+    & \ensuremath{\ \ \;\mathbf{let}\;\Varid{j}\mathrel{=}\tar{_{\textrm{TI}}\lfloor}\mathbf{sandbox}\;\ifc{^{\textrm{IT}}\lceil}\tar{_{\textrm{TI}}\lfloor}\mathbf{setLabel}\;l\tar{\rfloor};\tar{_{\textrm{TI}}\lfloor}\mathbf{send}\;\Varid{i}\;l\;\ifc{^{\textrm{IT}}\lceil}\tar{e}\ifc{\rceil}\tar{\rfloor}\ifc{\rceil}\tar{\rfloor}} \\
+    & \ensuremath{\ \ \;\mathbf{in}\;(\lambda \anonymous .\tar{_{\textrm{TI}}\lfloor}\mathbf{setLabel}\;l\tar{\rfloor};\tar{_{\textrm{TI}}\lfloor}\mathbf{recv}\ \Varid{x},\anonymous \;\mathbf{in}\;\Varid{x}\ \mathbf{else}\ \langle\rangle\tar{\rfloor})}
 \end{align*}
-
 When the sequential scheduler is used, the sandboxed task runs to
 completion before returning to the task that sandboxed it.  Thus,
-a task pool should rather be interpreted as a number of information-flow
+a task pool should rather be interpreted as a number of information flow
 aware stack frames.  To read the result of a \ensuremath{\mathbf{toLabeled}} operation
 (which is communicated via message passing), the parent task must raise
 its label; otherwise the label will get dropped, as per the \textsc{I-recv} rule.\footnote{A keen reader may note that with a single, per-task
@@ -952,38 +977,23 @@ the ability to allocate fresh channels; for purposes of simplicity, this
 has been omitted.}
 
 In this setting, it is also clear that exceptions should not cross boundaries,
-as seen in \ensuremath{\mathbf{toLabeled}\;\Varid{l}\;\mathbf{fail};\mathbf{true}}, which evaluates to \ensuremath{\mathbf{true}} no matter even in
+as seen in \ensuremath{\mathbf{toLabeled}\;l\;\mathbf{fail};\mathbf{true}}, which evaluates to \ensuremath{\mathbf{true}} no matter even in
 the event of an exception inside of the \ensuremath{\mathbf{toLabeled}} block:
-
-%   \Red{When both languages have booleans, it is relatively simple to define
-%   a natural embedding which preserves booleans across boundaries.}
-%   \begin{mathpar}
-%   \inferrule[I-bool]
-%   { |b member {true, false}|  } {| iniE (IT b) -> iniE b |}
-%   \and
-%   \inferrule[T-bool]
-%   { |b member {true, false}| } {| intE (TI b) -> intE b |}
-%   \end{mathpar}
+\todo{sh}{leaving this to ds, who wanted to finish the example}
 
 
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Security guarantees}
 \label{sec:formal}
 
-In this section we present the formal security guarantees provided by
+In this section, we present the formal security guarantees provided by
 our embedding.
 %
-Concretely, we show that \ensuremath{L_\text{IFC}(\alpha,\Red{\lambda})} for, appropriate
-scheduler, satisfies non-interference~\cite{Goguen82},
+Concretely, we show that \ensuremath{L_\text{IFC}(\alpha,\Red{\lambda})}, with an appropriate
+scheduler \ensuremath{\alpha}, satisfies non-interference~\cite{Goguen82},
 without making any reference to properties of \ensuremath{\Red{\lambda}}.
 %
-%As it turns out, 
-The precise scheduling policy \ensuremath{\alpha} dictates
-the guarantee holding for programs with diverging tasks.
+The precise scheduling policy dictates
+what guarantee we can achieve for programs with diverging tasks.
 For a sequential scheduler \ensuremath{\textsc{Seq}}, we will only be able to show
 \emph{termination-insensitive non-interference}, where a program
 may diverge based on secret data; this allows attackers to observe
@@ -997,40 +1007,34 @@ How can we characterize what the \emph{secret inputs} of a program are?  Like
 other work~\cite{Li+:2010:arrows,Russo+:Haskell08,lio,stefan:addressing-covert},
 we specify and prove non-interference using \emph{term erasure}.
 %
-%Intuitively, we prove that an attacker does not learn
-%any sensitive information from a program by 
-Intuitively, term erasure allows us to show that a an attacker does not learn
+Intuitively, term erasure allows us to show that an attacker does not learn
 any sensitive information from a program if the program behaves identically
 (from the attacker point of view) to a program with all sensitive data
 ``erased''.
 %
-To accommodate for this, we extend our formalism to account for
-programs with erased configurations and a function \ensuremath{\varepsilon_{\ifc{\Varid{l}}}} that
-performs erasures, usually by rewriting (parts of) configurations that
-are more sensitive than \ensuremath{\ifc{\Varid{l}}} to a new syntactic construct \ensuremath{\bullet}.
+To accommodate for this, we extend our formalism with a function \ensuremath{\varepsilon_{l}} that
+performs erasures by mapping configurations to erased configurations,
+usually by rewriting (parts of) configurations that are more sensitive
+than \ensuremath{l} to a new syntactic construct \ensuremath{\bullet}.
 %
-We can characterize the types of languages for which one can state
-a non-interference claim.
+In order for us to state non-interference, a language needs to include an
+erasure function:
 
-\Red{should be the environment colored in the definition?}
+%\Red{should be the environment colored in the definition?}
+%EZY: No, I don't think so.
 \begin{definition}[Information flow control language]
-    An information flow control language \ensuremath{\textbf{L}} is a tuple \ensuremath{(\Delta,\hookrightarrow,\varepsilon_{\Varid{l}})}, where $\ensuremath{\Delta}$ is the type of machine configurations (members
+    An information flow control language \ensuremath{\textbf{L}} is a tuple \ensuremath{(\Delta,\hookrightarrow,\varepsilon_{l})}, where $\ensuremath{\Delta}$ is the type of machine configurations (members
     of which are usually denoted by the meta-variable \ensuremath{c}), \ensuremath{\hookrightarrow} is a
-    reduction relation between machine configurations and \ensuremath{\varepsilon_{\Varid{l}}\mathbin{:}\Delta\rightarrow\varepsilon(\Delta)}
+    reduction relation between machine configurations and \ensuremath{\varepsilon_{l}\mathbin{:}\Delta\rightarrow\varepsilon(\Delta)}
     is an erasure function parametrized on labels from machine configurations to \emph{erased} machine
-    configurations \ensuremath{\varepsilon(\Delta)}.  This tuple is sometimes
-    augmented with a set of terminal configuration states $V
-    \subseteq \ensuremath{\Delta}$ for which there are no possible further transitions.
-    \Red{It is a bit odd to extend a tuple ``sometimes'' and a \ensuremath{V} appears like from
-      nowhere. What about saying: Sometimes, we refer as \ensuremath{V} to set of 
+    configurations \ensuremath{\varepsilon(\Delta)}.  Sometimes, we refer as \ensuremath{V} to set of
      terminal configurations in \ensuremath{\Delta}, i.e., configurations states where
-     no further transitions are possible. If you agree, then the next sentence
-     where you said \ensuremath{V\mathrel{=}\mathbin{...}} must be removed.}
+     no further transitions are possible.
 \end{definition}
 
 Our language \ensuremath{L_\text{IFC}(\alpha,\Red{\lambda}\;\!\!)} can be
-represented as \ensuremath{(\ifc{\Delta},\ifc{V},\overset{\alpha}{\hookrightarrow},\varepsilon_{\ifc{\Varid{l}}})}, such that
-$\ensuremath{\ifc{\Delta}} = \ensuremath{\ifc{\Sigma}} \times \prod \ensuremath{\ifc{\Varid{t}}}$ and
+represented as \ensuremath{(\ifc{\Delta},\overset{\alpha}{\hookrightarrow},\varepsilon_{\ifc{l}})}, such that
+$\ensuremath{\ifc{\Delta}} = \ensuremath{\ifc{\Sigma}} \times \prod \ensuremath{\ifc{\Varid{t}}}$.  Here,
 $\ensuremath{\ifc{V}} = \ensuremath{\ifc{\Sigma}} \times \ensuremath{\ifc{\Varid{t}}}_V$, where $\ensuremath{\ifc{\Varid{t}}}_V \subset \ensuremath{\ifc{\Varid{t}}}$ is the
 type for tasks whose expressions have been reduced to
 values.\footnote{
@@ -1040,66 +1044,68 @@ values.\footnote{
 }
 The erased configuration \ensuremath{\varepsilon(\ifc{\Delta})} extends \ensuremath{\ifc{\Delta}} with configurations
 containing \ensuremath{\bullet}, and Figure~\ref{fig:erasure} gives the precise definition for
-our erasure function \ensuremath{\varepsilon_{\ifc{\Varid{l}}}}.
+our erasure function \ensuremath{\varepsilon_{\ifc{l}}}.
 %
 A task and its corresponding message queue is completely removed from the task
-list if its label does not flow to the attacker observation level \ensuremath{\ifc{\Varid{l}}}.
+list if its label does not flow to the attacker observation level \ensuremath{\ifc{l}}.
 Otherwise, we apply the erasure function homomorphically and remove any message
-from the task's message queue that are more sensitive than \ensuremath{\ifc{\Varid{l}}}.
+from the task's message queue that are more sensitive than \ensuremath{\ifc{l}}.
 
 \begin{figure} % fig:erasure
 \begin{align*}
-  &\ensuremath{\varepsilon_{\ifc{\Varid{l}}}(\ifc{\Sigma};\ifc{\Varid{ts}})\mathrel{=}\varepsilon_{\ifc{\Varid{l}}}(\ifc{\Sigma});\text{filter}\;(\lambda \ifc{\Varid{t}}.\ifc{\Varid{t}}\mathrel{=}\bullet)\;(\text{map}\;\varepsilon_{\ifc{\Varid{l}}}\;\ifc{\Varid{ts}})}\\
-  &\ensuremath{\langle \tar{\Sigma}, \ifc{\Varid{e}}\rangle^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}'}} \begin{cases}
-    \ensuremath{\bullet} & \ensuremath{\ifc{\Varid{l}}'\;\not\flows\;\ifc{\Varid{l}}} \\
-    \ensuremath{\langle \tar{\Sigma}, \ifc{\Varid{e}}\rangle^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}'}} & \text{otherwise}
+  &\ensuremath{\varepsilon_{\ifc{l}}(\ifc{\Sigma};\ifc{\Varid{ts}})\mathrel{=}\varepsilon_{\ifc{l}}(\ifc{\Sigma});\text{filter}\;(\lambda \ifc{\Varid{t}}.\ifc{\Varid{t}}\mathrel{=}\bullet)\;(\text{map}\;\varepsilon_{\ifc{l}}\;\ifc{\Varid{ts}})}\\
+  &\ensuremath{\langle \tar{\Sigma}, \ifc{\Varid{e}}\rangle^{\ifc{\Varid{i}}}_{\ifc{l}'}} \begin{cases}
+    \ensuremath{\bullet} & \ensuremath{\ifc{l}'\;\not\flows{}\;\ifc{l}} \\
+    \ensuremath{\langle \tar{\Sigma}, \ifc{\Varid{e}}\rangle^{\ifc{\Varid{i}}}_{\ifc{l}'}} & \text{otherwise}
   \end{cases} \\
-  &\ensuremath{\varepsilon_{\ifc{\Varid{l}}}(\emptyset)\mathrel{=}\emptyset}\\
-  &\ensuremath{\varepsilon_{\ifc{\Varid{l}}}(\ifc{\Sigma}\left[\ifc{\Varid{i}}\mapsto{}\ifc{\Theta}\right])\mathrel{=}} \begin{cases}
-    \ensuremath{\varepsilon_{\ifc{\Varid{l}}}(\ifc{\Sigma})} & \text{\ensuremath{\ifc{\Varid{l}}'\;\not\flows\;\ifc{\Varid{l}}}, where \ensuremath{\ifc{\Varid{l}}'} is}\\
+  &\ensuremath{\varepsilon_{\ifc{l}}(\emptyset)\mathrel{=}\emptyset}\\
+  &\ensuremath{\varepsilon_{\ifc{l}}(\ifc{\Sigma}\left[\ifc{\Varid{i}}\mapsto{}\ifc{\Theta}\right])\mathrel{=}} \begin{cases}
+    \ensuremath{\varepsilon_{\ifc{l}}(\ifc{\Sigma})} & \text{\ensuremath{\ifc{l}'\;\not\flows{}\;\ifc{l}}, where \ensuremath{\ifc{l}'} is}\\
     & \text{the label of thread \ensuremath{\ifc{\Varid{i}}}} \\
-    \ensuremath{\varepsilon_{\ifc{\Varid{l}}}(\ifc{\Sigma})\left[\ifc{\Varid{i}}\mapsto{}\varepsilon_{\ifc{\Varid{l}}}(\ifc{\Theta})\right]} & \text{otherwise}
+    \ensuremath{\varepsilon_{\ifc{l}}(\ifc{\Sigma})\left[\ifc{\Varid{i}}\mapsto{}\varepsilon_{\ifc{l}}(\ifc{\Theta})\right]} & \text{otherwise}
   \end{cases} \\
-  &\ensuremath{\varepsilon_{\ifc{\Varid{l}}}(\ifc{\Theta})\mathrel{=}\ifc{\Theta}\preceq\ifc{\Varid{l}}}\\
-  &\ensuremath{\varepsilon_{\ifc{\Varid{l}}}(\Varid{v})\mathrel{=}\Varid{v}}
+  &\ensuremath{\varepsilon_{\ifc{l}}(\ifc{\Theta})\mathrel{=}\ifc{\Theta}\preceq\ifc{l}}\\
+  &\ensuremath{\varepsilon_{\ifc{l}}(\Varid{v})\mathrel{=}\Varid{v}}
 \end{align*}
 \caption{ Erasure function for tasks, queue maps, message queues, and
 configurations.  In all other cases, including target-language constructs,
-\ensuremath{\varepsilon_{\ifc{\Varid{l}}}} is applied homomorphically.  \label{fig:erasure} }
+\ensuremath{\varepsilon_{\ifc{l}}} is applied homomorphically.  \label{fig:erasure} }
 \end{figure}
 
-We note that the definition of \ensuremath{\varepsilon_{\ifc{\Varid{l}}}} captures the IFC
-language's attacker model. 
+The definition of \ensuremath{\varepsilon_{\ifc{l}}} is quite important, as it captures the IFC
+language's attacker model: elements that are erased cannot be observed
+by the attacker.
 %
 In our case, we assume that the attacker cannot observe sensitive tasks or
-messages, or even just the number of such entities.
+messages, or even the number of such entities.
 %
-While such assumptions are standard~\tocite{}, our definitions allow for
+While such assumptions are standard~\cite{Castellani:Boudol:ICALP01,
+stefan:addressing-covert}, our definitions allow for
 stronger attackers that may be able to inspect resource usage.\footnote{
   We believe that we can extend \ensuremath{L_\text{IFC}(\alpha,\Red{\lambda}\;\!\!)} to
-  such models using the resource limits techniques of~\tocite{}.
+  such models using the resource limits techniques of~\cite{yangresource}.
   %
   We leave this extension to future work.
 }
 
 Non-interference relies on the definition of an attacker's observational power at
-security level \ensuremath{\Varid{l}}, which is typically defined as an equivalence
-relation---called \ensuremath{\Varid{l}}-equivalence---on configurations.  An attacker
-at level \ensuremath{\Varid{l}} cannot
-distinguish two configurations that are \ensuremath{\Varid{l}}-equivalent.
+security level \ensuremath{l}, which is typically defined as an equivalence
+relation---called \ensuremath{l}-equivalence---on configurations.  An attacker
+at level \ensuremath{l} cannot
+distinguish two configurations that are \ensuremath{l}-equivalent.
 %
 Since our erasure function captures the attacker model, we simply define this
 equivalence as the syntactic-equivalence of erased configurations~\cite{stefan:addressing-covert}.
 %
-\begin{definition}[\ensuremath{\Varid{l}}-equivalence]
-    In a language \ensuremath{(\Delta,\hookrightarrow,\varepsilon_{\Varid{l}})}, two machine configurations
+\begin{definition}[\ensuremath{l}-equivalence]
+    In a language \ensuremath{(\Delta,\hookrightarrow,\varepsilon_{l})}, two machine configurations
     \ensuremath{c,c'\in\Delta} are considered $l$-equivalent, written as \ensuremath{c\approx_lc'},
-    if \ensuremath{\varepsilon_{\Varid{l}}(c)\mathrel{=}\varepsilon_{\ifc{\Varid{l}}}(c')}.
+    if \ensuremath{\varepsilon_{l}(c)\mathrel{=}\varepsilon_{\ifc{l}}(c')}.
 \end{definition}
 %
 
 Intuitively, we can now state that a language satisfies non-interference if an
-attacker at level \ensuremath{\Varid{l}} cannot distinguish the runs of any two \ensuremath{\Varid{l}}-equivalent
+attacker at level \ensuremath{l} cannot distinguish the runs of any two \ensuremath{l}-equivalent
 configurations.
 %
 This precise non-interference property is called termination sensitive non-interference
@@ -1110,29 +1116,27 @@ of public tasks to be independent of secret tasks.
 Formally, we define TSNI as follows.
 
 \begin{definition}[Termination Sensitive Non-Interference (TSNI)]
-  A language \ensuremath{(\Delta,\hookrightarrow,\varepsilon_{\Varid{l}})} is termination
-  sensitive non-interfering if for any label \ensuremath{\Varid{l}}, and configurations
+  A language \ensuremath{(\Delta,\hookrightarrow,\varepsilon_{l})} is termination
+  sensitive non-interfering if for any label \ensuremath{l}, and configurations
   \ensuremath{c_{1},c_{1}',c_{2}\;\in\;\Delta}, if
   \begin{equation} \label{eq:tsni-lhs}
-    \ensuremath{c_{1}} \approx_{\ensuremath{\Varid{l}}} \ensuremath{c_{2}}
+    \ensuremath{c_{1}} \approx_{\ensuremath{l}} \ensuremath{c_{2}}
     \qquad \text{and} \qquad
     \ensuremath{c_{1}} \ensuremath{\hookrightarrow}^* \ensuremath{c_{1}'}
   \end{equation}
   then there exists a configuration \ensuremath{c_{2}'\;\in\;\Delta} such that
   \begin{equation} \label{eq:tsni-rhs}
-    \ensuremath{c_{1}'} \approx_{\ensuremath{\Varid{l}}} \ensuremath{c_{2}'}
+    \ensuremath{c_{1}'} \approx_{\ensuremath{l}} \ensuremath{c_{2}'}
      \qquad \text{and} \qquad
     \ensuremath{c_{2}} \ensuremath{\hookrightarrow}^* \ensuremath{c_{2}'}
     \ \text{.}
   \end{equation}
 \end{definition}
 %
-In other words if we take two \ensuremath{\Varid{l}}-equivalent configurations, then for every
+In other words if we take two \ensuremath{l}-equivalent configurations, then for every
 intermediate step taken by the first configuration, there is a corresponding
 number of steps that the second configuration can take to result in a
-configuration that is \ensuremath{\Varid{l}}-equivalent to the first resultant configuration.
-\Red{TODO: Do we want a commutative diagram to illustrate this? Ale: I don't
-  think so, it is quite standard}
+configuration that is \ensuremath{l}-equivalent to the first resultant configuration.
 
 
 We now show that our IFC language satisfies TSNI %under a particular
@@ -1157,16 +1161,16 @@ will in general break non-interference~\cite{Russo:Sabelfeld:CSFW06,BartheRRS07}
 %specification language is TSNI.
 %
 
-However, even non-adversairal schedulers are not always safe.
+However, even non-adversarial schedulers are not always safe.
 Consider, for example, the sequential scheduling policy \ensuremath{\textsc{Seq}} given in
 Figure~\ref{fig:scheduler}.
 %
 It is easy to show that \ensuremath{L_\text{IFC}(\textsc{Seq},\Red{\lambda})} does not satisfy
 TSNI.
 %
-Concretely, consider a target language similar to \ensuremath{\Red{\lambda_{\text{ML}}}} with an
+Concretely, consider a target language similar to \ensuremath{\Red{\lambda_{\text{ES}}}} with an
 additional expression terminal \ensuremath{\tar{\Uparrow}} that denotes a divergent computation,
-i.e., \ensuremath{\tar{\Uparrow}} always reduces to \ensuremath{\tar{\Uparrow}} and a simple label lattice \ensuremath{\{\mskip1.5mu \mathsf{pub},\mathsf{sec}\mskip1.5mu\}} such that \ensuremath{\mathsf{pub}\;\flows\;\mathsf{sec}}, but \ensuremath{\mathsf{sec}\;\not\flows\;\mathsf{pub}}.
+i.e., \ensuremath{\tar{\Uparrow}} always reduces to \ensuremath{\tar{\Uparrow}} and a simple label lattice \ensuremath{\{\mskip1.5mu \mathsf{pub},\mathsf{sec}\mskip1.5mu\}} such that \ensuremath{\mathsf{pub}\;\flows{}\;\mathsf{sec}}, but \ensuremath{\mathsf{sec}\;\not\flows{}\;\mathsf{pub}}.
 Consider the following two configurations in this language:
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -1189,7 +1193,7 @@ Suppose that \ensuremath{\ifc{\Varid{e}}} is a computation that writes to a \ens
 Though we do not model labeled channels, extending the calculus with such a
 feature is straight forward, see Setion~\ref{sec:extensions}.}
 then the \ensuremath{\mathsf{sec}} tasks's decision to diverge or not is directly leaked to a
-public entitiy.
+public entity.
 
 % sheule: I feel like this forward reference is not useful here.
 %In certain cases, however, a TSNI-safe concurrent scheduling policy such as
@@ -1204,25 +1208,25 @@ non-interference (TINI).  This property can also be upheld by sequential languag
 of leaking through (non)-termination~\cite{Askarov:2008}.
 %
 \begin{definition}[Termination insensitive non-interference (TINI)]
-  A language \ensuremath{(\Delta,V,\hookrightarrow,\varepsilon_{\Varid{l}})} is termination
-  insensitive non-interfering if for any label \ensuremath{\Varid{l}}, and configurations
+  A language \ensuremath{(\Delta,V,\hookrightarrow,\varepsilon_{l})} is termination
+  insensitive non-interfering if for any label \ensuremath{l}, and configurations
   \ensuremath{c_{1},c_{2}\;\in\;\Delta} and \ensuremath{c_{1}',c_{2}'\;\in\;V}, it holds that
   \[
-    (\ensuremath{c_{1}} \approx_{\ensuremath{\Varid{l}}} \ensuremath{c_{2}}
+    (\ensuremath{c_{1}} \approx_{\ensuremath{l}} \ensuremath{c_{2}}
     \;\;\land\;\;
     \ensuremath{c_{1}} \ensuremath{\hookrightarrow}^* \ensuremath{c_{1}'}
     \;\;\land\;\;
     \ensuremath{c_{2}} \ensuremath{\hookrightarrow}^* \ensuremath{c_{2}'})
     \implies
-    \ensuremath{c_{1}'} \approx_{\ensuremath{\Varid{l}}} \ensuremath{c_{2}'}
+    \ensuremath{c_{1}'} \approx_{\ensuremath{l}} \ensuremath{c_{2}'}
   \]
 \end{definition}
 
-TSNI states that if we take two \ensuremath{\Varid{l}}-equivalent configurations, and both
+TSNI states that if we take two \ensuremath{l}-equivalent configurations, and both
 configurations reduce to final configurations (i.e.,
 configurations for which there are no
 possible further transitions), then the end configurations are also
-\ensuremath{\Varid{l}}-equivalent.
+\ensuremath{l}-equivalent.
 %
 We highlight that this statement is much weaker than TSNI: it only states that
 terminating programs do not leak sensitive data, but makes no statement
@@ -1253,7 +1257,7 @@ For any target language \ensuremath{\Red{\lambda}}, \ensuremath{L_\text{IFC}(\te
 The operational semantics we have defined in the previous section
 satisfy non-interference by design.
 We achieve this general statement that works for a large class of
-languages by having different task execute completely isolated from
+languages by having different tasks executing completely isolated from
 each other, such that every task has its own state.
 In some cases, this strong separation is desirable, or even necessary.
 Languages like C provide direct access to memory locations without
@@ -1261,28 +1265,28 @@ mechanisms in the language to achieve a separation of the heap.
 On the other hand, for other languages this
 strong isolation of tasks can be
 undesirable, e.g., for performance reasons.
-For instance, for the language \ensuremath{\Red{\lambda_{\text{ML}}}}, our presentation so far
+For instance, for the language \ensuremath{\Red{\lambda_{\text{ES}}}}, our presentation so far
 requires a separate heap per task, which is not very practical.
 Instead, we would like to
 more tightly couple the integration of the target and IFC
 language by reusing existing infrastructure.  In the running example,
 a concrete implementation might use a single global heap.
 More precisely, instead of using a configuration of the form
-\[\ensuremath{\ifc{\Sigma};\langle \tar{\Sigma}_{1}, \ifc{\Varid{e}}_{1}\rangle^{\ifc{\Varid{i}}_{1}}_{\ifc{\Varid{l}}_{1}},\langle \tar{\Sigma}_{2}, \ifc{\Varid{e}}_{2}\rangle^{\ifc{\Varid{i}}_{2}}_{\ifc{\Varid{l}}_{2}}\;\ldots}\]
+\[\ensuremath{\ifc{\Sigma};\langle \tar{\Sigma}_{1}, \ifc{\Varid{e}}_{1}\rangle^{\ifc{\Varid{i}}_{1}}_{\ifc{l}_{1}},\langle \tar{\Sigma}_{2}, \ifc{\Varid{e}}_{2}\rangle^{\ifc{\Varid{i}}_{2}}_{\ifc{l}_{2}}\;\ldots}\]
 we would like a single global heap as in
-\[\ensuremath{\ifc{\Sigma};\tar{\Sigma};\langle \ifc{\Varid{e}}_{1}\rangle^{\ifc{\Varid{i}}_{1}}_{\ifc{\Varid{l}}_{1}},\langle \ifc{\Varid{e}}_{2}\rangle^{\ifc{\Varid{i}}_{2}}_{\ifc{\Varid{l}}_{2}},\ldots}\]
+\[\ensuremath{\ifc{\Sigma};\tar{\Sigma};\langle \ifc{\Varid{e}}_{1}\rangle^{\ifc{\Varid{i}}_{1}}_{\ifc{l}_{1}},\langle \ifc{\Varid{e}}_{2}\rangle^{\ifc{\Varid{i}}_{2}}_{\ifc{l}_{2}},\ldots}\]
 
 If the operational rules are adapted na\"ively to this new setting,
 then non-interference can be violated.  In particular, it is not
 sound to share references to a heap cell between different tasks.
 Otherwise, information can be trivially leaked by copying
-secret data into a reference in one task, and then
+secret data to a shared reference in one task, and then
 reading it again by a another task with a lower label.
 What we would like is a way of characterizing safe modifications to
 the semantics which preserve non-interference.
 The intention of our single heap implementation was to be more efficient
-by using one global heap, but conceptually maintain isolation between
-task by not allowing sharing of references between tasks.
+by using one global heap, but \emph{conceptually maintain isolation between
+task by not allowing sharing of references between them}.
 This intuition of having a different (potentially more efficient)
 concrete semantics that behave like the abstract semantics
 can be formalized by the following definition:
@@ -1291,15 +1295,15 @@ can be formalized by the following definition:
 % abs prime blue ifc
 
 \begin{definition}[Isomorphism of information-flow control languages]
-  A language \ensuremath{(\Delta,\hookrightarrow,\varepsilon_{\Varid{l}})} is \textit{isomorphic} to a
-  language \ensuremath{(\Delta',\hookrightarrow',\varepsilon'_{\Varid{l}})} if there exist total functions \ensuremath{\Varid{f}\mathbin{:}\Delta\rightarrow\Delta'} and \ensuremath{\Varid{f}^{-1}\mathbin{:}\Delta'\rightarrow\Delta} such that \ensuremath{\Varid{f}\circ\Varid{f}^{-1}\mathrel{=}id_{\Delta}} \ensuremath{\Varid{f}^{-1}\circ\Varid{f}\mathrel{=}id_{\Delta'}}.  Furthermore, \ensuremath{\Varid{f}} and \ensuremath{\Varid{f}^{-1}} are functorial (e.g. if
+  A language \ensuremath{(\Delta,\hookrightarrow,\varepsilon_{l})} is \textit{isomorphic} to a
+  language \ensuremath{(\Delta',\hookrightarrow',\varepsilon'_{l})} if there exist total functions \ensuremath{\Varid{f}\mathbin{:}\Delta\rightarrow\Delta'} and \ensuremath{\Varid{f}^{-1}\mathbin{:}\Delta'\rightarrow\Delta} such that \ensuremath{\Varid{f}\circ\Varid{f}^{-1}\mathrel{=}id_{\Delta}} \ensuremath{\Varid{f}^{-1}\circ\Varid{f}\mathrel{=}id_{\Delta'}}.  Furthermore, \ensuremath{\Varid{f}} and \ensuremath{\Varid{f}^{-1}} are functorial (e.g. if
   $x'\ R'\ y'$ then $f(x')\ R\ f(y')$) over both
   $l$-equivalences and \ensuremath{\hookrightarrow}.
   
   If we weaken this restriction such that \ensuremath{\Varid{f}^{-1}} does
   not have to be functorial over \ensuremath{\hookrightarrow}, we call the
-  language \ensuremath{(\Delta,\hookrightarrow,\varepsilon_{\Varid{l}})} \textit{weakly isomorphic} to
-  \ensuremath{(\Delta',\hookrightarrow',\varepsilon'_{\Varid{l}})}.
+  language \ensuremath{(\Delta,\hookrightarrow,\varepsilon_{l})} \textit{weakly isomorphic} to
+  \ensuremath{(\Delta',\hookrightarrow',\varepsilon'_{l})}.
 \end{definition}
 
 Providing an isomorphism between the two languages allows us to
@@ -1330,27 +1334,48 @@ as the following two theorems state.
   equivalence back using functoriality of \ensuremath{\Varid{f}^{-1}} over $l$-equivalences.
 \end{proof}
 
-A na\"ive attempt at our single heap semantics
-will not allow us to construct an isomorphism
-with the abstract language \ensuremath{L_\text{IFC}(\alpha,\Red{\lambda_{\text{ML}}})}, and instead highlights
-where things will go wrong.
-To successfully construct an isomorphism, our concrete semantics need
-to mirror the behavior of the abstract semantics, most importantly
-in the case where tasks interact.  Namely, at a fork and when sending
-or receiving messages, we take an expression from one task and
-execute it in the context of another task.  In the abstract semantics
-the fork rule is parameterized by the strategy \ensuremath{\kappa}, which defines
-what heap the new task should execute in.  \Red{In Section~\ref{sec:retrofit}
-we have motivated two choices}, namely the identity (to effectively
-clone the heap), or to start with an empty heap.
+
+To obtain an isomorphism with our single heap semantics, we need to mimic the
+behavior of several heaps with a single actual heap.
+The interesting cases are when we sandbox
+an expression, and when messages are sent and received.
+The rule for sandboxing is
+parameterized by the strategy \ensuremath{\kappa} (cf.\ Section~\ref{sec:retrofit}),
+which defines what heap the new task
+should execute with.  We have motivated two choices, namely the identity (to
+effectively clone the heap), or to start with an empty heap.  
+
+{\color{red}
+In the first choice, the concrete semantics should essentially implement several
+heaps into one. For that, it creates a copy of everything reachable from the
+forked expression (not just the values for the memory addresses in the
+expression \Red{Ale:why not only the addresses?}), and replace all addresses
+correspondingly.  behavior of sending a memory address now depends on whether
+that address existed at the time the receiving task was forked; if it did, then
+the address should be rewritten to the new one, otherwise to a fresh one.
+
+
+In the latter case, this effectively means that the concrete semantics must
+change the forked expression \ensuremath{\ifc{\Varid{e}}} in such a way that all addresses get rewritten
+to fresh addresses that are guaranteed to not occur in the global heap. As a
+consequence, existing addresses in the forked expression \ensuremath{\ifc{\Varid{e}}} are no longer
+valid and the task gets stuck (and then removed by \textsc{I-noStep}).
+%To get the isomorphic behavior in the concrete semantics with a
+%single heap, we would have to change the forked expression |ie| in
+%such a way that all addresses get rewritten to fresh addresses
+%that are guaranteed to not occur in the global heap.  
+Similarly, sending a memory address should take a similar approach, as addresses
+for sent references will not exist in the receiving task.
+}
+
+{\color{blue}
 In the latter case, this effectively means that existing addresses
 in the forked expression \ensuremath{\ifc{\Varid{e}}} are no longer valid and the
 task gets stuck (and then removed by \textsc{I-noStep}).
-\todo{}{Is this actually true?  Currently the semantics are unclear.}
 To get the isomorphic behavior in the concrete semantics with a
 single heap, we would have to change the forked expression \ensuremath{\ifc{\Varid{e}}} in
 such a way that all addresses get rewritten to fresh addresses
-that are guaranteed to not occur in the global heap.  Similarly,
+that are guaranteed to not occur in the heap.  Similarly,
 sending a memory address should take a similar approach, as addresses
 for sent references will not exist in the receiving task.
 
@@ -1363,11 +1388,15 @@ correspondingly.  Even worse, the behavior of sending a memory address
 now depends on whether that address existed at the time the receiving
 task was forked;  if it did, then the address should be rewritten to the
 new one, otherwise to a fresh address.
+
 Such a complicated behavior is contradictory to our initial motivation
-of implementing a single heap for efficiency.  But also the
+of implementing a single heap for efficiency.  But even the
 behavior of the simpler case where \ensuremath{\kappa} returns an empty heap is
 undesirable:  We rewrite addresses to fresh addresses, which will
 result in a stuck task whenever such an address is dereferenced.
+}
+
+
 
 \subsection{Restricting the IFC Language}
 
@@ -1377,57 +1406,76 @@ first place.  In a statically typed language, the type system could
 prevent this from happening, and we talk more about how our
 approach integrates with typed languages in
 Section~\ref{sec:extensions:types}.
-In a dynamically type languages such as \ensuremath{\Red{\lambda_{\text{ML}}}}, we might
+In a dynamically type languages such as \ensuremath{\Red{\lambda_{\text{ES}}}}, we might
 restrict the transition for \ensuremath{\mathbf{sandbox}} and \ensuremath{\mathbf{send}} to only allow expressions
 without memory addresses.
 
-Again we are modifying the IFC language semantics in a non-trivial way,
+Again, we are modifying the IFC language semantics in a non-trivial way,
 which begs the question whether non-interference is preserved.
-Note that restricting the transitions in an information flow control
-system in general does not preserve non-interference as the following
-minimal example illustrates.
-Consider a trivial state machine as shown
-in Figure~\ref{fig:trivial-sm}, whose second projection is classified
-secret.  With all three transitions, this language fulfills
-termination sensitive non-interference.  Furthermore, if the
-dashed transition
-is removed, the language continues to satisfy TSNI.  However, if any
-solid line is removed, the language fails TSNI.
+Restricting the transitions in an information flow control
+system in general does not preserve non-interference.  Intuitively
+if the restriction depends on secret data, then a public thread
+can observe if some other task terminates or not, and by that obtain
+information about the secret data that was used to restrict the
+transition.
+With this in mind, we require semantic rules to get restricted only
+based on information observable by the task triggering them.
+This ensures that non-interference is preserved, as the
+restriction does not depend on confidential information.
+Below, we give the formal definition of this condition for the
+abstract IFC language \ensuremath{L_\text{IFC}(\alpha,\Red{\lambda})}.
 
-\begin{figure}
-  States: $(x,y)$ for $x,y \in \{0,1\}$ \\
-  Erasure function: $f(x,y) = (x,\bullet)$
-  
-  \begin{center}\begin{tikzpicture}[node distance=2cm, auto]
-    \node (A) {$(1,1)$};
-    \node (B) [right of=A] {$(1,0)$};
-    \node (C) [below of=A] {$(0,1)$};
-    \node (D) [right of=C] {$(0,0)$};
-    \draw[->] (A) to node {} (B);
-    \draw[->] (C) to node {} (D);
-    \draw[->, dashed] (B) to node {} (D);
-    \end{tikzpicture}\end{center}
-  
-  \label{fig:trivial-sm}
-  \caption{A trivial state machine}
-\end{figure}
+%system in general does not preserve non-interference as the following
+%minimal example illustrates. 
 
-To remedy this issue, we give a definition that gives a condition
-under which it is safe to restrict the abstract IFC language
-\ensuremath{L_\text{IFC}(\alpha,\Red{\lambda})}, such that non-interference is preserved.
+
+% Again, we are modifying the IFC language semantics in a non-trivial way,
+% which begs the question whether non-interference is preserved.
+% Restricting the transitions in an information flow control
+% system in general does not preserve non-interference as the following
+% minimal example illustrates. \Red{Ale: I am not sure that the example is clear,
+%   too abstract, at least, I don't get it. Propose to remove it, and just say 
+% the top level idea: ``the restriction should not be based on secret data!''} 
+% Consider a trivial state machine as shown
+% in Figure~\ref{fig:trivial-sm}, whose second projection is classified
+% secret.  With all three transitions, this language fulfills
+% termination sensitive non-interference.  Furthermore, if the
+% dashed transition
+% is removed, the language continues to satisfy TSNI.  However, if any
+% solid line is removed, the language fails TSNI.
+
+% \begin{figure}
+%   States: $(x,y)$ for $x,y \in \{0,1\}$ \\
+%   Erasure function: $f(x,y) = (x,\bullet)$
+  
+%   \begin{center}\begin{tikzpicture}[node distance=2cm, auto]
+%     \node (A) {$(1,1)$};
+%     \node (B) [right of=A] {$(1,0)$};
+%     \node (C) [below of=A] {$(0,1)$};
+%     \node (D) [right of=C] {$(0,0)$};
+%     \draw[->] (A) to node {} (B);
+%     \draw[->] (C) to node {} (D);
+%     \draw[->, dashed] (B) to node {} (D);
+%     \end{tikzpicture}\end{center}
+  
+%   \label{fig:trivial-sm}
+%   \caption{A trivial state machine}
+% \end{figure}
+
+%To remedy this issue, 
 
 \begin{definition}[Restricted IFC language]
   \label{def:restricted}
   For a family of predicates $\mathcal P$ (one for every reduction
   rule), we call
-  \ensuremath{L_\text{IFC}^{\text{-}}(\mathcal{P},\alpha,\Red{\lambda})} a restricted IFC language
+  \ensuremath{L_\text{IFC}^{\mathcal{P}}(\alpha,\Red{\lambda})} a restricted IFC language
   if its definition is equivalent to the abstract language
   \ensuremath{L_\text{IFC}(\alpha,\Red{\lambda})}, with the following exception:
   The reduction rules are restricted
-  by adding a predicate $P$ from $\mathcal P$ to the premise of
+  by adding a predicate $P \in \mathcal P$ to the premise of
   all rule other than \textsc{I-noStep}.  Furthermore, the predicates $P$
   can depend only on the \textit{erased} configuration
-  \ensuremath{\varepsilon_{\ifc{\Varid{l}}}(\ifc{c})}, where \ensuremath{\ifc{\Varid{l}}} is the label of the first task
+  \ensuremath{\varepsilon_{\ifc{l}}(\ifc{c})}, where \ensuremath{\ifc{l}} is the label of the first task
   in the task list and \ensuremath{\ifc{c}} the full configuration.
 \end{definition}
 
@@ -1437,9 +1485,9 @@ appropriate scheduling policy is non-interfering.
 \begin{theorem}
   \label{thm:restricted}
   For any target language \ensuremath{\Red{\lambda}} and family of predicates
-  $\mathcal{P}$, the IFC language \ensuremath{L_\text{IFC}^{\text{-}}(\mathcal{P},\textsc{RR},\Red{\lambda})}
+  $\mathcal{P}$, the restricted IFC language \ensuremath{L_\text{IFC}^{\mathcal{P}}(\textsc{RR},\Red{\lambda})}
   is TSNI.  Furthermore, the IFC language
-  \ensuremath{L_\text{IFC}^{\text{-}}(\mathcal{P},\textsc{Seq},\Red{\lambda})} is TSNI.
+  \ensuremath{L_\text{IFC}^{\mathcal{P}}(\textsc{Seq},\Red{\lambda})} is TINI.
 \end{theorem}
 
 
@@ -1448,10 +1496,11 @@ appropriate scheduling policy is non-interfering.
 We are now ready to make our single heap IFC language precise and
 ensure its non-interference using the techniques presented.
 First, we can construct the restricted language
-\ensuremath{L_\text{IFC}^{\text{-}}(\mathcal{P}_\text{norefs},\alpha,\Red{\lambda_{\text{ML}}})}, where \ensuremath{\mathcal{P}_\text{norefs}} is
+\ensuremath{L_\text{IFC}^{\mathcal{P}_\text{norefs}}(\alpha,\Red{\lambda_{\text{ES}}})}, where \ensuremath{\mathcal{P}_\text{norefs}} is
 the family of always valid predicates, except for the ones for
 \textsc{I-fork} and \textsc{I-send}, which we define as
-\[ P = \text{\ensuremath{\ifc{\Varid{e}}} does not contain any address \ensuremath{\tar{a}}} \]
+\[ P(\ensuremath{\ifc{\Varid{e}}}) = (\mathcal{AV}(\ensuremath{\ifc{\Varid{e}}}) = \emptyset{}) \]
+where $\mathcal{AV}(\ensuremath{\ifc{\Varid{e}}})$ denotes the set of address variables in \ensuremath{\ifc{\Varid{e}}}.
 That is, we do not restrict any rules except for \textsc{I-fork}
 and \textsc{I-send}.
 Since $P$ only depends on \ensuremath{\ifc{\Varid{e}}}, which is part of the current
@@ -1463,22 +1512,22 @@ this language satisfies non-interference by Theorem~\ref{thm:restricted}.
   \begin{mathpar}
     \inferrule[C-fork]
     {
-      \text{\ensuremath{\ifc{\Varid{e}}} does not contain any \ensuremath{\tar{a}}}\\
+      \mathcal{AV}(\ensuremath{\ifc{\Varid{e}}}) = \emptyset{}\\
       \ensuremath{\ifc{\Sigma}'\mathrel{=}\ifc{\Sigma}\left[\ifc{\Varid{i}}'\mapsto{}\epsilon\right]}\\
-      \ensuremath{\ifc{\Varid{t}}_{1}\mathrel{=}\langle \ifc{E}\ifc{[}\ifc{\Varid{i}}'\ifc{]}\rangle^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}}}\\
-      \ensuremath{\ifc{\Varid{t}}_\textrm{new}\mathrel{=}\langle \tar{_{\textrm{TI}}\lfloor}\ifc{\Varid{e}}\tar{\rfloor}\rangle^{\ifc{\Varid{i}}'}_{\ifc{\Varid{l}}}}\\
+      \ensuremath{\ifc{\Varid{t}}_{1}\mathrel{=}\langle \ifc{E}\ifc{[}\ifc{\Varid{i}}'\ifc{]}\rangle^{\ifc{\Varid{i}}}_{\ifc{l}}}\\
+      \ensuremath{\ifc{\Varid{t}}_\textrm{new}\mathrel{=}\langle \tar{_{\textrm{TI}}\lfloor}\ifc{\Varid{e}}\tar{\rfloor}\rangle^{\ifc{\Varid{i}}'}_{\ifc{l}}}\\
       \ensuremath{\textrm{fresh}\;(\ifc{\Varid{i}}')}
     }
-    {\ensuremath{\ifc{\Sigma};\tar{\Sigma};\langle \ifc{E}\ifc{[}\mathbf{sandbox}\;\ifc{\Varid{e}}\ifc{]}_\ifc{I}\rangle^{\ifc{\Varid{i}}_{1}}_{\ifc{\Varid{l}}_{1}},\ldots\hookrightarrow\ifc{\Sigma}';\tar{\Sigma};\alpha_{{\tiny\mathrm{\Conid{F}}}}(\ifc{\Varid{t}}_{1},\ldots,\ifc{\Varid{t}}_\textrm{new})}}
+    {\ensuremath{\ifc{\Sigma};\tar{\Sigma};\langle \ifc{E}\ifc{[}\mathbf{sandbox}\;\ifc{\Varid{e}}\ifc{]}_\ifc{I}\rangle^{\ifc{\Varid{i}}_{1}}_{\ifc{l}_{1}},\ldots\hookrightarrow\ifc{\Sigma}';\tar{\Sigma};\alpha_{{\tiny\mathrm{\Conid{F}}}}(\ifc{\Varid{t}}_{1},\ldots,\ifc{\Varid{t}}_\textrm{new})}}
     \and
     \inferrule[C-send]
     {
-      \text{\ensuremath{\ifc{\Varid{e}}} does not contain any \ensuremath{\tar{a}}}\\
-      \ensuremath{\ifc{\Varid{l}}\;\flows\;\ifc{\Varid{l}}'}\\
+      \mathcal{AV}(\ensuremath{\ifc{\Varid{e}}}) = \emptyset{}\\
+      \ensuremath{\ifc{l}\flows{}\ifc{l}'}\\
       \ensuremath{\ifc{\Sigma}\;(\ifc{\Varid{i}}')\mathrel{=}\ifc{\Theta}}\\
-      \ensuremath{\ifc{\Sigma}'\mathrel{=}\ifc{\Sigma}\left[\ifc{\Varid{i}}'\mapsto{}(\ifc{\Varid{l}}',\ifc{\Varid{i}},\ifc{\Varid{e}}),\ifc{\Theta}\right]}
+      \ensuremath{\ifc{\Sigma}'\mathrel{=}\ifc{\Sigma}\left[\ifc{\Varid{i}}'\mapsto{}(\ifc{l}',\ifc{\Varid{i}},\ifc{\Varid{e}}),\ifc{\Theta}\right]}
     }
-    {\ensuremath{\ifc{\Sigma};\tar{\Sigma};\langle \ifc{E}\ifc{[}\mathbf{send}\;\ifc{\Varid{i}}'\;\ifc{\Varid{l}}'\;\ifc{\Varid{e}}\ifc{]}_\ifc{I}\rangle^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}},\ldots\rightarrow\ifc{\Sigma};\tar{\Sigma};\alpha_{{\tiny\mathrm{\text{step}}}}(\langle \langle\rangle\rangle^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}},\ldots)}}
+    {\ensuremath{\ifc{\Sigma};\tar{\Sigma};\langle \ifc{E}\ifc{[}\mathbf{send}\;\ifc{\Varid{i}}'\;\ifc{l}'\;\ifc{\Varid{e}}\ifc{]}_\ifc{I}\rangle^{\ifc{\Varid{i}}}_{\ifc{l}},\ldots\rightarrow\ifc{\Sigma};\tar{\Sigma};\alpha_{{\tiny\mathrm{\text{step}}}}(\langle \langle\rangle\rangle^{\ifc{\Varid{i}}}_{\ifc{l}},\ldots)}}
   \end{mathpar}
   
   \caption{A selection of the reduction rules for \ensuremath{L_\text{IFC}^{\Red{\text{Heap}}}(\alpha)}.}
@@ -1493,220 +1542,14 @@ straight-forward translations of the rules in Figures~\ref{fig:ifc}
 and~\ref{fig:embedding} but for a single heap.  For conciseness, we
 only show the interesting ones.
 Now, we can show an isomorphism between this language and
-\ensuremath{L_\text{IFC}^{\text{-}}(\mathcal{P}_\text{norefs},\alpha,\Red{\lambda_{\text{ML}}})}, which
+\ensuremath{L_\text{IFC}^{\mathcal{P}_\text{norefs}}(\alpha,\Red{\lambda_{\text{ES}}})}, which
 (by Theorem~\ref{thm:iso-tsni} and~\ref{thm:iso-tini}) guarantees
 non-interference for an appropriate scheduling policy \ensuremath{\alpha}.
 
 \Red{Show the isomorphism.}
 
 
-\section{Proofs}
-\label{sec:proofs}
 
-In this section we will prove all theorems we have stated so far.
-We observe that the non-interference claims for the languages
-\ensuremath{L_\text{IFC}(\textsc{Seq},\Red{\lambda})} and \ensuremath{L_\text{IFC}(\textsc{RR}_{{\tiny\mathrm{\cdot }}}(\cdot ),\Red{\lambda})}
-in Theorems~\ref{thm:rr-tsni} and~\ref{thm:seq-tini} follow directly
-from Theorems~\ref{thm:iso-tsni} and~\ref{thm:iso-tini},
-respectively, about restricted IFC languages where the set
-of predicates is the set of always valid predicates.
-
-Before we proceed with the proof of Theorem~\ref{thm:iso-tsni},
-we state a lemma we will use.
-
-\begin{lemma}
-  \label{lemma:rr-tsni-general}
-  We consider, for any target language \ensuremath{\Red{\lambda}},
-  the restricted IFC language \ensuremath{L_\text{IFC}^{\text{-}}(\mathcal{P},\alpha,\Red{\lambda})}
-  (according to Definition~\ref{def:restricted}).
-  Then,
-  for any configurations \ensuremath{\ifc{c}_{1}}, \ensuremath{\ifc{c}_{1}'}, \ensuremath{\ifc{c}_{2}}, and label \ensuremath{\ifc{\Varid{l}}} where
-  \begin{equation} \label{eq:tsni-lemma-lhs}
-  \ensuremath{\ifc{c}_{1}} \approx_{\ensuremath{\ifc{\Varid{l}}}} \ensuremath{\ifc{c}_{2}}
-  \qquad \text{and} \qquad
-  \ensuremath{\ifc{c}_{1}} \ensuremath{\hookrightarrow} \ensuremath{\ifc{c}_{1}'}
-  \end{equation}
-  there exists a configuration \ensuremath{\ifc{c}_{2}'} such that
-  \begin{equation} \label{eq:tsni-lemma-rhs}
-  \ensuremath{\ifc{c}_{1}'} \approx_{\ensuremath{\ifc{\Varid{l}}}} \ensuremath{\ifc{c}_{2}'}
-  \qquad \text{and} \qquad
-  \ensuremath{\ifc{c}_{2}} \ensuremath{\hookrightarrow}^* \ensuremath{\ifc{c}_{2}'}
-  \ \text{.}
-  \end{equation}
-\end{lemma}
-
-\begin{proof}[Proof of Theorem~\ref{thm:iso-tsni}]
-  We proof the theorem by induction on the length of the derivation sequence in~\eqref{eq:tsni-lhs}.
-  The base case for derivations
-  of length 0 is trivial, allowing
-  us to simple chose $\ensuremath{\ifc{c}_{2}'\mathrel{=}\ifc{c}_{2}}$.  In the step case, we assume
-  the theorem holds for derivation sequences of length up to $n$, and show that it also
-  holds for those of length $n+1$.  We split the derivation sequence from~\eqref{eq:tsni-lhs} as follows:
-  \[
-  \ensuremath{\ifc{c}_{1}} \ensuremath{\hookrightarrow} \ensuremath{\ifc{c}_{1}''} \ensuremath{\hookrightarrow}^n \ensuremath{\ifc{c}_{1}'}
-  \]
-  for some configuration \ensuremath{\ifc{c}_{1}''}.  By Lemma~\ref{lemma:rr-tsni-general}, we get
-  \ensuremath{\ifc{c}''} with
-  \begin{equation} \label{eq:tsni-proof-1}
-  \ensuremath{\ifc{c}_{1}''} \approx_{\ensuremath{\ifc{\Varid{l}}}} \ensuremath{\ifc{c}_{2}''}
-  \qquad \text{and} \qquad
-  \ensuremath{\ifc{c}_{2}} \ensuremath{\hookrightarrow}^* \ensuremath{\ifc{c}_{2}''}
-  \end{equation}
-  Applying the induction hypothesis to
-  $\ensuremath{\ifc{c}_{1}''} \ensuremath{\hookrightarrow}^n \ensuremath{\ifc{c}_{1}'}$, we get \ensuremath{\ifc{c}_{2}'} with
-  \begin{equation} \label{eq:tsni-proof-2}
-  \ensuremath{\ifc{c}_{1}'} \approx_{\ensuremath{\ifc{\Varid{l}}}} \ensuremath{\ifc{c}_{2}'}
-  \qquad \text{and} \qquad
-  \ensuremath{\ifc{c}_{2}''} \ensuremath{\hookrightarrow}^* \ensuremath{\ifc{c}_{2}'}
-  \end{equation}
-  Stitching together the derivation sequences from~\eqref{eq:tsni-proof-1} and~\eqref{eq:tsni-proof-2} directly gives
-  us the right-hand side of the implication in the TSNI
-  definition~\eqref{eq:tsni-rhs}, which concludes the proof.
-\end{proof}
-\begin{proof}[Proof of Lemma~\ref{lemma:rr-tsni-general}]
-  First, we observe there must be at least one task in \ensuremath{\ifc{c}_{1}}, otherwise
-  it could not take a step.  Thus, \ensuremath{\ifc{c}_{1}} is of the form
-  \ensuremath{\ifc{\Sigma}_{1};\ifc{\Varid{t}}_{1},\ifc{\Varid{ts}}_{1}}.  Consider two cases:
-  \begin{itemize}
-    \item $\ensuremath{\varepsilon_{\ifc{\Varid{l}}}(\ifc{\Varid{t}}_{1})}=\ensuremath{\bullet}$.
-    By the definition of \ensuremath{\varepsilon_{\ifc{\Varid{l}}}}, we know that \ensuremath{\ifc{\Varid{l}}\;\flows\;\lcurr}
-    where \ensuremath{\lcurr} is the label of \ensuremath{\ifc{\Varid{t}}_{1}}.
-    In this case, we do not need to take a step for
-    \ensuremath{\ifc{c}_{2}}, because \ensuremath{\ifc{c}_{2}'\mathrel{=}\ifc{c}_{2}} will already be \ensuremath{\ifc{\Varid{l}}}-equivalent to \ensuremath{\ifc{c}_{1}'}.
-    To see that, note that the tasks \ensuremath{\ifc{\Varid{ts}}_{1}} in \ensuremath{\ifc{c}_{1}} are left in the
-    same order and unmodified (the scheduling policy only
-    modifies the first task). The task \ensuremath{\ifc{\Varid{t}}_{1}} either
-    gets dropped (by \textsc{I-noStep}), or
-    transforms into a task \ensuremath{\ifc{\Varid{t}}_{1}'} as well as potentially spawning a new
-    task \ensuremath{\ifc{\Varid{t}}_{1}''}.  Since both \ensuremath{\ifc{\Varid{t}}_{1}'} and \ensuremath{\ifc{\Varid{t}}_{1}''} have a label that is
-    at least as high as the label of \ensuremath{\ifc{\Varid{t}}_{1}} (can be seen
-    by inspecting all reduction rules), they will get filtered
-    by \ensuremath{\varepsilon_{\ifc{\Varid{l}}}} in \ensuremath{\ifc{c}_{1}'}.  Therefore, the \ensuremath{\ifc{\Varid{l}}} equivalence of the
-    task list is guaranteed.
-    Lets consider the possible changes to \ensuremath{\ifc{\Sigma}_{1}}:
-    Only three reduction rules change \ensuremath{\ifc{\Sigma}_{1}},
-    thus it suffices to consider these cases:
-    \begin{description}
-      \item[Case \textsc{I-send}]
-      A new message triple with label \ensuremath{\ifc{\Varid{l}}'} gets added to the message
-      queue of the receiving thread.  However, since \ensuremath{\lcurr\;\flows\;\ifc{\Varid{l}}'},
-      the triple will get erased.
-      \item[Case \textsc{I-recv} and \textsc{I-noRecv}]
-      In this case, only the queue of
-      task \ensuremath{\ifc{\Varid{t}}_{1}} can change, which gets erased.
-    \end{description}
-    This ensures that $\ensuremath{\ifc{c}_{1}'}\approx_{\ensuremath{\ifc{\Varid{l}}}}\ensuremath{\ifc{c}_{2}'}=\ensuremath{\ifc{c}_{2}}$.
-%    \alphacondition{We need all scheduling policies to not change the order
-%      of any tasks (except for the first one).  Newly spawned task can appear
-%      anywhere in the list.}
-    \item $\ensuremath{\varepsilon_{\ifc{\Varid{l}}}(\ifc{\Varid{t}}_{1})}\neq\ensuremath{\bullet}$.
-    Here, there must be a corresponding
-    task \ensuremath{\ifc{\Varid{t}}_{2}} in \ensuremath{\ifc{c}_{2}},
-    such that \ensuremath{\ifc{\Varid{t}}_{1}\mathrel{=}\ifc{\Varid{t}}_{2}} (otherwise \ensuremath{\ifc{c}_{1}} and
-    \ensuremath{\ifc{c}_{2}} could not be \ensuremath{\ifc{\Varid{l}}} equivalent).
-    However, \ensuremath{\ifc{\Varid{t}}_{2}} might not be at the beginning of the task list yet, but
-    all tasks occurring before it must get erased by \ensuremath{\varepsilon_{\ifc{\Varid{l}}}}.
-    In \ensuremath{\ifc{c}_{2}}, we can first take some number of steps until \ensuremath{\ifc{\Varid{t}}_{2}} moves
-    to the front of the list.
-    This is the case regardless of any additional side conditions $P$ on
-    rules, because for all of these tasks, it can either take an actual
-    step, or it gets dropped by \textsc{I-noStep} (which is always
-    possible, as there cannot be an additional side condition on this
-    rule).  All tasks that didn't get dropped are still at a label
-    that isn't below \ensuremath{\ifc{\Varid{l}}} and thus get erased.
-    
-%    \alphacondition{The scheduling policy must eventually let any task in
-%      the task list evaluate.  In particular, it cannot get stuck when the
-%      first task gets stuck, or keep executing a small number of tasks
-%      exclusively forever (e.g. just execute the first task all the time
-%      if it gets into an infinite loop).}
-    
-    Therefore, after \ensuremath{\ifc{c}_{2}} has potentially executed some number of steps
-    to arrive at \ensuremath{\ifc{c}_{2}''}, we are now in the situation where $\ensuremath{\ifc{c}_{1}}\approx_{\ensuremath{\ifc{\Varid{l}}}}\ensuremath{\ifc{c}_{2}''}$, and the first tasks \ensuremath{\ifc{\Varid{t}}_{1}} and \ensuremath{\ifc{\Varid{t}}_{2}},
-    respectively, don't get erased and are thus equivalent.
-    The task \ensuremath{\ifc{\Varid{t}}_{2}} can now take exactly the same step as \ensuremath{\ifc{\Varid{t}}_{1}};  this
-    is true even with arbitrary additional premises $P$ that follow
-    the condition in Definition~\ref{def:npri}, since those
-    predicates only depend on \ensuremath{\varepsilon_{\ifc{\Varid{l}}}(\ifc{c}_{1})}, which is equivalent
-    to \ensuremath{\varepsilon_{\ifc{\Varid{l}}}(\ifc{c}_{2})}, and thus those predicates evaluate in the same way.
-    Thus, we only
-    need to argue that the potential differences in \ensuremath{\ifc{\Sigma}_{1}} and \ensuremath{\ifc{\Sigma}_{2}} cannot
-    have an influence on the execution (and we know \ensuremath{\ifc{\Sigma}_{1}} and \ensuremath{\ifc{\Sigma}_{2}} are
-    \ensuremath{\ifc{\Varid{l}}} equivalent).
-    Again, only sending and receiving will depend on, or change \ensuremath{\ifc{\Sigma}},
-    so we consider all these cases.
-    \begin{description}
-      \item[Case \textsc{I-send}]
-      Here, the task \ensuremath{\ifc{\Varid{t}}_{2}} will send the same message to the same
-      receiver queue. This
-      queue is either completely erased, or it is \ensuremath{\ifc{\Varid{l}}} equivalent.  In both
-      cases, \ensuremath{\ifc{\Varid{l}}} equivalence of \ensuremath{\ifc{\Sigma}_{1}'} and \ensuremath{\ifc{\Sigma}_{2}'} is preserved.
-      \item[Case \textsc{I-recv} and \textsc{I-noRecv}]
-      When the tasks are receiving a message, then by the reduction rules
-      we know that they first filter the queue by the label
-      \ensuremath{\lcurr} of \ensuremath{\ifc{\Varid{t}}_{1}}.  We
-      also know that the queues are equivalent when filtered by the less
-      restrictive label \ensuremath{\ifc{\Varid{l}}}, thus the messages received (or dropped) from the
-      queue are equivalent.
-    \end{description}
-  \end{itemize}
-\end{proof}
-
-
-The proof of Theorem~\ref{thm:iso-tini} about TINI proceeds largely
-in the same fashion as for Theorem~\ref{thm:iso-tsni} (TSNI), except that
-some cases are simpler due to the fact termination is not an issue
-(cf.~\tocite{} for a TINI proof of a similar system).
-
-\section{The monadic interpretation}
-\label{sec:monad}
-
-In the previous sections, we have been primarily concerned with the
-combination of operational semantics in order to automatically augment a
-language with information flow control.  In this section, we present
-a more abstract view of the situation, phrased in the language of monads
-and monad transformers.  The key idea is that the computational effects
-of the target language should be thought of as a \emph{monad transformer}
-on top of the information flow control base monad.  Readers who are not
-familiar with monads should feel free to skip this section.
-
-Monads were originally proposed as a method for organizing computational
-effects~\cite{Moggi:1991:NCM:116981.116984}.  One of the key questions
-of interest was how to modularly build more complex computational
-effects out of simpler ones.  One particular approach, the
-\emph{incremental
-approach}~\cite{Benton00monadsand,Liang95monadtransformers}, utilizes
-monad transformers, which add an extra computation feature to a
-pre-existing monad.  In the past, this approach has been criticized for
-a number of failings, including the fact that the order in meaning of a
-monad can depend on the order in which the monad transformers are
-applied. The canonical example of this phenomenon is the
-composition of the state monad and the error monad: depending on the
-ordering of the two monad transformers, state is preserved or thrown away
-upon an error.
-
-These problems can be viewed as defects in a setting where we are
-simply interested in combining effects.  However, in the setting of information
-flow control, we are primarily interested in augmenting the
-computational effects of a target language with information flow control
-\emph{without} compromising non-interference.  When the base monad is
-kept abstract (in the style of a restricted IO monad~\cite{Terei:2012:SH:2364506.2364524}),
-there is an easy argument why any monad transformer must also preserve non-interference:
-the monad transformer could have been implemented simply as a \emph{pure} interpreter, and
-the pure interpreter is just another program like any other that may run on top of
-a restricted IO monad.
-
-Now, one shouldn't simply force an interpreter to be reimplemented on
-top of a language supporting information flow control.  As suggested by
-Filinski et al~\cite{Filinski:2010:MA:1707801.1706354}, we should use
-pure implementations of computational effects to understand
-computational effects when built into information flow languages: they
-give a good hint what the operational rules should be.  This intuition
-backed the development of Section~\ref{sec:retrofit}.  Furthermore,
-developing the relationship between concrete semantics and abstract
-semantics in Section~\ref{sec:concrete} relates to the question of monad
-isomorphisms in the presence of data abstraction.  We leave the
-investigation of this connection in more detail to future work.
 \section{Real world languages}
 \label{sec:real}
 
@@ -1726,7 +1569,7 @@ semantic gap that must be overcome in some cases to apply our formalism
 to other systems.
 %
 Two of the systems we describe have been implemented: the Haskell
-system~\cite{lio} and the SWAPI~\tocite{} system; we leave the
+system~\cite{lio} and the SWAPI~\cite{swapi} system; we leave the
 implementation of the IFC system for C to future work.
 
 \subsection{C}
@@ -1738,23 +1581,23 @@ arbitrary memory, and perform arbitrary syscalls.
 Thus, the confinement of C programs must be imposed by the underlying OS
 and hardware.
 %
-This isolation can be achieved using Dune's hardware protection
+For instance, this isolation can be achieved using Dune's hardware protection
 mechanisms~\cite{Belay:2012:DSU:2387880.2387913}, similar to a simpler
 version of Wedge~\cite{Belay:2012:DSU:2387880.2387913,
 Bittau:2008:WSA:1387589.1387611} with an information flow control
 policy.
 %
-Using pages tables, a (trusted) IFC runtime could ensure that each task,
+Using page tables, a (trusted) IFC runtime could ensure that each task,
 implemented as a lightweight process, can only access the memory it
 allocates--tasks do not have access to any shared memory.
 %
 In addition, ring protection could be used to intercept syscalls performed by
-a task and only permit those corresponding to our IFC language (e.g.,
-\ensuremath{\mathbf{getLabel}}, \ensuremath{\mathbf{send}}).
+a task and only permit those corresponding to our IFC language (such as
+\ensuremath{\mathbf{getLabel}} or \ensuremath{\mathbf{send}}).
 %
-Although other sandboxing mechanisms can be used in place of Dune, we
-believe Dune's hardware protection mechanism would allow us to provide a 
-concrete implementation that is more efficient and simpler to reason about.
+Dunes hardware protection mechanism allows us to provide a concrete
+implementation that is efficient and relatively simple to reason
+about, but other sandboxing mechanisms could be used in place of Dune.
 
 In this setting, the combined language of Section~\ref{sec:retrofit}
 can be interpreted in the following way: calling from the target
@@ -1835,19 +1678,20 @@ additional details on the various implementations of this system.\footnote{It's 
 \subsection{JavaScript}
 \label{sec:real:js}
 
-JavaScript (JS), as specified by ECMAScript~\tocite{}, does not have any
-built-in functionality for I/O. (Capabilities such as the ability to
+JavaScript (JS), as specified by ECMAScript~\cite{ecma}, does not have any
+built-in functionality for I/O. Capabilities such as the ability to
 mutate the DOM and read user input are APIs defined on top of the ECMAScript
-specification.)
+specification.
 %
 Consequently, and in contrast to our C and Haskell embeddings---for
 which we must eliminate external effects---the embedding for JS is
 trivial.
 
-We describe SWAPI~\tocite{}, an implementation of this system for JavaScript.
+We describe SWAPI~\cite{swapi}, an implementation of this system for JavaScript
+(which we here denote by \ensuremath{\Red{\lambda_{\text{JS}}}}).
 %
 The direct approach for implementing the embedded language \ensuremath{L_\text{IFC}(\textsc{RR},\Red{\lambda_{\text{JS}}})} is
-by running multiple instances of the JS runtime, i.e., \ensuremath{\Red{\lambda_{\text{JS}}}}, in
+by running multiple instances of the JS runtime, i.e., in
 separate OS-level threads.\footnote{
  The Firefox implementation of SWAPI also considers the case where
  tasks share the JavaScript runtime (and are cooperatively scheduled
@@ -1855,7 +1699,7 @@ separate OS-level threads.\footnote{
  is disjoint. This is similar to the single-heap language of
  Section~\ref{sec:concrete}.  However, since the heap separation is
  provided by the browser the browser, we do not discuss this further.
- The interested reader is referred to~\tocite{} for more details.
+ The interested reader is referred to~\cite{swapi} for more details.
 }
 %
 In SWAPI, the IFC language functionality is implemented in the JS
@@ -1885,16 +1729,16 @@ for \ensuremath{\mathbf{send}} such that only strings can be shared:
 \begin{mathpar}
 \inferrule[JS-send]
 {
-\ensuremath{\ifc{\Varid{l}}\;\flows\;\ifc{\Varid{l}}'}\\
+\ensuremath{\ifc{l}\;\flows{}\;\ifc{l}'}\\
 \ensuremath{\ifc{\Sigma}\;(\ifc{\Varid{i}}')\mathrel{=}\ifc{\Theta}}\\
-\ensuremath{\ifc{\Sigma}'\mathrel{=}\ifc{\Sigma}\;[\mskip1.5mu \ifc{\Varid{i}}'\mapsto{}(\ifc{\Varid{l}}',\ifc{\Varid{i}},\ifc{\Varid{e}}'),\ifc{\Theta}\mskip1.5mu]}\\
+\ensuremath{\ifc{\Sigma}'\mathrel{=}\ifc{\Sigma}\;[\mskip1.5mu \ifc{\Varid{i}}'\mapsto{}(\ifc{l}',\ifc{\Varid{i}},\ifc{\Varid{v}}),\ifc{\Theta}\mskip1.5mu]}\\
 \ensuremath{\ifc{\Varid{e}}\mathrel{=}\ifc{^{\textrm{IT}}\lceil}\tar{e}\ifc{\rceil}}\\
 \ensuremath{\mathcal{E}_{\tar{\Sigma}}\left[\texttt{typeOf}(\tar{e})\texttt{ === \str}\right]\rightarrow\mathcal{E}_{\tar{\Sigma}}\left[\texttt{true}\right]}
 }
-{\ensuremath{\ifc{\Sigma};\langle \tar{\Sigma}, \ifc{E}\ifc{[}\mathbf{send}\;\ifc{\Varid{i}}'\;\ifc{\Varid{l}}'\;\ifc{\Varid{e}}\ifc{]}_\ifc{I}\rangle^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}},\ldots\hookrightarrow\ifc{\Sigma}';\alpha_{{\tiny\mathrm{\Sigma}}}(\langle \tar{\Sigma}, \ifc{E}\ifc{[}\langle\rangle\ifc{]}_\ifc{I}\rangle^{\ifc{\Varid{i}}}_{\ifc{\Varid{l}}},\ldots)}}
+{\ensuremath{\ifc{\Sigma};\langle \tar{\Sigma}, \ifc{E}\ifc{[}\mathbf{send}\;\ifc{\Varid{i}}'\;\ifc{l}'\;\ifc{\Varid{v}}\ifc{]}_\ifc{I}\rangle^{\ifc{\Varid{i}}}_{\ifc{l}},\ldots\hookrightarrow\ifc{\Sigma}';\alpha_{{\tiny\mathrm{\Sigma}}}(\langle \tar{\Sigma}, \ifc{E}\ifc{[}\langle\rangle\ifc{]}_\ifc{I}\rangle^{\ifc{\Varid{i}}}_{\ifc{l}},\ldots)}}
 \end{mathpar}
 We remark that this is similar to the existing
-\texttt{postMessage} API used for iframe and Worker
+\texttt{postMessage} API used for iframe and worker
 communications~\cite{webworkers}.
 %
 Thus, the SWAPI implementation provides an IFC version of
@@ -1907,7 +1751,7 @@ inspired by existing browser (security) architectures.
 Browsers, for example, isolate pages of different origins by running
 them in separate runtimes.
 %
-Similarly, they provide the Worker JS object~\cite{webworkers}, which allows
+Similarly, they provide the worker JS object~\cite{webworkers}, which allows
 JavaScript to execute code in separate threads with separate JS
 runtimes (and fresh global objects).
 %
@@ -1916,7 +1760,7 @@ API for communication, similar to our system.\footnote{
   The message-passing approach is, in part, due to ECMAScript's lack
   of well-defined semantics for concurrency.
   %
-  Hence sharing and accessing objects such as the DOM across Worker
+  Hence sharing and accessing objects such as the DOM across worker
   threads is undefined.
 }
 %
@@ -1926,12 +1770,12 @@ without modifying the JS runtime or intrusively changing the browser
 layout engine.
 
 However, a simple implementation of just associating a label with
-Workers and browsing context (iframes and top-level pages) to enforce
+workers and browsing context (iframes and top-level pages) to enforce
 IFC on the executing JavaScript is not sufficient, as APIs which
 introduce extra computational effects must be manually made aware of information flow
 control.
 %
-For example, the initial global object of a Worker contains the
+For example, the initial global object of a worker contains the
 \texttt{XMLHttpRequest} (XHR) object, while the global object of a
 browsing context additionally contains the DOM.
 %
@@ -1939,8 +1783,8 @@ In both cases, JS code can trivially leak information (e.g., to the
 network with XHR or persistent storage using the DOM).
 %
 To address this, SWAPI additionally uses content security policy (CSP) and
-(iframe) sandboxes~\tocite{} to restrict external effects according to
-the label of a task (worker or browsing context).  Accomodating these
+(iframe) sandboxes~\cite{csp1.1,html5} to restrict external effects according
+to the label of a task (worker or browsing context).  Accomodating these
 features lies outside the purview of our formalism.
 
 %% \Red{
@@ -1963,7 +1807,7 @@ features lies outside the purview of our formalism.
 %% pages already have an accompanying security policy: the same origin
 %% policy.
 %% %
-%% Hence, for example, a Worker that has read data only sensitive to
+%% Hence, for example, a worker that has read data only sensitive to
 %% \texttt{http://bank.ch} can communicate with this domain; only once
 %% \texttt{http://aws.com} data is also included in the context will all
 %% network requests be blocked.
@@ -1981,15 +1825,93 @@ extended to consider other IFC-aware features (e.g., fine-grained
 labeled values), a static type system, or more complex scheduling
 policies.
 %
-When considering these extensions we also highlight some limitations
+When considering these extensions we also discuss some limitations
 of our approach.
 
 \subsection{IFC language features}
 \label{sec:extensions:labeled}
 
+Different concrete IFC implementations may wish to extend our minimal
+system with labeled constructs appropriate for their envisioned
+applications.
+%
+For example, SWAPI provides a labeled version of the XHR object, while
+LIO implements a labeled file system, use in server-side web
+applications~\cite{hails}.
+%
+Below we
+consider the addition of several labeled constructs to the abstract specification.
+%
+We remark that that the non-interference proofs must account for the
+new constructs, since they amend the IFC calculus semantics (usually
+by addition).
+
 \paragraph{Labeled values}
-\paragraph{Labeled references}
-\paragraph{Labeled synchronization primitives}
+In traditional language-based dynamic IFC systems, a label is
+associated with values.
+%
+Hence, a program that, for example, simply writes labeled messages to
+a labeled log can operate on both public and sensitive values.
+%
+In its simplest form, our coarse grained system requires that the
+current label of a task be at least at the level of the sensitive data
+to reflect the fact that such data is in scope.
+ 
+Thus, an extension that allows supports such fine-grained explicitly
+labeled values is essential.
+%
+To this end, we extend the IFC calculus with explicitly labeled
+values, much like those of LIO and
+Breeze~\cite{lio, Hritcu:2013:YIB:2497621.2498098}: \ensuremath{\tar{v}\Coloneqq\cdots\;|\;\textbf{Labeled}\;\ifc{l}\;\tar{v}}.
+%
+Following LIO, we say that the value \ensuremath{\tar{v}} is protected by label \ensuremath{\ifc{l}},
+while the label \ensuremath{\ifc{l}} itself is protected by the task's current label.
+%
+%
+The label of such values can be inspected the task without
+requiring the current label to be raised.
+%
+However, when a task wishes to inspect the protected value \ensuremath{\tar{v}}, it
+must first raise it label to at least \ensuremath{\ifc{l}} to reflect that it is
+incorporating data at such sensitivity level in its scope.
+%
+When creating labeled values the label \ensuremath{\ifc{l}} must be above
+the current label; otherwise it cannot be said that protection has
+been transferred from the current label to \ensuremath{\ifc{l}}.
+%
+(For these rules, we assume that the \ensuremath{\textbf{Labeled}} constructor is not part of
+the surface syntax and thus cannot be accessed directly to construct
+or destruct such values without label checks.)
+% 
+We omit the reduction rules for labeled values since they closely
+follow those presented in~\cite{lio}.
+
+\paragraph{Labeled mutable references/variables/channels}
+%
+Extending the calculus with other labeled features, such as
+references, mutable variables (MVars)~\cite{CH96}, or channels,
+follows in a similar way.
+%
+In these cases, however, we must keep track of the additional state
+(as opposed to the labeled value case which requires no additional
+bookkeeping).
+%
+While we can modify the IFC calculus to add such labeled state to each
+individual task, adding it to the system state \ensuremath{\ifc{\Sigma}} leads to more
+interesting use cases.
+%
+Specifically, by amending \ensuremath{\ifc{\Sigma}}, as in~\cite{lio,
+stefan:addressing-covert}, we can allow threads to use these
+constructs to synchronize, or communicate with constructs other than
+\ensuremath{\mathbf{send}}/\ensuremath{\mathbf{recv}} in a safe manner.
+%
+For example, when extending the calculus with labeled references, \ensuremath{\ifc{\Sigma}}
+additionally contains a store that maps addresses to \ensuremath{(\ifc{l},\tar{v})} pairs
+which can be read and written to by different tasks through a labeled
+\ensuremath{\mathbf{ref}} implementations.
+%
+Since such labeled constructs have also been considered before in other
+concurrent systems, we do not discuss them further.
 
 \paragraph{Privileges}
 Decentralized IFC extends IFC with the decentralized label model of
@@ -2011,7 +1933,7 @@ straight forward.
 However, the challenge with such an extension lies in the precise
 security guarantees that must be proved.
 %
-Addressing this problem is a natural direction for this work.
+%Addressing this problem is a natural direction for this work.
 
 \paragraph{Clearance}
 %
@@ -2090,13 +2012,13 @@ For simplicity we considered two popular policies \ensuremath{\textsc{RR}} and
 However, our definitions allow for other scheduling policies that only
 rely on the current task list.
 %
-For example, this allows us to implement the scheduler of~\tocite{}
+For example, this allows us to implement the scheduler of~\cite{Kashyap:2011}
 that always schedules less sensitive threads first; this can be
 employed to address external timing covert channels where an attacker
 can measure the delay between output events.\footnote{
   When considering a label lattice that is not totally ordered, e.g.,
-  DCLabels~\tocite{}, this scheduling policy is considerably more
-  complex. See~\tocite{}.
+  DCLabels~\cite{myers:dlm,dclabels}, this scheduling policy is
+  considerably more complex. See~\cite{Kashyap:2011}.
 }
 %
 More generally, we believe that deterministic schedulers that always
@@ -2105,8 +2027,6 @@ current task's label will will eventually run, and do not decide which
 low tasks to schedule according to data more sensitive than the tasks'
 label, i.e., the scheduler does not schedule one public thread over
 another according to sensitive data, to be safe.
-%
-We leave the proof of this claim to future work.
 %
 
 Despite allowing a number of practical schedulers to be expressed, our
@@ -2118,7 +2038,7 @@ be expressed.
 %
 Though, we do not believe this to be a fundamental limitation, our
 current formalization cannot directly be applied to more-powerful, but
-safe, scheduling policies, as considered in~\tocite{}.
+safe, scheduling policies, as considered by~\cite{russo2006securing}.
 %
 More fundamentally, our definitions rely on deterministic relations,
 and thus extending the system to consider non-deterministic schedulers
@@ -2126,7 +2046,8 @@ and thus extending the system to consider non-deterministic schedulers
 %
 For instance, this may potentially require the security condition to
 consider \emph{low-determinism}, which states that a program is secure
-only if \ensuremath{\Varid{l}}-equivalent results are deterministic~\tocite{}. %both andrei and steve's papers
+only if \ensuremath{l}-equivalent results are deterministic~\cite{Zdancewic:Myers:CSFW03,
+sabelfeld2003language}.
 
 \subsection{External effects}
 \label{sec:extensions:external}
@@ -2163,6 +2084,212 @@ used in SWAPI to allow for controlled network communication.
 %
 By wrapping the default XHR object, for example, we can allow code
 to communicate with hosts according to the task's current label.
+\section{Proofs}
+\label{sec:proofs}
+
+In this section we prove all theorems we have stated.
+We first observe that the non-interference claims for the languages
+\ensuremath{L_\text{IFC}(\textsc{Seq},\Red{\lambda})} and \ensuremath{L_\text{IFC}(\textsc{RR},\Red{\lambda})}
+in Theorems~\ref{thm:rr-tsni} and~\ref{thm:seq-tini} follow directly
+from Theorems~\ref{thm:iso-tsni} and~\ref{thm:iso-tini},
+respectively, where the set
+of predicates is the set of always valid predicates.
+
+Before we proceed with the proof of Theorem~\ref{thm:iso-tsni},
+we state a lemma we will use.
+
+\begin{lemma}
+  \label{lemma:rr-tsni-general}
+  We consider, for any target language \ensuremath{\Red{\lambda}},
+  the restricted IFC language \ensuremath{L_\text{IFC}^{\mathcal{P}}(\alpha,\Red{\lambda})}
+  (according to Definition~\ref{def:restricted}).
+  Then,
+  for any configurations \ensuremath{\ifc{c}_{1}}, \ensuremath{\ifc{c}_{1}'}, \ensuremath{\ifc{c}_{2}}, and label \ensuremath{\ifc{l}} where
+  \begin{equation} \label{eq:tsni-lemma-lhs}
+  \ensuremath{\ifc{c}_{1}} \approx_{\ensuremath{\ifc{l}}} \ensuremath{\ifc{c}_{2}}
+  \qquad \text{and} \qquad
+  \ensuremath{\ifc{c}_{1}} \ensuremath{\hookrightarrow} \ensuremath{\ifc{c}_{1}'}
+  \end{equation}
+  there exists a configuration \ensuremath{\ifc{c}_{2}'} such that
+  \begin{equation} \label{eq:tsni-lemma-rhs}
+  \ensuremath{\ifc{c}_{1}'} \approx_{\ensuremath{\ifc{l}}} \ensuremath{\ifc{c}_{2}'}
+  \qquad \text{and} \qquad
+  \ensuremath{\ifc{c}_{2}} \ensuremath{\hookrightarrow}^* \ensuremath{\ifc{c}_{2}'}
+  \ \text{.}
+  \end{equation}
+\end{lemma}
+
+\begin{proof}[Proof of Theorem~\ref{thm:iso-tsni}]
+  We proof the theorem by induction on the length of the derivation sequence in~\eqref{eq:tsni-lhs}.
+  The base case for derivations
+  of length 0 is trivial, allowing
+  us to simple chose $\ensuremath{\ifc{c}_{2}'\mathrel{=}\ifc{c}_{2}}$.  In the step case, we assume
+  the theorem holds for derivation sequences of length up to $n$, and show that it also
+  holds for those of length $n+1$.  We split the derivation sequence from~\eqref{eq:tsni-lhs} as follows:
+  \[
+  \ensuremath{\ifc{c}_{1}} \ensuremath{\hookrightarrow} \ensuremath{\ifc{c}_{1}''} \ensuremath{\hookrightarrow}^n \ensuremath{\ifc{c}_{1}'}
+  \]
+  for some configuration \ensuremath{\ifc{c}_{1}''}.  By Lemma~\ref{lemma:rr-tsni-general}, we get
+  \ensuremath{\ifc{c}''} with
+  \begin{equation} \label{eq:tsni-proof-1}
+  \ensuremath{\ifc{c}_{1}''} \approx_{\ensuremath{\ifc{l}}} \ensuremath{\ifc{c}_{2}''}
+  \qquad \text{and} \qquad
+  \ensuremath{\ifc{c}_{2}} \ensuremath{\hookrightarrow}^* \ensuremath{\ifc{c}_{2}''}
+  \end{equation}
+  Applying the induction hypothesis to
+  $\ensuremath{\ifc{c}_{1}''} \ensuremath{\hookrightarrow}^n \ensuremath{\ifc{c}_{1}'}$, we get \ensuremath{\ifc{c}_{2}'} with
+  \begin{equation} \label{eq:tsni-proof-2}
+  \ensuremath{\ifc{c}_{1}'} \approx_{\ensuremath{\ifc{l}}} \ensuremath{\ifc{c}_{2}'}
+  \qquad \text{and} \qquad
+  \ensuremath{\ifc{c}_{2}''} \ensuremath{\hookrightarrow}^* \ensuremath{\ifc{c}_{2}'}
+  \end{equation}
+  Stitching together the derivation sequences from~\eqref{eq:tsni-proof-1} and~\eqref{eq:tsni-proof-2} directly gives
+  us the right-hand side of the implication in the TSNI
+  definition~\eqref{eq:tsni-rhs}, which concludes the proof.
+\end{proof}
+\begin{proof}[Proof of Lemma~\ref{lemma:rr-tsni-general}]
+  First, we observe there must be at least one task in \ensuremath{\ifc{c}_{1}}, otherwise
+  it could not take a step.  Thus, \ensuremath{\ifc{c}_{1}} is of the form
+  \ensuremath{\ifc{\Sigma}_{1};\ifc{\Varid{t}}_{1},\ifc{\Varid{ts}}_{1}}.  Consider two cases:
+  \begin{itemize}
+    \item $\ensuremath{\varepsilon_{\ifc{l}}(\ifc{\Varid{t}}_{1})}=\ensuremath{\bullet}$.
+    By the definition of \ensuremath{\varepsilon_{\ifc{l}}}, we know that \ensuremath{\ifc{l}\;\flows{}\;\lcurr}
+    where \ensuremath{\lcurr} is the label of \ensuremath{\ifc{\Varid{t}}_{1}}.
+    In this case, we do not need to take a step for
+    \ensuremath{\ifc{c}_{2}}, because \ensuremath{\ifc{c}_{2}'\mathrel{=}\ifc{c}_{2}} will already be \ensuremath{\ifc{l}}-equivalent to \ensuremath{\ifc{c}_{1}'}.
+    To see that, note that the tasks \ensuremath{\ifc{\Varid{ts}}_{1}} in \ensuremath{\ifc{c}_{1}} are left in the
+    same order and unmodified (the scheduling policy only
+    modifies the first task). The task \ensuremath{\ifc{\Varid{t}}_{1}} either
+    gets dropped (by \textsc{I-noStep}), or
+    transforms into a task \ensuremath{\ifc{\Varid{t}}_{1}'} as well as potentially spawning a new
+    task \ensuremath{\ifc{\Varid{t}}_{1}''}.  Since both \ensuremath{\ifc{\Varid{t}}_{1}'} and \ensuremath{\ifc{\Varid{t}}_{1}''} have a label that is
+    at least as high as the label of \ensuremath{\ifc{\Varid{t}}_{1}} (can be seen
+    by inspecting all reduction rules), they will get filtered
+    by \ensuremath{\varepsilon_{\ifc{l}}} in \ensuremath{\ifc{c}_{1}'}.  Therefore, the \ensuremath{\ifc{l}} equivalence of the
+    task list is guaranteed.
+    Lets consider the possible changes to \ensuremath{\ifc{\Sigma}_{1}}:
+    Only three reduction rules change \ensuremath{\ifc{\Sigma}_{1}},
+    thus it suffices to consider these cases:
+    \begin{description}
+      \item[Case \textsc{I-send}]
+      A new message triple with label \ensuremath{\ifc{l}'} gets added to the message
+      queue of the receiving thread.  However, since \ensuremath{\lcurr\;\flows{}\;\ifc{l}'},
+      the triple will get erased.
+      \item[Case \textsc{I-recv} and \textsc{I-noRecv}]
+      In this case, only the queue of
+      task \ensuremath{\ifc{\Varid{t}}_{1}} can change, which gets erased.
+    \end{description}
+    This ensures that $\ensuremath{\ifc{c}_{1}'}\approx_{\ensuremath{\ifc{l}}}\ensuremath{\ifc{c}_{2}'}=\ensuremath{\ifc{c}_{2}}$.
+    %    \alphacondition{We need all scheduling policies to not change the order
+    %      of any tasks (except for the first one).  Newly spawned task can appear
+    %      anywhere in the list.}
+    \item $\ensuremath{\varepsilon_{\ifc{l}}(\ifc{\Varid{t}}_{1})}\neq\ensuremath{\bullet}$.
+    Here, there must be a corresponding
+    task \ensuremath{\ifc{\Varid{t}}_{2}} in \ensuremath{\ifc{c}_{2}},
+    such that \ensuremath{\ifc{\Varid{t}}_{1}\mathrel{=}\ifc{\Varid{t}}_{2}} (otherwise \ensuremath{\ifc{c}_{1}} and
+    \ensuremath{\ifc{c}_{2}} could not be \ensuremath{\ifc{l}} equivalent).
+    However, \ensuremath{\ifc{\Varid{t}}_{2}} might not be at the beginning of the task list yet, but
+    all tasks occurring before it must get erased by \ensuremath{\varepsilon_{\ifc{l}}}.
+    In \ensuremath{\ifc{c}_{2}}, we can first take some number of steps until \ensuremath{\ifc{\Varid{t}}_{2}} moves
+    to the front of the list.
+    This is the case regardless of any additional side conditions $P$ on
+    rules, because for all of these tasks, it can either take an actual
+    step, or it gets dropped by \textsc{I-noStep} (which is always
+    possible, as there cannot be an additional side condition on this
+    rule).  All tasks that didn't get dropped are still at a label
+    that isn't below \ensuremath{\ifc{l}} and thus get erased.
+    
+    %    \alphacondition{The scheduling policy must eventually let any task in
+    %      the task list evaluate.  In particular, it cannot get stuck when the
+    %      first task gets stuck, or keep executing a small number of tasks
+    %      exclusively forever (e.g. just execute the first task all the time
+    %      if it gets into an infinite loop).}
+    
+    Therefore, after \ensuremath{\ifc{c}_{2}} has potentially executed some number of steps
+    to arrive at \ensuremath{\ifc{c}_{2}''}, we are now in the situation where $\ensuremath{\ifc{c}_{1}}\approx_{\ensuremath{\ifc{l}}}\ensuremath{\ifc{c}_{2}''}$, and the first tasks \ensuremath{\ifc{\Varid{t}}_{1}} and \ensuremath{\ifc{\Varid{t}}_{2}},
+    respectively, don't get erased and are thus equivalent.
+    The task \ensuremath{\ifc{\Varid{t}}_{2}} can now take exactly the same step as \ensuremath{\ifc{\Varid{t}}_{1}};  this
+    is true even with arbitrary additional premises $P$ that follow
+    the condition in \Red{Definition (EZY: NPRI is missing)}, since those
+    predicates only depend on \ensuremath{\varepsilon_{\ifc{l}}(\ifc{c}_{1})}, which is equivalent
+    to \ensuremath{\varepsilon_{\ifc{l}}(\ifc{c}_{2})}, and thus those predicates evaluate in the same way.
+    Thus, we only
+    need to argue that the potential differences in \ensuremath{\ifc{\Sigma}_{1}} and \ensuremath{\ifc{\Sigma}_{2}} cannot
+    have an influence on the execution (and we know \ensuremath{\ifc{\Sigma}_{1}} and \ensuremath{\ifc{\Sigma}_{2}} are
+    \ensuremath{\ifc{l}} equivalent).
+    Again, only sending and receiving will depend on, or change \ensuremath{\ifc{\Sigma}},
+    so we consider all these cases.
+    \begin{description}
+      \item[Case \textsc{I-send}]
+      Here, the task \ensuremath{\ifc{\Varid{t}}_{2}} will send the same message to the same
+      receiver queue. This
+      queue is either completely erased, or it is \ensuremath{\ifc{l}} equivalent.  In both
+      cases, \ensuremath{\ifc{l}} equivalence of \ensuremath{\ifc{\Sigma}_{1}'} and \ensuremath{\ifc{\Sigma}_{2}'} is preserved.
+      \item[Case \textsc{I-recv} and \textsc{I-noRecv}]
+      When the tasks are receiving a message, then by the reduction rules
+      we know that they first filter the queue by the label
+      \ensuremath{\lcurr} of \ensuremath{\ifc{\Varid{t}}_{1}}.  We
+      also know that the queues are equivalent when filtered by the less
+      restrictive label \ensuremath{\ifc{l}}, thus the messages received (or dropped) from the
+      queue are equivalent.
+    \end{description}
+  \end{itemize}
+\end{proof}
+
+
+The proof of Theorem~\ref{thm:iso-tini} about TINI proceeds largely
+in the same fashion as for Theorem~\ref{thm:iso-tsni} (TSNI), except that
+some cases are simpler due to the fact termination is not an issue
+(cf.~\cite{lio} for a TINI proof of a similar system).
+\section{The monadic interpretation}
+\label{sec:monad}
+
+In the previous sections, we have been primarily concerned with the
+combination of operational semantics in order to automatically augment a
+language with information flow control.  In this section, we present
+a more abstract view of the situation, phrased in the language of monads
+and monad transformers.  The key idea is that the computational effects
+of the target language should be thought of as a \emph{monad transformer}
+on top of the information flow control base monad.  Readers who are not
+familiar with monads should feel free to skip this section.
+
+Monads were originally proposed as a method for organizing computational
+effects~\cite{Moggi:1991:NCM:116981.116984}.  One of the key questions
+of interest was how to modularly build more complex computational
+effects out of simpler ones.  One particular approach, the
+\emph{incremental
+approach}~\cite{Benton00monadsand,Liang95monadtransformers}, utilizes
+monad transformers, which add an extra computation feature to a
+pre-existing monad.  In the past, this approach has been criticized for
+a number of failings, including the fact that the order in meaning of a
+monad can depend on the order in which the monad transformers are
+applied. The canonical example of this phenomenon is the
+composition of the state monad and the error monad: depending on the
+ordering of the two monad transformers, state is preserved or thrown away
+upon an error.
+
+These problems can be viewed as defects in a setting where we are
+simply interested in combining effects.  However, in the setting of information
+flow control, we are primarily interested in augmenting the
+computational effects of a target language with information flow control
+\emph{without} compromising non-interference.  When the base monad is
+kept abstract (in the style of a restricted IO monad~\cite{Terei:2012:SH:2364506.2364524}),
+there is an easy argument why any monad transformer must also preserve non-interference:
+the monad transformer could have been implemented simply as a \emph{pure} interpreter, and
+the pure interpreter is just another program like any other that may run on top of
+a restricted IO monad.
+
+Now, one shouldn't simply force an interpreter to be reimplemented on
+top of a language supporting information flow control.  As suggested by
+Filinski et al~\cite{Filinski:2010:MA:1707801.1706354}, we should use
+pure implementations of computational effects to understand
+computational effects when built into information flow languages: they
+give a good hint what the operational rules should be.  This intuition
+backed the development of Section~\ref{sec:retrofit}.  Furthermore,
+developing the relationship between concrete semantics and abstract
+semantics in Section~\ref{sec:concrete} relates to the question of monad
+isomorphisms in the presence of data abstraction.  We leave the
+investigation of this connection in more detail to future work.
 \section{Related work}
 \label{sec:related}
 
