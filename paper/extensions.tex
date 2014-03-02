@@ -138,7 +138,7 @@ safe, scheduling policies, as considered in~\tocite{}.
 %
 More fundamentally, our definitions rely on deterministic relations,
 and thus extending the system to consider non-deterministic schedulers
-is non-trivial.
+(or even non-deterministic target languages) is non-trivial.
 %
 For instance, this may potentially require the security condition to
 consider \emph{low-determinism}, which states that a program is secure
@@ -181,23 +181,3 @@ used in SWAPI to allow for controlled network communication.
 %
 By wrapping the default XHR object, for example, we can allow code
 to communicate with hosts according to the task's current label.
-
-
-\subsection{Other target languages}
-
-Non-deterministic reduction.
-
-
-\cut{
-
-The good thing about our approach is that we are indifferent to the
-functionality implemented in the IFC language: as long as you can
-prove termination sensitive non-interference with the IFC language
-\Red{What is the IFC language? Make sure it is written down}, you
-can combine it with another target language.  In this section,
-we briefly review various extensions you can make to the base IFC
-language to provide IFC-aware versions of target language features.
-
-
-}
-
