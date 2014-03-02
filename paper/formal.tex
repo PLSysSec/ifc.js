@@ -1,16 +1,15 @@
 \section{Security guarantees}
 \label{sec:formal}
 
-In this section we present the formal security guarantees provided by
+In this section, we present the formal security guarantees provided by
 our embedding.
 %
-Concretely, we show that |specLang alpha targetLang| for, appropriate
-scheduler, satisfies non-interference~\cite{Goguen82},
+Concretely, we show that |specLang alpha targetLang|, with an appropriate
+scheduler |alpha|, satisfies non-interference~\cite{Goguen82},
 without making any reference to properties of |targetLang|.
 %
-%As it turns out, 
-The precise scheduling policy |alpha| dictates
-the guarantee holding for programs with diverging tasks.
+The precise scheduling policy dictates
+what guarantee we can achieve for programs with diverging tasks.
 For a sequential scheduler |seqf|, we will only be able to show
 \emph{termination-insensitive non-interference}, where a program
 may diverge based on secret data; this allows attackers to observe
@@ -24,43 +23,37 @@ How can we characterize what the \emph{secret inputs} of a program are?  Like
 other work~\cite{Li+:2010:arrows,Russo+:Haskell08,lio,stefan:addressing-covert},
 we specify and prove non-interference using \emph{term erasure}.
 %
-%Intuitively, we prove that an attacker does not learn
-%any sensitive information from a program by 
-Intuitively, term erasure allows us to show that a an attacker does not learn
+Intuitively, term erasure allows us to show that an attacker does not learn
 any sensitive information from a program if the program behaves identically
 (from the attacker point of view) to a program with all sensitive data
 ``erased''.
 %
-To accommodate for this, we extend our formalism to account for
-programs with erased configurations and a function |erasef il| that
-performs erasures, usually by rewriting (parts of) configurations that
-are more sensitive than |il| to a new syntactic construct |bullet|.
+To accommodate for this, we extend our formalism with a function |erasef l| that
+performs erasures by mapping configurations to erased configurations,
+usually by rewriting (parts of) configurations that are more sensitive
+than |l| to a new syntactic construct |bullet|.
 %
-We can characterize the types of languages for which one can state
-a non-interference claim.
+In order for us to state non-interference, a language needs to include an
+erasure function:
 
-\Red{should be the environment colored in the definition?}
+%\Red{should be the environment colored in the definition?}
+%EZY: No, I don't think so.
 \begin{definition}[Information flow control language]
     An information flow control language |L| is a tuple |(C, .->,
     erasef l)|, where $|C|$ is the type of machine configurations (members
     of which are usually denoted by the meta-variable |c|), |.->| is a
     reduction relation between machine configurations and |erasef l : C -> tyerase C|
     is an erasure function parametrized on labels from machine configurations to \emph{erased} machine
-    configurations |tyerase C|.  This tuple is sometimes
-    augmented with a set of terminal configuration states $V
-    \subseteq |C|$ for which there are no possible further transitions.
-    \Red{It is a bit odd to extend a tuple ``sometimes'' and a |V| appears like from
-      nowhere. What about saying: Sometimes, we refer as |V| to set of 
+    configurations |tyerase C|.  Sometimes, we refer as |V| to set of
      terminal configurations in |C|, i.e., configurations states where
-     no further transitions are possible. If you agree, then the next sentence
-     where you said |V = ...| must be removed.}
+     no further transitions are possible.
 \end{definition}
 
 %{
 %format .->  = "\overset{\alpha}{\hookrightarrow}"
 Our language |specLang alpha (targetLang nop)| can be
-represented as |(ifc C, ifc V, .->, erasef il)|, such that
-$|ifc C| = |iS| \times \prod |it|$ and
+represented as |(ifc C, .->, erasef il)|, such that
+$|ifc C| = |iS| \times \prod |it|$.  Here,
 $|ifc V| = |iS| \times |it|_V$, where $|it|_V \subset |it|$ is the
 type for tasks whose expressions have been reduced to
 values.\footnote{
@@ -100,11 +93,12 @@ configurations.  In all other cases, including target-language constructs,
 |erasef il| is applied homomorphically.  \label{fig:erasure} }
 \end{figure}
 
-We note that the definition of |erasef il| captures the IFC
-language's attacker model. 
+The definition of |erasef il| is quite important, as it captures the IFC
+language's attacker model: elements that are erased cannot be observed
+by the attacker.
 %
 In our case, we assume that the attacker cannot observe sensitive tasks or
-messages, or even just the number of such entities.
+messages, or even the number of such entities.
 %
 While such assumptions are standard~\tocite{}, our definitions allow for
 stronger attackers that may be able to inspect resource usage.\footnote{
@@ -163,8 +157,6 @@ In other words if we take two |l|-equivalent configurations, then for every
 intermediate step taken by the first configuration, there is a corresponding
 number of steps that the second configuration can take to result in a
 configuration that is |l|-equivalent to the first resultant configuration.
-\Red{TODO: Do we want a commutative diagram to illustrate this? Ale: I don't
-  think so, it is quite standard}
 
 
 We now show that our IFC language satisfies TSNI %under a particular
