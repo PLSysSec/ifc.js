@@ -20,6 +20,27 @@ of our approach.
 \paragraph{Labeled references}
 \paragraph{Labeled synchronization primitives}
 \subsubsection{Privileges}
+Decentralized IFC extends IFC with the decentralized label model of
+Myers and Liskov~\cite{myers:dlm} to allow for more general
+applications, including systems consisting of mutually distrustful
+parties.  In a decentralized system, a computation is executed with a
+set of \emph{privileges}, which, when exercised, allow the computation
+to declassify data (e.g., by lowering the current label).
+%
+Practical IFC systems
+(e.g.,~\cite{Zeldovich:2006, lio,
+Hritcu:2013:YIB:2497621.2498098,myers:jif}) rely on privileges to
+implement many applications.
+
+Both the LIO and SWAPI implementations already support such features.
+%
+Extending our calculus to consider privileges
+%
+The challenge with such an extension, however, lies in the precise
+security guarantees that must be proved.
+%
+
+
 \subsubsection{Clearance}
 
 \subsection{Type safety}
