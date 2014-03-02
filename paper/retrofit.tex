@@ -27,7 +27,7 @@ semantics~\cite{Felleisen:1992:RRS:136293.136297} to define the
 operational semantics of the system.  One peculiarity is that our language
 defines an evaluation context |tE|, but, the evaluation rules have been
 expressed in terms of a different evaluation context |curlyRedE|;
-Here, we following the approach of Matthews and
+Here, we follow the approach of Matthews and
 Findler~\cite{Matthews:2007:OSM:1190216.1190220} in order to simplify combining
 semantics of multiple languages. 
 To derive the usual operational semantics for this language, the evaluation
@@ -109,7 +109,7 @@ with the partial order |canFlowTo|, join |lub|, and meet |glb|.
 In this paper, we simply represent labels with the metavariable
 $l$, but do not discuss them in more detail.
 
-Different from more traditional fine-grained language-based IFC systems that
+As opposed to more traditional fine-grained language-based IFC systems that
 associate labels with values~\cite{sabelfeld2003language,
 Austin:Flanagan:PLAS09}, we follow~\cite{Zeldovich:2006, lio} in taking a
 coarse-grained floating-label approach and associating labels with
@@ -380,7 +380,7 @@ niconf iS id il ie
 \end{figure}
 
 \begin{itemize}
-    \item We extend the values, expressions and evaluation contexts of both languages to allow for embeddings terms in one language to be embedded in the other.
+    \item We extend the values, expressions and evaluation contexts of both languages to allow for embeddings terms in one language to be embedded in the other.~\cite{Matthews:2007:OSM:1190216.1190220}
     %
 In the target language, an IFC expression appears as |TI ie| (``target-outside,
 IFC-inside''); in the IFC language, a target language expression appears as |IT
