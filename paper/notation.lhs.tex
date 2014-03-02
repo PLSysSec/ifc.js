@@ -502,9 +502,10 @@
 %format sandbox   = "\mathbf{sandbox}"
 %format send      = "\mathbf{send}"
 %format recv      = "\mathbf{recv}"
-%format brecv     = "\mathbf{recv}_{\infty}"
+%format brecv     = "\mathbf{blockingRecv}"
 %format otherwise = "\mathbf{else}"
 %format recvf x y e f = recv "\ " x,y in e "\ " otherwise "\ " f
+%format brecvf x y e = brecv "\ " x,y in e
 %format lop       = "\otimes"
 %format blk       = "B"
 %format nonblk    = "N"

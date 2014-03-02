@@ -162,6 +162,12 @@ The particular choice of communication primitives has been motivated by
 inter-worker communication in web browser APIs~\Red{cite}, but
 other choices such as blocking communication or labeled channels
 would also be possible.
+We note, however, that blocking receive can be implemented using
+our asynchronous primitives as follows:
+\begin{code}
+  brecvf ix1 ix2 ie @=
+  tab tab tab (IT (let tx = TI (recvf ix1 ix2 ie (IT tx)) in tx))
+\end{code}
 
 %   \begin{figure}
 %   Typing judgment: $|tyrule tG tS te tty|$
@@ -265,7 +271,6 @@ niconf iS' id il ie2
 \subsection{The embedding}
 
 \Red{TODO[ds]:
-  - move the async recv to text and out of the figure
   - clarify discussion on exceptions
   - fix the toLabled
 }
@@ -297,8 +302,6 @@ tE  ::= cdots | TI iE
 \end{tabular}
 
 \begin{code}
-ix1, ix2 <= brecv . ie @=
-tab tab tab (IT (let tx = TI (ix1, ix2 <= recv. ie  (IT tx)) in tx))
 conf tS te @= iconf iS (fullconf id il tS (iniEt te), ldots)
 niconf iS id il ie @= iconf iS (fullconf id il tS (iniEi ie), ldots)
 CE[e] -> iconf iS (it, ldots) @= CE[e] .-> iconf iS (sched step (it, ldots))
@@ -415,7 +418,7 @@ global state for the target language, one might reasonably wonder what would
 happen if you attempted to send a reference to another task.
 
 \begin{align*}
-    & |let i = TI (sandbox (x, i' <= brecv . (IT (!(TI x)))))| \\
+    & |let i = TI (sandbox (brecvf x i' (IT (!(TI x)))))| \\
     & |in TI (send (IT (ref true)))|
 \end{align*}
 
@@ -455,9 +458,9 @@ can be used to model the behavior of \textbf{toLabeled}:
 
 \begin{align*}
     & |toLabeled l te @= | \\
-    & |tab let pid = taskId; | \\
-    & |tab let i = TI (sandbox (IT (TI (setLabel l); TI (send pid l (IT te)))))| \\
-    & |tab in (\ _ . TI (setLabel l); TI ( x, _ <= recv . x ))| \\
+    & |tab let i = taskId; | \\
+    & |tab let j = TI (sandbox (IT (TI (setLabel l); TI (send i l (IT te)))))| \\
+    & |tab in (\ _ . TI (setLabel l); TI (recvf x _ x unit))| \\
 \end{align*}
 
 When the sequential scheduler is used, the sandboxed task runs to
