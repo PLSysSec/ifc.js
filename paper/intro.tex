@@ -31,9 +31,8 @@ browser by identifying \emph{web workers} as an existing computational
 unit.  Communication between workers can efficiently be mediated in an
 IFC aware way to ensure non-interference, where sensitive workers cannot
 influence the computations in less sensitive workers.
-
-This coarse-grained approach as employed by SWAPI provides a number
-of advantages; (1) reduced runtime overhead because checks need only
+This coarse-grained approach provides a number
+of advantages: (1) reduced runtime overhead because checks need only
 be performed at isolation boundaries, (2) minimal changes to an
 existing programming language when adding IFC, which (3) allows
 the reuse of existing programs.  Finally, (4) the simplicity
@@ -43,11 +42,11 @@ system, in particular without having to reason about all the
 technical details of the semantics of the programming language
 at hand.
 
-The recognition of the simplicity of this coarse-grained approach
+In fact, the simplicity of this coarse-grained approach
 to IFC allows us to generalize it to a large class of programming
-languages.  In this paper we identify the key concepts of coarse-grained
-dynamic IFC and show how these can be combined with a programming
-language, which we will call the target language.  We achieve this
+languages.  In this paper, we identify the key concepts of coarse-grained
+dynamic IFC and show how these can be combined with \emph{any} programming
+language.  We achieve this
 by using an embedding that combines the operational semantics
 of the core IFC calculus and the target language.
 At the core of our IFC system we use a sandboxing operation that allows
@@ -57,37 +56,36 @@ sandboxed operations.
 We formally state and prove the non-interference guarantees that our
 system gives, independently of the choice of the target language.
 
-One challenge in the design of such a general IFC calculus that
-is supposed to work for a large class of programming languages is
-that the stated semantics might not correspond well to the
-semantics of a concrete implementation for a particular choice
-of target language.  We address this issue by using the notation
-of isomorphism to characterize a condition that guarantees
-non-interference of the concrete system without having to prove
-this property manually.
+One challenge in the design of our system is that the semantics for the
+retrofitted IFC language may not reflect the actual implementation in a
+particular choice of target language.  We partially address this issue
+by characterizing isomorphisms between the operational semantics of our
+defined language and a concrete implementation, showing that if this
+relationship holds, then noninterference in the abstract specification
+carries over to the concrete specification.
 
 Our key contributions can be summarized as follows:
 \begin{itemize}
   \item We give formal semantics for a core IFC language that
-  captures the essence of coarse-grained information flow control.
-  \item We show how a large class of target languages can be combined
+      captures the essence of coarse-grained information flow control.
+  We then show how a large class of target languages can be combined
   with this IFC language and prove that the resulting system provides
-  non-interference.
+  non-interference. (Section~\ref{sec:retrofit})
 %  \item We show how to extend the Matthews-Findler method from just
 %  languages that are not simply expressions evaluating to values,
 %  but may be collections of threads executing nondeterministically.
   \item We provide a proof technique to show the non-interference
   of a concrete semantics for a potentially optimized IFC language
   by means of an isomorphism, and show a class of restrictions on
-  the IFC calculus that preserves non-interference.
+  the IFC calculus that preserves non-interference. (Section~\ref{sec:formal})
   \item We sketch how the core IFC language can be enriched with
   more advanced concepts such as labeled values, privileges or a
-  notation of clearance.
+  notation of clearance. (Section~\ref{sec:extensions})
   \item We connect our formal semantics to real implementations of
   coarse-grained IFC systems for Javascript and Haskell, and explain
-  how our system could be used to enforce IFC in C.
+  how our system could be used to enforce IFC in C. (Section~\ref{sec:real})
   \item We informally connect our results to a monadic interpretation
-  of IFC which guided our design.
+      of IFC which guided our design. (Section~\ref{sec:monad})
 \end{itemize}
 
 
