@@ -37,29 +37,42 @@ we state a lemma we will use.
   We proof the theorem by induction on the length of the derivation sequence in~\eqref{eq:tsni-lhs}.
   The base case for derivations
   of length 0 is trivial, allowing
-  us to simple chose $|ic2'=ic2|$.  In the step case, we assume
-  the theorem holds for derivation sequences of length up to $n$, and show that it also
-  holds for those of length $n+1$.  We split the derivation sequence from~\eqref{eq:tsni-lhs} as follows:
+  us to simple chose $|ic2'=ic2|$.  In the step case,
+  we split the derivation sequence from~\eqref{eq:tsni-lhs} of length $n+1$ as follows:
   \[
   |ic1| |.->| |ic1''| |.->|^n |ic1'|
   \]
-  for some configuration |ic1''|.  By Lemma~\ref{lemma:rr-tsni-general}, we get
-  |ic''| with
-  \begin{equation} \label{eq:tsni-proof-1}
-  |ic1''| \approx_{|il|} |ic2''|
-  \qquad \text{and} \qquad
-  |ic2| |.->|^* |ic2''|
-  \end{equation}
-  Applying the induction hypothesis to
-  $|ic1''| |.->|^n |ic1'|$, we get |ic2'| with
-  \begin{equation} \label{eq:tsni-proof-2}
-  |ic1'| \approx_{|il|} |ic2'|
-  \qquad \text{and} \qquad
-  |ic2''| |.->|^* |ic2'|
-  \end{equation}
-  Stitching together the derivation sequences from~\eqref{eq:tsni-proof-1} and~\eqref{eq:tsni-proof-2} directly gives
-  us the right-hand side of the implication in the TSNI
-  definition~\eqref{eq:tsni-rhs}, which concludes the proof.
+  for some configuration |ic1''|.  By Lemma~\ref{lemma:rr-tsni-general} to
+  the first step and
+  the induction hypothesis to the rest of the derivation sequence,
+  we directly get the desired property.
+  % long version
+%  We proof the theorem by induction on the length of the derivation sequence in~\eqref{eq:tsni-lhs}.
+%  The base case for derivations
+%  of length 0 is trivial, allowing
+%  us to simple chose $|ic2'=ic2|$.  In the step case, we assume
+%  the theorem holds for derivation sequences of length up to $n$, and show that it also
+%  holds for those of length $n+1$.  We split the derivation sequence from~\eqref{eq:tsni-lhs} as follows:
+%  \[
+%  |ic1| |.->| |ic1''| |.->|^n |ic1'|
+%  \]
+%  for some configuration |ic1''|.  By Lemma~\ref{lemma:rr-tsni-general}, we get
+%  |ic''| with
+%  \begin{equation} \label{eq:tsni-proof-1}
+%  |ic1''| \approx_{|il|} |ic2''|
+%  \qquad \text{and} \qquad
+%  |ic2| |.->|^* |ic2''|
+%  \end{equation}
+%  Applying the induction hypothesis to
+%  $|ic1''| |.->|^n |ic1'|$, we get |ic2'| with
+%  \begin{equation} \label{eq:tsni-proof-2}
+%  |ic1'| \approx_{|il|} |ic2'|
+%  \qquad \text{and} \qquad
+%  |ic2''| |.->|^* |ic2'|
+%  \end{equation}
+%  Stitching together the derivation sequences from~\eqref{eq:tsni-proof-1} and~\eqref{eq:tsni-proof-2} directly gives
+%  us the right-hand side of the implication in the TSNI
+%  definition~\eqref{eq:tsni-rhs}, which concludes the proof.
 \end{proof}
 \begin{proof}[Proof of Lemma~\ref{lemma:rr-tsni-general}]
   First, we observe there must be at least one task in |ic1|, otherwise
