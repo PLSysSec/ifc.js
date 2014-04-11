@@ -209,7 +209,7 @@ lop  ::=  canFlowTo | lub | glb
 iv   ::=  id | il | true | false | unit
 ie   ::=  iv | ix | ie lop ie | getLabel | setLabel ie | getTaskId
        |  sandbox ie | send ie ie ie | recvf ix ix ie ie
-iE   ::=  iHole | iE lop ie | iv lop iE | setLabel iE | sandbox iE
+iE   ::=  iHole | iE lop ie | iv lop iE | setLabel iE
        |  send iE ie ie | send iv iE ie | send iv iv iE
 io   ::=  (il, id ie)
 Q    ::=  nil | io , Q
@@ -330,7 +330,7 @@ CE[e] -> iconf iS (it, ldots) @= CE[e] .-> iconf iS (sched step (it, ldots))
 |iS' = bracket iS (mapsto id' nil)|\\
 |tS' = klone(tS)|\\
 |it1 = fullconf id il tS (iniE id')|\\
-|itnew = fullconf id' il tS' (TI ie)|\\
+|itnew = fullconf id' il tS' ie|\\
 |ap fresh id'|
 }
 {|
