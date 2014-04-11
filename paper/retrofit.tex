@@ -44,9 +44,9 @@ reduction relation on full configurations $|tS| \times |tE| \times |te|$.
 \begin{code}
 tv   ::= \tx.te | true | false | ta
 te   ::= tv | tx | te te | if te then te else te
-       | ref te | !te | te := te | fix e
+       | ref te | !te | te := te | fix te
 tE   ::= tHole | tE te | tv tE | if tE then te else te
-       | ref tE | !tE | tE := te | tv := tE | fix E
+       | ref tE | !tE | tE := te | tv := tE | fix tE
 
 te1 ; te2            @= (\tx.te2) te1  where  tx notmember FV(te2)
 let tx = te1 in te2  @= (\tx.te2) te1
