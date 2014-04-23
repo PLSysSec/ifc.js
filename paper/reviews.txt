@@ -59,11 +59,26 @@
 > of the work, which has not been explained at all (actually, given the
 > connection to LIO, why not develop the entire formalism with a monad
 > in the first place?).
+
+Ale: I agree. We should remove section 8. It is a nice connection but 
+either it should be developed further (i.e. formally) or just drop it. 
+
+
 >
 > On the whole, I see novel content in Sections 3 and 4 that I like, but
 > the rest of the paper looks like a rehash of prior work (Sections 2,
-> 4) and preliminary/incomplete (Sections 5, 6, 8). The contributions
+> 4) 
+
+Ale: perhaps, we over sell Section 2 and 4 and we should peach the paper 
+as "a generalization of LIO" and be honest about it.  
+
+>and preliminary/incomplete (Sections 5, 6, 8). The contributions
 > are rather thin, hence my rating of weak reject.
+
+Ale: Section 5: focusing only on Haskell and SWAPI and not even mention 
+C if we do not have well-developed. Section 6 back fire at us, we should 
+lower the tones of limitations and turn them into extensions (?). 
+
 >
 > ----------------------- REVIEW 2 ---------------------
 
@@ -71,23 +86,41 @@
 > for retrofitting existing languages with information flow control,
 > but I don't quite buy the generality of their method. Section 2,
 > where a small untyped lambda calculus is retrofitted with IFC, seems
-> reasonable, but how does this really scale in practice? Section 5,
+> reasonable, but how does this really scale in practice? 
+
+Ale: Can we answer about this with conviction? I believe so.
+
+> Section 5,
 > which describes real world examples of this retrofitting, feels like
 > it is trying to shoe-horn two previous one-off retrofittings into a
-> unified framework. However, the framework didn't come first. In
+> unified framework. However, the framework didn't come first. i
+
+Ale: see my comment on presenting the paper as a generalization of LIO, but perhaps 
+changing the title to something like "A modular floating-label approach for IFC" or something 
+like that. Perhaps, retrofitting is too strong.
+
+> In
 > fact, the Haskell and JavaScript retrofittings needed to deal with
 > some special cases, e.g., XMLHttpRequest, that are not covered by
-> the methodology outlined in Section 2. Indeed, the authors state in
+> the methodology outlined in Section 2. 
+> Indeed, the authors state in
 > Section 6.4 that external effects are a problem. I am not convinced
 > that starting from the methodology outlined in Section 2, one would
-> have a clear path to retrofitting some other language with IFC. The
+> have a clear path to retrofitting some other language with IFC. 
+> The
 > proofs about the language described in Section 2 just don't say much
 > about a real world language.
 
+Ale: we should think about extending the formalism with "signatures" to 
+capture this feature. Of course, we need to make assumption about the 
+functions, e.g., that all their effects are captured in the signature, etc.
+Here, we could add the R and W effects idea.
 
 > Page 10, Proof of Theorem 3... why induct on the length of the
 > derivation sequence instead of inducting on the structure of the
 > derivation directly?
+
+
 
 > ----------------------- REVIEW 3 ---------------------
 
