@@ -1,0 +1,31 @@
+
+We would like to thank all reviewers for their feedback and suggestions.  We will first reply to high-level comments and then reply to specific questions in the reviews.
+
+High-level comments
+-------------------
+
+Several reviewers raised questions about the generality as well as the practical scalability of our approach, in particular with regards to external effects.  We note that as a first step our framework assumes the target language to be free of external effects.  The problem of adding IFC even to such languages is non-trivial and error-prone (e.g., see [29]).  Furthermore, some practical languages like ECMAScript are of this form, and external effects such as XMLHttpRequest are added as extensions to it in browsers to arrive at JavaScript.
+Devising a general mechanism to deal with external effects is challenging and requires a formal definition of the external effects, which can vary widely across systems.  Soundly dealing with such external effects requires these effects to be internalized into the IFC language, and for XMLHttpRequest in SWAPI we show how do exactly that.
+
+Another point raised by the reviewers is the missing connection between the real-world examples and the formal framework, and that it feels like we are trying to shoe-horn two previous one-off retrofittings into a unified framework.  This is not the case, in fact, the cause-and-effect relationship is the other way around.  The general framework for IFC presented in this paper has influenced both SWAPI as well as LIO, helping to decide what a non-interfering implementation needs to provide.  For example, mumble mumble exceptions.
+
+Reviewer 1 asks about the extension section, and whether these are speculative ideas or not.  Extensions to the IFC language are largely orthogonal to the core contribution of combining coarse-grained IFC with a target language.  To keep the presentation in earlier clean of orthogonal distractions, we only present more advanced IFC features in the extension section.  However, these extensions have been worked out, and are also part of the JavaScript or Haskell implementation, or both.
+W.r.t. the comment about labeled references not being amenable to Matthews-Findler-style semantics, we note that in a coarse-grained approach like ours, the labeled references are part of the IFC state and the references are distinct from the native references a target language might have.  For this reason, there is no conflict with the approach of Matthews and Findler.
+
+
+Specific questions
+------------------
+
+Reviewer 1 ask why we have not developed our formalism with a monad.  One of our motivations was to formalize an IFC system for JavaScript, whose semantics are typically not presented in a stratified way by distinguishing a monadic and a pure fragment.  A non-monadic approach enables a more natural formalism for a large class of languages, including JavaScript.
+
+Reviewer 2 ask about the proof strategy for Theorem 3.  Performing induction on the length of the derivation sequence followed by induction on the derivation tree is standard for small-step operational semantics.  This is isomorphic to induction on the structure of the derivation for ->*.
+
+Reviewer 1 ask about the soundness of the JS-send rule.  While omitted in the paper, this rule can be proven to be non-interfering.  Intuitively, for an attacker at level L, the additional premise evaluates regardless of secrets at a level above L, thus ensuring that no secrets can be observed.
+
+Reviewer 2 correctly points out that on page 6 the second \Sigma_1 in c_1 should be \Sigma_2.
+
+Reviewer 3 asks about shared mutable references:  It is correct that a different design choice might allow shared mutable references in this way.  However, because native references are protected by the current label, this would effectively be a fine-grained IFC system, requiring checks for all reference reads and writes.  This would be against our goal of a coarse-grained system.  We will improve the unfortunate phrase in our paper.
+
+Reviewer 3 asks about the values sent across channels in SWAPI.  For simplicity, we require them to be strings in the paper, thought any structurally cloned object (as well as labeled blobs) are allowed in the actual implementation.
+
+As reviewer 3 points out, the reference about SWAPI does not include an URL.  It is available at http://deian.net/swapi.pdf and currently not indexed by search engines because the paper is under anonymous review.  We apologize for the mistake.
