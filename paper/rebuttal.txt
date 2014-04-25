@@ -9,31 +9,29 @@ external effects by wrapping the corresponding primitives to be
 IFC-aware [3]; JSFlow [25] manually wraps JavaScript primitives with
 external effects.  This is not to say that the systems we have
 implemented do not deal with external effects: e.g. XMLHttpRequest as
-used in SWAPI essential wraps the "native" unsafe code. While we could
-have formally modeled these effects with an external effect primitive
-(e.g., 'out'), we do not think this add much value, formally or
-practically. This is because the treatment of external effects is very
-much application specific.
+used in SWAPI essential wraps the "native" unsafe code. However, the treatment
+of external effects is very much application specific, and finding a
+general solution is an open problem.
 
 Thus, the generality of our system does not come from a treatment of
 external effects; rather, assuming that external effects are taken care
-of (Section 6), it comes from our ability to accomodate arbitrarily
+of (Section 6), it comes from our ability to accommodate arbitrarily
 complex internal semantics.  For example, our work is directly
-applicable to "vanilla" JS (EcmaScript), which does not have any
-external effects.  As opposed to existing IFC systems [25] which incur
+applicable to "vanilla" JavaScript (ECMAScript), which does not have any
+external effects.  As opposed to existing IFC systems (e.g., [25]) which incur
 tremendous overhead, we show that you can build an efficient,
 non-intrusive IFC system for JavaScript, or any other language which can
 be isolated.
 
 It's worth stating that we did not simply shoe-horn SWAPI and LIO into a
 "unified framework".  While our language uses ideas from LIO and SWAPI,
-we note that the current (and at the time of the writing) versions of
+we note that the current versions of
 these systems coevolved with the concepts in the paper.  For instance,
 in LIO [53] (and Breeze [28]) exceptions were originally treated in a
 rather complex fashion. As we discuss in the paper, when you consider
-exceptions as part of the internal semantics of the language, the
-appropriate semantics for exceptions becomes trivial.  In fact, LIO was
-modified to adopt this new approach.
+exceptions as part of the internal semantics of the target language, the
+appropriate semantics for exceptions fall out naturally in our framework.
+In fact, LIO was modified to adopt this new, simpler approach.
 
 # I haven't fixed this
 As for the first reviewer's concern that the IFC system presented is
