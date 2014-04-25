@@ -1,17 +1,13 @@
 # Generality and novelty of the system
 
-A reviewer raised the question of the generality of the framework and
-asks how does our work scales in practice -- indeed if there is clear
-path to retrofitting real languages with IFC or did we just shoe-horn
-SWAPI and LIO into a "unified framework".
-
-First, we note that our framework assumes that the target language
-must not have external effects. In section 6 we show how real-world
-languages can be constrained to achieve this. For C we use Dune, for
-Haskell we use types, and for browser-JS we use CSP. Unfortunately due
-to space restrictions we left the discussion of the mapping to the
-formalism as informal discussion (doing this at the cost of section 8
-seems natural).
+A reviewer asked if our system really applies to real-world languages,
+pointing to our inability to deal with external effects.  It is true
+that our framework assumes that the target language must not have
+external effects.  However, this is not an unreasonable constraint: in
+Section 6, we discussed how real-world languages can be constrained to
+achieve this.  Unfortunately due to space restrictions we left the
+discussion of the mapping to the formalism as informal discussion (doing
+this at the cost of section 8 seems natural).
 
 We do not claim that our work is general enough to handle languages
 where effects cannot be tamed (we will emphasize this on revision).
@@ -23,20 +19,21 @@ alternative (to [25]) IFC semantics for JS.  Indeed the motivation
 behind this work was to address the question of how to build an
 efficient, non-intrusive IFC system for JS.
 
-While our language uses ideas from LIO and SWAPI, we note that the
-current (and at the time of the writing) versions of these systems are
-using the concepts of this paper. It is not the case that "the
-framework didn't come first". For instance, in LIO [53] (and Breeze
-[28]) exceptions were original treated in a rather complex fashion; as
-we discuss in the paper, exceptions are internal effects and thus the
-security concern becomes trivial; LIO now uses this approach (and
-regular Haskell exceptions vs. labeled exceptions).
+Similarly, there was a comment that this work simply shoe-horned SWAPI
+and LIO into a "unified framework".  While our language uses ideas from
+LIO and SWAPI, we note that the current (and at the time of the writing)
+versions of these systems are using the concepts of this paper. It is
+not the case that "the framework didn't come first". For instance, in
+LIO [53] (and Breeze [28]) exceptions were originally treated in a rather
+complex fashion; as we discuss in the paper, exceptions are internal
+effects and thus the security concern becomes trivial; LIO was modified to
+adopt this new approach.
 
-Addressing the first reviewer's concern that the IFC system presented
-is a rehash prior work, we remark that this approach of dealing with
+As for the first reviewer's concern that the IFC system presented
+is simply a rehash of prior work, we claim the approach of dealing with
 internal effects and our asynchronous communication primitives is
 novel. Moreover, we believe that the formalization serves as a
-stepping stone for reasoning about IFC OS work.
+stepping stone for formal reasoning about IFC OS work.
 
 # Extensions
 
