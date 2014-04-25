@@ -1,6 +1,32 @@
+External effects
+----------------
+
+# is the system general?
+#
+# true, we can't handle external effects
+
+The reviewers are concerned that our treatment of external effects makes the
+work incomplete. We remark that like other IFC systems, external effects can be
+handled by internalizing them (manually) into the IFC language. For instance,
+JPMail (a secure mail agent) [1] essentially re-implements the primitives with
+external effects in Jif (a compiler for IFC in Java). In addition, Paragon [2]
+internalizes external effects by wrapping the corresponding primitives to be
+IFC-aware [3]. JSFlow [25] manually wraps JavaScript primitives with external
+effects. Similarly, as in the XMLHttpRequest used in SWAPI, our technique
+amounts to wrapping the "native" unsafe code. While we can extend the language
+with a general external effect primitive (e.g., 'out'), we do not think this add
+much value, formally or practically. This is because the treatment of external
+effects is very much application specific. For instance, the HTTP client in
+SWAPI (XMLHttpRequest) and LIO (as used in Hails [22]) both wrap the native code
+to make IFC-aware, but the actual label checks differ simply because of the
+different setting and attacker models: browser (client) vs. server.  While
+important for pushing IFC into practice, we believe that general treatment of
+external effects is an open problem and complementary to this work.
 
 Generality and novelty of the system
 ------------------------------------
+
+# that doesn't make it not real
 
 A reviewer asked if our system really applies to real-world languages,
 pointing to our inability to deal with external effects.  It is true
@@ -60,27 +86,6 @@ distinct from the native references a target language might have and
 all access abides by IFC.  (For this reason, there is also no
 conflict with the approach of Matthews and Findler as brought up by
 the first reviewer.)
-
-External effects
-----------------
-
-The reviewers are concerned that our treatment of external effects makes the
-work incomplete. We remark that like other IFC systems, external effects can be
-handled by internalizing them (manually) into the IFC language. For instance,
-JPMail (a secure mail agent) [1] essentially re-implements the primitives with
-external effects in Jif (a compiler for IFC in Java). In addition, Paragon [2]
-internalizes external effects by wrapping the corresponding primitives to be
-IFC-aware [3]. JSFlow [25] manually wraps JavaScript primitives with external
-effects. Similarly, as in the XMLHttpRequest used in SWAPI, our technique
-amounts to wrapping the "native" unsafe code. While we can extend the language
-with a general external effect primitive (e.g., 'out'), we do not think this add
-much value, formally or practically. This is because the treatment of external
-effects is very much application specific. For instance, the HTTP client in
-SWAPI (XMLHttpRequest) and LIO (as used in Hails [22]) both wrap the native code
-to make IFC-aware, but the actual label checks differ simply because of the
-different setting and attacker models: browser (client) vs. server.  While
-important for pushing IFC into practice, we believe that general treatment of
-external effects is an open problem and complementary to this work.
 
 Other questions
 ---------------
