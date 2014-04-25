@@ -7,9 +7,8 @@ pointing to our inability to deal with external effects.  It is true
 that our framework assumes that the target language must not have
 external effects.  However, this is not an unreasonable constraint: in
 Section 6, we discussed how real-world languages can be constrained to
-achieve this.  Unfortunately due to space restrictions we left the
-discussion of the mapping to the formalism as informal discussion (doing
-this at the cost of section 8 seems natural).
+achieve this.  Unfortunately, due to space restrictions, we left the
+discussion of the mapping to the formalism as informal discussion.
 
 We do not claim that our work is general enough to handle languages
 where effects cannot be tamed (we will emphasize this on revision).
