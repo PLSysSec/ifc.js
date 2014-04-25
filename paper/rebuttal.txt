@@ -1,31 +1,116 @@
+# Generality and novelty of the system
 
-We would like to thank all reviewers for their feedback and suggestions.  We will first reply to high-level comments and then reply to specific questions in the reviews.
+A reviewer raised the question of the generality of the framework and
+asks how does our work scales in practice -- indeed if there is clear
+path to retrofitting real languages with IFC or did we just shoe-horn
+SWAPI and LIO into a "unified framework".
 
-High-level comments
--------------------
+First, we note that our framework assumes that the target language
+must not have external effects. In section 6 we show how real-world
+languages can be constrained to achieve this. For C we use Dune, for
+Haskell we use types, and for browser-JS we use CSP. Unfortunately due
+to space restrictions we left the discussion of the mapping to the
+formalism as informal discussion (doing this at the cost of section 8
+seems natural).
 
-Several reviewers raised questions about the generality as well as the practical scalability of our approach, in particular with regards to external effects.  We note that as a first step our framework assumes the target language to be free of external effects.  The problem of adding IFC even to such languages is non-trivial and error-prone (e.g., see [29]).  Furthermore, some practical languages like ECMAScript are of this form, and external effects such as XMLHttpRequest are added as extensions to it in browsers to arrive at JavaScript.
-Devising a general mechanism to deal with external effects is challenging and requires a formal definition of the external effects, which can vary widely across systems.  Soundly dealing with such external effects requires these effects to be internalized into the IFC language, and for XMLHttpRequest in SWAPI we show how do exactly that.
+We do not claim that our work is general enough to handle languages
+where effects cannot be tamed (we will emphasize this on revision).
+Yet some languages can be tamed (as we discuss) and others don't even
+have external effects.  For example, our work is directly applicable
+to "vanilla" JS (EcmaScript), which does not have any external effects
+-- indeed, under one lens, one can see our work as presenting an
+alternative (to [25]) IFC semantics for JS.  Indeed the motivation
+behind this work was to address the question of how to build an
+efficient, non-intrusive IFC system for JS.
 
-Another point raised by the reviewers is the missing connection between the real-world examples and the formal framework, and that it feels like we are trying to shoe-horn two previous one-off retrofittings into a unified framework.  This is not the case, in fact, the cause-and-effect relationship is the other way around.  The general framework for IFC presented in this paper has influenced both SWAPI as well as LIO, helping to decide what a non-interfering implementation needs to provide.  For example, mumble mumble exceptions.
+While our language uses ideas from LIO and SWAPI, we note that the
+current (and at the time of the writing) versions of these systems are
+using the concepts of this paper. It is not the case that "the
+framework didn't come first". For instance, in LIO [53] (and Breeze
+[28]) exceptions were original treated in a rather complex fashion; as
+we discuss in the paper, exceptions are internal effects and thus the
+security concern becomes trivial; LIO now uses this approach (and
+regular Haskell exceptions vs. labeled exceptions).
 
-Reviewer 1 asks about the extension section, and whether these are speculative ideas or not.  Extensions to the IFC language are largely orthogonal to the core contribution of combining coarse-grained IFC with a target language.  To keep the presentation in earlier clean of orthogonal distractions, we only present more advanced IFC features in the extension section.  However, these extensions have been worked out, and are also part of the JavaScript or Haskell implementation, or both.
-W.r.t. the comment about labeled references not being amenable to Matthews-Findler-style semantics, we note that in a coarse-grained approach like ours, the labeled references are part of the IFC state and the references are distinct from the native references a target language might have.  For this reason, there is no conflict with the approach of Matthews and Findler.
+Addressing the first reviewer's concern that the IFC system presented
+is a rehash prior work, we remark that this approach of dealing with
+internal effects and our asynchronous communication primitives is
+novel. Moreover, we believe that the formalization serves as a
+stepping stone for reasoning about IFC OS work.
 
+# Extensions
 
-Specific questions
-------------------
+The reviewers asked if we actually worked out the extensions to
+language. We chose to present the core ideas separate from extensions
+for simplicity and because the features largely depend on the
+embedding. For example, labeled MVars are natural to Haskell, but
+not JS. Nevertheless, these extensions have been formalized and are
+implemented in LIO and/or SWAPI. (The only extension common
+to both system systems are labeled values.) The main points on how
+to extend the system with such features follows from the discussion:
+they must be added to the IFC language and the no sharing
+"sandbox-local pointers" rule (of send) must be used.  For example,
+in the labeled references case we amend the IFC language state to
+contain a labeled reference store; these labeled references are
+distinct from the native references a target language might have and
+all access abides by IFC.  (For this reason, there is also no
+conflict with the approach of Matthews and Findler as brought up by
+the first reviewer.)
 
-Reviewer 1 ask why we have not developed our formalism with a monad.  One of our motivations was to formalize an IFC system for JavaScript, whose semantics are typically not presented in a stratified way by distinguishing a monadic and a pure fragment.  A non-monadic approach enables a more natural formalism for a large class of languages, including JavaScript.
+# External effects
 
-Reviewer 2 ask about the proof strategy for Theorem 3.  Performing induction on the length of the derivation sequence followed by induction on the derivation tree is standard for small-step operational semantics.  This is isomorphic to induction on the structure of the derivation for ->*.
+The reviewers are concerned that our treatment of external effects
+makes the work incomplete. We remark that like other IFC systems [A
+XXXX Z], external effects can be handled by internalizing them into
+the IFC language. In practice and as in the XMLHttpRequest (as used in
+SWAPI) case this amounts to wrapping the "native" unsafe code. While
+we can extend the language with a general external effect primitive
+(e.g., 'out') we do not think this add much value, formally or
+practically. Finally, and most importantly, the treatment of external
+effects is very much application specific. For instance, the HTTP
+client in SWAPI (XMLHttpRequest) and LIO (as used in Hails [22]) both
+wrap the native code with label checks, but the semantics differ
+(simply because of the different use cases: browser vs. server).
+While important for (certain) practical applications, we believe that
+general treatment of such effects is an open problem and complementary
+to this work.
 
-Reviewer 1 ask about the soundness of the JS-send rule.  While omitted in the paper, this rule can be proven to be non-interfering.  Intuitively, for an attacker at level L, the additional premise evaluates regardless of secrets at a level above L, thus ensuring that no secrets can be observed.
+# Other questions
 
-Reviewer 2 correctly points out that on page 6 the second \Sigma_1 in c_1 should be \Sigma_2.
+Reviewer 3 asks about shared mutable references:  It is correct that a
+different design choice might allow shared mutable references in this
+way.  However, because native references are protected by the current
+label, this would effectively be a fine-grained IFC system, requiring
+checks for all reference reads and writes.  This would be against our
+goal of a coarse-grained system.  We will improve the unfortunate
+phrasing.
 
-Reviewer 3 asks about shared mutable references:  It is correct that a different design choice might allow shared mutable references in this way.  However, because native references are protected by the current label, this would effectively be a fine-grained IFC system, requiring checks for all reference reads and writes.  This would be against our goal of a coarse-grained system.  We will improve the unfortunate phrase in our paper.
+Reviewer 3 asks about the values sent across channels in SWAPI.  For
+simplicity, we require them to be strings in the paper, thought any
+structurally cloned object (as well as labeled blobs) are actually
+permitted.
 
-Reviewer 3 asks about the values sent across channels in SWAPI.  For simplicity, we require them to be strings in the paper, thought any structurally cloned object (as well as labeled blobs) are allowed in the actual implementation.
+Reviewer 1 ask why we have not developed our formalism with a monad.
+One of our motivations was to formalize an IFC system for JavaScript,
+whose semantics are typically not presented in a stratified way by
+distinguishing a monadic and a pure fragment.  A non-monadic approach
+enables a more natural formalism for a large class of languages,
+including JavaScript.
 
-As reviewer 3 points out, the reference about SWAPI does not include an URL.  It is available at http://deian.net/swapi.pdf and currently not indexed by search engines because the paper is under anonymous review.  We apologize for the mistake.
+Reviewer 2 ask about the proof strategy for Theorem 3.  Performing
+induction on the length of the derivation sequence followed by
+induction on the derivation tree is standard for small-step
+operational semantics.  This is isomorphic to induction on the
+structure of the derivation for ->*.
+
+Reviewer 1 ask about the soundness of the JS-send rule.  While omitted
+in the paper, this rule can be proven to be non-interfering.
+Intuitively, for an attacker at level L, the additional premise
+evaluates regardless of secrets at a level above L, thus ensuring that
+no secrets can be observed.
+
+As reviewer 3 points out, the reference about SWAPI does not include
+an URL.  It is available at http://deian.net/swapi.pdf and currently
+not indexed by search engines because the paper is being anonymously
+submitted.  We apologize for the mistake.
+
