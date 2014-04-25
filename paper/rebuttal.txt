@@ -1,4 +1,6 @@
-# Generality and novelty of the system
+
+Generality and novelty of the system
+------------------------------------
 
 A reviewer asked if our system really applies to real-world languages,
 pointing to our inability to deal with external effects.  It is true
@@ -35,7 +37,8 @@ internal effects and our asynchronous communication primitives is
 novel. Moreover, we believe that the formalization serves as a
 stepping stone for formal reasoning about IFC OS work.
 
-# Extensions
+Extensions
+----------
 
 The reviewers asked if we actually worked out the extensions to
 language. We chose to present the core ideas separate from extensions
@@ -54,7 +57,8 @@ all access abides by IFC.  (For this reason, there is also no
 conflict with the approach of Matthews and Findler as brought up by
 the first reviewer.)
 
-# External effects
+External effects
+----------------
 
 The reviewers are concerned that our treatment of external effects
 makes the work incomplete. We remark that like other IFC systems [A
@@ -72,20 +76,13 @@ While important for (certain) practical applications, we believe that
 general treatment of such effects is an open problem and complementary
 to this work.
 
-# Other questions
+Other questions
+---------------
 
-Reviewer 3 asks about shared mutable references:  It is correct that a
-different design choice might allow shared mutable references in this
-way.  However, because native references are protected by the current
-label, this would effectively be a fine-grained IFC system, requiring
-checks for all reference reads and writes.  This would be against our
-goal of a coarse-grained system.  We will improve the unfortunate
-phrasing.
-
-Reviewer 3 asks about the values sent across channels in SWAPI.  For
-simplicity, we require them to be strings in the paper, thought any
-structurally cloned object (as well as labeled blobs) are actually
-permitted.
+As reviewer 3 points out, the reference about SWAPI does not include
+an URL.  It is available at http://deian.net/swapi.pdf and currently
+not indexed by search engines because the paper is being anonymously
+submitted.  We apologize for the mistake.
 
 Reviewer 1 ask why we have not developed our formalism with a monad.
 One of our motivations was to formalize an IFC system for JavaScript,
@@ -100,14 +97,21 @@ induction on the derivation tree is standard for small-step
 operational semantics.  This is isomorphic to induction on the
 structure of the derivation for ->*.
 
+Reviewer 3 asks about shared mutable references:  It is correct that a
+different design choice might allow shared mutable references in this
+way.  However, because native references are protected by the current
+label, this would effectively be a fine-grained IFC system, requiring
+checks for all reference reads and writes.  This would be against our
+goal of a coarse-grained system.  We will improve the unfortunate
+phrasing.
+
+Reviewer 3 asks about the values sent across channels in SWAPI.  For
+simplicity, we require them to be strings in the paper, thought any
+structurally cloned object (as well as labeled blobs) are actually
+permitted.
+
 Reviewer 1 ask about the soundness of the JS-send rule.  While omitted
 in the paper, this rule can be proven to be non-interfering.
 Intuitively, for an attacker at level L, the additional premise
 evaluates regardless of secrets at a level above L, thus ensuring that
 no secrets can be observed.
-
-As reviewer 3 points out, the reference about SWAPI does not include
-an URL.  It is available at http://deian.net/swapi.pdf and currently
-not indexed by search engines because the paper is being anonymously
-submitted.  We apologize for the mistake.
-
