@@ -3,10 +3,10 @@ pointing to our inability to deal with external effects as a mark
 against it.  It is true that dealing with external effects is important
 for pushing IFC into practice, and our work is not primarily concerned
 with addressing this issue.  However, this problem is endemic to all
-information flow control systems: for instance, JPMail [1] re-implements
-primitives with external effects in Jif; Paragon [2] internalizes
+information flow control systems: for instance, JPMail [A] re-implements
+primitives with external effects in Jif; Paragon [B] internalizes
 external effects by wrapping the corresponding primitives to be
-IFC-aware [3]; JSFlow [25] manually wraps JavaScript primitives with
+IFC-aware [C]; JSFlow [25] manually wraps JavaScript primitives with
 external effects.  This is not to say that the systems we have
 implemented do not deal with external effects: e.g. XMLHttpRequest as
 used in SWAPI essential wraps the "native" unsafe code. However, the treatment
@@ -102,12 +102,12 @@ no secrets can be observed.
 References
 ----------
 
-[1] Boniface Hicks, Kiyan Ahmadizadeh, and Patrick McDaniel. Understanding
+[A] Boniface Hicks, Kiyan Ahmadizadeh, and Patrick McDaniel. Understanding
 practical application development in security-typed languages. In 22nd Annual
 Computer Security Applications Conference (ACSAC), Miami, Fl, December 2006.
 
-[2] Paragon for Practical Programming with Information-Flow Control Niklas
+[B] Paragon for Practical Programming with Information-Flow Control Niklas
 Broberg, Bart van Delft and David Sands Asian Symposium on Programming Languages
 and Systems (APLAS) 2013, Springer
 
-[3] http://www.cse.chalmers.se/research/group/paragon/?p=Case%20Studies 
+[C] http://www.cse.chalmers.se/research/group/paragon/?p=Case%20Studies 
