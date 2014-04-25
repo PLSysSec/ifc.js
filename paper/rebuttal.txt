@@ -65,21 +65,23 @@ the first reviewer.)
 External effects
 ----------------
 
-The reviewers are concerned that our treatment of external effects
-makes the work incomplete. We remark that like other IFC systems [A
-XXXX Z], external effects can be handled by internalizing them into
-the IFC language. In practice and as in the XMLHttpRequest (as used in
-SWAPI) case this amounts to wrapping the "native" unsafe code. While
-we can extend the language with a general external effect primitive
-(e.g., 'out') we do not think this add much value, formally or
-practically. Finally, and most importantly, the treatment of external
-effects is very much application specific. For instance, the HTTP
-client in SWAPI (XMLHttpRequest) and LIO (as used in Hails [22]) both
-wrap the native code with label checks, but the actual label checks
-differ simply because of the different setting and attacker models:
-browser vs. server.  While important for (certain) practical
-applications, we believe that general treatment of such effects is an
-open problem and complementary to this work.
+The reviewers are concerned that our treatment of external effects makes the
+work incomplete. We remark that like other IFC systems, external effects can be
+handled by internalizing them (manually) into the IFC language. For instance,
+JPMail (a secure mail agent) [1] essentially re-implements the primitives with
+external effects in Jif (a compiler for IFC in Java). In addition, Paragon [2]
+internalizes external effects by wrapping the corresponding primitives to be
+IFC-aware [3]. JSFlow [25] manually wraps JavaScript primitives with external
+effects. Similarly, as in the XMLHttpRequest used in SWAPI, our technique
+amounts to wrapping the "native" unsafe code. While we can extend the language
+with a general external effect primitive (e.g., 'out'), we do not think this add
+much value, formally or practically. This is because the treatment of external
+effects is very much application specific. For instance, the HTTP client in
+SWAPI (XMLHttpRequest) and LIO (as used in Hails [22]) both wrap the native code
+to make IFC-aware, but the actual label checks differ simply because of the
+different setting and attacker models: browser (client) vs. server.  While
+important for pushing IFC into practice, we believe that general treatment of
+external effects is an open problem and complementary to this work.
 
 Other questions
 ---------------
@@ -120,3 +122,16 @@ in the paper, this rule can be proven to be non-interfering.
 Intuitively, for an attacker at level L, the additional premise
 evaluates regardless of secrets at a level above L, thus ensuring that
 no secrets can be observed.
+
+References
+----------
+
+[1] Boniface Hicks, Kiyan Ahmadizadeh, and Patrick McDaniel. Understanding
+practical application development in security-typed languages. In 22nd Annual
+Computer Security Applications Conference (ACSAC), Miami, Fl, December 2006.
+
+[2] Paragon for Practical Programming with Information-Flow Control Niklas
+Broberg, Bart van Delft and David Sands Asian Symposium on Programming Languages
+and Systems (APLAS) 2013, Springer
+
+[3] http://www.cse.chalmers.se/research/group/paragon/?p=Case%20Studies 
