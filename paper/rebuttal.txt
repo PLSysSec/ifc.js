@@ -44,22 +44,16 @@ serves as a stepping stone for formal reasoning about IFC OS work.
 Extensions
 ----------
 
-The reviewers asked if we actually worked out the extensions to
-language. We chose to present the core ideas separate from extensions
-for simplicity and because the features largely depend on the
-embedding. For example, labeled MVars are natural to Haskell, but
-not JS. Nevertheless, these extensions have been formalized and are
-implemented in LIO and/or SWAPI. (The only extension common
-to both system systems are labeled values.) The main points on how
-to extend the system with such features follows from the discussion:
-they must be added to the IFC language and the no sharing
-"sandbox-local pointers" rule (of send) must be used.  For example,
-in the labeled references case we amend the IFC language state to
-contain a labeled reference store; these labeled references are
-distinct from the native references a target language might have and
-all access abides by IFC.  (For this reason, there is also no
-conflict with the approach of Matthews and Findler as brought up by
-the first reviewer.)
+Reviewer 1 asks about the extension section, and whether we actually
+worked out these ideas or not. We chose to present the core ideas
+separately from extensions for simplicity. However, the IFC language
+extensions described in Section 6 have been formally worked out, and
+are also part of the JavaScript or Haskell implementation, or both.
+W.r.t. the comment about labeled references not being amenable to
+Matthews-Findler-style semantics, we note that labeled references
+are part of the IFC state and are distinct from the native references
+a target language might have. For this reason, there is no conflict
+with the approach of Matthews and Findler.
 
 External effects
 ----------------
