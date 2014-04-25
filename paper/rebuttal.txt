@@ -25,18 +25,17 @@ tremendous overhead, we show that you can build an efficient,
 non-intrusive IFC system for JavaScript, or any other language which can
 be isolated.
 
-# about shoehorning
+It's worth stating that we did not simply shoe-horn SWAPI and LIO into a
+"unified framework".  While our language uses ideas from LIO and SWAPI,
+we note that the current (and at the time of the writing) versions of
+these systems coevolved with the concepts in the paper.  For instance,
+in LIO [53] (and Breeze [28]) exceptions were originally treated in a
+rather complex fashion. As we discuss in the paper, when you consider
+exceptions as part of the internal semantics of the language, the
+appropriate semantics for exceptions becomes trivial.  In fact, LIO was
+modified to adopt this new approach.
 
-Similarly, there was a comment that this work simply shoe-horned SWAPI
-and LIO into a "unified framework".  While our language uses ideas from
-LIO and SWAPI, we note that the current (and at the time of the writing)
-versions of these systems are using the concepts of this paper. It is
-not the case that "the framework didn't come first". For instance, in
-LIO [53] (and Breeze [28]) exceptions were originally treated in a rather
-complex fashion; as we discuss in the paper, exceptions are internal
-effects and thus the security concern becomes trivial; LIO was modified to
-adopt this new approach.
-
+# I haven't fixed this
 As for the first reviewer's concern that the IFC system presented is
 simply a rehash of prior work, we claim the approach of dealing with
 internal effects and our asynchronous communication primitives is
