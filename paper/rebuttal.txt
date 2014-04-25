@@ -1,50 +1,31 @@
-External effects
-----------------
+Reviewer 2 asks whether or not our method actually scales in practice,
+pointing to our inability to deal with external effects as a mark
+against it.  It is true that dealing with external effects is important
+for pushing IFC into practice, and our work is not primarily concerned
+with addressing this issue.  However, this problem is endemic to all
+information flow control systems: for instance, JPMail [1] re-implements
+primitives with external effects in Jif; Paragon [2] internalizes
+external effects by wrapping the corresponding primitives to be
+IFC-aware [3]; JSFlow [25] manually wraps JavaScript primitives with
+external effects.  This is not to say that the systems we have
+implemented do not deal with external effects: e.g. XMLHttpRequest as
+used in SWAPI essential wraps the "native" unsafe code. While we could
+have formally modeled these effects with an external effect primitive
+(e.g., 'out'), we do not think this add much value, formally or
+practically. This is because the treatment of external effects is very
+much application specific.
 
-# is the system general?
-#
-# true, we can't handle external effects
+Thus, the generality of our system does not come from a treatment of
+external effects; rather, assuming that external effects are taken care
+of (Section 6), it comes from our ability to accomodate arbitrarily
+complex internal semantics.  For example, our work is directly
+applicable to "vanilla" JS (EcmaScript), which does not have any
+external effects.  As opposed to existing IFC systems [25] which incur
+tremendous overhead, we show that you can build an efficient,
+non-intrusive IFC system for JavaScript, or any other language which can
+be isolated.
 
-The reviewers are concerned that our treatment of external effects makes the
-work incomplete. We remark that like other IFC systems, external effects can be
-handled by internalizing them (manually) into the IFC language. For instance,
-JPMail (a secure mail agent) [1] essentially re-implements the primitives with
-external effects in Jif (a compiler for IFC in Java). In addition, Paragon [2]
-internalizes external effects by wrapping the corresponding primitives to be
-IFC-aware [3]. JSFlow [25] manually wraps JavaScript primitives with external
-effects. Similarly, as in the XMLHttpRequest used in SWAPI, our technique
-amounts to wrapping the "native" unsafe code. While we can extend the language
-with a general external effect primitive (e.g., 'out'), we do not think this add
-much value, formally or practically. This is because the treatment of external
-effects is very much application specific. For instance, the HTTP client in
-SWAPI (XMLHttpRequest) and LIO (as used in Hails [22]) both wrap the native code
-to make IFC-aware, but the actual label checks differ simply because of the
-different setting and attacker models: browser (client) vs. server.  While
-important for pushing IFC into practice, we believe that general treatment of
-external effects is an open problem and complementary to this work.
-
-Generality and novelty of the system
-------------------------------------
-
-# that doesn't make it not real
-
-A reviewer asked if our system really applies to real-world languages,
-pointing to our inability to deal with external effects.  It is true
-that our framework assumes that the target language must not have
-external effects.  However, this is not an unreasonable constraint: in
-Section 6, we discussed how real-world languages can be constrained to
-achieve this.  Unfortunately, due to space restrictions, we left the
-discussion of the mapping to the formalism as informal discussion.
-
-We do not claim that our work is general enough to handle languages
-where effects cannot be tamed (we will emphasize this on revision).
-Yet some languages can be tamed (as we discuss) and others don't even
-have external effects.  For example, our work is directly applicable
-to "vanilla" JS (EcmaScript), which does not have any external effects
--- indeed, under one lens, one can see our work as presenting an
-alternative (to [25]) coarse-grained IFC system for JS.  Indeed the
-motivation behind this work was to address the question of how to
-build an efficient, non-intrusive IFC system for JS.
+# about shoehorning
 
 Similarly, there was a comment that this work simply shoe-horned SWAPI
 and LIO into a "unified framework".  While our language uses ideas from
