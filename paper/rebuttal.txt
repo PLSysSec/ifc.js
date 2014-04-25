@@ -17,9 +17,9 @@ Yet some languages can be tamed (as we discuss) and others don't even
 have external effects.  For example, our work is directly applicable
 to "vanilla" JS (EcmaScript), which does not have any external effects
 -- indeed, under one lens, one can see our work as presenting an
-alternative (to [25]) IFC semantics for JS.  Indeed the motivation
-behind this work was to address the question of how to build an
-efficient, non-intrusive IFC system for JS.
+alternative (to [25]) coarse-grained IFC system for JS.  Indeed the
+motivation behind this work was to address the question of how to
+build an efficient, non-intrusive IFC system for JS.
 
 Similarly, there was a comment that this work simply shoe-horned SWAPI
 and LIO into a "unified framework".  While our language uses ideas from
@@ -31,11 +31,16 @@ complex fashion; as we discuss in the paper, exceptions are internal
 effects and thus the security concern becomes trivial; LIO was modified to
 adopt this new approach.
 
-As for the first reviewer's concern that the IFC system presented
-is simply a rehash of prior work, we claim the approach of dealing with
+As for the first reviewer's concern that the IFC system presented is
+simply a rehash of prior work, we claim the approach of dealing with
 internal effects and our asynchronous communication primitives is
-novel. Moreover, we believe that the formalization serves as a
-stepping stone for formal reasoning about IFC OS work.
+novel. To our knowledge this is the first language-based dynamic IFC
+system to use such asynchronous primitives and work on both concurrent
+and sequential schedulers. (While simple, the checks performed by our
+asynchronous communication primitives imply a more flexible
+system---synchronous primitives effectively impose that the end-points
+have the same label.) Moreover, we believe that our formalization
+serves as a stepping stone for formal reasoning about IFC OS work.
 
 Extensions
 ----------
@@ -70,11 +75,11 @@ we can extend the language with a general external effect primitive
 practically. Finally, and most importantly, the treatment of external
 effects is very much application specific. For instance, the HTTP
 client in SWAPI (XMLHttpRequest) and LIO (as used in Hails [22]) both
-wrap the native code with label checks, but the semantics differ
-(simply because of the different use cases: browser vs. server).
-While important for (certain) practical applications, we believe that
-general treatment of such effects is an open problem and complementary
-to this work.
+wrap the native code with label checks, but the actual label checks
+differ simply because of the different setting and attacker models:
+browser vs. server.  While important for (certain) practical
+applications, we believe that general treatment of such effects is an
+open problem and complementary to this work.
 
 Other questions
 ---------------
