@@ -1,62 +1,65 @@
 Reviewer 2 asks whether or not our method actually scales in practice,
 pointing to our inability to deal with external effects as a mark
-against it.  It is true that dealing with external effects is important
-for pushing IFC into practice, and our work is not primarily concerned
-with addressing this issue.  However, this problem is endemic to all
-information flow control systems: for instance, JPMail [A] re-implements
-primitives with external effects in Jif; Paragon [B] internalizes
-external effects by wrapping the corresponding primitives to be
-IFC-aware [C]; JSFlow [25] manually wraps JavaScript primitives with
-external effects.  This is not to say that the systems we have
-implemented do not deal with external effects: e.g. XMLHttpRequest as
-used in SWAPI essential wraps the "native" unsafe code. However, the treatment
-of external effects is very much application specific, and finding a
-general solution is an open problem.
+against it.  It is true that dealing with external effects is
+important for pushing IFC into practice, and our work is not primarily
+concerned with addressing this issue.  However, this problem is
+endemic to all information flow control systems: for instance, JPMail
+[A] re-implements primitives with external effects in Jif; Paragon [B]
+internalizes external effects by wrapping the corresponding primitives
+to be IFC-aware [C]; JSFlow [25.26] manually wraps JavaScript
+primitives with external effects.  This is not to say that the systems
+we have implemented do not deal with external effects: e.g.
+XMLHttpRequest as used in SWAPI essential wraps the "native" unsafe
+code. However, the treatment of external effects is very much
+application specific, and finding a general solution is an open
+problem.
 
 Thus, the generality of our system does not come from a treatment of
-external effects; rather, assuming that external effects are taken care
-of (Section 6), it comes from our ability to accommodate arbitrarily
-complex internal semantics.  For example, our work is directly
-applicable to "vanilla" JavaScript (ECMAScript), which does not have any
-external effects.  As opposed to existing IFC systems (e.g., [25]) which incur
-tremendous overhead, we show that you can build an efficient,
-non-intrusive IFC system for JavaScript, or any other language which can
-be isolated.
+external effects; rather, assuming that external effects are taken
+care of (Section 6), it comes from our ability to accommodate
+arbitrarily complex internal semantics.  For example, our work is
+directly applicable to "vanilla" JavaScript (ECMAScript), which does
+not have any external effects.  As opposed to existing IFC systems
+(e.g., [25]) which incur tremendous overhead, we show that you can
+build an efficient, non-intrusive IFC system for JavaScript, or any
+other language which can be isolated.
 
-It's worth stating that we did not simply shoe-horn SWAPI and LIO into a
-"unified framework".  While our language uses ideas from LIO and SWAPI,
-we note that the current versions of
-these systems coevolved with the concepts in the paper.  For instance,
-in LIO [53] (and Breeze [28]) exceptions were originally treated in a
-rather complex fashion. As we discuss in the paper, when you consider
-exceptions as part of the internal semantics of the target language, the
-appropriate semantics for exceptions fall out naturally in our framework.
-In fact, LIO was modified to adopt this new, simpler approach.
+It's worth stating that we did not simply shoe-horn SWAPI and LIO into
+a "unified framework".  While our language uses ideas from LIO and
+SWAPI, we note that the current versions of these systems coevolved
+with the concepts in the paper.  For instance, in LIO [53] (and Breeze
+[28]) exceptions were originally treated in a rather complex fashion.
+As we discuss in the paper, when you consider exceptions as part of
+the internal semantics of the target language, the appropriate
+semantics for exceptions fall out naturally in our framework.  In
+fact, LIO was modified to adopt this new, simpler approach.
 
-Reviewer 1 was concerned that many aspects of our IFC system were simply
-rehashes of prior work.  We believe that our core IFC language's support
-for both concurrent and sequential scheduling through asynchronous
-communication primitives is novel.  (Notice that a primitive which may
-block cannot work in a sequential setting).  This is an old idea from IFC
-OS work, but formally reasoning about this idea is new.
+Reviewer 1 was concerned that many aspects of our IFC system were
+simply rehashes of prior work.  We believe that our core IFC
+language's support for both concurrent and sequential scheduling
+through asynchronous communication primitives is novel.  (Notice that
+a primitive which may block cannot work in a sequential setting).
+This is an old idea from IFC OS work, but formally reasoning about
+this idea is new.
 
 Reviewer 1 also asks whether or not the ideas in the extension section
-were actually worked out.  The IFC language features and external effect
-systems mentioned have been implemented for Haskell and JavaScript, and,
-in the case of LIO, have had properties formally proven, while the
-scheduling policies and type safety extensions are more speculative.
-The treatment of mutable references was explicitly called out as
-unworkable: we would like to clarify an important distinction between
-mutable references in the IFC language and mutable references internally
-supported in the target language.  The naive addition of IFC references
-results in two *different* types of references: this is a feature, not a
-bug, since it absolves us of the responsibility of integrating the two
-semantics.  Furthermore, existing code using old references does not
-usually need to communicate over IFC boundaries, so code being written
-to take advantage of the new IFC support can be written to explicitly use
-IFC references.  This approach of adding features to the core IFC
-calculus extends to our other proposed extensions, and their security
-proofs are generalizable to our setting in the same way.
+were actually worked out.  The IFC language features and external
+effect systems mentioned have been implemented for Haskell and
+JavaScript, and, in the case of LIO, have had properties formally
+proven, while the scheduling policies and type safety extensions are
+more speculative.  The treatment of mutable references was explicitly
+called out as unworkable: we would like to clarify an important
+distinction between mutable references in the IFC language and mutable
+references internally supported in the target language.  The naive
+addition of IFC references results in two *different* types of
+references: this is a feature, not a bug, since it absolves us of the
+responsibility of integrating the two semantics.  Furthermore,
+existing code using old references does not usually need to
+communicate over IFC boundaries, so code being written to take
+advantage of the new IFC support can be written to explicitly use IFC
+references.  This approach of adding features to the core IFC calculus
+extends to our other proposed extensions, and their security proofs
+are generalizable to our setting in the same way.
 
 Other questions
 ---------------
