@@ -1,12 +1,16 @@
+We would like to thank all reviewers for their feedback and suggestions.
+We will first reply to high-level comments and then reply to specific
+questions in the reviews.
+
 Reviewer 2 asks whether or not our method actually scales in practice,
 pointing to our inability to deal with external effects as a mark
 against it.  It is true that dealing with external effects is
 important for pushing IFC into practice, and our work is not primarily
 concerned with addressing this issue.  However, this problem is
-endemic to all information flow control systems: for instance, JPMail
-[A] re-implements primitives with external effects in Jif; Paragon [B]
+endemic to all information flow control systems: for instance, JPMail [A]
+re-implements primitives with external effects in Jif; Paragon [B]
 internalizes external effects by wrapping the corresponding primitives
-to be IFC-aware [C]; JSFlow [25.26] manually wraps JavaScript
+to be IFC-aware [C]; JSFlow [25,26] manually wraps JavaScript
 primitives with external effects.  This is not to say that the systems
 we have implemented do not deal with external effects: e.g.
 XMLHttpRequest as used in SWAPI essential wraps the "native" unsafe
@@ -61,8 +65,8 @@ references.  This approach of adding features to the core IFC calculus
 extends to our other proposed extensions, and their security proofs
 are generalizable to our setting in the same way.
 
-Other questions
----------------
+Specific questions
+------------------
 
 As reviewer 3 points out, the reference about SWAPI does not include
 an URL.  It is available at http://deian.net/swapi.pdf and currently
