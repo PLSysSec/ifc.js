@@ -33,31 +33,25 @@ exceptions as part of the internal semantics of the target language, the
 appropriate semantics for exceptions fall out naturally in our framework.
 In fact, LIO was modified to adopt this new, simpler approach.
 
-# I haven't fixed this
-As for the first reviewer's concern that the IFC system presented is
-simply a rehash of prior work, we claim the approach of dealing with
-internal effects and our asynchronous communication primitives is
-novel. To our knowledge this is the first language-based dynamic IFC
-system to use such asynchronous primitives and work on both concurrent
-and sequential schedulers. (While simple, the checks performed by our
-asynchronous communication primitives imply a more flexible
-system---synchronous primitives effectively impose that the end-points
-have the same label.) Moreover, we believe that our formalization
-serves as a stepping stone for formal reasoning about IFC OS work.
+Reviewer 1 was concerned that many aspects of our IFC system were simply
+rehashes of prior work.  We believe that our core IFC language's support
+for both concurrent and sequential scheduling through asynchronous
+communication primitives is novel.  (Notice that a primitive which may
+block cannot work in a sequential setting).  This is an old idea from IFC
+OS work, but formally reasoning about this idea is new.
 
-Extensions
-----------
-
-Reviewer 1 asks about the extension section, and whether we actually
-worked out these ideas or not. We chose to present the core ideas
-separately from extensions for simplicity. However, the IFC language
-extensions described in Section 6 have been formally worked out, and
-are also part of the JavaScript or Haskell implementation, or both.
-W.r.t. the comment about labeled references not being amenable to
-Matthews-Findler-style semantics, we note that labeled references
-are part of the IFC state and are distinct from the native references
-a target language might have. For this reason, there is no conflict
-with the approach of Matthews and Findler.
+Reviewer 1 also asks whether or not the ideas in the extension section
+were actually worked out.  The IFC language features and external effect
+systems mentioned have been implemented for Haskell and JavaScript, and,
+in the case of LIO, have had properties formally proven, while the
+scheduling policies and type safety extensions are more speculative.
+The treatment of mutable references was explicitly called out as
+unworkable: we would like to clarify an important distinction between
+mutable references in the IFC language and mutable references internally
+supported in the target language.  The naive addition of IFC references
+results in two *different* types of references: this is a feature,
+not a bug, since it avoids the need of adding expensive checks to
+existing references which, in all likelihood, are local to an IFC thread.
 
 Other questions
 ---------------
