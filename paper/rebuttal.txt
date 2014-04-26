@@ -49,9 +49,14 @@ The treatment of mutable references was explicitly called out as
 unworkable: we would like to clarify an important distinction between
 mutable references in the IFC language and mutable references internally
 supported in the target language.  The naive addition of IFC references
-results in two *different* types of references: this is a feature,
-not a bug, since it avoids the need of adding expensive checks to
-existing references which, in all likelihood, are local to an IFC thread.
+results in two *different* types of references: this is a feature, not a
+bug, since it absolves us of the responsibility of integrating the two
+semantics.  Furthermore, existing code using old references does not
+usually need to communicate over IFC boundaries, so code being written
+to take advantage of the new IFC support can be written to explicitly use
+IFC references.  This approach of adding features to the core IFC
+calculus extends to our other proposed extensions, and their security
+proofs are generalizable to our setting in the same way.
 
 Other questions
 ---------------
