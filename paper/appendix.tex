@@ -1,4 +1,112 @@
 \appendix
+
+
+\section{Formal Extensions}
+
+\begin{figure}
+  %{
+  %format .->  = "\overset{\alpha}{\hookrightarrow}"
+  %format .-/>  = "\not\overset{\alpha}{\hookrightarrow}"
+  \begin{code}
+    iv  ::= cdots | Labeled il ie
+    ie  ::= cdots | label ie ie | unlabel ie | labelOf ie
+    iE  ::= cdots | label iE ie | unlabel iE | labelOf iE
+  \end{code}
+  
+  \begin{mathpar}
+    \inferrule[I-label]
+    {|
+      il canFlowTo il'
+    |}
+    {|
+      niconf iS id il (label il' ie)
+      ->
+      niconf iS id il (Labeled il' ie)
+    |}
+    \and
+    \inferrule[I-unlabel]
+    {|
+      il''=il lub il'
+    |}
+    {|
+      niconf iS id il (unlabel (Labeled il' ie))
+      ->
+      niconf iS id (il'') ie
+    |}
+    \and
+    \inferrule[I-labelOf]
+    {|
+    |}
+    {|
+      niconf iS id il (labelOf (Labeled il' ie))
+      ->
+      niconf iS id il (il')
+    |}
+  \end{mathpar}
+  \caption{}
+  \label{fig:labeled-vals}
+  %}
+\end{figure}
+
+\begin{figure}
+  %{
+  %format .->  = "\overset{\alpha}{\hookrightarrow}"
+  %format .-/>  = "\not\overset{\alpha}{\hookrightarrow}"
+  \begin{code}
+    iv  ::= cdots | ial
+    ie  ::= cdots | new ie ie | read ie | write ie ie
+    iE  ::= cdots | new iE ie | new il iE | read E
+                  | write iE ie | write ial iE
+  \end{code}
+  
+  \begin{mathpar}
+    \inferrule[I-new]
+    {
+      |il canFlowTo il'| \\
+      |fresh ia|
+    }
+    {|
+      niconf iS id il (new il' iv)
+      ->
+      niconf iS id il (iall il')
+      |}
+    \and
+    \inferrule[I-read]
+    {|
+      il canFlowTo il'
+      |}
+    {|
+      niconf iS id il (label il' ie)
+      ->
+      niconf iS id il (Labeled il' ie)
+      |}
+    \and
+    \inferrule[I-write]
+    {|
+      il canFlowTo il'
+      |}
+    {|
+      niconf iS id il (label il' ie)
+      ->
+      niconf iS id il (Labeled il' ie)
+      |}
+    \and
+    \inferrule[I-labelOf2]
+    {|
+      il canFlowTo il'
+      |}
+    {|
+      niconf iS id il (label il' ie)
+      ->
+      niconf iS id il (Labeled il' ie)
+      |}
+  \end{mathpar}
+  \caption{}
+  \label{fig:labeled-refs}
+  %}
+\end{figure}
+
+
 \section{Full Non-Interference Proof}
 \label{sec:appendix}
 

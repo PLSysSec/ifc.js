@@ -275,6 +275,22 @@
 %format iv2''
 %format iv3''
 
+%format ia = "\ifc{"a"}"
+%format ia'
+%format ia''
+%format iai = ia"_"i
+%format iai' = ia'"_"i
+%format iai'' = ia''"_"i
+%format ia1
+%format ia2
+%format ia3
+%format ia1'
+%format ia2'
+%format ia3'
+%format ia1''
+%format ia2''
+%format ia3''
+
 %format ix = "\ifc{"x"}"
 %format ix'
 %format ix''
@@ -513,6 +529,17 @@
 %format skip      = "\mathbf{skip}"
 %format when      = "\mathbf{when}"
 
+%format label     = "\mathbf{label}"
+%format unlabel   = "\mathbf{unlabel}"
+%format labelOf   = "\mathbf{labelOf}"
+%format Labeled   = "\mathbf{Labeled}"
+%format ial       = ia"^{"il"}"
+%format iall l    = ia"^{"l"}"
+
+%format new       = "\mathbf{new}"
+%format read      = "\mathbf{read}"
+%format write     = "\mathbf{write}"
+
 %format sec      = "\mathsf{sec}"
 %format pub      = "\mathsf{pub}"
 
@@ -686,7 +713,7 @@
 %format notmember = "\not\in"
 %format dom      = "\textrm{dom}"
 %format emptyset = "\emptyset"
-%format fresh    = "\textrm{fresh}"
+%format fresh x    = "\textrm{fresh}("x")"
 %format @= = "\triangleq{}"
 %format FV       = "\mathcal{FV}"
 %format AV       = "\mathcal{AV}"
