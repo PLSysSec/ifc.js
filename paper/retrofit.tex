@@ -67,7 +67,7 @@ let tx = te1 in te2  @= (\tx.te2) te1
 
 \and
 \inferrule[T-ref]
-{ | ap fresh ta | }
+{ | fresh ta | }
 {| conf tS (ref tv) -> conf (bracket tS (mapsto ta tv)) ta |}
 
 \and
@@ -243,7 +243,6 @@ niconf iS id il (setLabel il')
 ->
 niconf iS id il' unit
 |}
-%{|fresh (id')|}
 
 \and
 \inferrule[I-send]
@@ -331,7 +330,7 @@ CE[e] -> iconf iS (it, ldots) @= CE[e] .-> iconf iS (sched step (it, ldots))
 |tS' = klone(tS)|\\
 |it1 = fullconf id il tS (iniE id')|\\
 |itnew = fullconf id' il tS' ie|\\
-|ap fresh id'|
+|fresh id'|
 }
 {|
 iconf iS (fullconf id il tS (iniEi (sandbox ie)), ldots)
