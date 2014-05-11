@@ -56,6 +56,7 @@
     ie  ::= cdots | new ie ie | read ie | write ie ie
     iE  ::= cdots | new iE ie | new il iE | read E
                   | write iE ie | write ial iE
+    iS  ::=  cdots | bracket iS (mapsto ial iv)
   \end{code}
   
   \begin{mathpar}
@@ -112,18 +113,27 @@
   |bullet| & |il' cantFlowTo il| \\
   |fullconf id il' (erase il tS) (erase il ie)| & \text{otherwise}
   \end{cases} \\
+  &|erase il (Labeled il' ie)|= \begin{cases}
+  |Labeled il' bullet| & |il' cantFlowTo il| \\
+  |Labeled il' ie| & \text{otherwise}
+  \end{cases} \\
   &|erase il emptyset = emptyset|\\
   &|erase il (bracket iS (mapsto id Q)) =| \begin{cases}
   |erase il iS| & \text{|il' cantFlowTo il|, where |il'| is}\\
   & \text{the label of thread |id|} \\
   |bracket (erase il iS) (mapsto id (erase il Q))| & \text{otherwise}
   \end{cases} \\
-  &|erase il Q = filter il Q|\\
-  &|erase il v = v|
+  &|erase il (bracket iS (mapsto (iall il') iv)) =| \begin{cases}
+  |bracket (erase il iS) (mapsto (iall il') bullet)| & \text{|il' cantFlowTo il|}\\
+  |bracket (erase il iS) (mapsto (iall il') (erase il iv))| & \text{otherwise}
+  \end{cases} \\
+  &|erase il Q = filter il Q|
   \end{align*}
   \caption{Erasure function for the full IFC language, with all extensions.
-    In all not specified (including target-language constructs),
-    |erasef il| is applied homomorphically.}
+    In all cases not specified (including target-language constructs),
+    |erasef il| is applied homomorphically.
+    This definition replaces the one from Figure~\ref{fig:erasure}, which
+    is for the IFC language without extensions.}
   \label{fig:erasure2}
 \end{figure}
 
