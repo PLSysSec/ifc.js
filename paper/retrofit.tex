@@ -248,7 +248,7 @@ niconf iS id il' unit
 \inferrule[I-send]
 {
 |il canFlowTo il'|\\
-|iS(id') = Q|\\
+|readState iS (id') = Q|\\
 |iS' = bracket iS (mapsto id' (il', id,  iv) , Q)|
 }
 {|
@@ -260,7 +260,7 @@ niconf iS' id il unit
 \and
 \inferrule[I-recv]
 {
-| (filter il (iS(id))) = io1 , ... , iok , (il', id', iv)|\\
+| (filter il (readState iS id)) = io1 , ... , iok , (il', id', iv)|\\
 | iS' = bracket iS (mapsto id (io1 , ... , iok))|\\
 }
 {|
@@ -272,7 +272,7 @@ niconf iS' id il ({iv/ix1,id'/ix2} ie1)
 \and
 \inferrule[I-noRecv]
 {
-| filter il (iS(id)) = nil|\\
+| filter il (readState iS (id)) = nil|\\
 | iS' = bracket iS (mapsto id nil)|
 }
 {|
