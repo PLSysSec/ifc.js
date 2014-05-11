@@ -12,7 +12,6 @@
     ie  ::= cdots | label ie ie | unlabel ie | labelOf ie
     iE  ::= cdots | label iE ie | unlabel iE | labelOf iE
   \end{code}
-  
   \begin{mathpar}
     \inferrule[I-label]
     {|
@@ -63,47 +62,69 @@
     \inferrule[I-new]
     {
       |il canFlowTo il'| \\
-      |fresh ia|
+      |fresh ia|\\
+      |iS'= bracket iS (mapsto (iall il') iv)|
     }
     {|
       niconf iS id il (new il' iv)
       ->
-      niconf iS id il (iall il')
+      niconf iS' id il (iall il')
       |}
     \and
     \inferrule[I-read]
+    {}
     {|
-      il canFlowTo il'
-      |}
-    {|
-      niconf iS id il (label il' ie)
+      niconf iS id il (read ial')
       ->
-      niconf iS id il (Labeled il' ie)
+      niconf iS id (il lub il') (readState iS (iall il'))
       |}
     \and
     \inferrule[I-write]
+    {
+      |il canFlowTo il'|\\
+      |iS'= bracket iS (mapsto (iall il') iv)|
+    }
     {|
-      il canFlowTo il'
-      |}
-    {|
-      niconf iS id il (label il' ie)
+      niconf iS id il (write ial' iv)
       ->
-      niconf iS id il (Labeled il' ie)
+      niconf iS' id il (unit)
       |}
     \and
     \inferrule[I-labelOf2]
+    {}
     {|
-      il canFlowTo il'
-      |}
-    {|
-      niconf iS id il (label il' ie)
+      niconf iS id il (labelOf ial')
       ->
-      niconf iS id il (Labeled il' ie)
+      niconf iS id il (il')
       |}
   \end{mathpar}
   \caption{}
   \label{fig:labeled-refs}
   %}
+\end{figure}
+
+
+\begin{figure}
+  \begin{align*}
+  &|erase il (iconf iS its) =
+  iconf (erase il iS) (fltr (\ it . it = bullet) (map (erasef il) its))|\\
+  &|fullconf id il' tS ie| \begin{cases}
+  |bullet| & |il' cantFlowTo il| \\
+  |fullconf id il' (erase il tS) (erase il ie)| & \text{otherwise}
+  \end{cases} \\
+  &|erase il emptyset = emptyset|\\
+  &|erase il (bracket iS (mapsto id Q)) =| \begin{cases}
+  |erase il iS| & \text{|il' cantFlowTo il|, where |il'| is}\\
+  & \text{the label of thread |id|} \\
+  |bracket (erase il iS) (mapsto id (erase il Q))| & \text{otherwise}
+  \end{cases} \\
+  &|erase il Q = filter il Q|\\
+  &|erase il v = v|
+  \end{align*}
+  \caption{Erasure function for the full IFC language, with all extensions.
+    In all not specified (including target-language constructs),
+    |erasef il| is applied homomorphically.}
+  \label{fig:erasure2}
 \end{figure}
 
 

@@ -533,8 +533,10 @@
 %format unlabel   = "\mathbf{unlabel}"
 %format labelOf   = "\mathbf{labelOf}"
 %format Labeled   = "\mathbf{Labeled}"
-%format ial       = ia"^{"il"}"
-%format iall l    = ia"^{"l"}"
+%format ial       = ia"_{"il"}"
+%format iall (l)  = ia"_{"l"}"
+%% why on earth can I not write "read iall il'", but have to define ial' instead to avoid parens?
+%format ial'      = ia"_{"il'"}"
 
 %format new       = "\mathbf{new}"
 %format read      = "\mathbf{read}"
@@ -706,7 +708,7 @@
 %% misc
 \newcommand{\dom}[1]{\ensuremath{{\textrm{dom}} #1}}
 \newcommand{\fresh}[1]{\ensuremath{\textrm{fresh}(#1)}}
-%format mapsto a b = a"\mapsto{}"b
+%format mapsto (a) b = a"\mapsto{}"b
 %format subseteq (a) (b) = a"\subseteq"b
 %format memberf (a) (b)   = a"\in"b
 %format member   = "\in"
@@ -836,6 +838,7 @@
 %format creducestar = "\con{".=>"}"
 %format areducestar = "\abs{".=>"}"
 %format (ap (f) (x)) = f"("x")"
+%format (readState (f) (x)) = f"("x")"
 %format .. = "\circ"
 %format idf (t) = "id_{"t"}"
 %format tab = "\ \ "
