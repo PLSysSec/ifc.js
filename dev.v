@@ -1,3 +1,17 @@
+(* 
+
+THE PLAN!!!
+
+1. Develop mutually recursive languages with FFI interfaces into each other (complete)
+2. "Break" the mutual recursion, so that one language can be defined without the other
+  Mutual recursion can be rewritten as an indexed inductive data type
+  One approach: Read "The gentle art of levitation"
+  Another approach: Post on coq-club describing the problem and see if someone knows what to do
+3. ???
+4. PROFIT!!!
+
+*)
+
 Inductive lang :=
   | A : lang
   | B : lang.
