@@ -36,3 +36,23 @@ implementation.
 
 In Figure 5, should the second line have a call to \varepsilon_l?
     (EZY: Yeah, I think the caption is out of date too)
+
+
+MISC
+----
+
+- [ ] Maybe add something about JSFlow being complicated in intro. Or
+  supporting subset of DOM.
+- [ ] Want to somewhere get across the fundamental ideas behind this
+  work: if you can 1. rm external effects 2. isolate contexts and 3.
+  define upcalls
+- [ ] Expand on exceptions being ugly, even in the original LIO
+  implementation. (No support for asychronous or pure exceptions)
+  Also exceptions being special case in JSFlow.
+- [ ] 3.1 l is blue. Never introduced List(t), but I think that's
+  okay.
+- [ ] Fig 5 we never used ts until this point
+- [ ] Fig 5: we should apply erase homomorphically. While it's not
+  necessary for the core calculus, when we add labeled values it is.
+- [ ] Extend TSNI discussion to note that this also addresses internal
+  timing issues
