@@ -1,0 +1,82 @@
+HIGH LEVEL
+----------
+- High overlap with previous LIO work [1]
+- Scheduler result and compositional proof should be emphasized more [1]
+- Real language applications (esp)/extensions non-technical/preliminary/vague;
+  generality of method is not convincing [1,2,3]
+- How are external effects handled (e.g. XMLHttpRequest)? [1,2]
+- Drop monadic presentation [1]
+
+LOW LEVEL
+---------
+- Confusion about how mutable references are handled (Sec 6),
+  integration not necessary [1]
+- Renamed theorems in Section 7: theorem 3-4 are just two parts of
+  theorem 5. Also, rename to lemma. [1]
+
+Page 3, final sentence. "as the target languge" should be "as the target language".
+
+Page 5, Section 3.1, first paragraph. "We can the define an information
+flow control language as follows" should be "We can then define an
+information flow control language as follows"
+
+Page 5, penultimate paragraph. "with a scheduler that inspects a
+sensitive tasks current state when deciding which task to schedule next"
+should be "with a scheduler that inspects a sensitive task's current
+state when deciding which task to schedule next".
+
+Page 6, top. In the configurations c_1 and c_2, shouldn't the second
+\Sigma_1 in c_1 be \Sigma_2?
+
+Page 8, first full paragraph. "Creating a new task with the sandbox
+syscall is corresponds to forking a process." should be "Creating a new
+task with the sandbox syscall corresponds to forking a process."
+
+Page 9, Labeled values, second paragraph. "Thus, an extension that
+allows supports such fine-grained explicitly labeled values is
+essential." should be "Thus, an extension that supports such
+fine-grained explicitly labeled values is essential."
+
+Page 9. "In Matthews and Findlers original paper" should be "In
+Matthews' and Findler's original paper"
+
+Page 10, Proof of Theorem 3. "We proof the theorem" should be "We prove
+the theorem". Also, "allowing us to simple chose" should be "allowing us
+to simply chose". And why induct on the length of the derivation
+sequence instead of inducting on the structure of the derivation
+directly?
+
+In section 2.4, the paper asserts "It would be a violation of
+information flow if [a mutable reference could be shared with another
+task]". I don't believe this is true. If the labels are equal, then the
+reference can be shared without restriction. If there are two labels, l
+and H, such that L < H, then the task labeled L can only write to the
+reference and the task labeled H can only read from the reference. This
+effectively produces a one-way channel.
+
+In section 5.3 JavaScript, why are only strings allowed to be sent across a
+channel? Shouldn't an arbitrary JSON value be safe?
+
+Also in section 5.3, there's not much development of SWAPI, and I cannot
+find any further references on the main author's website nor via Google.
+This contributed to me not feeling comfortable with the JavaScript
+implementation.
+
+In section 2.2, "performing a reads".
+
+In Figure 1, "fix E", the E should be red, I think.
+
+In Figure 1's caption, "in express e".
+
+In Figure 5, should the second line have a call to \varepsilon_l?
+
+In Section 4, in the paragraph before Definition 5, "The intention of our single
+heap implementation was to be more efficient by using one global heap, but ..."
+Shouldn't this say "was *not* to be more efficient"?
+
+In Section 4.1, "In a dynamically type languages".
+
+In section 4.2, "and leave the straight-foward proof that they actually provide
+an isomorphism" should say "leave out".
+
+In Footnote 8, "provided by the browser the browser"
