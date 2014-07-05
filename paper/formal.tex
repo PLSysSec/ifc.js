@@ -39,7 +39,7 @@ any sensitive information from a program if the program behaves identically
 To interpret a language under information flow control, we define a function |erasef l| that
 performs erasures by mapping configurations to erased configurations,
 usually by rewriting (parts of) configurations that are more sensitive
-than |l| to a new syntactic construct |bullet|.  We can the define
+than |l| to a new syntactic construct |bullet|.  We define
 an information flow control language as follows:
 
 \begin{definition}[Information flow control language]
@@ -79,7 +79,7 @@ from the task's message queue that are more sensitive than |il|.
 \begin{align*}
   &|erase il (iconf iS its) =
   iconf (erase il iS) (fltr (\ it . it = bullet) (map (erasef il) its))|\\
-  &|fullconf id il' tS ie| \begin{cases}
+  &|erase il (fullconf id il' tS ie) =| \begin{cases}
     |bullet| & |il' cantFlowTo il| \\
     |fullconf id il' tS ie| & \text{otherwise}
   \end{cases} \\
