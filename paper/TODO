@@ -1,0 +1,38 @@
+HIGH LEVEL
+----------
+- High overlap with previous LIO work [1]
+- Scheduler result and compositional proof should be emphasized more [1]
+- Real language applications (esp)/extensions non-technical/preliminary/vague;
+  generality of method is not convincing [1,2,3]
+- How are external effects handled (e.g. XMLHttpRequest)? [1,2]
+[FIXED] Drop monadic presentation [1]
+
+LOW LEVEL
+---------
+- Confusion about how mutable references are handled (Sec 6),
+  integration not necessary [1]
+- Renamed theorems in Section 7: theorem 3-4 are just two parts of
+  theorem 5. Also, rename to lemma. [1]
+
+Page 10, Proof of Theorem 3. Why induct on the length of the derivation
+sequence instead of inducting on the structure of the derivation
+directly?
+
+In section 2.4, the paper asserts "It would be a violation of
+information flow if [a mutable reference could be shared with another
+task]". I don't believe this is true. If the labels are equal, then the
+reference can be shared without restriction. If there are two labels, l
+and H, such that L < H, then the task labeled L can only write to the
+reference and the task labeled H can only read from the reference. This
+effectively produces a one-way channel.
+
+In section 5.3 JavaScript, why are only strings allowed to be sent across a
+channel? Shouldn't an arbitrary JSON value be safe?
+
+Also in section 5.3, there's not much development of SWAPI, and I cannot
+find any further references on the main author's website nor via Google.
+This contributed to me not feeling comfortable with the JavaScript
+implementation.
+
+In Figure 5, should the second line have a call to \varepsilon_l?
+    (EZY: Yeah, I think the caption is out of date too)

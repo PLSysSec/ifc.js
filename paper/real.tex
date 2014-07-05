@@ -51,7 +51,7 @@ In this setting, the combined language of Section~\ref{sec:retrofit}
 can be interpreted in the following way: calling from the target
 language to the IFC language corresponds to invoking a syscall.
 %
-Creating a new task with the |sandbox| syscall is corresponds to
+Creating a new task with the |sandbox| syscall corresponds to
 \emph{forking} a process.  Here, page tables limit what memory
 a task can access: we can ensure there will be no memory (effectively
 defining |klone(tS)
@@ -147,7 +147,7 @@ separate OS-level threads.\footnote{
  on the event-loop), but the heap and execution context of each task
  is disjoint. This is similar to the single-heap language of
  Section~\ref{sec:concrete}.  However, since the heap separation is
- provided by the browser the browser, we do not discuss this further.
+ provided by the browser, we do not discuss this further.
  The interested reader is referred to~\cite{swapi} for more details.
 }
 %

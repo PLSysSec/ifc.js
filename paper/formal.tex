@@ -200,7 +200,7 @@ i.e., |diverge| always reduces to |diverge| and a simple label lattice |{pub,
 sec}| such that |canFlowTo2 pub sec|, but |cantFlowTo2 sec pub|.
 Consider the following two configurations in this language:
 \begin{code}
-ic1 = iS ; fullconf 1 sec tS1 (IT(if false then diverge else true)),  fullconf 2 pub tS1 ie
+ic1 = iS ; fullconf 1 sec tS1 (IT(if false then diverge else true)),  fullconf 2 pub tS2 ie
 ic2 = iS ; fullconf 1 sec tS1 (IT(if true then diverge else true)),   fullconf 2 pub tS2 ie
 \end{code}
 These two configurations are |pub|-equivalent, but |ic1| will reduce 
