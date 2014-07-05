@@ -93,7 +93,7 @@ let tx = te1 in te2  @= (\tx.te2) te1
 
 \caption{|targetLangML|: simple untyped lambda calculus extended with booleans,
 mutable references and general recursion. |FV(te)| returns the set of free
-variables in express |te|.}
+variables in expression |te|.}
 \label{fig:ml}
 \end{figure}
 
@@ -119,7 +119,7 @@ The task label---we refer to the label of the currently executing task as the
 \emph{current label}---serves to protect everything in the task's scope;
 all data in a task shares this common label.
 %
-Hence before performing a reads or a write, the IFC monitor inspects the
+Hence before performing a read or a write, the IFC monitor inspects the
 current label to decide whether the operation is permitted.
 %
 A task can only write to entities that are at least as sensitive.
@@ -455,7 +455,7 @@ languages.
 Intuitively, the boundaries respectively correspond to an upcall into and
 downcall from the IFC runtime.
 %
-As an example, taking |targetLangML| as the target languge, we can now define a
+As an example, taking |targetLangML| as the target language, we can now define a
 blocking receive (inefficiently) in terms of the asynchronous |recv| as series
 of cross-language calls:
 \begin{code}

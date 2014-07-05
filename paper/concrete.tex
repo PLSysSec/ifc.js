@@ -34,9 +34,9 @@ secret data to a shared reference in one task, and then
 reading it again by a another task with a lower label.
 What we would like is a way of characterizing safe modifications to
 the semantics which preserve non-interference.
-The intention of our single heap implementation was to be more efficient
-by using one global heap, but \emph{conceptually maintain isolation between
-task by not allowing sharing of references between them}.
+The intention of our single heap implementation is to permit
+efficient execution while \emph{conceptually maintaining isolation between
+tasks} (by not allowing sharing of references between them).
 This intuition of having a different (potentially more efficient)
 concrete semantics that behave like the abstract semantics
 can be formalized by the following definition:
@@ -127,7 +127,7 @@ first place.  In a statically typed language, the type system could
 prevent this from happening, and we talk more about how our
 approach integrates with typed languages in
 Section~\ref{sec:extensions:types}.
-In a dynamically type languages such as |targetLangML|, we might
+In dynamically typed languages such as |targetLangML|, we might
 restrict the transition for |sandbox| and |send| to only allow expressions
 without memory addresses.
 
@@ -296,7 +296,7 @@ Therefore, we only need to consider well-formed configurations,
 which allows us to give the two required functions
 |f| and |finv| for the isomorphism.  For conciseness, we only give
 the interesting parts of their definition,
-and leave the straight-forward proof that they
+and leave out the straight-forward proof that they
 actually provide an isomorphism.
 \begin{itemize}
   \item Addresses can be directly translated with

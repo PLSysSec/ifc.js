@@ -39,7 +39,7 @@ any sensitive information from a program if the program behaves identically
 To interpret a language under information flow control, we define a function |erasef l| that
 performs erasures by mapping configurations to erased configurations,
 usually by rewriting (parts of) configurations that are more sensitive
-than |l| to a new syntactic construct |bullet|.  We can the define
+than |l| to a new syntactic construct |bullet|.  We can then define
 an information flow control language as follows:
 
 \begin{definition}[Information flow control language]
@@ -79,7 +79,7 @@ from the task's message queue that are more sensitive than |il|.
 \begin{align*}
   &|erase il (iconf iS its) =
   iconf (erase il iS) (fltr (\ it . it = bullet) (map (erasef il) its))|\\
-  &|fullconf id il' tS ie| \begin{cases}
+  &|erase il (fullconf id il' tS ie) =| \begin{cases}
     |bullet| & |il' cantFlowTo il| \\
     |fullconf id il' tS ie| & \text{otherwise}
   \end{cases} \\
@@ -180,7 +180,7 @@ targetLang| satisfies TSNI.
 In general, however, non-interference will not hold for an arbitrary scheduler |alpha|.
 %
 For example, |specLang alpha targetLang| with a scheduler that inspects a
-sensitive tasks current state when deciding which task to schedule next
+sensitive task's current state when deciding which task to schedule next
 will in general break non-interference~\cite{russo2006securing,BartheRRS07}.
 %
 %In Section~\toref{} we detail the preceise scheduler for which our
@@ -200,7 +200,7 @@ i.e., |diverge| always reduces to |diverge| and a simple label lattice |{pub,
 sec}| such that |canFlowTo2 pub sec|, but |cantFlowTo2 sec pub|.
 Consider the following two configurations in this language:
 \begin{code}
-ic1 = iS ; fullconf 1 sec tS1 (IT(if false then diverge else true)),  fullconf 2 pub tS1 ie
+ic1 = iS ; fullconf 1 sec tS1 (IT(if false then diverge else true)),  fullconf 2 pub tS2 ie
 ic2 = iS ; fullconf 1 sec tS1 (IT(if true then diverge else true)),   fullconf 2 pub tS2 ie
 \end{code}
 These two configurations are |pub|-equivalent, but |ic1| will reduce 

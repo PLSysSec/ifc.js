@@ -5,7 +5,7 @@ HIGH LEVEL
 - Real language applications (esp)/extensions non-technical/preliminary/vague;
   generality of method is not convincing [1,2,3]
 - How are external effects handled (e.g. XMLHttpRequest)? [1,2]
-- Drop monadic presentation [1]
+[FIXED] Drop monadic presentation [1]
 
 LOW LEVEL
 ---------
@@ -14,35 +14,7 @@ LOW LEVEL
 - Renamed theorems in Section 7: theorem 3-4 are just two parts of
   theorem 5. Also, rename to lemma. [1]
 
-Page 3, final sentence. "as the target languge" should be "as the target language".
-
-Page 5, Section 3.1, first paragraph. "We can the define an information
-flow control language as follows" should be "We can then define an
-information flow control language as follows"
-
-Page 5, penultimate paragraph. "with a scheduler that inspects a
-sensitive tasks current state when deciding which task to schedule next"
-should be "with a scheduler that inspects a sensitive task's current
-state when deciding which task to schedule next".
-
-Page 6, top. In the configurations c_1 and c_2, shouldn't the second
-\Sigma_1 in c_1 be \Sigma_2?
-
-Page 8, first full paragraph. "Creating a new task with the sandbox
-syscall is corresponds to forking a process." should be "Creating a new
-task with the sandbox syscall corresponds to forking a process."
-
-Page 9, Labeled values, second paragraph. "Thus, an extension that
-allows supports such fine-grained explicitly labeled values is
-essential." should be "Thus, an extension that supports such
-fine-grained explicitly labeled values is essential."
-
-Page 9. "In Matthews and Findlers original paper" should be "In
-Matthews' and Findler's original paper"
-
-Page 10, Proof of Theorem 3. "We proof the theorem" should be "We prove
-the theorem". Also, "allowing us to simple chose" should be "allowing us
-to simply chose". And why induct on the length of the derivation
+Page 10, Proof of Theorem 3. Why induct on the length of the derivation
 sequence instead of inducting on the structure of the derivation
 directly?
 
@@ -62,21 +34,5 @@ find any further references on the main author's website nor via Google.
 This contributed to me not feeling comfortable with the JavaScript
 implementation.
 
-In section 2.2, "performing a reads".
-
-In Figure 1, "fix E", the E should be red, I think.
-
-In Figure 1's caption, "in express e".
-
 In Figure 5, should the second line have a call to \varepsilon_l?
-
-In Section 4, in the paragraph before Definition 5, "The intention of our single
-heap implementation was to be more efficient by using one global heap, but ..."
-Shouldn't this say "was *not* to be more efficient"?
-
-In Section 4.1, "In a dynamically type languages".
-
-In section 4.2, "and leave the straight-foward proof that they actually provide
-an isomorphism" should say "leave out".
-
-In Footnote 8, "provided by the browser the browser"
+    (EZY: Yeah, I think the caption is out of date too)
