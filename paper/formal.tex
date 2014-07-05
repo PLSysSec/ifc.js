@@ -125,7 +125,7 @@ equivalence as the syntactic-equivalence of erased configurations~\cite{stefan:a
 \begin{definition}[|l|-equivalence]
     In a language |(C, .->, erasef l)|, two machine configurations
     |memberf (c, c') C| are considered $l$-equivalent, written as |c ~= c'|,
-    if |erase l c = erase il c'|.
+    if |erase l c = erase l c'|.
 \end{definition}
 %
 
@@ -180,7 +180,7 @@ targetLang| satisfies TSNI.
 In general, however, non-interference will not hold for an arbitrary scheduler |alpha|.
 %
 For example, |specLang alpha targetLang| with a scheduler that inspects a
-sensitive tasks current state when deciding which task to schedule next
+sensitive task's current state when deciding which task to schedule next
 will in general break non-interference~\cite{russo2006securing,BartheRRS07}.
 %
 %In Section~\toref{} we detail the preceise scheduler for which our
