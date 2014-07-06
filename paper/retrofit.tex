@@ -1,6 +1,123 @@
 \section{Retrofitting Languages with IFC}
 \label{sec:retrofit}
 
+Before delving into the formal operational semantics in earnest, we'd
+like to first demonstrate some examples where a dynamic information flow
+control system can either be thought of as the execution of a single
+language or a collection of communicating, isolated tasks.
+
+\Red{(need to describe the correspondence)}
+
+\paragraph{Language restrictions versus isolated sandboxes}  If you want
+to create a standard programming language with information-flow control,
+the usual technique is to build in restrictions (dynamic or static)
+which allow noninterference to be proved.  While this is fine for toy
+languages, if the language in question is an existing language, these
+modifications can often require extremely intrusive, both in terms of
+semantic changes and implementation changes, and it is easy to get things
+wrong and permit a subtle implicit flow between different security levels.
+
+The alternative method is to start with complete isolation between
+different security levels: literally seperate instances of the
+``language runtime'' for each traditional IFC thread.  For languages
+which already have isolated implementations, such as JavaScript and C
+with access to hardware privilege separation, this is a far more
+practical starting point.  From here, the line between the isolated
+instances can be blurred, but the `completely isolated'' semantics
+are a helpful guidepost for what can be done safely.
+
+As an example, imagine a program which attempts to send a mutable
+reference from a low security level to a high security level:
+\begin{align*}
+    & |let i = TI (sandbox (brecvf x _ (IT (!(TI x)))))|\\
+    & |in TI (send (IT i) getLabel (IT (ref true)))|
+\end{align*}
+
+For now, ignore the |TI| and |IT| annotations: this code creates a new
+sandboxed thread $i$ which waits for a message, and then sends the
+thread a mutable cell containing the value true.  If this mutable cell
+is actually shared between the two tasks, it would be a violation of
+information flow if such an operation actually resulted in references
+being shared between two tasks.  However, since these are isolated
+tasks, the address received by the sandboxed task is actually a dangling
+pointer.  We can use a static discipline to avoid this situation
+entirely or dynamically copy the mutable cell into the destination
+context; in any case, the isolation makes it clear what semantics can
+be safely supported.
+
+While this is a very simple example, the elaborations of this principle
+can actually be quite non-obvious for more interesting language
+features.
+
+\paragraph{Stack frames versus scheduling}  A feature that is supported
+by some information flow control systems is the ability to temporarily
+raise one's label in order to do computation on data.  Once the
+computation is finished, the label is lowered back to the original
+label---a stack discipline.  Care must be taken to ensure that
+information doesn't leak when the label is lowered (for example, the
+parent is not allowed to inspect the result of the computation). In
+fact, systems with this feature generally only achieve
+termination-insensitive noninterference: if the high secrecy section
+doesn't terminate, this is observable by the halted execution of the low
+secrecy section.
+
+In this paper, we will instead say that the allocation of a new
+stack frame with a raised label corresponds to the creation of a
+new isolated task; a sample encoding using our language is
+shown in Figure~\ref{toLabeled}.
+
+\begin{figure}
+\begin{align*}
+    & |toLabeled l te @= | \\
+    & |tab let i = taskId in| \\
+%%    & |tab let j = TI (sandbox (IT (TI (setLabel l); TI (send i l (IT te)))))| \\
+    & |tab let j = TI (sandbox (IT (TI (send i l (IT te)))))| \\
+    & |tab in (\ _ . TI (setLabel l); TI (recvf x _ x unit))|
+\end{align*}
+\caption{Encoding of toLabeled using isolated tasks.}\label{fig:toLabeled}
+\end{figure}
+
+The sequential processing of these
+tasks corresponds to a specific \emph{scheduling policy} of these
+threads.  This change of perspective to scheduling highlights the
+essential differents between termination-insensitive and termination-sensitive
+noninterference.
+
+\paragraph{Exceptions versus message passing}
+A language feature that has caused difficulty for
+many information flow control systems is handling exceptions.
+%
+The key difficulty appears when considering the propagation of exceptions
+across stack boundaries where the current label is restored, e.g., from secret
+to public, as done by LIO's |toLabeled| and Breeze's
+brackets~\cite{Hritcu:2013:YIB:2497621.2498098, stefan:2012:arxiv-flexible}.
+%
+If the exception crosses this boundary, it can leak information about the
+inner secret computation into a public computation; hence, both systems
+explicitly ensure that |toLabeled| does not propagate exceptions.
+
+When stack frames are treated as isolated tasks, the correct semantics
+are achieved automatically.
+%
+The only way for the stack frame to communicate information is by
+initiating inter-task message passing; in its absence, the ``parent
+frame'' will operate as if no exception had occurred.
+%
+For instance, 
+\begin{code}
+TI(toLabeled l (IT (if te then fail else true))); true
+\end{code}
+always evaluates to |true|, regardless of the value of |te|.
+%
+Of course, when communication is performed, there is no leak,
+because all of the necessary information flow checks needed to
+communicate between tasks are also performed here.
+\Red{TODO: note that if the target language allows inspecting if
+  result is exception we can implement Breeze's NAV (vs. just
+propagating)}
+
+\subsection{Preliminaries}
+
 Our overall plan will be to take a \textbf{{\color{red} target
 language}} with a formal operational semantics and combine it with an
 \textit{{\color{blue} information flow control language}}.  For example,
@@ -488,90 +605,3 @@ preserve booleans across language boundaries as follows:
 For any target language |targetLang| and scheduling policy |alpha|, this
 embedding defines an IFC language, which we will
 refer to as |specLang alpha targetLang|.
-
-\subsection{Examples}
-
-To get a feeling for how these operational semantics operate, we
-describe a few sample programs, and their corresponding behavior.
-
-\paragraph{Sending mutable references}  As each task maintains its own
-global state for the target language, one might reasonably wonder what would
-happen if you attempted to send a reference to another task.
-\begin{align*}
-    & |let i = TI (sandbox (brecvf x _ (IT (!(TI x)))))|\\
-    & |in TI (send (IT i) getLabel (IT (ref true)))|
-\end{align*}
-It would be a violation of information flow if such an operation actually
-resulted in references being shared between two tasks.  In fact, the address
-will be received by the sandboxed task, but it will be a dangling pointer; the
-task will get stuck (under the |roundrobinf| scheduler the \textsc{I-noStep} will in turn remove it from the task list).  Readers
-who are curious whether or not a static discipline could be enforced to
-prevent these dangling pointers should check Section~\ref{sec:extensions}.
-
-\paragraph{Status of the heap after a sandbox}  Consider a program whose
-semantics depends on the definition of |klone|:
-\begin{align*}
-    & |let x = ref true| \\
-    & |in TI (sandbox (IT (!x; !x))); x := false|
-\end{align*}
-When |klone| is the identity, the sandboxed task successfully dereferences
-the contents of the reference to be |true| twice (recall that references
-are cloned into the new global state).  When |klone| is the constant function
-to the empty store, |x| is a dangling pointer.
-
-\paragraph{Exceptions}  One language feature that has caused difficulty for
-many information flow control systems is handling exceptions.
-%
-The key difficulty appears when considering the propagation of exceptions
-across stack boundaries where the current label is restored, e.g., from secret
-to public, as done by LIO's |toLabeled| and Breeze's
-brackets~\cite{Hritcu:2013:YIB:2497621.2498098, stefan:2012:arxiv-flexible}.
-%
-If the exception crosses this boundary, it can leak information about the
-inner secret computation into a public computation; hence, both systems
-explicitly ensure that |toLabeled| does not propagate exceptions.
-
-Our general embedding approach provides these semantics by construction.
-%
-To show this, we first define an encoding of the sequential |toLabeled|
-construct in our framework:
-\begin{align*}
-    & |toLabeled l te @= | \\
-    & |tab let i = taskId in| \\
-%%    & |tab let j = TI (sandbox (IT (TI (setLabel l); TI (send i l (IT te)))))| \\
-    & |tab let j = TI (sandbox (IT (TI (send i l (IT te)))))| \\
-    & |tab in (\ _ . TI (setLabel l); TI (recvf x _ x unit))|
-\end{align*}
-When using the sequential scheduler |seqf|, the sandboxed task runs to
-completion before returning to the task that sandboxed it. 
-(Here, a task list can be interpreted as a number of information flow aware
-stack frames.)
-To read the result of a |toLabeled| operation
-(which is communicated via message passing), the parent task must raise
-its label; otherwise the label will get dropped, as per the \textsc{I-recv}
-rule.\footnote{A keen reader may note that with a single, per-task channel, we
-might mix up our messages.  Indeed, a proper development requires the ability
-to allocate fresh channels; for purposes of simplicity, this has been omitted.}
-
-Now suppose that our |targetLangML| is extended with a single exception
-expression |fail|, which reduces to |fail|, removing all containing |tE|
-evaluation contexts, i.e., it propagates up to a |IT (-)| boundary.
-%
-In this setting, it is clear that exceptions cannot cross boundaries.
-%
-For instance, 
-\begin{code}
-TI(toLabeled l (IT (if te then fail else true))); true
-\end{code}
-always evaluates to |true|, regardless of the value of |te|.
-%
-Just like in LIO and Breeze, however, only when calling |recv| on such messages
-will the exception be propagated.
-%
-This of course, is not a leak since the current label must be raised before
-receiving sensitive message, regardless of their content.
-\Red{TODO: note that if the target language allows inspecting if
-  result is exception we can implement Breeze's NAV (vs. just
-propagating)}
-
-
