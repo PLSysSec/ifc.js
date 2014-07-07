@@ -2,6 +2,17 @@
 
 
 \section{Formal Extensions}
+\label{sec:appendix-extensions}
+
+Here we formally define the syntax and semantics of the extensions
+sketched in Section~\ref{sec:extensions}.
+In Figure~\ref{fig:labeled-vals} we show how labeled values can be added,
+while Figure~\ref{fig:labeled-refs} details labeled references formally.
+These changes to the semantics require us to update the erasure function
+|erasef il|, which is shown in Figure~\ref{fig:erasure2}.
+Note that the soundness proof in Appendix~\ref{sec:appendix}
+is done for the fully extended language with labeled values and
+labeled references.
 
 \begin{figure}
   %{

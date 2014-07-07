@@ -1,15 +1,15 @@
 \section{Proofs}
 \label{sec:proofs}
 
-In this section we prove all theorems we have stated.
+In this section we prove the theorems we have stated, or give a proof
+sketch and refer to the extended version for the full proof.
 We first observe that the non-interference claims for the languages
 |specLang seqf targetLang| and |specLang roundrobinf targetLang|
 in Theorems~\ref{thm:rr-tsni} and~\ref{thm:seq-tini} follow directly
-from Theorems~\ref{thm:iso-tsni} and~\ref{thm:iso-tini},
-respectively, where the set
+from Theorem~\ref{thm:restricted}, where the set
 of predicates is the set of always valid predicates (i.e., no restriction).
 
-Before we proceed with the proof of Theorem~\ref{thm:iso-tsni},
+Before we proceed with the proof of Theorem~\ref{thm:restricted},
 we state a lemma we will use.
 
 \begin{lemma}
@@ -33,7 +33,7 @@ we state a lemma we will use.
   \end{equation}
 \end{lemma}
 
-\begin{proof}[Proof of Theorem~\ref{thm:iso-tsni}]
+\begin{proof}[Proof of Theorem~\ref{thm:restricted}, TSNI]
   We prove the theorem by induction on the length of the derivation sequence in~\eqref{eq:tsni-lhs}.
   The base case for derivations
   of length 0 is trivial, allowing
@@ -76,7 +76,7 @@ we state a lemma we will use.
 \end{proof}
 \begin{proof}[Proof sketch of Lemma~\ref{lemma:rr-tsni-general}]
   For space reasons, we only sketch the structure of the proof here.
-  We refer the interested reader to the Appendix
+  We refer the interested reader to Appendix~\ref{sec:appendix}
   \ifextended
   \else
   of the extended version (which we provide at
@@ -95,7 +95,7 @@ we state a lemma we will use.
     computation after erasure.
   \end{itemize}
 \end{proof}
-The proof of Theorem~\ref{thm:iso-tini} about TINI proceeds largely
-in the same fashion as for Theorem~\ref{thm:iso-tsni} (TSNI), except that
+The proof of Theorem~\ref{thm:restricted} about TINI proceeds largely
+in the same fashion as for TSNI, except that
 some cases are simpler due to the fact termination is not an issue
 (cf.~\cite{lio} for a TINI proof of a similar system).
