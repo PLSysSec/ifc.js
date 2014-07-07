@@ -81,7 +81,7 @@ from the task's message queue that are more sensitive than |il|.
   iconf (erase il iS) (fltr (\ it . it = bullet) (map (erasef il) its))|\\
   &|erase il (fullconf id il' tS ie) =| \begin{cases}
     |bullet| & |il' cantFlowTo il| \\
-    |fullconf id il' tS ie| & \text{otherwise}
+    |fullconf id il' (erase il tS) (erase il ie)| & \text{otherwise}
   \end{cases} \\
   &|erase il emptyset = emptyset|\\
   &|erase il (bracket iS (mapsto id Q)) =| \begin{cases}
@@ -93,7 +93,12 @@ from the task's message queue that are more sensitive than |il|.
 \end{align*}
 \caption{ Erasure function for tasks, queue maps, message queues, and
 configurations.  In all other cases, including target-language constructs,
-|erasef il| is applied homomorphically.  \label{fig:erasure} }
+|erasef il| is applied homomorphically.
+Note that |erase il ie| is always equal to |ie| (and similar for |tS|)
+in this simple setting.  However,
+when the IFC language is extended with more constructs as shown in
+Section~\ref{sec:extensions}, then this will no longer be the case.
+\label{fig:erasure} }
 \end{figure}
 
 The definition of an erasure function is quite important: it captures

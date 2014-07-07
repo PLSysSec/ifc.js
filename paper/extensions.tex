@@ -14,20 +14,26 @@ of our approach.
 \subsection{IFC Language Features}
 \label{sec:extensions:labeled}
 
-Different concrete IFC implementations may wish to extend our minimal
-system with labeled constructs appropriate for their envisioned
-applications.
-%
+While the IFC language presented thus far provides the basic
+information flow primitives, actual IFC implementations
+may wish to extend the minimal system with more specialized
+constructs.
+%Different concrete IFC implementations may wish to extend our minimal
+%system with labeled constructs appropriate for their envisioned
+%applications.
+%%
 For example, SWAPI provides a labeled version of the XHR object, while
 LIO implements a labeled file system, used in server-side web
 applications~\cite{hails}.
+%%
+%Below we
+%consider the addition of several labeled constructs to the abstract specification.
+Below we show how to extend the language with several such constructs,
+and highlight some other possible extensions as well.
 %
-Below we
-consider the addition of several labeled constructs to the abstract specification.
-%
-We remark that that the non-interference proofs must account for the
-new constructs, since they amend the IFC calculus semantics (usually
-by addition).
+%We remark that that the non-interference proofs must account for the
+%new constructs, since they amend the IFC calculus semantics (usually
+%by addition).
 
 \paragraph{Labeled values}
 %{
@@ -38,55 +44,53 @@ associated with values.
 %
 Hence, a program that, for example, simply writes labeled messages to
 a labeled log can operate on both public and sensitive values.
+Similarly, a task that receives a sensitive value and forwards it
+to another task does not have be be at a sensitive level, if the
+value is not inspected.
 %
 In its simplest form, our coarse grained system requires that the
 current label of a task be at least at the level of the sensitive data
 to reflect the fact that such data is in scope.
- 
-Thus, an extension that supports such fine-grained explicitly
-labeled values is essential.
-%
-To this end, we extend the IFC calculus with explicitly labeled
+
+If such fine-grained labeling of values is required, our base IFC
+system can be extended with explicitly labeled
 values, much like those of LIO and
-Breeze~\cite{lio, Hritcu:2013:YIB:2497621.2498098}: |tv ::= cdots
-inlinesep Lb il tv|.
+Breeze~\cite{lio, Hritcu:2013:YIB:2497621.2498098}: |iv ::= cdots
+inlinesep Labeled il ie|.
 %
-Following LIO, we say that the value |tv| is protected by label |il|,
+Following LIO, we say that the expression |ie| is protected by label |il|,
 while the label |il| itself is protected by the task's current label.
 %
 %
 The label of such values can be inspected the task without
 requiring the current label to be raised.
 %
-However, when a task wishes to inspect the protected value |tv|, it
-must first raise it label to at least |il| to reflect that it is
+However, when a task wishes to inspect the protected value |ie|, it
+must first raise its label to at least |il| to reflect that it is
 incorporating data at such sensitivity level in its scope.
 %
 When creating labeled values the label |il| must be above
 the current label; otherwise it cannot be said that protection has
 been transferred from the current label to |il|.
 %
-(For these rules, we assume that the |Lb| constructor is not part of
-the surface syntax and thus cannot be accessed directly to construct
-or destruct such values without label checks.)
-% 
-We omit the reduction rules for labeled values since they closely
-follow those presented in~\cite{lio}.
+
+Full details with formal reduction rules can be found
+in \appendixext{}.
 %}
 
 \paragraph{Labeled mutable references/variables/channels}
 %
 Extending the calculus with other labeled features, such as
 references, mutable variables (MVars)~\cite{CH96}, or channels,
-follows in a similar way.
+can be done in a similar manner.
 %
 In these cases, however, we must keep track of the additional state
 (as opposed to the labeled value case which requires no additional
 bookkeeping).
 %
-While we can modify the IFC calculus to add such labeled state to each
-individual task, adding it to the system state |iS| leads to more
-interesting use cases.
+%While we can modify the IFC calculus to add such labeled state to each
+%individual task, adding it to the system state |iS| leads to more
+%interesting use cases.
 %
 Specifically, by amending |iS|, as in~\cite{lio,
 stefan:addressing-covert}, we can allow threads to use these
@@ -94,12 +98,12 @@ constructs to synchronize, or communicate with constructs other than
 |send|/|recv| in a safe manner.
 %
 For example, when extending the calculus with labeled references, |iS|
-additionally contains a store that maps addresses to |(il, tv)| pairs
+additionally contains a store that maps addresses to a value
+and a label
 which can be read and written to by different tasks through a labeled
-|ref| implementations.
-%
-Since such labeled constructs have also been considered before in other
-concurrent systems, we do not discuss them further.
+reference implementations.
+Again, we omit details here and refer the interested reader
+to \appendixext{}, where this extension has been fully worked out.
 
 \paragraph{Privileges}
 Decentralized IFC extends IFC with the decentralized label model of
@@ -114,12 +118,13 @@ Practical IFC systems
 Hritcu:2013:YIB:2497621.2498098, myers:jif}) rely on privileges to
 implement many applications.
 %
-Since both the LIO and SWAPI implementations already support such features,
-we believe that extending our calculus to consider privileges is
-straight forward.
+%Since both the LIO and SWAPI implementations already support such features,
+%we believe that extending our calculus to consider privileges is
+%straight forward.
 %
-However, the challenge with such an extension lies in the precise
-security guarantees that must be proved.
+The challenge with such an extension lies in the precise
+security guarantees that must be proved, which to the best of our
+knowledge is an open research problem.
 %
 %Addressing this problem is a natural direction for this work.
 
@@ -127,7 +132,8 @@ security guarantees that must be proved.
 %
 LIO, SWAPI, and Breeze additionally provide a discretionary access
 control mechanism---called \emph{clearance}---at the language
-level~\cite{Hritcu:2013:YIB:2497621.2498098, lio}; this mechanisms is
+level~\cite{Hritcu:2013:YIB:2497621.2498098, lio}.
+This mechanisms is
 used to restrict a computation from accessing data (or communicating
 with entities) above a specified label, the clearance.
 %

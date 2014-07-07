@@ -8,8 +8,10 @@ Here we formally define the syntax and semantics of the extensions
 sketched in Section~\ref{sec:extensions}.
 In Figure~\ref{fig:labeled-vals} we show how labeled values can be added,
 while Figure~\ref{fig:labeled-refs} details labeled references formally.
+For labeled values, we assume that the constructor |Labeled| is not part
+of the surface syntax, but rather an internal construct.
 These changes to the semantics require us to update the erasure function
-|erasef il|, which is shown in Figure~\ref{fig:erasure2}.
+|erasef il|, whose full definition is shown in Figure~\ref{fig:erasure2}.
 Note that the soundness proof in Appendix~\ref{sec:appendix}
 is done for the fully extended language with labeled values and
 labeled references.
@@ -53,7 +55,8 @@ labeled references.
       niconf iS id il (il')
     |}
   \end{mathpar}
-  \caption{}
+  \caption{Syntax and semantics for labeled values.  These rules are
+    understood to be an addition to the existing rules given earlier.}
   \label{fig:labeled-vals}
   %}
 \end{figure}
@@ -110,7 +113,8 @@ labeled references.
       niconf iS id il (il')
       |}
   \end{mathpar}
-  \caption{}
+  \caption{Syntax and semantics for labeled references.  These rules are
+    understood to be an addition to the existing rules given earlier.}
   \label{fig:labeled-refs}
   %}
 \end{figure}
@@ -141,8 +145,9 @@ labeled references.
   &|erase il Q = filter il Q|
   \end{align*}
   \caption{Erasure function for the full IFC language, with all extensions.
-    In all cases not specified (including target-language constructs),
-    |erasef il| is applied homomorphically.
+    In all cases that are not specified, including target-language constructs,
+    |erasef il| is applied homomorphically
+    (e.g., |erase il (setLabel e) = setLabel (erase il e)|).
     This definition replaces the one from Figure~\ref{fig:erasure}, which
     is for the IFC language without extensions.}
   \label{fig:erasure2}
