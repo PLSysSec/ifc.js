@@ -9,7 +9,8 @@ sketched in Section~\ref{sec:extensions}.
 In Figure~\ref{fig:labeled-vals} we show how labeled values can be added,
 while Figure~\ref{fig:labeled-refs} details labeled references formally.
 For labeled values, we assume that the constructor |Labeled| is not part
-of the surface syntax, but rather an internal construct.
+of the surface syntax, but rather an internal construct.  Similarly,
+the construct |ial| is internal in the labeled reference implementation.
 These changes to the semantics require us to update the erasure function
 |erasef il|, whose full definition is shown in Figure~\ref{fig:erasure2}.
 Note that the soundness proof in Appendix~\ref{sec:appendix}
