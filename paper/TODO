@@ -56,3 +56,6 @@ MISC
   necessary for the core calculus, when we add labeled values it is.
 - [ ] Extend TSNI discussion to note that this also addresses internal
   timing issues
+- [ ] Extensions looks better, but we need to much more clearly
+  separate things we have done from more speculative ideas. Maybe even
+  with different subsections
