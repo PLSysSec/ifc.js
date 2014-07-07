@@ -161,16 +161,47 @@ proof.
   For any task |it|, task lists |its|, store |iS|, and label |il|, if
   $|erase il it|=|bullet|$, then there exists a task list
   |its'| and a store |iS'| such that
-  \[
-    |iconf iS (it, its)| |.->| |iconf iS' (its, its')|
-    \qquad
-    |erase il its'|=|nil|
-    \qquad
-    |erase il iS'|=|erase il iS|
-  \]
+  \begin{align}
+  |iconf iS (it, its)| |.->| |iconf iS' (its, its')| \label{eq:hnb-1} \\
+  |erase il its'|=|nil| \label{eq:hnb-2}\\
+  |erase il iS'|=|erase il iS| \label{eq:hnb-3}
+  \end{align}
 \end{lemma}
 \begin{proof}
-  TODO (consideration of all rules that could be applied)
+  From $|erase il it|=|bullet|$ we know that the current label |lcurr| of |it|
+  must be above |il|.  Furthermore, tasks can always take a step (if no
+  regular rule applies, then \textsc{I-noStep} can be used), and thus
+  we consider all rules that could be applied to execute |it|.
+  \begin{description}
+    \item[Case \textsc{I-noStep} and \textsc{I-done}]
+    In this case, the task |it| is dropped,
+    and thus |its'=nil| and |iS'=iS| satisfy
+    conditions~\eqref{eq:hnb-2} and~\eqref{eq:hnb-3}.
+    \item[Case \textsc{I-sandbox}]
+    The newly created task has a label of at least |lcurr|, and will thus be
+    erased, as required by condition~\eqref{eq:hnb-2}.  Furthermore, the
+    state only changes for the newly created thread, and thus the state
+    change is erased, showing~\eqref{eq:hnb-3}.
+  \end{description}
+  In all other rules, no new tasks are created, and thus |its'| consists of just
+  the one task |it'|, to which |it| executed.  Since the tasks label can
+  only increase, |it'| is still erased, showing condition~\eqref{eq:hnb-2}.
+  We are left to show condition~\eqref{eq:hnb-3} for the remaining rules.
+  \begin{description}
+    \item[Case \textsc{I-send}]
+    A new message triple with label |il'| gets added to the message
+    queue of the receiving thread.  However, since |lcurr canFlowTo il'|,
+    the triple will get erased.
+    \item[Case \textsc{I-recv} and \textsc{I-noRecv}]
+    In this case, only the queue of
+    task |it| can change, which gets erased.
+    \item[Case \textsc{I-new}] The newly allocated address has to be at a
+    label at least as high as |lcurr|, and will thus be erased.
+    \item[Case \textsc{I-write}] Only addresses with a label |il'| above
+    |lcurr| can be written, thus the change in |iS1| will get erased.
+    \item[Otherwise.]  None of the other rules modify the state |iS|, and
+    thus |iS'=iS| will trivially satisfy condition~\eqref{eq:hnb-3}.
+  \end{description}
 \end{proof}
 
 %\begin{lemma}
@@ -306,6 +337,12 @@ proof.
       write the same value, and therefore the resulting states will still
       be |il|-equivalent.
     \end{description}
-    
+    After |it2| has taken a step, we finally arrive in the desired
+    configuration |ic2'=iconf iS2'' (its2'', its2''', its2'''')|, where
+    |its2''''| contains the task resulting from executing |it2| (and
+    might contain, zero (if the task was done or stuck), one (for most steps) or two tasks if a new task was launched).
+    As required, we have
+    \[ |ic2| |.->|^* |ic2''| |.->| |ic2'|
+    \quad \land \quad |ic1'| \approx_{|il|} |ic2'| \text{.}\]
   \end{itemize}
 \end{proof}
