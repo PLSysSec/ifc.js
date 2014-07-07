@@ -37,13 +37,11 @@ labeled references.
     |}
     \and
     \inferrule[I-unlabel]
-    {|
-      il''=il lub il'
-    |}
+    {}
     {|
       niconf iS id il (unlabel (Labeled il' ie))
       ->
-      niconf iS id (il'') ie
+      niconf iS id (il  lub il' ) ie
     |}
     \and
     \inferrule[I-labelOf]
