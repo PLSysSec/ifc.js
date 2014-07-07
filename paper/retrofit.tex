@@ -11,7 +11,7 @@ language or a collection of communicating, isolated tasks.
 \paragraph{Language restrictions versus isolated sandboxes}  If you want
 to create a standard programming language with information-flow control,
 the usual technique is to build in restrictions (dynamic or static)
-which allow noninterference to be proved.  While this is fine for toy
+which allow non-interference to be proved.  While this is fine for toy
 languages, if the language in question is an existing language, these
 modifications can often require extremely intrusive, both in terms of
 semantic changes and implementation changes, and it is easy to get things
@@ -57,14 +57,14 @@ label---a stack discipline.  Care must be taken to ensure that
 information doesn't leak when the label is lowered (for example, the
 parent is not allowed to inspect the result of the computation). In
 fact, systems with this feature generally only achieve
-termination-insensitive noninterference: if the high secrecy section
+termination-insensitive non-interference: if the high secrecy section
 doesn't terminate, this is observable by the halted execution of the low
 secrecy section.
 
 In this paper, we will instead say that the allocation of a new
 stack frame with a raised label corresponds to the creation of a
 new isolated task; a sample encoding using our language is
-shown in Figure~\ref{toLabeled}.
+shown in Figure~\ref{fig:toLabeled}.
 
 \begin{figure}
 \begin{align*}
@@ -81,7 +81,7 @@ The sequential processing of these
 tasks corresponds to a specific \emph{scheduling policy} of these
 threads.  This change of perspective to scheduling highlights the
 essential differents between termination-insensitive and termination-sensitive
-noninterference.
+non-interference.
 
 \paragraph{Exceptions versus message passing}
 A language feature that has caused difficulty for

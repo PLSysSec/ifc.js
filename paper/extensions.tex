@@ -74,8 +74,9 @@ the current label; otherwise it cannot be said that protection has
 been transferred from the current label to |il|.
 %
 
-Full details with formal reduction rules can be found
-in \appendixext{}.
+
+Full details with formal reduction rules are provided
+in \appendixext{}, but omitted here for space reasons.
 %}
 
 \paragraph{Labeled mutable references/variables/channels}
@@ -130,7 +131,7 @@ knowledge is an open research problem.
 
 \paragraph{Clearance}
 %
-LIO, SWAPI, and Breeze additionally provide a discretionary access
+Systems like LIO, SWAPI, and Breeze additionally provide a discretionary access
 control (DAC) mechanism---called \emph{clearance}---at the language
 level~\cite{Hritcu:2013:YIB:2497621.2498098, lio}.
 %
@@ -138,38 +139,38 @@ This mechanisms is used to restrict a computation from allocating and
 accessing data (or communicating with entities) above a specified
 label, the clearance.
 %
-Amending our IFC language with clearance is mostly straight forward,
-and, in particular, does not not affect our definitions or proofs in
-any meaningful way.
+Amending our IFC language with clearance is straight forward,
+and, can be done using our notation of a restricted language.
 %
 To this end, we first extend tasks to track a clearance label
 alongside the current label, and amend the core IFC language with two
 new terminals for retrieving and setting this value.
 %
-Since this extension simply adds a per-task global mutable variable,
-our security guarantees hold trivially.
+Since this extension only adds a per-task mutable variable whose value
+has no influence on the system, all security guarantees still
+hold, by essentially the same proofs.
 %
-However, this does not implement any DAC mechanism.
+However, this does not implement any DAC mechanism yet.
 %
-To do so, we must restrict the language with
-$\mathcal{P}_\text{clearance}$.
-%
-This family contains always valid predicates, except for rules that
+To do so, we can restrict the language with a family of predicates
+$\mathcal{P}_\text{clearance}$:
+All rules that
 raise the current label (e.g., \textsc{I-setLabel}), perform
 allocation (e.g., \textsc{I-sandbox} and \textsf{I-send}), or set the
-clearance (clearance should not be arbitrarily raised).
-%
-These predicates use the clearance to impose DAC.
+clearance (clearance should not be arbitrarily raised), a predicate
+that uses the clearance to impose DAC is used.
 %
 For instance, the predicate for \textsc{I-setLabel} prevents the
 current label from being raised above the clearance (and thus permit
-reads above the clearance); this predicate is given by $P = |il
-canFlowTo il'|$, where |il'| is the clearance and |il| is the current
+reads above the clearance).  The predicate $P := |il
+canFlowTo il'|$ achieves this restriction, where |il'| is the
+clearance and |il| is the current
 label.
 %
-The otters predicates are defined in a similar way and omitted for
-clarity.
+The other predicates are defined in a similar way and omitted for
+brevity.
 
+TODO: provide them in the appendix, and refer to them here.
 
 
 \subsection{Type Safety}
