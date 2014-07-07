@@ -131,17 +131,39 @@ knowledge is an open research problem.
 \paragraph{Clearance}
 %
 LIO, SWAPI, and Breeze additionally provide a discretionary access
-control mechanism---called \emph{clearance}---at the language
+control (DAC) mechanism---called \emph{clearance}---at the language
 level~\cite{Hritcu:2013:YIB:2497621.2498098, lio}.
-This mechanisms is
-used to restrict a computation from accessing data (or communicating
-with entities) above a specified label, the clearance.
 %
-For simplicity, we omitted clearance from our formalism.
+This mechanisms is used to restrict a computation from allocating and
+accessing data (or communicating with entities) above a specified
+label, the clearance.
 %
-We only remark that the mechanism generalizes beyond these IFC systems
-in a straight forward manner and does not affect our definitions or
-proofs in any meaningful way.
+Amending our IFC language with clearance is mostly straight forward,
+and, in particular, does not not affect our definitions or proofs in
+any meaningful way.
+%
+To this end, we first extend tasks to track a clearance label
+alongside the current label, and amend the core IFC language with two
+new terminals for retrieving and setting this value (see
+Appendix~\ref{sec:appendix-extensions}).
+%
+Since this extension simply adds a per-task global mutable variable,
+our security guarantees hold trivially.
+%
+Of course this also does not provide any notion of DAC.
+%
+To do so we restrict the language with $\mathcal{P}_\text{clearance}$,
+the family of always valid predicates, except for the ones for
+rules that raise the current label (e.g., \textsc{I-setLabel}) or
+perform allocation (e.g., \textsc{I-sandbox} and \textsf{I-send}).
+%
+The predicate for \textsc{I-setLabel} is: $P = |il canFlowTo il'|$,
+where |il'| is the clearance and |il| is the current label.
+%
+As further discussed in Appendix~\ref{sec:appendix-extensions},
+similar predicates are used in some of the rules of the calculus
+extended with labeled values and references.
+
 
 
 \subsection{Type Safety}
