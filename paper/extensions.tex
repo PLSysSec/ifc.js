@@ -239,37 +239,46 @@ that always schedules less sensitive threads first; this can be
 employed to address external timing covert channels where an attacker
 can measure the delay between output events.\footnote{
   When considering a label lattice that is not totally ordered, e.g.,
-  DCLabels~\cite{myers:dlm,dclabels}, this scheduling policy is
-  considerably more complex. See~\cite{Kashyap:2011}.
+  DLM~\cite{myers:dlm} or DCLabels~\cite{dclabels}, this scheduling policy is
+  considerably more complex.
 }
 %
-More generally, we believe that deterministic schedulers that always
-make ``low-progress,'' i.e., if a task whose label is not above the
-current task's label will will eventually run, and do not decide which
-low tasks to schedule according to data more sensitive than the tasks'
-label, i.e., the scheduler does not schedule one public thread over
-another according to sensitive data, to be safe.
+Our formalism generalizes to a class of stateless, deterministic
+schedulers that are: 1) \emph{integrity-preserving}, i.e., they do not
+modify (or create) tasks; 2) \emph{non-interfering at level |l|}, the
+greatest lower bound of all the labels on the task labels,\footnote{
+  The label on a task's current label is the current label of the
+  parent at the time of creation, i.e., the initial current label of
+  the task.
+} i.e., they do not depends on a sensitive task's state; and, 3) make
+\emph{low-progress}, i.e., if there is a task in the task list whose
+label is below (or incomparable to) the label of another task, this
+task (or another one at the same level) must eventually run.
 %
+The last condition is required for TSNI; languages relying on
+schedulers, such as |seqf|, that do not satisfy the low-progress
+condition can at most satisfy TINI.
+%
+For simplicity, we do treat this, more-general class of schedulers;
+doing so would require modifying our calculus to keep track of the
+label on the current label of tasks and complicate the
+non-interference proofs.
 
-Despite allowing a number of practical schedulers to be expressed, our
-scheduler parametrization is limited.
+More fundamentally, our scheduler parametrization is limited in being
+stateless and deterministic.
 %
-For instance, since |alpha| is a map on task lists, schedulers that
-rely on the global state |iS| or previous task configurations cannot
-be expressed.
+For instance,  we do not consider  schedulers that, among other, rely
+on the global state |iS| or previous task configurations, as treated
+in~\cite{russo2006securing}.
 %
-Though, we do not believe this to be a fundamental limitation, our
-current formalization cannot directly be applied to more-powerful, but
-safe, scheduling policies, as considered by~\cite{russo2006securing}.
-%
-More fundamentally, our definitions rely on deterministic relations,
+Additionally, our definitions rely on deterministic relations,
 and thus extending the system to consider non-deterministic schedulers
 (or even non-deterministic target languages) is non-trivial.
 %
-For instance, this may potentially require the security condition to
+Such extensions may potentially require the security condition to
 consider \emph{low-determinism}, which states that a program is secure
-only if |l|-equivalent results are deterministic~\cite{Zdancewic:Myers:CSFW03,
-sabelfeld2003language}.
+only if |l|-equivalent results are
+deterministic~\cite{Zdancewic:Myers:CSFW03, sabelfeld2003language}.
 
 \subsection{External Effects}
 \label{sec:extensions:external}
