@@ -1,70 +1,77 @@
 \section{Retrofitting Languages with IFC}
 \label{sec:retrofit}
 
-Before delving into the formal operational semantics in earnest, we'd
-like to first demonstrate some examples where a dynamic information flow
-control system can either be thought of as the execution of a single
-language or a collection of communicating, isolated tasks.
+Information flow control systems operate by associating data with \emph{labels},
+which specify whether or not data tagged with one label |l1| can flow to another
+label |l2| (written as |canFlowTo2 l1 l2|).  These labels encode the desired
+security policy (for example, confidential information should not flow to
+a public channel), and the work of specifying the semantics of an information
+flow language involves demonstrating that impermissible flows cannot happen,
+a property called \emph{noninterference}.
 
-\Red{(need to describe the correspondence)}
+Supporting fine-grained labeling of data in a programming language often
+requires extremely intrusive modifications to its semantics and
+implementation.  In this paper, we advocate applying coarse-grained
+labeling~\cite{Zeldovich:2006, lio} to its extreme: our starting point
+is multiple instances of completely isolated language runtimes or \emph{tasks}, with
+information flow control applied between their communication.  For
+languages which are implemented with isolation, such as JavaScript or C
+with access to hardware privilege separation, systems along these lines
+are far more easily implementable and require minimal semantic changes.
 
-\paragraph{Language restrictions versus isolated sandboxes}  If you want
-to create a standard programming language with information-flow control,
-the usual technique is to build in restrictions (dynamic or static)
-which allow non-interference to be proved.  While this is fine for toy
-languages, if the language in question is an existing language, these
-modifications can often require extremely intrusive, both in terms of
-semantic changes and implementation changes, and it is easy to get things
-wrong and permit a subtle implicit flow between different security levels.
+Why is this setting more interesting than ``traditional
+coarse-grained information flow control system on isolated
+threads?''  First, although completely separate tasks
+are semantically easy to reason about, real-world implementations often blur the
+lines between tasks in the name of efficiency.  Characterizing what optimizations
+are permissible is a problem we address in Section~\ref{sec:concrete}, and
+it is quite subtle, since removing transitions from the operational semantics
+of a language can break noninterference.  Second, even though the underlying
+semantic model involves communicating tasks, these tasks can be coordinated
+together in ways that simulate traditional features in monolithic languages.
+In fact, it is a very useful design tool for discovering what variants of the
+features are permissible and which are not.
 
-The alternative method is to start with complete isolation between
-different security levels: literally seperate instances of the
-``language runtime'' for each traditional IFC thread.  For languages
-which already have isolated implementations, such as JavaScript and C
-with access to hardware privilege separation, this is a far more
-practical starting point.  From here, the line between the isolated
-instances can be blurred, but the `completely isolated'' semantics
-are a helpful guidepost for what can be done safely.
-
-As an example, imagine a program which attempts to send a mutable
-reference from a low security level to a high security level:
+A very simple example is a low security task sending a high security
+task a mutable reference:
 \begin{align*}
     & |let i = TI (sandbox (brecvf x _ (IT (!(TI x)))))|\\
     & |in TI (send (IT i) getLabel (IT (ref true)))|
 \end{align*}
 
-For now, ignore the |TI| and |IT| annotations: this code creates a new
-sandboxed thread $i$ which waits for a message, and then sends the
-thread a mutable cell containing the value true.  If this mutable cell
-is actually shared between the two tasks, it would be a violation of
-information flow if such an operation actually resulted in references
-being shared between two tasks.  However, since these are isolated
-tasks, the address received by the sandboxed task is actually a dangling
-pointer.  We can use a static discipline to avoid this situation
-entirely or dynamically copy the mutable cell into the destination
-context; in any case, the isolation makes it clear what semantics can
-be safely supported.
+For now, ignore |TI| and |IT|: roughly, this code creates a new
+|sandbox|ed thread $i$ which waits (\textbf{blockingRecv}) for a
+message, and then \textbf{send}s the thread a mutable reference to (|ref
+true|).  If this operation actually shared the mutable cell, this cell
+could be used to violate information flow control.  When working with
+isolated tasks which each have their own heaps, the isolation is obviously true:
+the sandboxed task receives a dangling pointer.
 
-While this is a very simple example, the elaborations of this principle
-can actually be quite non-obvious for more interesting language
-features.
+While this is a very simple example, we can still ask: given the
+obviously safe formulation with separate heaps, can this fact be useful
+for showing the safety of an semantics which only has a single heap
+(Yes: see Section~\ref{sec:single-heap})?  Furthermore, the ``raw''
+semantics violates expectations about how inter-thread communication
+works on a shared heap: it strongly suggests, for example, that which
+types of data may be passed between tasks should be restricted (for
+example, in JavaScript, one might only allow JSON objects to be passed
+between tasks).
 
-\paragraph{Stack frames versus scheduling}  A feature that is supported
-by some information flow control systems is the ability to temporarily
-raise one's label in order to do computation on data.  Once the
-computation is finished, the label is lowered back to the original
-label---a stack discipline.  Care must be taken to ensure that
-information doesn't leak when the label is lowered (for example, the
-parent is not allowed to inspect the result of the computation). In
-fact, systems with this feature generally only achieve
-termination-insensitive non-interference: if the high secrecy section
-doesn't terminate, this is observable by the halted execution of the low
-secrecy section.
+Before moving on to the formal treatment of our system, we'd like to give
+two more examples of language features which have an interesting interpretation
+when viewed in the setting of multiple tasks.
 
-In this paper, we will instead say that the allocation of a new
-stack frame with a raised label corresponds to the creation of a
-new isolated task; a sample encoding using our language is
-shown in Figure~\ref{fig:toLabeled}.
+\paragraph{Stack frames versus scheduling}  One feature which is
+supported by some information flow control systems is the ability to
+temporarily raise the current label in order to do computation on data
+(as done by LIO's |toLabeled| and Breeze's
+brackets~\cite{Hritcu:2013:YIB:2497621.2498098,
+stefan:2012:arxiv-flexible}).  After the computation, the label is lowered back to the original label,
+enforcing a stack discipline.  This is the trickiest part of the feature: care must be taken to ensure that information doesn't leak when
+the label is lowered. In fact, systems with this feature generally only
+achieve termination-insensitive non-interference: if the high secrecy
+section doesn't terminate, this is observable by the non-execution of
+the defunct public continuation.
 
 \begin{figure}
 \begin{align*}
@@ -77,55 +84,59 @@ shown in Figure~\ref{fig:toLabeled}.
 \caption{Encoding of toLabeled using isolated tasks.}\label{fig:toLabeled}
 \end{figure}
 
-The sequential processing of these
-tasks corresponds to a specific \emph{scheduling policy} of these
-threads.  This change of perspective to scheduling highlights the
-essential differents between termination-insensitive and termination-sensitive
-non-interference.
+
+When considering tasks, we will instead say that the allocation of a new
+stack frame with a raised label corresponds to the creation of a new
+isolated task; a sample encoding using our language is shown in
+Figure~\ref{fig:toLabeled}.
+However, this is not enough: in a stack discipline, one generally
+expects stack entries to be processed in order, rather than in parallel
+as would be suggested by isolated tasks.  The sequential processing of
+the task queue corresponds to a specific \emph{scheduling policy} of
+these threads.  The recasting of the problem to one of scheduling
+highlights the essential difference between termination-insensitive and
+termination-sensitive non-interference.
 
 \paragraph{Exceptions versus message passing}
-A language feature that has caused difficulty for
-many information flow control systems is handling exceptions.
+Another language feature that has caused difficulty for
+many information flow control systems is exceptions handling,
+when built on top of this stack discipline.
 %
 The key difficulty appears when considering the propagation of exceptions
-across stack boundaries where the current label is restored, e.g., from secret
-to public, as done by LIO's |toLabeled| and Breeze's
-brackets~\cite{Hritcu:2013:YIB:2497621.2498098, stefan:2012:arxiv-flexible}.
+across stack boundaries where the current label is restored.
 %
 If the exception crosses this boundary, it can leak information about the
-inner secret computation into a public computation; hence, both systems
+inner secret computation into a public computation; hence, one must
 explicitly ensure that |toLabeled| does not propagate exceptions.
 
 When stack frames are treated as isolated tasks, the correct semantics
 are achieved automatically.
 %
-The only way for the stack frame to communicate information is by
-initiating inter-task message passing; in its absence, the ``parent
-frame'' will operate as if no exception had occurred.
+Exceptions simply stop when the hit the top-level of a task:
+the only way for the frame to communicate information is by
+initiating inter-task message passing.
 %
 For instance, 
 \begin{code}
 TI(toLabeled l (IT (if te then fail else true))); true
 \end{code}
 always evaluates to |true|, regardless of the value of |te|.
-%
-Of course, when communication is performed, there is no leak,
-because all of the necessary information flow checks needed to
-communicate between tasks are also performed here.
 \Red{TODO: note that if the target language allows inspecting if
   result is exception we can implement Breeze's NAV (vs. just
 propagating)}
 
 \subsection{Preliminaries}
 
-Our overall plan will be to take a \textbf{{\color{red} target
+Our goal now is to
+describe how to take a \textbf{{\color{red} target
 language}} with a formal operational semantics and combine it with an
 \textit{{\color{blue} information flow control language}}.  For example,
 taking ECMAScript as the target language and combining it with our IFC
 language should produce the formal semantics for SWAPI.  In this
 presentation, we use a simple, untyped lambda calculus with mutable
 references and fixpoint in place of ECMAScript, to demonstrate some of the key
-properties without having too much detail; we discuss the proper
+properties without having too much detail (and because the embedding really
+doesn't care about what, exactly, is in the target language); we discuss the proper
 embedding in more detail in Section~\ref{sec:real}.
 
 \paragraph{Notation}
@@ -216,21 +227,15 @@ variables in expression |te|.}
 
 \subsection{IFC Language}
 
-Most modern, dynamic information flow control languages encode
-policy by associating a \emph{label}
-with data, which encodes whether or not data tagged with one
-label |l1| can flow to another label |l2| (written as |canFlowTo2 l1 l2|).
-Our embedding is agnostic to the choice of labeling scheme; we only
-require the labels to form a lattice~\cite{Denning:1976:LMS:360051.360056}
-with the partial order $\sqsubseteq$, join |lub|, and meet |glb|.
-In this paper, we simply represent labels with the metavariable
-$l$, but do not discuss them in more detail.
+As mentioned previously, most modern, dynamic information flow control
+languages encode policy by associating a label with data.  Our
+embedding is agnostic to the choice of labeling scheme; we only require
+the labels to form a lattice~\cite{Denning:1976:LMS:360051.360056} with
+the partial order $\sqsubseteq$, join |lub|, and meet |glb|.  In this
+paper, we simply represent labels with the metavariable $l$, but do not
+discuss them in more detail.
 
-As opposed to more traditional fine-grained language-based IFC systems that
-associate labels with values~\cite{sabelfeld2003language,
-Austin:Flanagan:PLAS09}, we follow~\cite{Zeldovich:2006, lio} in taking a
-coarse-grained floating-label approach and associating labels with
-\emph{tasks}.
+In our coarse-grained floating-label approach, labels are associated with tasks.
 %
 The task label---we refer to the label of the currently executing task as the
 \emph{current label}---serves to protect everything in the task's scope;
