@@ -223,20 +223,22 @@ there are few general remarks to be made:
 \end{itemize}
 
 \subsection{Scheduling Policies}
-Our specification language is parametrized by a scheduling policy
-|alpha|, which maps a task list to a potentially different task list.
+Our specification language is parametrized by a scheduling policy |alpha|, which
+maps a task list to a potentially different task list, i.e.,
+$\alpha_{{\tiny\mathrm{\text{step}}}}(\ifc{\Varid{t}},\ldots)$. 
 %
 As previously discussed, the precise definition of |alpha|
 dictates whether the language is TSNI, TINI, or neither.
 %
-For simplicity we considered two popular policies |roundrobinf| and
+We described two popular policies |roundrobinf| and
 |seqf| for which we showed TSNI and TINI, respectively.
 %
-However, our definitions allow for other scheduling policies that only
-rely on the current task list.
+However, our definitions allow for other scheduling policies based on the
+current task list---in fact, our formalism can be easily 
+extended to consider history~\cite{BartheRRS07}.
 %
-For example, this allows us to implement the scheduler of~\cite{Kashyap:2011}
-that always schedules less sensitive threads first; this can be
+As an example of generality, our approach allows to implement the scheduler of~\cite{Kashyap:2011}
+which always schedules less sensitive threads first; this can be
 employed to address external timing covert channels where an attacker
 can measure the delay between output events.\footnote{
   When considering a label lattice that is not totally ordered, e.g.,
@@ -244,17 +246,19 @@ can measure the delay between output events.\footnote{
   considerably more complex.
 }
 %
-Our formalism generalizes to a class of stateless, deterministic
+More precisely, our calculus generalizes to a class of deterministic
 schedulers that are: 1) \emph{integrity-preserving}, i.e., they do not
-modify (or create) tasks; 2) \emph{non-interfering at level |l|}, the
-greatest lower bound of all the labels on the task labels,\footnote{
-  The label on a task's current label is the current label of the
-  parent at the time of creation, i.e., the initial current label of
-  the task.
-} i.e., they do not depends on a sensitive task's state; and, 3) make
-\emph{low-progress}, i.e., if there is a task in the task list whose
-label is below (or incomparable to) the label of another task, this
-task (or another one at the same level) must eventually run.
+modify (or create) tasks; 2) \emph{non-interferent}, i.e., 
+%greatest lower bound of all the labels on the task labels,\footnote{
+%  The label on a task's current label is the current label of the
+%  parent at the time of creation, i.e., the initial current label of
+%  the task.
+%} 
+scheduling decisions on public tasks do not depend on a sensitive task's
+state~\cite{russo2006securing}; and, 3) make \emph{low-progress}, i.e., if there
+is a task in the task list whose label is below (or incomparable to) the label
+of another task, this task (or another one at the same level) must eventually
+run.
 %
 The last condition is required for TSNI; languages relying on
 schedulers, such as |seqf|, that do not satisfy the low-progress
@@ -266,20 +270,21 @@ label on the current label of tasks and complicate the
 non-interference proofs.
 
 More fundamentally, our scheduler parametrization is limited in being
-stateless and deterministic.
+deterministic, and thus extending the system to consider non-deterministic
+schedulers (or even non-deterministic target languages) is non-trivial.
 %
-For instance,  we do not consider  schedulers that, among other, rely
-on the global state |iS| or previous task configurations, as treated
-in~\cite{russo2006securing}.
+%For instance,  we do not consider  schedulers that, among other, rely
+%on the global state |iS| or previous task configurations, as treated
+%in~\cite{russo2006securing}.
 %
-Additionally, our definitions rely on deterministic relations,
-and thus extending the system to consider non-deterministic schedulers
-(or even non-deterministic target languages) is non-trivial.
+%Additionally, our definitions rely on deterministic relations,
 %
-Such extensions may potentially require the security condition to
-consider \emph{low-determinism}, which states that a program is secure
-only if |l|-equivalent results are
-deterministic~\cite{Zdancewic:Myers:CSFW03, sabelfeld2003language}.
+Such extensions often apply security conditions which suffer 
+from refinement attacks (e.g.~\cite{Smith:Volpano:MultiThreaded}) or may require to
+adapt non-trivial definitions as
+\emph{low-determinism}~\cite{Zdancewic:Myers:CSFW03,Huisman:Worah:Sunesen:CSFW06,Terauchi:2008},
+which states that a program is secure only if |l|-equivalent results are
+deterministic.
 
 \subsection{External Effects}
 \label{sec:extensions:external}
