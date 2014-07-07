@@ -9,133 +9,72 @@ In Section~\ref{sec:retrofit}, however, we used only a simplified
 language as an example target language.
 %
 In this section, we consider the application of our embedding to
-JavaScript and two other real world target languages, C and Haskell.
+JavaScript, and two other real world target languages, Haskell, and C.
 %
 Our goal is to show the flexibility of the embedding in settings with
 vastly different features and properties, as well as discuss the
 semantic gap that must be overcome in some cases to apply our formalism
 to other systems.
 %
-Two of the systems we describe have been implemented: the Haskell
-system~\cite{lio} and the SWAPI~\cite{swapi} system; we leave the
-implementation of the IFC system for C to future work.
+%% Two of the systems we describe have been implemented: the Haskell
+%% system~\cite{lio} and the SWAPI~\cite{swapi} system; we leave the
+%% implementation of the IFC system for C to future work.
 
-\subsection{C}
-\label{sec:real:c}
-%
-C programs are able to execute arbitrary (machine) code, access
-arbitrary memory, and perform arbitrary syscalls.
-%
-Thus, the confinement of C programs must be imposed by the underlying OS
-and hardware.
-%
-For instance, this isolation can be achieved using Dune's hardware protection
-mechanisms~\cite{Belay:2012:DSU:2387880.2387913}, similar to a simpler
-version of Wedge~\cite{Belay:2012:DSU:2387880.2387913,
-Bittau:2008:WSA:1387589.1387611} with an information flow control
-policy.
-%
-Using page tables, a (trusted) IFC runtime could ensure that each task,
-implemented as a lightweight process, can only access the memory it
-allocates--tasks do not have access to any shared memory.
-%
-In addition, ring protection could be used to intercept syscalls performed by
-a task and only permit those corresponding to our IFC language (such as
-|getLabel| or |send|).
-%
-Dunes hardware protection mechanism allows us to provide a concrete
-implementation that is efficient and relatively simple to reason
-about, but other sandboxing mechanisms could be used in place of Dune.
-
-In this setting, the combined language of Section~\ref{sec:retrofit}
-can be interpreted in the following way: calling from the target
-language to the IFC language corresponds to invoking a syscall.
-%
-Creating a new task with the |sandbox| syscall corresponds to
-\emph{forking} a process.  Here, page tables limit what memory
-a task can access: we can ensure there will be no memory (effectively
-defining |klone(tS)
-= tS0|, where |tS0| is the set of pages necessary to bootstrap a
-lightweight process.)
-%
-Similarly, control over page tables and protection bits allows us to
-define a |send| syscall that copies pages to our
-(trusted) runtime queue; and, correspondingly, a |recv| that copies
-the pages from the runtime queue to the (untrusted) receiver.
-%
-Since C is not memory safe, conditions on these syscalls are
-meaningless.
-
-
-\subsection{Haskell}
-\label{sec:real:hs}
-In contrast with the C embedding which relies on hardware protection
-mechanisms, a Haskell implementation can leverage Haskell's strong data
-abstraction and static type system, monadic approach to effects, and
-lightweight concurrency to implement the embedding in a more lightweight
-manner.  We briefly describe one such system, LIO~\cite{lio}, which
-implements IFC as a library.
-
-LIO is implemented by defining a new monad, \verb|LIO|, which wraps Haskell's \verb|IO|
-monad.
-%
-The purpose of this monad is twofold: it restricts the use of
-arbitrary effects that would ordinarily be allowed by the \verb|IO| monad,
-and it associates labels with tasks.
-%
-Computations in the \verb|LIO|
-monad can be thought to be operating within the IFC system.
-%
-One important aspect of using \verb|IO| as the base for this
-implementation is that it allows use of Haskell's efficient
-implementation of threads, channels, etc. (e.g., in the concurrent
-version of LIO, we use Haskell's \texttt{forkIO} to fork a lightweight
-thread in the case of |fork|~\cite{stefan:addressing-covert}), in
-contrast to defining them in a completely pure fashion (as suggested
-in Section~\ref{sec:monad}).
-
-What is the interpretation of this system as per Section~\ref{sec:retrofit}?
-%
-Here, the \emph{pure subset} of Haskell is the target language, while
-the monadic subset of Haskell in the \verb|LIO| monad is the IFC
-language.
-%
-Crucially, the lack of unrestricted mutation in the pure fragment of
-Haskell prevents direct communication between tasks, even when memory is
-shared between them.\footnote{However, lazy evaluation can still produce
-a covert channel.}
-
-Since this IFC system is implemented as a library in Haskell,
-implementation-wise, we must ensure that these languages are indeed the subsets of Haskell
-we claim, i.e., while the concrete language is all of Haskell, we must
-ensure that we can restrict programs to our subset of Haskell that
-encodes the combined language.
-%
-To this end, \verb|LIO| relies on Haskell's strong data abstraction and type system
-(as enforced by Safe Haskell~\cite{Terei:2012:SH:2364506.2364524}) to
-ensure that arbitrary \verb|IO| actions cannot be lifted into
-\verb|LIO|.
-%
-In other words, assuming \verb|LIO| is implemented correctly, programs
-written in the \verb|LIO| monad cannot perform arbitrary \verb|IO| actions
-without breaking abstraction.
-
-We refer the interested reader to~\cite{lio,stefan:addressing-covert} for
-additional details on the various implementations of this system.\footnote{It's worth noting that the proofs of non-interference we have given for asynchronous communication primitives are new and not in the original presentation of LIO.}
 
 
 \subsection{JavaScript}
 \label{sec:real:js}
 
-JavaScript (JS), as specified by ECMAScript~\cite{ecma}, does not have any
-built-in functionality for I/O. Capabilities such as the ability to
-mutate the DOM and read user input are APIs defined on top of the ECMAScript
-specification.
+An interesting aspect of JavaScript, as specified by
+ECMAScript~\cite{ecma}, is that it does not have any built-in
+functionality for I/O.
 %
-Consequently, and in contrast to our C and Haskell embeddings---for
-which we must eliminate external effects---the embedding for JS is
-trivial.
+(We denote this language as |targetLangJS|.)
+%
+Instead, when embedding a JavaScript engine, browser layout engines,
+such as Gecko, and server-side platforms, such as Node.js, expose APIs
+such as the DOM and filesystem as part of the runtime system.
+%
+In a similar manner, we can directly implement the embedded language
+|specLangJS roundrobinf| by exposing (only) our IFC primitives as part
+of the runtime and running multiple instances of the JavaScript VM in
+separate OS-level threads.\footnote{
+  We, indeed, do this for the Gecko implementation when considering
+  Web Workers that run operate OS threads.
+}
+%
+Unfortunately, this becomes very costly when an application relies on
+many tasks.
+%
+(Consider, for instance, a server-side web application that wishes to
+create a new task for each HTTP request.)
 
+This issue of performance and JavaScript isolation is not unique to
+our work. 
+%
+In particular, browser layout engines rely on the isolation of content
+from different origins (e.g., two iframes of different origins) to
+implement the \emph{same-origin policy}.
+%
+Since creating an OS thread for each iframe is expensive, both V8 and
+SpiderMonkey provide a means for running JavaScript code in isolation,
+on disjoint sub-heaps of the same OS thread.
+%
+In V8 this unit of isolation is called a \emph{context}~\tocite{}, in
+SpiderMonkey, it called a \emph{compartment}~\tocite{}.
+%
+(We will use these terms and ``task'' interchangeably.)
+%
+Each context/compartment is associated with a global object, which
+implements the JavaScript standard library (e.g., \verb|Object|,
+\verb|Array|, etc.).
+%
+It is this global object that is extended with feature such as the
+DOM and filesystem.
+
+\Red{HERE}
+
+ 
 We describe SWAPI~\cite{swapi}, an implementation of this system for JavaScript
 (which we here denote by |targetLangJS|).
 %
@@ -191,7 +130,7 @@ for |send| such that only strings can be shared:
 {|
 iconf iS (fullconf id il tS (iniEi (send id' il' iv)), ldots)
 .->
-iS'; sched S (fullconf id il tS (iniEi unit), ldots)
+iS'; sched step (fullconf id il tS (iniEi unit), ldots)
 |}
 \end{mathpar}
 %}
@@ -273,3 +212,107 @@ features lies outside the purview of our formalism.
 %% Of course, this requires that we use a concrete label format to
 %% express the policies; we refer the interested reader to~\tocite{} for
 %% more details.}
+
+
+\subsection{Haskell}
+\label{sec:real:hs}
+In contrast with the C embedding which relies on hardware protection
+mechanisms, a Haskell implementation can leverage Haskell's strong data
+abstraction and static type system, monadic approach to effects, and
+lightweight concurrency to implement the embedding in a more lightweight
+manner.  We briefly describe one such system, LIO~\cite{lio}, which
+implements IFC as a library.
+
+LIO is implemented by defining a new monad, \verb|LIO|, which wraps Haskell's \verb|IO|
+monad.
+%
+The purpose of this monad is twofold: it restricts the use of
+arbitrary effects that would ordinarily be allowed by the \verb|IO| monad,
+and it associates labels with tasks.
+%
+Computations in the \verb|LIO|
+monad can be thought to be operating within the IFC system.
+%
+One important aspect of using \verb|IO| as the base for this
+implementation is that it allows use of Haskell's efficient
+implementation of threads, channels, etc. (e.g., in the concurrent
+version of LIO, we use Haskell's \texttt{forkIO} to fork a lightweight
+thread in the case of |fork|~\cite{stefan:addressing-covert}), in
+contrast to defining them in a completely pure fashion (as suggested
+in Section~\ref{sec:monad}).
+
+What is the interpretation of this system as per Section~\ref{sec:retrofit}?
+%
+Here, the \emph{pure subset} of Haskell is the target language, while
+the monadic subset of Haskell in the \verb|LIO| monad is the IFC
+language.
+%
+Crucially, the lack of unrestricted mutation in the pure fragment of
+Haskell prevents direct communication between tasks, even when memory is
+shared between them.\footnote{However, lazy evaluation can still produce
+a covert channel.}
+
+Since this IFC system is implemented as a library in Haskell,
+implementation-wise, we must ensure that these languages are indeed the subsets of Haskell
+we claim, i.e., while the concrete language is all of Haskell, we must
+ensure that we can restrict programs to our subset of Haskell that
+encodes the combined language.
+%
+To this end, \verb|LIO| relies on Haskell's strong data abstraction and type system
+(as enforced by Safe Haskell~\cite{Terei:2012:SH:2364506.2364524}) to
+ensure that arbitrary \verb|IO| actions cannot be lifted into
+\verb|LIO|.
+%
+In other words, assuming \verb|LIO| is implemented correctly, programs
+written in the \verb|LIO| monad cannot perform arbitrary \verb|IO| actions
+without breaking abstraction.
+
+We refer the interested reader to~\cite{lio,stefan:addressing-covert} for
+additional details on the various implementations of this system.\footnote{It's worth noting that the proofs of non-interference we have given for asynchronous communication primitives are new and not in the original presentation of LIO.}
+
+
+\subsection{C}
+\label{sec:real:c}
+%
+C programs are able to execute arbitrary (machine) code, access
+arbitrary memory, and perform arbitrary syscalls.
+%
+Thus, the confinement of C programs must be imposed by the underlying OS
+and hardware.
+%
+For instance, this isolation can be achieved using Dune's hardware protection
+mechanisms~\cite{Belay:2012:DSU:2387880.2387913}, similar to a simpler
+version of Wedge~\cite{Belay:2012:DSU:2387880.2387913,
+Bittau:2008:WSA:1387589.1387611} with an information flow control
+policy.
+%
+Using page tables, a (trusted) IFC runtime could ensure that each task,
+implemented as a lightweight process, can only access the memory it
+allocates--tasks do not have access to any shared memory.
+%
+In addition, ring protection could be used to intercept syscalls performed by
+a task and only permit those corresponding to our IFC language (such as
+|getLabel| or |send|).
+%
+Dunes hardware protection mechanism allows us to provide a concrete
+implementation that is efficient and relatively simple to reason
+about, but other sandboxing mechanisms could be used in place of Dune.
+
+In this setting, the combined language of Section~\ref{sec:retrofit}
+can be interpreted in the following way: calling from the target
+language to the IFC language corresponds to invoking a syscall.
+%
+Creating a new task with the |sandbox| syscall corresponds to
+\emph{forking} a process.  Here, page tables limit what memory
+a task can access: we can ensure there will be no memory (effectively
+defining |klone(tS)
+= tS0|, where |tS0| is the set of pages necessary to bootstrap a
+lightweight process.)
+%
+Similarly, control over page tables and protection bits allows us to
+define a |send| syscall that copies pages to our
+(trusted) runtime queue; and, correspondingly, a |recv| that copies
+the pages from the runtime queue to the (untrusted) receiver.
+%
+Since C is not memory safe, conditions on these syscalls are
+meaningless.
