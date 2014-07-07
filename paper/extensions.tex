@@ -144,25 +144,31 @@ any meaningful way.
 %
 To this end, we first extend tasks to track a clearance label
 alongside the current label, and amend the core IFC language with two
-new terminals for retrieving and setting this value (see
-Appendix~\ref{sec:appendix-extensions}).
+new terminals for retrieving and setting this value.
 %
 Since this extension simply adds a per-task global mutable variable,
 our security guarantees hold trivially.
 %
-Of course this also does not provide any notion of DAC.
+However, this does not implement any DAC mechanism.
 %
-To do so we restrict the language with $\mathcal{P}_\text{clearance}$,
-the family of always valid predicates, except for the ones for
-rules that raise the current label (e.g., \textsc{I-setLabel}) or
-perform allocation (e.g., \textsc{I-sandbox} and \textsf{I-send}).
+To do so, we must restrict the language with
+$\mathcal{P}_\text{clearance}$.
 %
-The predicate for \textsc{I-setLabel} is: $P = |il canFlowTo il'|$,
-where |il'| is the clearance and |il| is the current label.
+This family contains always valid predicates, except for rules that
+raise the current label (e.g., \textsc{I-setLabel}), perform
+allocation (e.g., \textsc{I-sandbox} and \textsf{I-send}), or set the
+clearance (clearance should not be arbitrarily raised).
 %
-As further discussed in Appendix~\ref{sec:appendix-extensions},
-similar predicates are used in some of the rules of the calculus
-extended with labeled values and references.
+These predicates use the clearance to impose DAC.
+%
+For instance, the predicate for \textsc{I-setLabel} prevents the
+current label from being raised above the clearance (and thus permit
+reads above the clearance); this predicate is given by $P = |il
+canFlowTo il'|$, where |il'| is the clearance and |il| is the current
+label.
+%
+The otters predicates are defined in a similar way and omitted for
+clarity.
 
 
 
