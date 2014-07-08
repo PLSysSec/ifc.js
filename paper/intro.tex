@@ -1,16 +1,16 @@
 \section{Introduction}
 \label{sec:intro}
-\Red{DM had some very good comments on how to make this sound less
-  like a pitch for LIO. Outline for something more compelling (not
-  necessarily in this order):
-\begin{itemize}
-  \item Motivate IFC
-  \item Coarse grained IFC is easy
-  \item Coarse grained IFC is sufficient (vs. fine grained); do by citation
-  \item We have the right API and it's language-agnostic; proof is also language independent
-  \item You can ``drop it in''
-\end{itemize}
-}
+%   \Red{DM had some very good comments on how to make this sound less
+%     like a pitch for LIO. Outline for something more compelling (not
+%     necessarily in this order):
+%   \begin{itemize}
+%     \item Motivate IFC
+%     \item Coarse grained IFC is easy
+%     \item Coarse grained IFC is sufficient (vs. fine grained); do by citation
+%     \item We have the right API and it's language-agnostic; proof is also language independent
+%     \item You can ``drop it in''
+%   \end{itemize}
+%   }
 
 Modern web content is rendered using a potentially large number of
 different components with differing provenance.
@@ -32,11 +32,12 @@ Untrusted code is confined so that it cannot exfiltrate data, except as
 per an information flow policy.  Significant research has been devoted to
 adding various forms of IFC to different kinds of programming languages
 and systems.  In the context of the web, however, there is a strong
-motivation to preserve the language JavaScript, and retrofit dynamic information
-flow control on top of it.
+motivation to preserve JavaScript's semantics while retrofitting it with dynamic information
+flow control.
 
-Systems that track information flow at a fine-grained level, e.g. per
-value in the system, offer great flexibility.  However, they
+One approach to information flow control is fine-grained tracking,
+which offers great flexibility.
+However, these systems
 require deep integration with the programming language and modify
 the semantics in non-trivial ways.  This makes fine-grained systems
 less suitable in contexts where preserving an existing language
@@ -69,24 +70,34 @@ understanding and reasoning about the correctness of the
 system, without information flow reasoning about the
 technical details of the semantics of the programming language.
 
-A further benefit of the coarse-grained approach
-is that a single IFC design and semantics can be generalized
-to a large class of programming languages.
-Leveraging this insight, we define a form of coarse-grained
-dynamic IFC and show how it can be combined with any programming
-language for which external effects can be controlled.
-At the core of our IFC system is a sandboxing construct that isolates
-potentially sensitive computations, allowing them to
-communicate only through clearly specified interfaces.
-Using an approach by Matthews-Findler~\cite{Matthews:2007:OSM:1190216.1190220}
-for combining operational semantics,
-we formally state and prove non-interference guarantees that are
-independent of the choice of specific target language.
+In this paper, we take coarse-grained labeling~\cite{Zeldovich:2006,
+lio} to its logical extreme: an information flow control system should
+be thought of as multiple instances of completely isolated language
+runtimes or \emph{tasks}, with information flow control applied to
+inter-task communication.  We describe a formal system in which an IFC
+system can be designed once and then applied to any programming language
+which has control over external effects (e.g., JavaScript or C with
+access to hardware privilege separation).  We formalize this system
+using an approach by
+Matthews-Findler~\cite{Matthews:2007:OSM:1190216.1190220} for combining
+operational semantics and prove non-interference guarantees
+that are independent of the choice of specific target language.
 
-One challenge in the design of our system is that the semantics for the
-retrofitted IFC language may not accurately correspond to the optimized
-implementation details of a particular target language.
-We discuss and partially address this issue
+What distinguishes this setting from previous coarse-grained IFC
+systems?
+%
+First, even though the underlying semantic model involves communicating
+tasks, these tasks can be coordinated together in ways that simulate
+traditional features in monolithic languages.  In fact, simulating
+features in this way is a very useful \emph{design tool} for discovering
+what variants of the features are permissible and which are not.
+%
+Second, although completely separate tasks are semantically easy to
+reason about, real-world implementations often blur the lines between
+tasks in the name of efficiency.
+Characterizing what optimizations are permissible is subtle, since
+removing transitions from the operational semantics of a language can
+break non-interference.  We partially address this issue
 by characterizing isomorphisms between the operational semantics of our
 defined language and a concrete implementation, showing that if this
 relationship holds, then non-interference in the abstract specification
@@ -95,7 +106,7 @@ carries over to the concrete implementation.
 Our contributions can be summarized as follows:
 \begin{itemize}
   \item We give formal semantics for a core coarse-grained
-  information flow control language free of non-IFC constructs.
+  dynamic information flow control language free of non-IFC constructs.
   We then show how a large class of target languages can be combined
   with this IFC language and prove that the result provides
   non-interference. (Section~\ref{sec:retrofit})

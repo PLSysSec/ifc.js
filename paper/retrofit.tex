@@ -1,6 +1,12 @@
 \section{Retrofitting Languages with IFC}
 \label{sec:retrofit}
 
+Before moving on to the formal treatment of our system, we'd like to give
+a brief primer of information flow control and describe some example programs
+in our system, emphasizing the parallel between their implementation
+in a multi-task setting, and the traditional, ``monolithic'' programming
+language feature they simulate.
+
 Information flow control systems operate by associating data with \emph{labels},
 and specifying whether or not data tagged with one label |l1| can flow
 to another
@@ -9,62 +15,40 @@ security policy (for example, confidential information should not flow to
 a public channel), and the work of specifying the semantics of an information
 flow language involves demonstrating that impermissible flows cannot happen,
 a property called \emph{non-interference}.
-
-Supporting fine-grained labeling of data in a programming language often
-requires extremely intrusive modifications to its semantics and
-implementation.  In this paper, we advocate applying coarse-grained
-labeling~\cite{Zeldovich:2006, lio} at its most extreme: our starting point
-is multiple instances of completely isolated language runtimes or \emph{tasks}, with
-information flow control applied between their communication.  For
-languages which are implemented with isolation, such as JavaScript or C
-with access to hardware privilege separation, systems along these lines
-are far more easily implementable and require fewer semantic changes.
-
-What distinguishes this setting from previous coarse-grained IFC
-systems?
 %
-First, even though the underlying semantic model involves communicating
-tasks, these tasks can be coordinated together in ways that simulate
-traditional features in monolithic languages.  In fact, simulating
-features in this way is a very useful \emph{design tool} for discovering
-what variants of the features are permissible and which are not.
+In our coarse-grained floating-label approach, labels are associated with tasks.
 %
-Second, although completely separate tasks are semantically easy to
-reason about, real-world implementations often blur the lines between
-tasks in the name of efficiency (Section~\ref{sec:concrete}).
-Characterizing what optimizations are permissible is subtle, since
-removing transitions from the operational semantics of a language can
-break non-interference.
+The task label---we refer to the label of the currently executing task as the
+\emph{current label}---serves to protect everything in the task's scope;
+all data in a task shares this common label.
 
-To give a simple example, here is a low security task sending a high security
-task a mutable reference:
+For our first example, here is a program which spawns a new isolated task,
+and then sends it a mutable reference:
 \begin{align*}
     & |let i = TI (sandbox (brecvf x _ (IT (!(TI x)))))|\\
     & |in TI (send (IT i) l (IT (ref true)))|
 \end{align*}
 For now, ignore the tags |TI| and |IT|: roughly, this code creates a new
-|sandbox|ed task with identifier $i$ which waits (\textbf{blockingRecv}) for a
+|sandbox|ed task with identifier $i$ which waits (\textbf{blockingRecv}, binding $x$ with the received message) for a
 message, and then \textbf{send}s the task a mutable reference |(ref
-true)| which is labeled $l$.  If this operation actually shared the mutable cell, this cell
-could be used to violate information flow control, by leaking
-information from the high security task to the low security task.
+true)| which it labels $l$.  If this operation actually shared the mutable cell between the two tasks, it
+could be used to violate information flow control if the tasks had differing labels.
 
-This example demonstrates both of our design principles.  When working
-with isolated tasks, each of which have their own heaps, the isolation
-is obviously true: the sandboxed task receives a dangling pointer.  From
+While simple, this example demonstrates some of our general design principles.  When these
+constructs are treated as isolated tasks, each of which have their own heaps, it
+is obviously the case that there is no sharing: in fact, the sandboxed task receives a dangling pointer.  From
 there, we can further ask: given the obviously safe formulation with
 separate heaps, can this fact be useful for showing the safety of a
-semantics which only has a single heap (we answer this question
-positively in Section~\ref{sec:single-heap})?  Finally, this na\"ive
+semantics which only has a single heap? (We answer this question
+positively in Section~\ref{sec:single-heap}.)  Finally, this na\"ive
 semantics violates expectations about how inter-task communication works
-on a shared heap, and strongly suggests one should restrict the types of
+on a shared heap and strongly suggests one should restrict the types of
 data which may be passed between tasks (for example, in JavaScript, one
 might only allow JSON objects to be passed between tasks, rather than
 general object structures).
 
-Before moving on to the formal treatment of our system, we'd like to give
-two more examples of language features which have an interesting interpretation
-when viewed in the setting of multiple tasks.
+Here are two more examples of language features which have an
+interesting interpretation when viewed in the setting of multiple tasks.
 
 \paragraph{Stack frames versus scheduling}  One feature which is
 supported by some information flow control systems is the ability to
@@ -72,8 +56,8 @@ temporarily raise the current label in order to do computation on data
 (as done by LIO's |toLabeled| and Breeze's
 brackets~\cite{Hritcu:2013:YIB:2497621.2498098,
 stefan:2012:arxiv-flexible}).  After the computation, the label is lowered back to the original label,
-enforcing a stack discipline.  This is the trickiest part of the feature: care must be taken to ensure that information doesn't leak when
-the label is lowered. In fact, systems with this feature generally only
+enforcing a stack discipline.  When this occurs, care must be taken to ensure that information doesn't leak when
+the label is lowered (e.g., the result must not be readable). In fact, systems with this feature generally only
 achieve termination-insensitive non-interference: if the high secrecy
 section doesn't terminate, this is observable by the non-execution of
 the defunct public continuation.
@@ -237,15 +221,9 @@ the labels to form a lattice~\cite{Denning:1976:LMS:360051.360056} with
 the partial order $\sqsubseteq$, join |lub|, and meet |glb|.  In this
 paper, we simply represent labels with the metavariable $l$, but do not
 discuss them in more detail.
-
-In our coarse-grained floating-label approach, labels are associated with tasks.
 %
-The task label---we refer to the label of the currently executing task as the
-\emph{current label}---serves to protect everything in the task's scope;
-all data in a task shares this common label.
-%
-Hence before performing a read or a write, the IFC monitor inspects the
-current label to decide whether the operation is permitted.
+To enforce labels, the IFC monitor inspects the
+current label  before performing a read or a write to decide whether the operation is permitted.
 %
 A task can only write to entities that are at least as sensitive.
 %
@@ -309,7 +287,7 @@ Messages can only be received by a task if its current label is
 at least as high as the label of the message.
 Specifically, receiving a message using
 \[ |recvf ix1 ix2 ie1 ie2| \]
-binds the message and the senders task identifier
+binds the message and the sender's task identifier
 to local variables |ix1| and |ix2|, respectively, and then executes |ie1|.
 Otherwise the message gets removed from the queue by rule \textsc{I-noRecv},
 and that tasks continues its execution with |ie2|.
