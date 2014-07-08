@@ -84,12 +84,14 @@ operational semantics and prove non-interference guarantees
 that are independent of the choice of specific target language.
 
 There are a number of points that distinguish this setting from
-previous coarse-grained IFC systems:
+previous coarse-grained IFC systems.
 %
 First, even though the underlying semantic model involves communicating
 tasks, these tasks can be coordinated together in ways that simulate
-traditional features in monolithic languages.  In fact, simulating
-features in this way is a very useful \emph{design tool} for discovering
+features of traditional languages.
+%
+In fact, simulating
+features in this way is a useful \emph{design tool} for discovering
 what variants of the features are permissible and which are not.
 %
 Second, although completely separate tasks are semantically easy to
@@ -99,7 +101,7 @@ Characterizing what optimizations are permissible is subtle, since
 removing transitions from the operational semantics of a language can
 break non-interference.  We partially address this issue
 by characterizing isomorphisms between the operational semantics of our
-defined language and a concrete implementation, showing that if this
+abstract language and a concrete implementation, showing that if this
 relationship holds, then non-interference in the abstract specification
 carries over to the concrete implementation.
 
