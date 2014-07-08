@@ -2,12 +2,13 @@
 \label{sec:retrofit}
 
 Information flow control systems operate by associating data with \emph{labels},
-which specify whether or not data tagged with one label |l1| can flow to another
+and specifying whether or not data tagged with one label |l1| can flow
+to another
 label |l2| (written as |canFlowTo2 l1 l2|).  These labels encode the desired
 security policy (for example, confidential information should not flow to
 a public channel), and the work of specifying the semantics of an information
 flow language involves demonstrating that impermissible flows cannot happen,
-a property called \emph{noninterference}.
+a property called \emph{non-interference}.
 
 Supporting fine-grained labeling of data in a programming language often
 requires extremely intrusive modifications to its semantics and
@@ -26,7 +27,8 @@ are semantically easy to reason about, real-world implementations often blur the
 lines between tasks in the name of efficiency.  Characterizing what optimizations
 are permissible is a problem we address in Section~\ref{sec:concrete}, and
 it is quite subtle, since removing transitions from the operational semantics
-of a language can break noninterference.  Second, even though the underlying
+of a language can in general break non-interference.
+Second, even though the underlying
 semantic model involves communicating tasks, these tasks can be coordinated
 together in ways that simulate traditional features in monolithic languages.
 In fact, it is a very useful design tool for discovering what variants of the
@@ -38,24 +40,26 @@ task a mutable reference:
     & |let i = TI (sandbox (brecvf x _ (IT (!(TI x)))))|\\
     & |in TI (send (IT i) getLabel (IT (ref true)))|
 \end{align*}
-
-For now, ignore |TI| and |IT|: roughly, this code creates a new
-|sandbox|ed thread $i$ which waits (\textbf{blockingRecv}) for a
-message, and then \textbf{send}s the thread a mutable reference to (|ref
-true|).  If this operation actually shared the mutable cell, this cell
-could be used to violate information flow control.  When working with
+For now, ignore the tags |TI| and |IT|: roughly, this code creates a new
+|sandbox|ed task with identifier $i$ which waits (\textbf{blockingRecv}) for a
+message, and then \textbf{send}s the task a mutable reference to |(ref
+true)|.  If this operation actually shared the mutable cell, this cell
+could be used to violate information flow control, by leaking
+information from the high security task to the low security task.
+When working with
 isolated tasks which each have their own heaps, the isolation is obviously true:
 the sandboxed task receives a dangling pointer.
 
 While this is a very simple example, we can still ask: given the
 obviously safe formulation with separate heaps, can this fact be useful
 for showing the safety of a semantics which only has a single heap
-(Yes: see Section~\ref{sec:single-heap})?  Furthermore, the ``raw''
-semantics violates expectations about how inter-thread communication
+(we answer this question positively in Section~\ref{sec:single-heap})?
+Furthermore, the na\"ive
+semantics violates expectations about how inter-task communication
 works on a shared heap: it strongly suggests, for example, that which
 types of data may be passed between tasks should be restricted (for
 example, in JavaScript, one might only allow JSON objects to be passed
-between tasks).
+between tasks, rather than general object structures).
 
 Before moving on to the formal treatment of our system, we'd like to give
 two more examples of language features which have an interesting interpretation
@@ -93,9 +97,10 @@ However, this is not enough: in a stack discipline, one generally
 expects stack entries to be processed in order, rather than in parallel
 as would be suggested by isolated tasks.  The sequential processing of
 the task queue corresponds to a specific \emph{scheduling policy} of
-these threads.  The recasting of the problem to one of scheduling
+these tasks.  The recasting of the problem to one of scheduling
 highlights the essential difference between termination-insensitive and
-termination-sensitive non-interference.
+termination-sensitive non-interference, and we will show how different
+scheduling policies give different security guarantees.
 
 \paragraph{Exceptions versus message passing}
 Another language feature that has caused difficulty for
