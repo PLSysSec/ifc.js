@@ -151,14 +151,23 @@ client, etc.
 Unfortunately, our formalism does not capture such external effects
 and exposing the Node.js libraries directly to sandboxed tasks is unsafe.
 %
-Hence, we instead implement libraries such as the file system as
+We, instead, implement libraries such as a labeled file system as
 message exchanges between the sandboxed tasks (e.g., \textsf{task-1}
-in Figure~\ref{fig:node}) and main Node.js task taht 
+in Figure~\ref{fig:node}) and the main Node.js task that implements
+our IFC monitor.\footnote{
+  Importantly, our libraries provide mostly-identical interfaces to
+  the standard Node.js libraries, hiding the underlying
+  message-passing implementations.
+}
 %
-This is in part because how external effects 
+This task is trusted to ensures that, for instance, labels are
+propagated to files and that tasks are tainted when reading sensitive
+files, as to preserve non-interference.
 %
-Hence, our implementation of l
-%This is, in part, because the handling of such effect
+\Red{go into how this is app specific and it's not a huge limitation
+  that our system does not capture this; e.g., even for fs semantics
+  can vary: are labels serialized or not. later let's us change policy
+more easily, the other is better for persistence}
 
 
 \subsubsection{Client-side embedding: Gecko}
