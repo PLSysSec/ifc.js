@@ -1,15 +1,13 @@
 \begin{abstract}
-    Many important security problems in JavaScript, such as browser extension
-    security, untrusted JavaScript libraries and
-    safe integration of mutually distrustful websites (mash-ups), may be effectively addressed using an efficient implementation
-    of information flow control.
-We formally specify a coarse-grained dynamic IFC system that
-can be implemented non-intrusively, resulting in
-much greater implementation efficiency than previous finer-grained approaches.
-The central idea is that an IFC system should model
-a set of communicating isolated language runtimes.
-The result is a general method for adding IFC to existing
-languages that is largely indifferent to the choice of language.
+Many important security problems in JavaScript, such as browser extension
+security, untrusted JavaScript libraries and
+safe integration of mutually distrustful websites (mash-ups), may be effectively addressed using an efficient implementation
+of information flow control.
+We formally define a system in which a coarse-grained dynamic IFC system
+can be designed once and then applied to any programming language
+for which external effects can be controlled.  We use
+this formalism to implement two IFC systems for JavaScript, and show how
+it applies to other languages such as C.
 We describe how this methodology offers design principles for
 the construction of information flow control systems in more
 traiditional settings, as well as compositional proofs for optimized
