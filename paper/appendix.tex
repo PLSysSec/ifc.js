@@ -17,6 +17,53 @@ Note that the soundness proof in Appendix~\ref{sec:appendix}
 is done for the fully extended language with labeled values and
 labeled references.
 
+We also give details for the clearance extension below.
+
+\subsection{Clearance}
+
+As we have outlined in Section~\ref{sec:clearance}, we first extend
+tasks with an additional label |ilc|, which corresponds to the
+clearance of that task, and provide two primitives to read and
+write that value:
+\[ |fullconfc id il ilc tS ie| \]
+
+\begin{figure}
+  %{
+  %format .->  = "\overset{\alpha}{\hookrightarrow}"
+  %format .-/>  = "\not\overset{\alpha}{\hookrightarrow}"
+  \begin{code}
+    ie  ::= cdots | getClearance | setClearance ie
+    iE  ::= cdots | setClearance iE
+  \end{code}
+  \begin{mathpar}
+      \inferrule[I-getClearance]
+      { }
+      {|
+        niconf iS id il ilc getClearance
+        ->
+        niconf iS id il ilc ilc
+        |}
+      
+      \and
+      \inferrule[I-setClearance]
+      { }
+      {|
+        niconf iS id il ilc (setClearance ilc')
+        ->
+        niconf iS id il ilc' unit
+        |}
+  \end{mathpar}
+  \caption{Syntax and semantics for clearance.  These rules are
+    understood to be an addition to the existing rules given earlier,
+    except for the \textsc{I-sandbox} rule, which replaces the previous
+    one.
+    All existing rules do not modify the clearance.}
+  \label{fig:clearance}
+  %}
+\end{figure}
+
+
+
 \begin{figure}
   %{
   %format .->  = "\overset{\alpha}{\hookrightarrow}"

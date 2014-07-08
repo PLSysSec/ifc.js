@@ -323,6 +323,9 @@
 %format il2''
 %format il3''
 
+%format ilc = il"_\ifc{"c"}"
+%format ilc'
+
 %format id = "\ifc{"i"}"
 %format id'
 %format id''
@@ -730,10 +733,12 @@
 %format conf (s) (e) = CE"_{"s"}\left["e"\right]"
 %format (tconf (i) (l) (e)) = CE"^{"i"}_{"l"}["e"]"
 %format (fullconf (i) (l) (s) (e)) = "\langle "s", "e"\rangle^{"i"}_{"l"}"
+%format (fullconfc (i) (l) (c) (s) (e)) = "\langle "s", "e"\rangle^{"i"}_{"l","c"}"
 %format (oneheapfullconf (i) (l) (e)) = "\langle "e"\rangle^{"i"}_{"l"}"
 %format iconf (t) (s) = t ; s
 %format oneheapiconf (t) (s) (u) = t ; s ; u
 %format niconf (t) (i) (l) (e) = CE"_{"t"}^{"i,l"}\left["e"\right]"
+%format niconfc (t) (i) (l) (c) (e) = CE"_{"t"}^{"i,l,c"}\left["e"\right]"
 %format curlyBlueE = "\mathcal{E}_{\ifc{\Sigma}}^{"id,il"}"
 %format curlyRedE = "\mathcal{E}_{\tar{\Sigma}}"
 
