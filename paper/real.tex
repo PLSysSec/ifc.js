@@ -149,7 +149,7 @@ We, instead, implement libraries such as a labeled file system as
 message exchanges between the sandboxed tasks (e.g., \textsf{task-1}
 in Figure~\ref{fig:node}) and the main Node.js task that implements
 our IFC monitor.\footnote{
-  Importantly, our libraries provide mostly-identical interfaces to
+  Importantly, we provide mostly-identical interfaces to
   the standard Node.js libraries, hiding the underlying
   message-passing implementations.
 }
@@ -196,7 +196,7 @@ Hence, the global object |tS0| also contains the DOM, the
 To ensure that JavaScript code cannot communicate using these objects
 (e.g., to the network with XHR or persistent storage using the DOM),
 COWL additionally uses content security policy (CSP)~\cite{csp1.1}.\footnote{
-  Since CSP does not yet address message passing or navigation, this
+  Since CSP does not yet restrict message-passing or navigation, this
   was addressed explicitly.
 }
 %
