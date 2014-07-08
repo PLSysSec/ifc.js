@@ -1,18 +1,16 @@
-\section{Extensions and Limitations}
+\section{Extensions}
 \label{sec:extensions}
-
-In this section we consider several extensions to our IFC system.
-%
-Specifically, we discuss how the specification language can be
-extended to consider other IFC-aware features (e.g., fine-grained
-labeled values), a static type system, or more complex scheduling
-policies.
-%
-When considering these extensions we also discuss some limitations
-of our approach.
-
-\subsection{IFC Language Features}
 \label{sec:extensions:labeled}
+
+%In this section we consider several extensions to our IFC system.
+%%
+%Specifically, we discuss how the specification language can be
+%extended to consider other IFC-aware features (e.g., fine-grained
+%labeled values), and talk about a static type system, as well as
+%more complex scheduling policies.
+%%
+%When considering these extensions we also discuss some limitations
+%of our approach.
 
 While the IFC language presented thus far provides the basic
 information flow primitives, actual IFC implementations
@@ -28,14 +26,14 @@ applications~\cite{hails}.
 %%
 %Below we
 %consider the addition of several labeled constructs to the abstract specification.
-Below we show how to extend the language with several such constructs,
-and highlight some other possible extensions as well.
+In this section we show how to extend the language with several such
+constructs.
 %
 %We remark that that the non-interference proofs must account for the
 %new constructs, since they amend the IFC calculus semantics (usually
 %by addition).
 
-\paragraph{Labeled values}
+\subsection{Labeled values}
 %{
 %format Lb = "\textbf{Labeled}"
 %format label = "\textbf{label}"
@@ -79,7 +77,7 @@ Full details with formal reduction rules are provided
 in \appendixext{}, but omitted here for space reasons.
 %}
 
-\paragraph{Labeled mutable references/variables/channels}
+\subsection{Labeled mutable references/variables/channels}
 %
 Extending the calculus with other labeled features, such as
 references, mutable variables (MVars)~\cite{CH96}, or channels,
@@ -106,30 +104,7 @@ reference implementations.
 Again, we omit details here and refer the interested reader
 to \appendixext{}, where this extension has been fully worked out.
 
-\paragraph{Privileges}
-Decentralized IFC extends IFC with the decentralized label model of
-Myers and Liskov~\cite{myers:dlm} to allow for more general
-applications, including systems consisting of mutually distrustful
-parties.  In a decentralized system, a computation is executed with a
-set of \emph{privileges}, which, when exercised, allow the computation
-to declassify data (e.g., by lowering the current label).
-%
-Practical IFC systems
-(e.g.,~\cite{Zeldovich:2006, lio,
-Hritcu:2013:YIB:2497621.2498098, myers:jif}) rely on privileges to
-implement many applications.
-%
-%Since both the LIO and SWAPI implementations already support such features,
-%we believe that extending our calculus to consider privileges is
-%straight forward.
-%
-The challenge with such an extension lies in the precise
-security guarantees that must be proved, which to the best of our
-knowledge is an open research problem.
-%
-%Addressing this problem is a natural direction for this work.
-
-\paragraph{Clearance}
+\subsection{Clearance}
 %
 Systems like LIO, SWAPI, and Breeze additionally provide a discretionary access
 control (DAC) mechanism---called \emph{clearance}---at the language
@@ -172,6 +147,38 @@ brevity.
 
 TODO: provide them in the appendix, and refer to them here.
 
+
+\subsection{Privileges}
+Decentralized IFC extends IFC with the decentralized label model of
+Myers and Liskov~\cite{myers:dlm} to allow for more general
+applications, including systems consisting of mutually distrustful
+parties.  In a decentralized system, a computation is executed with a
+set of \emph{privileges}, which, when exercised, allow the computation
+to declassify data (e.g., by lowering the current label).
+%
+Practical IFC systems
+(e.g.,~\cite{Zeldovich:2006, lio,
+  Hritcu:2013:YIB:2497621.2498098, myers:jif}) rely on privileges to
+implement many applications.
+%
+%Since both the LIO and SWAPI implementations already support such features,
+%we believe that extending our calculus to consider privileges is
+%straight forward.
+%
+The challenge with such an extension lies in the precise
+security guarantees that must be proved, which to the best of our
+knowledge is an open research problem.
+
+Our implementation for Node.js and SWAPI both provide privileges, but
+we have not formalized this part any further.
+%
+%Addressing this problem is a natural direction for this work.
+
+
+\section{Limitations and Future Directions}
+
+In this section we state some limitations of the current system, and
+outline potential future directions to alleviate these limitations.
 
 \subsection{Type Safety}
 \label{sec:extensions:types}
