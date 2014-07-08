@@ -52,12 +52,20 @@
 
 \usepackage{url}
 
+\newcommand{\appendixextfirst}{
+  \ifextended
+  Appendix~\ref{sec:appendix-extensions}
+  \else
+  the appendix of the extended version of this paper
+  \footnote{\url{http://informationflowcontrol.net/ifc_extended.pdf}.}
+  \fi
+}
 \newcommand{\appendixext}{
-\ifextended
-Appendix~\ref{sec:appendix-extensions}
-\else
-the appendix of the extended version of this paper
-\fi
+  \ifextended
+  Appendix~\ref{sec:appendix-extensions}
+  \else
+  the appendix of the extended version of this paper
+  \fi
 }
 
 
