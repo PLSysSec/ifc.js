@@ -27,11 +27,8 @@ we would like a single global heap as in
 \[|oneheapiconf iS tS (oneheapfullconf id1 il1 ie1, oneheapfullconf id2 il2 ie2, ldots)|\]
 
 If the operational rules are adapted na\"ively to this new setting,
-then non-interference can be violated.  In particular, it is not
-sound to share references to a heap cell between different tasks.
-Otherwise, information can be trivially leaked by copying
-secret data to a shared reference in one task, and then
-reading it again by a another task with a lower label.
+then non-interference can be violated: as we mentioned earlier,
+shared mutable cells could result in violation of noninterference.
 What we would like is a way of characterizing safe modifications to
 the semantics which preserve non-interference.
 The intention of our single heap implementation is to permit
@@ -220,7 +217,7 @@ appropriate scheduling policy is non-interfering.
 \subsection{IFC Language with a Single Heap}\label{sec:single-heap}
 
 As a concrete instantiation of this proof technique, we show
-how to make our single heap IFC language precise and
+how to make implement our IFC language using a single heap and
 ensure its non-interference using the techniques presented.
 First, we can construct the restricted language
 |restrictedLangNoRef alpha targetLangML|, where |noRefs| is
