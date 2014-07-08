@@ -229,63 +229,29 @@ differing environments.
 
 \subsection{Haskell}
 \label{sec:real:hs}
-In contrast with the C embedding which relies on hardware protection
-mechanisms, a Haskell implementation can leverage Haskell's strong data
-abstraction and static type system, monadic approach to effects, and
-lightweight concurrency to implement the embedding in a more lightweight
-manner.  We briefly describe one such system, LIO~\cite{lio}, which
-implements IFC as a library.
+Our work borrows many ideas from the Haskell coarse-grained IFC
+system LIO~\cite{lio, stefan:addressing-covert}.
+%
+LIO relies on Haskell's strong type system and monadic encoding of
+side-effecting computations to achieve isolation and define the IFC
+sub-language.
+%
+Specifically LIO provides the \verb|LIO| monad as a way of restricting
+(almost all) side-effects; this monad also keeps track of a current
+label which is, in turn, used by functions such as |getLabel| to
+define the IFC core.
+%
+In the context of our framework, LIO can be understood as follows: the
+\emph{pure subset} of Haskell is the target language, while the
+monadic subset of Haskell in the \verb|LIO| monad is the IFC language.
 
-LIO is implemented by defining a new monad, \verb|LIO|, which wraps Haskell's \verb|IO|
-monad.
+Indeed, by rephrasing LIO in terms of our framework, we simplified
+LIO's treatment of exceptions, which have since been integrated in the
+code-base.
 %
-The purpose of this monad is twofold: it restricts the use of
-arbitrary effects that would ordinarily be allowed by the \verb|IO| monad,
-and it associates labels with tasks.
-%
-Computations in the \verb|LIO|
-monad can be thought to be operating within the IFC system.
-%
-One important aspect of using \verb|IO| as the base for this
-implementation is that it allows use of Haskell's efficient
-implementation of threads, channels, etc. (e.g., in the concurrent
-version of LIO, we use Haskell's \texttt{forkIO} to fork a lightweight
-thread in the case of |fork|~\cite{stefan:addressing-covert}), in
-contrast to defining them in a completely pure fashion (as suggested
-in Section~\ref{sec:monad}).
+we addressed a limitation in LIO.
 
-What is the interpretation of this system as per Section~\ref{sec:retrofit}?
-%
-Here, the \emph{pure subset} of Haskell is the target language, while
-the monadic subset of Haskell in the \verb|LIO| monad is the IFC
-language.
-%
-Crucially, the lack of unrestricted mutation in the pure fragment of
-Haskell prevents direct communication between tasks, even when memory is
-shared between them.\footnote{However, lazy evaluation can still produce
-a covert channel.}
 
-Since this IFC system is implemented as a library in Haskell,
-implementation-wise, we must ensure that these languages are indeed the subsets of Haskell
-we claim, i.e., while the concrete language is all of Haskell, we must
-ensure that we can restrict programs to our subset of Haskell that
-encodes the combined language.
-%
-To this end, \verb|LIO| relies on Haskell's strong data abstraction and type system
-(as enforced by Safe Haskell~\cite{Terei:2012:SH:2364506.2364524}) to
-ensure that arbitrary \verb|IO| actions cannot be lifted into
-\verb|LIO|.
-%
-In other words, assuming \verb|LIO| is implemented correctly, programs
-written in the \verb|LIO| monad cannot perform arbitrary \verb|IO| actions
-without breaking abstraction.
-
-We refer the interested reader to~\cite{lio,stefan:addressing-covert} for
-additional details on the various implementations of this system.\footnote{It's worth noting that the proofs of non-interference we have given for asynchronous communication primitives are new and not in the original presentation of LIO.}
-
-\Red{TODO: note that if the target language allows inspecting if
-  result is exception we can implement Breeze's NAV (vs. just
-propagating)}
 
 \subsection{C}
 \label{sec:real:c}
