@@ -308,15 +308,17 @@ Previous approaches have modeled external effects by internalizing the
 effects as writes/reads to labeled channels/references~\cite{stefan:addressing-covert}.
 %
 An alternative approach is to model such effects as messages to/from
-certain labeled tasks.
+certain labeled tasks, an approach taken by our Node.js
+implementation.
 %
 These ``special'' tasks are trusted with access to the unlabeled
 primitives that can be used to perform the external effects; since the
 interface to these tasks is already part of the IFC language, the
 proof only requires showing that this task does not leak information.
 %
-This latter approach of wrapping unsafe primitives is, for example,
-used in COWL to allow for controlled network communication.
+An alternative approach of wrapping or modifying/restricting unsafe
+primitives is, for example, used in COWL and JSFlow to allow for
+controlled network communication.
 %
-By wrapping the default XHR object, for example, we can allow code
+By restricting the default XHR object, for example, COWL allows code
 to communicate with hosts according to the task's current label.
