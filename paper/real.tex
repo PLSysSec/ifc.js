@@ -143,6 +143,10 @@ a more flexible standard library, which, among other things,
 automatically marshalls JSON objects to/from strings on each
 |send|/|recv|.
 
+While the described system implements |specLangJS seqf|, Node.js
+applications may require access to the file system, HTTP server, HTTP
+client, etc.
+
 
 \subsubsection{Client-side embedding: Gecko}
 \Red{HERE}
@@ -295,6 +299,9 @@ without breaking abstraction.
 We refer the interested reader to~\cite{lio,stefan:addressing-covert} for
 additional details on the various implementations of this system.\footnote{It's worth noting that the proofs of non-interference we have given for asynchronous communication primitives are new and not in the original presentation of LIO.}
 
+\Red{TODO: note that if the target language allows inspecting if
+  result is exception we can implement Breeze's NAV (vs. just
+propagating)}
 
 \subsection{C}
 \label{sec:real:c}
