@@ -74,7 +74,10 @@ as the following two theorems state.
   resulting configuration, $l$-equivalence and multi-step derivation back.
 \end{proof}
 
-\Red{TODO: intuition for why weakly is enough for TINI}
+Only weak isomorphism is necessary for TINI. Intuitively, this is because
+is not necessary to back-translate reduction sequences in $L'$ to
+$L$; by the definition of TINI, we have both reduction sequences in $L$
+by assumption.
 
 \begin{theorem}[Weak isomorphism preserves termination insensitive non-interference]
   \label{thm:iso-tini}
@@ -116,8 +119,8 @@ task was sandboxed;  if it did, then the address should be rewritten to the
 new one, otherwise to a fresh address.
 \end{itemize}
 
-This complicated behavior is counter to our initial motivation
-of implementing a single heap for efficiency.
+Isomorphism demands we implement this convoluted behavior,
+despite our initial motivation of a more efficient implementation.
 
 
 
@@ -216,7 +219,8 @@ appropriate scheduling policy is non-interfering.
 
 \subsection{IFC Language with a Single Heap}\label{sec:single-heap}
 
-We are now ready to make our single heap IFC language precise and
+As a concrete instantiation of this proof technique, we show
+how to make our single heap IFC language precise and
 ensure its non-interference using the techniques presented.
 First, we can construct the restricted language
 |restrictedLangNoRef alpha targetLangML|, where |noRefs| is
