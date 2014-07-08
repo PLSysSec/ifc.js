@@ -76,7 +76,7 @@ these systems to remove arbitrary external effects when implementing
 an IFC system so important effects can be reintroduced in a safe manner.
 
 
-\subsubsection{Server-side embedding: Node.js}
+\subsubsection{Server-side IFC: Node.js}
 
 We have implemented |specLangJS seqf| for Node.js in the form of a module
 (library), which does not modify the Node.js or V8 code-base in any
@@ -175,22 +175,27 @@ in the IFC system Hails~\cite{hails}, labels are not persisted).
 %the file system, HTTP client, etc. the utility of this formalization is
 %unclear and left to future work.
 %
+We do not extend our formalism to account for the  particular
+interface to the file system, HTTP client, etc., as this is
+specific to the Node.js implementation and does not generalize
+to other systems.
 
 
-\subsubsection{Client-side embedding: Gecko}
+\subsubsection{Client-side IFC: Gecko}
 
 We now describe some of the implementation aspects of
-COWL~\cite{swapi}, for which this work serves as the theoretical
-underpinning.
+COWL, a JavaScript implementation of coarse-grained
+IFC for Mozilla's Gecko.  This work provides the formal basis for
+the implementation, and COWL is described in much more detail in~\cite{swapi}.
 %
 Since the architecture of COWL is similar to that of Node.js, we focus
 on the main differences.
- 
-Tasks in COWL usually correspond to browsing contexts, such as iframes,
-where the global object |tS0| also contains the DOM, the
-\verb|XMLHttpRequest| (XHR) object, etc.
+
+%Tasks in COWL  correspond to browsing contexts, such as iframes,
+%where the global object |tS0| also contains the DOM, the
+%\verb|XMLHttpRequest| (XHR) object, etc.
 %
-Existing browser APIs also offer \emph{web workers}, which can
+Existing browser APIs offer \emph{web workers}, which can
 be spawned by JavaScript code and have
 the same isolation properties as tasks in our system.
 %
@@ -198,11 +203,11 @@ The isolation of web workers was motivated by the lack of multithreading
 in JavaScript; however, their isolation properties are equally useful for information
 flow control.
 
-To ensure that JavaScript code cannot communicate using these objects
+To ensure that JavaScript code cannot communicate using the global object
 (e.g., to the network with XHR or persistent storage using the DOM),
 COWL additionally uses content security policy (CSP)~\cite{csp1.1}.\footnote{
   Since CSP does not yet restrict message-passing or navigation, this
-  was addressed explicitly.
+  was addressed explicitly in the implementation.
 }
 %
 Note, that this does not prevent tasks from manipulating the DOM
@@ -210,7 +215,8 @@ Note, that this does not prevent tasks from manipulating the DOM
 are also suppressed.
 %
 Simply disallowing all external effects for all browsing contexts is
-overly-restricting; pages typically load images, perform XHR requests,
+overly-restricting; pages typically load images, perform XHR requests
+to dynamically load data,
 etc.
 %
 Hence, COWL allows
@@ -219,17 +225,17 @@ dictated by our |send| rule) by associating an implicit label with a
 remote host: namely the label corresponding to its origin.
 %
 In turn, when a task perform a request, the COWL runtime performs the
-same label check as that of |send|, e.g., does the task label flow to
+same label check as that of |send|, namely that the task label can
+flow to
 the remote origin label.
 
 Once again, while the external effects of COWL can be formally modeled,
 we do not model these effects in our more general framework, since, like
-for Node.js case, they are a platform-specific
-detail.
+for Node.js case, they are application specific.
 %
-Indeed, even the labeled HTTP client in  Node.js and COWL differ, even
-though they're both JavaScript systems, simply because of the
-differing environments.
+%Indeed, even the labeled HTTP client in  Node.js and COWL differ, even
+%though they're both JavaScript systems, simply because of the
+%differing environments.
 
 
 
