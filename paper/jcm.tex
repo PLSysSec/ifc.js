@@ -445,7 +445,7 @@ Our overall plan will be to take a \textbf{{\color{red} target
 language}} with a formal operational semantics and combine it with an
 \textit{{\color{blue} information flow control language}}.  For example,
 taking ECMAScript as the target language and combining it with our IFC
-language should produce the formal semantics for SWAPI.  In this
+language should produce the formal semantics for COWL.  In this
 presentation, we use a simple, untyped lambda calculus with mutable
 references and fixpoint in place of ECMAScript, to demonstrate some of the key
 properties without having too much detail; we discuss the proper
@@ -1569,7 +1569,7 @@ semantic gap that must be overcome in some cases to apply our formalism
 to other systems.
 %
 Two of the systems we describe have been implemented: the Haskell
-system~\cite{lio} and the SWAPI~\cite{swapi} system; we leave the
+system~\cite{lio} and the COWL~\cite{swapi} system; we leave the
 implementation of the IFC system for C to future work.
 
 \subsection{C}
@@ -1687,13 +1687,13 @@ Consequently, and in contrast to our C and Haskell embeddings---for
 which we must eliminate external effects---the embedding for JS is
 trivial.
 
-We describe SWAPI~\cite{swapi}, an implementation of this system for JavaScript
+We describe COWL~\cite{swapi}, an implementation of this system for JavaScript
 (which we here denote by \ensuremath{\Red{\lambda_{\text{JS}}}}).
 %
 The direct approach for implementing the embedded language \ensuremath{L_\text{IFC}(\textsc{RR},\Red{\lambda_{\text{JS}}})} is
 by running multiple instances of the JS runtime, i.e., in
 separate OS-level threads.\footnote{
- The Firefox implementation of SWAPI also considers the case where
+ The Firefox implementation of COWL also considers the case where
  tasks share the JavaScript runtime (and are cooperatively scheduled
  on the event-loop), but the heap and execution context of each task
  is disjoint. This is similar to the single-heap language of
@@ -1702,7 +1702,7 @@ separate OS-level threads.\footnote{
  The interested reader is referred to~\cite{swapi} for more details.
 }
 %
-In SWAPI, the IFC language functionality is implemented in the JS
+In COWL, the IFC language functionality is implemented in the JS
 runtime much like browser layout engines implement the DOM, and expose
 the new functions, e.g., \text{\tt getElementById}, by attaching them to
 the global JS object.
@@ -1741,7 +1741,7 @@ We remark that this is similar to the existing
 \texttt{postMessage} API used for iframe and worker
 communications~\cite{webworkers}.
 %
-Thus, the SWAPI implementation provides an IFC version of
+Thus, the COWL implementation provides an IFC version of
 \texttt{postMessage}, defined in terms of \ensuremath{\mathbf{send}}, that additionally
 takes a label argument.
 
@@ -1764,7 +1764,7 @@ API for communication, similar to our system.\footnote{
   threads is undefined.
 }
 %
-As suggested by our formal semantics, SWAPI can directly leverage these
+As suggested by our formal semantics, COWL can directly leverage these
 mechanisms to implement the semantics of \ensuremath{L_\text{IFC}(\textsc{RR},\Red{\lambda_{\text{JS}}})}
 without modifying the JS runtime or intrusively changing the browser
 layout engine.
@@ -1782,19 +1782,19 @@ browsing context additionally contains the DOM.
 In both cases, JS code can trivially leak information (e.g., to the
 network with XHR or persistent storage using the DOM).
 %
-To address this, SWAPI additionally uses content security policy (CSP) and
+To address this, COWL additionally uses content security policy (CSP) and
 (iframe) sandboxes~\cite{csp1.1,html5} to restrict external effects according
 to the label of a task (worker or browsing context).  Accomodating these
 features lies outside the purview of our formalism.
 
 %% \Red{
-%% EZY:  This seems like useless detail about the SWAPI implementation
+%% EZY:  This seems like useless detail about the COWL implementation
 %% that is not relevant to this paper.
 %% 
 %% Of course, simply disallowing all external effects for all browsing
 %% contexts would break most of the Web.
 %% %
-%% Hence SWAPI only enforces IFC, and thus restricts external effects,
+%% Hence COWL only enforces IFC, and thus restricts external effects,
 %% when the JS code uses the new API.\footnote{
 %%   Once a piece of code ``opts-in'' to use our IFC API, in addition to
 %%   restricting external effects we interpose ``standard''
@@ -1802,7 +1802,7 @@ features lies outside the purview of our formalism.
 %%   leaked between contexts that have opted-in and those that have not.
 %% }
 %% %
-%% Moreover, rather than disallowing all external effects, SWAPI allows
+%% Moreover, rather than disallowing all external effects, COWL allows
 %% controlled network communication by leveraging the fact that web
 %% pages already have an accompanying security policy: the same origin
 %% policy.
@@ -1835,7 +1835,7 @@ Different concrete IFC implementations may wish to extend our minimal
 system with labeled constructs appropriate for their envisioned
 applications.
 %
-For example, SWAPI provides a labeled version of the XHR object, while
+For example, COWL provides a labeled version of the XHR object, while
 LIO implements a labeled file system, use in server-side web
 applications~\cite{hails}.
 %
@@ -1926,7 +1926,7 @@ Practical IFC systems
 Hritcu:2013:YIB:2497621.2498098, myers:jif}) rely on privileges to
 implement many applications.
 %
-Since both the LIO and SWAPI implementations already support such features,
+Since both the LIO and COWL implementations already support such features,
 we believe that extending our calculus to consider privileges is
 straight forward.
 %
@@ -1937,7 +1937,7 @@ security guarantees that must be proved.
 
 \paragraph{Clearance}
 %
-LIO, SWAPI, and Breeze additionally provide a discretionary access
+LIO, COWL, and Breeze additionally provide a discretionary access
 control mechanism---called \emph{clearance}---at the language
 level~\cite{Hritcu:2013:YIB:2497621.2498098, lio}; this mechanisms is
 used to restrict a computation from accessing data (or communicating
@@ -2080,7 +2080,7 @@ interface to these tasks is already part of the IFC language, the
 proof only requires showing that this task does not leak information.
 %
 This latter approach of wrapping unsafe primitives is, for example,
-used in SWAPI to allow for controlled network communication.
+used in COWL to allow for controlled network communication.
 %
 By wrapping the default XHR object, for example, we can allow code
 to communicate with hosts according to the task's current label.

@@ -29,7 +29,7 @@ effectively produces a one-way channel.
 In section 5.3 JavaScript, why are only strings allowed to be sent across a
 channel? Shouldn't an arbitrary JSON value be safe?
 
-Also in section 5.3, there's not much development of SWAPI, and I cannot
+Also in section 5.3, there's not much development of COWL, and I cannot
 find any further references on the main author's website nor via Google.
 This contributed to me not feeling comfortable with the JavaScript
 implementation.

@@ -20,7 +20,7 @@ constructs.
 %system with labeled constructs appropriate for their envisioned
 %applications.
 %%
-For example, SWAPI provides a labeled version of the XHR object, while
+For example, COWL provides a labeled version of the XHR object, while
 LIO implements a labeled file system, used in server-side web
 applications~\cite{hails}.
 %%
@@ -106,7 +106,7 @@ to \appendixext{}, where this extension has been fully worked out.
 
 \subsection{Clearance}
 %
-Systems like LIO, SWAPI, and Breeze additionally provide a discretionary access
+Systems like LIO, COWL, and Breeze additionally provide a discretionary access
 control (DAC) mechanism---called \emph{clearance}---at the language
 level~\cite{Hritcu:2013:YIB:2497621.2498098, lio}.
 %
@@ -161,7 +161,7 @@ Practical IFC systems
   Hritcu:2013:YIB:2497621.2498098, myers:jif}) rely on privileges to
 implement many applications.
 %
-%Since both the LIO and SWAPI implementations already support such features,
+%Since both the LIO and COWL implementations already support such features,
 %we believe that extending our calculus to consider privileges is
 %straight forward.
 %
@@ -169,7 +169,7 @@ The challenge with such an extension lies in the precise
 security guarantees that must be proved, which to the best of our
 knowledge is an open research problem.
 
-Our implementation for Node.js and SWAPI both provide privileges, but
+Our implementation for Node.js and COWL both provide privileges, but
 we have not formalized this part any further.
 %
 %Addressing this problem is a natural direction for this work.
@@ -323,7 +323,7 @@ interface to these tasks is already part of the IFC language, the
 proof only requires showing that this task does not leak information.
 %
 This latter approach of wrapping unsafe primitives is, for example,
-used in SWAPI to allow for controlled network communication.
+used in COWL to allow for controlled network communication.
 %
 By wrapping the default XHR object, for example, we can allow code
 to communicate with hosts according to the task's current label.

@@ -19,7 +19,7 @@ semantic gap that must be overcome in some cases to apply our formalism
 to other systems.
 %
 %% Two of the systems we describe have been implemented: the Haskell
-%% system~\cite{lio} and the SWAPI~\cite{swapi} system; we leave the
+%% system~\cite{lio} and the COWL~\cite{swapi} system; we leave the
 %% implementation of the IFC system for C to future work.
 
 
@@ -172,7 +172,7 @@ We remark that this is similar to the existing
 \texttt{postMessage} API used for iframe and worker
 communications~\cite{webworkers}.
 %
-Thus, the SWAPI implementation provides an IFC version of
+Thus, the COWL implementation provides an IFC version of
 \texttt{postMessage}, defined in terms of |send|, that additionally
 takes a label argument.
 
@@ -207,7 +207,7 @@ API for communication, similar to our system.\footnote{
   threads is undefined.
 }
 %
-As suggested by our formal semantics, SWAPI can directly leverage these
+As suggested by our formal semantics, COWL can directly leverage these
 mechanisms to implement the semantics of |specLangJS roundrobinf|
 without modifying the JS runtime or intrusively changing the browser
 layout engine.
@@ -225,19 +225,19 @@ browsing context additionally contains the DOM.
 In both cases, JS code can trivially leak information (e.g., to the
 network with XHR or persistent storage using the DOM).
 %
-To address this, SWAPI additionally uses content security policy (CSP) and
+To address this, COWL additionally uses content security policy (CSP) and
 (iframe) sandboxes~\cite{csp1.1,html5} to restrict external effects according
 to the label of a task (worker or browsing context).  Accommodating these
 features lies outside the purview of our formalism.
 
 %% \Red{
-%% EZY:  This seems like useless detail about the SWAPI implementation
+%% EZY:  This seems like useless detail about the COWL implementation
 %% that is not relevant to this paper.
 %% 
 %% Of course, simply disallowing all external effects for all browsing
 %% contexts would break most of the Web.
 %% %
-%% Hence SWAPI only enforces IFC, and thus restricts external effects,
+%% Hence COWL only enforces IFC, and thus restricts external effects,
 %% when the JS code uses the new API.\footnote{
 %%   Once a piece of code ``opts-in'' to use our IFC API, in addition to
 %%   restricting external effects we interpose ``standard''
@@ -245,7 +245,7 @@ features lies outside the purview of our formalism.
 %%   leaked between contexts that have opted-in and those that have not.
 %% }
 %% %
-%% Moreover, rather than disallowing all external effects, SWAPI allows
+%% Moreover, rather than disallowing all external effects, COWL allows
 %% controlled network communication by leveraging the fact that web
 %% pages already have an accompanying security policy: the same origin
 %% policy.

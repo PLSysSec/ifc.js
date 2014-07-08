@@ -13,7 +13,7 @@ internalizes external effects by wrapping the corresponding primitives
 to be IFC-aware [C]; JSFlow [25,26] manually wraps JavaScript
 primitives with external effects.  This is not to say that the systems
 we have implemented do not deal with external effects: e.g.
-XMLHttpRequest as used in SWAPI essential wraps the "native" unsafe
+XMLHttpRequest as used in COWL essential wraps the "native" unsafe
 code. However, the treatment of external effects is very much
 application specific, and finding a general solution is an open
 problem.
@@ -28,9 +28,9 @@ not have any external effects.  As opposed to existing IFC systems
 build an efficient, non-intrusive IFC system for JavaScript, or any
 other language which can be isolated.
 
-It's worth stating that we did not simply shoe-horn SWAPI and LIO into
+It's worth stating that we did not simply shoe-horn COWL and LIO into
 a "unified framework".  While our language uses ideas from LIO and
-SWAPI, we note that the current versions of these systems coevolved
+COWL, we note that the current versions of these systems coevolved
 with the concepts in the paper.  For instance, in LIO [53] (and Breeze
 [28]) exceptions were originally treated in a rather complex fashion.
 As we discuss in the paper, when you consider exceptions as part of
@@ -68,7 +68,7 @@ are generalizable to our setting in the same way.
 Specific questions
 ------------------
 
-As reviewer 3 points out, the reference about SWAPI does not include
+As reviewer 3 points out, the reference about COWL does not include
 an URL.  It is available at http://deian.net/swapi.pdf and currently
 not indexed by search engines because the paper is being anonymously
 submitted.  We apologize for the mistake.
@@ -94,7 +94,7 @@ checks for all reference reads and writes.  This would be against our
 goal of a coarse-grained system.  We will improve the unfortunate
 phrasing.
 
-Reviewer 3 asks about the values sent across channels in SWAPI.  For
+Reviewer 3 asks about the values sent across channels in COWL.  For
 simplicity, we require them to be strings in the paper, thought any
 structurally cloned object (as well as labeled blobs) are actually
 permitted.
