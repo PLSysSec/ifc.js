@@ -32,17 +32,14 @@ For now, ignore the tags |TI| and |IT|: roughly, this code creates a new
 |sandbox|ed task with identifier $i$ which waits (\textbf{blockingRecv}, binding $x$ with the received message) for a
 message, and then \textbf{send}s the task a mutable reference |(ref
 true)| which it labels $l$.  If this operation actually shared the mutable cell between the two tasks, it
-could be used to violate information flow control if the tasks had differing labels.
+could be used to violate information flow control if the tasks had differing labels.  At this point, the designer of an IFC system might add label checks to mutable references, to check the labels of the reader and writer---solving the leak, but also dooming the performance of mutable references in the system.
 
-While simple, this example demonstrates some of our general design principles.  When these
+Our design principles suggests a different resolution: when these
 constructs are treated as isolated tasks, each of which have their own heaps, it
-is obviously the case that there is no sharing: in fact, the sandboxed task receives a dangling pointer.  From
-there, we can further ask: given the obviously safe formulation with
-separate heaps, can this fact be useful for showing the safety of a
-semantics which only has a single heap? (We answer this question
-positively in Section~\ref{sec:single-heap}.)  Finally, this na\"ive
-semantics violates expectations about how inter-task communication works
-on a shared heap and strongly suggests one should restrict the types of
+is obviously the case that there is no sharing: in fact, the sandboxed task receives a dangling pointer.  Even if there is only one heap, if we enforce that references
+not be shared, the two systems are morally equivalent. (We elaborate on
+this formally in Section~\ref{sec:single-heap}.)  Finally, these
+semantics strongly suggest that one should restrict the types of
 data which may be passed between tasks (for example, in JavaScript, one
 might only allow JSON objects to be passed between tasks, rather than
 general object structures).
@@ -98,7 +95,7 @@ across stack boundaries where the current label is restored.
 If the exception crosses this boundary, it can leak information about the
 inner secret computation into a public computation; hence, one must
 explicitly ensure that |toLabeled| does not propagate exceptions.
-
+%
 When stack frames are treated as isolated tasks, the correct semantics
 are achieved automatically.
 %

@@ -107,13 +107,12 @@ all addresses point to fresh addresses
 guaranteed to not occur in the heap.  Similarly,
 sending a memory address should be rewritten.
 
-\item When we clone the heap, we have to create a copy of everything
-reachable from the sandboxed expression (not just the values for
-the memory addresses in the expression), and replace all addresses
+\item When we clone the heap, we have to copy everything
+reachable from the sandboxed expression and replace all addresses
 correspondingly.  Even worse, the behavior of sending a memory address
 now depends on whether that address existed at the time the receiving
 task was sandboxed;  if it did, then the address should be rewritten to the
-new one, otherwise to a fresh address.
+existing one.
 \end{itemize}
 
 Isomorphism demands we implement this convoluted behavior,

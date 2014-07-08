@@ -2,17 +2,18 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-We presented a formal semantics which describes how to extend arbitrary languages
-with language-based coarse-grained IFC. We prove the security guarantees
-TSNI and TINI, where the proof technique is parametrized on the
-target language, for two scheduling policies. In
-addition, we provided conditions on how to securely refine our formal semantics to
-consider optimizations required in practice. Finally, we described extensions to
-the core IFC language with more advanced concepts like labeled values, privileges,
-and a notion of clearance, and therefore connecting it with existing
-IFC implementations for JavaScript, Haskell, and (in
-less detail) proposing IFC for C. With this work, we aim to expose how ideas
-from IFC in OS can be systematically applied in programming languages.
+In this paper, we argued that when designing a coarse-grained IFC
+system, it is better to start with a fully isolated, multi-task system
+and work one's way back to the model of a single language.  We showed
+how to prove systems designed this way can be proved noninterferent,
+without needing to rely on details of the target language, and
+we provided conditions on how to securely refine our formal semantics to
+consider optimizations required in practice.  We connected our semantics
+to existing IFC implementations for JavaScript and Haskell, and proposed
+an IFC system for C using hardware isolation.
+By systematically applying ideas from IFC in operating systems to programming languages,
+we hope to have elucidated some of the core design principles of coarse-grained,
+dynamic IFC systems.
 
 
 % In this paper, we develop a general coarse-grained approach to IFC
