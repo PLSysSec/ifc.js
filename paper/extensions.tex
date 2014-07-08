@@ -81,17 +81,15 @@ in \appendixextfirst{}, but omitted here for space reasons.
 %
 Extending the calculus with other labeled features, such as
 references, mutable variables (MVars)~\cite{CH96}, or channels,
-can be done in a similar manner.
-%
-In these cases, however, we must keep track of the additional state
-(as opposed to the labeled value case which requires no additional
-bookkeeping).
+can be done in a similar manner: these references are implemented
+in the IFC language, separately from any preexisting notions of
+mutable references in the target language.
 %
 %While we can modify the IFC calculus to add such labeled state to each
 %individual task, adding it to the system state |iS| leads to more
 %interesting use cases.
 %
-Specifically, by amending |iS|, as in~\cite{lio,
+There is some minor additional state to track: specifically, by amending |iS|, as in~\cite{lio,
 stefan:addressing-covert}, we can allow threads to use these
 constructs to synchronize, or communicate with constructs other than
 |send|/|recv| in a safe manner.
