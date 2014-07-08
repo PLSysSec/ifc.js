@@ -289,22 +289,23 @@ arbitrary memory, and perform arbitrary system calls.
 Thus, the confinement of C programs must be imposed by the underlying OS
 and hardware.
 %
-For instance, this isolation can be achieved using Dune's hardware protection
-mechanisms~\cite{Belay:2012:DSU:2387880.2387913}, similar to a simpler
-version of Wedge~\cite{Belay:2012:DSU:2387880.2387913,
+For instance, our notion of isolation can be achieved using Dune's
+hardware protection mechanisms~\cite{Belay:2012:DSU:2387880.2387913},
+similar to a simpler version of
+Wedge~\cite{Belay:2012:DSU:2387880.2387913,
 Bittau:2008:WSA:1387589.1387611} with an information flow control
 policy.
 %
 Using page tables, a (trusted) IFC runtime could ensure that each task,
 implemented as a lightweight process, can only access the memory it
-allocates--tasks do not have access to any shared memory.
+allocates---tasks do not have access to any shared memory.
 %
 In addition, ring protection could be used to intercept system
 calls performed by
 a task and only permit those corresponding to our IFC language (such as
 |getLabel| or |send|).
 %
-Dunes hardware protection mechanism allows us to provide a concrete
+Dune's hardware protection mechanism would allow us to provide a concrete
 implementation that is efficient and relatively simple to reason
 about, but other sandboxing mechanisms could be used in place of Dune.
 
@@ -327,6 +328,5 @@ the pages from the runtime queue to the (untrusted) receiver.
 %
 Since C is not memory safe, conditions on these system calls are
 meaningless.
-
-We leave an actual implementation of an IFC system for C as
-future work.
+%
+We leave the implementation of this IFC system for C to future work.
