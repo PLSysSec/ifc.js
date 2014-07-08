@@ -95,7 +95,7 @@ across stack boundaries where the current label is restored.
 If the exception crosses this boundary, it can leak information about the
 inner secret computation into a public computation; hence, one must
 explicitly ensure that |toLabeled| does not propagate exceptions.
-
+%
 When stack frames are treated as isolated tasks, the correct semantics
 are achieved automatically.
 %
