@@ -49,8 +49,8 @@ many tasks.
 (Consider, for instance, a server-side web application that wishes to
 create a new task for each HTTP request.)
 
-This issue of performance and JavaScript isolation is not unique to
-our work. 
+However, this issue of performance and JavaScript isolation is not
+unique to our work. 
 %
 In particular, browser layout engines rely on the isolation of content
 from different origins (e.g., two iframes of different origins) to
@@ -60,57 +60,46 @@ Since creating an OS thread for each iframe is expensive, both V8 and
 SpiderMonkey provide a means for running JavaScript code in isolation,
 on disjoint sub-heaps of the same OS thread.
 %
-In V8 this unit of isolation is called a \emph{context}~\tocite{}, in
+In V8, this unit of isolation is called a \emph{context}~\tocite{}, in
 SpiderMonkey, it called a \emph{compartment}~\tocite{}.
 %
-(We will use these terms and ``task'' interchangeably.)
+Each context/compartment is associated with a global object, which, by
+default, implements the JavaScript standard library (e.g.,
+\verb|Object|, \verb|Array|, etc.).
 %
-Each context/compartment is associated with a global object, which
-implements the JavaScript standard library (e.g., \verb|Object|,
-\verb|Array|, etc.).
+(Gecko and Node.js expose features such as the DOM and
+filesystem by extending this global object.)
 %
-It is this global object that is extended with feature such as the
-DOM and filesystem.
 
-\Red{HERE}
-
+We leverage contexts to implement |specLangJS seqf| for Node.js.
+%
+Our implementation provides a library for creating new tasks, i.e.,
+contexts whose global object only contains the standard JavaScript
+library and our IFC primitives (|send|, |sandbox|, etc.).
+%
+In turn, these tasks can create new tasks with |sandbox|.
+%
+Formally, |sandbox| is defined with |klone(tS) = tS0|, where |tS0| is
+the global object corresponding to the standard JavaScript library and
+our IFC primitives.
  
-We describe SWAPI~\cite{swapi}, an implementation of this system for JavaScript
-(which we here denote by |targetLangJS|).
+\begin{figure}
+\centerline{\includegraphics[width=\columnwidth]{figs/node}}
+\caption{\label{fig:node} Retrofitting Node.js JavaScript with IFC.
+This example shows how our trusted monitor (left) is used to mediate
+communication between two tasks.}
+\end{figure}
+As shown in Figure~\ref{fig:node}, each IFC API call from a task is mediated
+by the trusted library code (the main Node.js context), that tracks
+the current label, messages, etc. of each task.
 %
-The direct approach for implementing the embedded language |specLangJS roundrobinf| is
-by running multiple instances of the JS runtime, i.e., in
-separate OS-level threads.\footnote{
- The Firefox implementation of SWAPI also considers the case where
- tasks share the JavaScript runtime (and are cooperatively scheduled
- on the event-loop), but the heap and execution context of each task
- is disjoint. This is similar to the single-heap language of
- Section~\ref{sec:concrete}.  However, since the heap separation is
- provided by the browser, we do not discuss this further.
- The interested reader is referred to~\cite{swapi} for more details.
-}
+While V8 provides a means for sharing objects between contexts that
+share a security token (in the case of Blink this is used by pages of
+the same origin), our API (conservatively) restricts the kinds of
+messages that can be exchanged.
 %
-In SWAPI, the IFC language functionality is implemented in the JS
-runtime much like browser layout engines implement the DOM, and expose
-the new functions, e.g., \verb|getElementById|, by attaching them to
-the global JS object.
-%
-In turn, each task created with |sandbox| is
-executed in a separate thread, running a separate, \emph{fresh} instance of our
-modified JS runtime.
-%
-Formally, |sandbox| is defined with |klone(tS) =
-tS0|, where |tS0| is the global object corresponding to the standard
-JS library (e.g., |tS0| contains \texttt{Object}, \texttt{Array},
-etc.).
-
-Since this implementation approach relies on multiple runtimes of the
-language, sending arbitrary objects between tasks can result in
-unexpected behavior, e.g., when the object contains references.
-%
-As discussed in Section~\ref{sec:concrete}, we need to restrict |send|
-to expressions that can be marshalled as strings, i.e., structurally
-clonable objects.
+More concretely, and as mentioned in Section~\ref{sec:concrete}, we
+restrict |send| (and |sandbox|) to sending string values.
 %
 In our formalization, this amounts to restricting the IFC language rule
 for |send| such that only strings can be shared:
@@ -134,6 +123,15 @@ iS'; sched step (fullconf id il tS (iniEi unit), ldots)
 |}
 \end{mathpar}
 %}
+%
+However, our implementation is accompanied by a library that provides
+a more flexible standard library, which, among other things,
+automatically marshalls JSON objects to/from strings on each
+|send|/|recv|.
+
+
+\Red{HERE}
+
 We remark that this is similar to the existing
 \texttt{postMessage} API used for iframe and worker
 communications~\cite{webworkers}.
@@ -141,6 +139,18 @@ communications~\cite{webworkers}.
 Thus, the SWAPI implementation provides an IFC version of
 \texttt{postMessage}, defined in terms of |send|, that additionally
 takes a label argument.
+
+%
+In turn, each task created with |sandbox| is
+executed in a separate thread, running a separate, \emph{fresh} instance of our
+modified JS runtime.
+%
+Formally, |sandbox| is defined with |klone(tS) =
+tS0|, where |tS0| is the global object corresponding to the standard
+JS library (e.g., |tS0| contains \texttt{Object}, \texttt{Array},
+etc.).
+
+
 
 Unsurprisingly, our coarse-grained combined language approach has been
 inspired by existing browser (security) architectures.
