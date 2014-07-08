@@ -242,18 +242,41 @@ sub-language.
 %
 Specifically LIO provides the \verb|LIO| monad as a way of restricting
 (almost all) side-effects; this monad also keeps track of a current
-label which is, in turn, used by functions such as |getLabel| to
-define the IFC core.
+label which is, in turn, used by trusted code when defining core IFC
+functions, such as |getLabel|.
 %
 In the context of our framework, LIO can be understood as follows: the
 \emph{pure subset} of Haskell is the target language, while the
-monadic subset of Haskell in the \verb|LIO| monad is the IFC language.
-
+monadic subset of Haskell, operating in the \verb|LIO| monad, is the
+IFC language.
+ 
 Indeed, by rephrasing LIO in terms of our framework, we simplified
-LIO's treatment of exceptions, which have since been integrated in the
-code-base.
+LIO's treatment of exceptions.
 %
-we addressed a limitation in LIO.
+LIO originally associated labels with exceptions, in a
+similar style to fine-grained
+systems~\cite{stefan:2012:arxiv-flexible, Breeze}.
+%
+In particular, the label of an exception was set to the current label
+at the time of the throw, and used by a custom catch construct to
+raise the current label, thereby preventing leaks due exceptional
+control flows.
+%
+In addition to being overly complex, the interaction of exceptions
+with clearance (which sets an upper bound on the current label, see
+Section~\ref{sec:extensions:clearance}) was incorrect: the clearance
+was restored to the clearance at point of the catch (a consequence of
+defining \verb|LIO| using a State monad).
+%
+Moreover, pure exceptions (e.g., divide by zero) always percolated to
+trusted code, effectively allowing for denial of service attacks.
+%
+By using isolated tasks, and thus treating the current label (and
+clearance) as global, the underlying Haskell exception system can be
+used directly: exceptional control flow does not affect IFC.
+
+
+
 
 
 
