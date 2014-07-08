@@ -138,7 +138,6 @@ more flexible primitives, which, among other things,
 automatically marshalls JSON objects to/from strings on each
 |send|/|recv|.
 
-\Red{LOCK:deian}
 While the described system implements |specLangJS seqf|, server-side
 applications may require access to the file system, HTTP server, HTTP
 client, etc.
@@ -155,14 +154,28 @@ our IFC monitor.\footnote{
   message-passing implementations.
 }
 %
-This task is trusted to ensures that, for instance, labels are
-propagated to files and that tasks are tainted when reading sensitive
-files, as to preserve non-interference.
+(This is safer than the approach of simply wrapping objects, which can
+potentially allow for accessing objects outside the context.)
 %
-\Red{go into how this is app specific and it's not a huge limitation
-  that our system does not capture this; e.g., even for fs semantics
-  can vary: are labels serialized or not. later let's us change policy
-more easily, the other is better for persistence}
+This task is trusted to ensures that, for instance, labels are
+propagated to files and the labels of the task performing the
+operations and the file in question are inspected appropriately, as to
+preserve non-interference.
+%
+Unfortunately, while imposing such a proof burden on the
+framework developer is undesirable, this is also somewhat expected:
+different language environments expose different libraries for
+handling external I/O.
+%
+For instance, in the case of Node.js, how labels interact with the
+file system may even vary according to the application (e.g.,
+different from our implementation, Hails~\cite{hails} does not persist
+labels).
+%
+While we can extend our formalism to model a particular interface to
+the file system, HTTP client, etc. the applicability of this are
+unclear and left to future work.
+%
 
 
 \subsubsection{Client-side embedding: Gecko}
