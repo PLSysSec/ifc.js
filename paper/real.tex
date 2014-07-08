@@ -2,18 +2,19 @@
 \label{sec:real}
 
 In the introduction, we stated that the original motivation behind
-developing this embedding was in order to formally specify a
+this work was to formally specify a
 coarse-grained information flow control language for JavaScript.
 %
-Indeed, this work serves as the theoretical foundation for the
-JavaScript IFC systems built atop Node.js and Gecko layout engine.
-%
-In this section, we consider the application of our embedding to
-JavaScript for these two platforms, and two other real world target
-languages, Haskell, and C.
+Indeed, our formalism serves as the theoretical foundation for two
+IFC systems for JavaScript, built on top of Node.js as well as
+the web browser engine Gecko.
+
+In this section, we describe these two implementations.  Furthermore,
+we consider how our formalism could be applied to the C programming
+language, and connect it to a previous IFC system for Haskell.
 %
 Our goal is to show the flexibility of the embedding in settings with
-vastly different features and properties, as well as discuss the
+vastly different properties, as well as to discuss the
 semantic gap that must be overcome in some cases to apply our formalism
 to other systems.
 %
@@ -22,75 +23,72 @@ to other systems.
 %% implementation of the IFC system for C to future work.
 
 
-
 \subsection{JavaScript}
 \label{sec:real:js}
 
 JavaScript, as specified by
 ECMAScript~\cite{ecma}, does not have any built-in
-functionality for I/O
-(we denote this language as |targetLangJS|).
+functionality for I/O.
+%(we denote this language as |targetLangJS|).
 %
-When JavaScript is embedded in web browser engines, such as Google's
-Blink or Mozilla's Gecko, or in server-side platforms such as Node.js,
-additional APIs such as the Document Object Model (DOM) or the file
-system get exposed as part of the runtime system.
-%
-In a similar manner, we can directly implement the embedded language
-|specLangJS roundrobinf| by exposing (only) our IFC primitives as part
-of the runtime and running multiple instances of the JavaScript VM in
-separate OS-level threads.\footnote{
-  Indeed, the Gecko implementation of this work does this for Web
-  Workers that run operate OS threads~\cite{cowl}.
-}
+For this language, which we denote by |targetLangJS|, the IFC system
+|specLangJS roundrobinf| can be implemented by exposing IFC primitives
+to JavaScript as part of the runtime, and running multiple instances
+of the JavaScript virtual machine in separate OS-level threads.
 %
 Unfortunately, this becomes very costly when an application relies on
 many tasks.
 %
-(Consider, for instance, a server-side web application that wishes to
-create a new task for each HTTP request.)
+For instance, consider a server-side web application that
+creates a new task for each HTTP request.  The overhead would
+quickly become impractical.
 
 However, this issue of performance and JavaScript isolation is not
-unique to our work. 
-%
-In particular, layout engines rely on the isolation of content from
+unique to our work, and has been solved by browser engines,
+which
+rely on the isolation of content from
 different origins (e.g., two iframes of different origins) to
-implement the \emph{same-origin policy}.
+implement the same-origin policy.
 %
 Since creating an OS thread for each iframe is expensive, both
 Google's V8 and Mozilla's SpiderMonkey provide a means for running
-JavaScript code in isolation, on disjoint sub-heaps of the same OS
-thread.
+JavaScript code in isolation in a single OS thread,
+on disjoint sub-heaps.
 %
 In V8, this unit of isolation is called a \emph{context}~\tocite{}; in
-SpiderMonkey, it called a \emph{compartment}~\tocite{}.
+SpiderMonkey, it is called a \emph{compartment}~\tocite{}.
 %
 Each context/compartment is associated with a global object, which, by
 default, implements the JavaScript standard library (e.g.,
 \verb|Object|, \verb|Array|, etc.).
 %
-(Gecko and Node.js expose features such as the DOM and
-file system by extending this global object.)
-%
 Naturally, our notion of a task for JavaScript directly corresponds to
 a context/compartment.
-%
-Below we describe some of the implementation details specific to
-Node.js and Gecko.
+
+
+When JavaScript is embedded in web browser engines, such as Google's
+Blink or Mozilla's Gecko, or in server-side platforms such as Node.js,
+additional APIs such as the Document Object Model (DOM) or the file
+system get exposed as part of the runtime system.
+These features are exposed by extending the global object, just like
+for the standard library.  For this reason, it is easy to modify
+these systems to remove arbitrary external effects when implementing
+an IFC system, and reintroducing important effects in a safe manner.
+
 
 \subsubsection{Server-side embedding: Node.js}
 
-We implemented |specLangJS seqf| for Node.js in the form of a module
+We have implemented |specLangJS seqf| for Node.js in the form of a module
 (library), which does not modify the Node.js or V8 code-base in any
 way.
 %
 Our implementation provides a library for creating new tasks, i.e.,
 contexts whose global object only contains the standard JavaScript
-library and our IFC primitives (|send|, |sandbox|, etc.).
+library as well as our IFC primitives (such as |send| and |sandbox|).
 %
 In turn, these tasks can create new tasks with |sandbox|.
 %
-In our formal treatement, |sandbox| is defined with |klone(tS) = tS0|,
+In our formal treatement, |sandbox| is defined with |ap klone tS = tS0|,
 where |tS0| is the global object corresponding to the standard
 JavaScript library and our IFC primitives.
  
@@ -101,22 +99,19 @@ This example shows how our trusted monitor (left) is used to mediate
 communication between two tasks for which IFC is enforced (right).}
 \end{figure}
 %
-As shown in Figure~\ref{fig:node}, each IFC API call from a task is mediated
-by the trusted library code (the main Node.js context), that tracks
-the current label, messages, etc. of each task.
-%
-(This task is part of the trusted computing base (TCB) and has access
-to the full Node.js API.)
-%
-While V8 provides a means for sharing objects between contexts (used
-by same-origin contexts in Blink), our system conservatively restricts
-the kinds of messages that can be exchanged by tasks.
-%
-Concretely, and as mentioned in Section~\ref{sec:concrete}, we
-restrict |send| (and |sandbox|) to sending string values.
+All IFC primitives are mediated by the trusted library code (executing
+as the main Node.js context), which tracks the current label, messages,
+etc.\ of each task.  An example for |send|/|recv| is shown in
+Figure~\ref{fig:node}.
+
+%While V8 provides a means for sharing any object between contexts (used
+%by same-origin contexts in Blink),
+Our system conservatively restricts
+the kinds of messages that can be exchanged by tasks by
+only allowing string values to be exchanged via |send| (and |sandbox|).
 %
 In our formalization, this amounts to restricting the IFC language rule
-for |send| such that only strings can be shared:
+for |send| in the following way:
 %{
 \newcommand{\str}{"string"}
 %format tOf (e) = "\texttt{typeOf}("e")\texttt{ === \str}"
@@ -138,8 +133,8 @@ iS'; sched step (fullconf id il tS (iniEi unit), ldots)
 \end{mathpar}
 %}
 %
-Our implementation, however, is accompanied by a library that provides
-a more flexible standard library, which, among other things,
+For convenience, we have implemented a library that provides
+more flexible primitives, which, among other things,
 automatically marshalls JSON objects to/from strings on each
 |send|/|recv|.
 
@@ -329,7 +324,7 @@ propagating)}
 \label{sec:real:c}
 %
 C programs are able to execute arbitrary (machine) code, access
-arbitrary memory, and perform arbitrary syscalls.
+arbitrary memory, and perform arbitrary system calls.
 %
 Thus, the confinement of C programs must be imposed by the underlying OS
 and hardware.
@@ -344,7 +339,8 @@ Using page tables, a (trusted) IFC runtime could ensure that each task,
 implemented as a lightweight process, can only access the memory it
 allocates--tasks do not have access to any shared memory.
 %
-In addition, ring protection could be used to intercept syscalls performed by
+In addition, ring protection could be used to intercept system
+calls performed by
 a task and only permit those corresponding to our IFC language (such as
 |getLabel| or |send|).
 %
@@ -354,12 +350,13 @@ about, but other sandboxing mechanisms could be used in place of Dune.
 
 In this setting, the combined language of Section~\ref{sec:retrofit}
 can be interpreted in the following way: calling from the target
-language to the IFC language corresponds to invoking a syscall.
+language to the IFC language corresponds to invoking a system call.
 %
-Creating a new task with the |sandbox| syscall corresponds to
-\emph{forking} a process.  Here, page tables limit what memory
-a task can access: we can ensure there will be no memory (effectively
-defining |klone(tS)
+Creating a new task with the |sandbox| system call corresponds to
+\emph{forking} a process.  Using page tables we can ensure that
+there will be no shared memory
+(effectively
+defining |ap klone tS
 = tS0|, where |tS0| is the set of pages necessary to bootstrap a
 lightweight process.)
 %
@@ -368,5 +365,8 @@ define a |send| syscall that copies pages to our
 (trusted) runtime queue; and, correspondingly, a |recv| that copies
 the pages from the runtime queue to the (untrusted) receiver.
 %
-Since C is not memory safe, conditions on these syscalls are
+Since C is not memory safe, conditions on these system calls are
 meaningless.
+
+We leave an actual implementation of an IFC system for C as
+future work.
