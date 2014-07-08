@@ -25,15 +25,15 @@ to other systems.
 \subsection{JavaScript}
 \label{sec:real:js}
 
-An interesting aspect of JavaScript, as specified by
-ECMAScript~\cite{ecma}, is that it does not have any built-in
-functionality for I/O.
+JavaScript as specified by
+ECMAScript~\cite{ecma}, does not have any built-in
+functionality for I/O
+(we denote this language as |targetLangJS|).
 %
-(We denote this language as |targetLangJS|.)
-%
-Instead, when embedding a JavaScript engine, browser layout engines,
-such as Gecko, and server-side platforms, such as Node.js, expose APIs
-such as the DOM and filesystem as part of the runtime system.
+When JavaScript is embedded in web browser engines such as
+Gecko or Blink, or in server-side platforms such as Node.js, additional
+APIs such as the Document Object Model (DOM) or the file system
+get exposed as part of the runtime system.
 %
 In a similar manner, we can directly implement the embedded language
 |specLangJS roundrobinf| by exposing (only) our IFC primitives as part
