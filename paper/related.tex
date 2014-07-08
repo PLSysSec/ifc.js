@@ -89,22 +89,22 @@ Section~\ref{sec:concrete} is closely related to the idea of
 although as our system is deterministic, we do not use the theory in any
 deep way.
 
-It has long been observed that information flow control and monads are
-closely related.  This observation has been used by Abadi et
-al.~\cite{abadi+:core} to structure access to private data by protecting
-it using a lattice of monads, one per security level. Russo et. al.~\cite{Russo+:Haskell08} extend this 
-idea to languages with side-effects. Our system uses
-monads in a conceptually different manner, where there is a single monad
-representing the information flow control computational effects; this
-is inline with the use of monads in other systems~\cite{Harrison05,lio,Devriese:2011}.
-Devriese and Piessens~\cite{Devriese:2011} utilize monad
-transformers as an essential component in their work.  However, their use
-of monad transformers is to explain when extra constraints on a non-information
-flow control aware base monad should be applied (i.e., during lifting).
-Harrison and Hook~\cite{Harrison05} define a notion of \emph{atomic noninterference},
-which is preserved through monad transformer application.  However, it is not
-clear what is the relationship between this notion and traditional noninterference,
-and their paper only proves a weaker property of no write down.
+%   It has long been observed that information flow control and monads are
+%   closely related.  This observation has been used by Abadi et
+%   al.~\cite{abadi+:core} to structure access to private data by protecting
+%   it using a lattice of monads, one per security level. Russo et. al.~\cite{Russo+:Haskell08} extend this 
+%   idea to languages with side-effects. Our system uses
+%   monads in a conceptually different manner, where there is a single monad
+%   representing the information flow control computational effects; this
+%   is inline with the use of monads in other systems~\cite{Harrison05,lio,Devriese:2011}.
+%   Devriese and Piessens~\cite{Devriese:2011} utilize monad
+%   transformers as an essential component in their work.  However, their use
+%   of monad transformers is to explain when extra constraints on a non-information
+%   flow control aware base monad should be applied (i.e., during lifting).
+%   Harrison and Hook~\cite{Harrison05} define a notion of \emph{atomic noninterference},
+%   which is preserved through monad transformer application.  However, it is not
+%   clear what is the relationship between this notion and traditional noninterference,
+%   and their paper only proves a weaker property of no write down.
 
 \cut{
 \begin{itemize}
