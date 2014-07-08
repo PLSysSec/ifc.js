@@ -82,7 +82,8 @@ We have implemented |specLangJS seqf| for Node.js in the form of a module
 (library), which does not modify the Node.js or V8 code-base in any
 way.
 %
-Our implementation provides a library for creating new tasks, i.e.,
+Our implementation\footnote{The source code of our implementation can be found at
+  \codelink{}.} provides a library for creating new tasks, i.e.,
 contexts whose global object only contains the standard JavaScript
 library as well as our IFC primitives (such as |send| and |sandbox|).
 %
@@ -139,12 +140,12 @@ automatically marshalls JSON objects to/from strings on each
 
 While the described system implements |specLangJS seqf|, server-side
 applications may require access to the file system, HTTP server, HTTP
-client, etc.
+client, or other APIs that have external effects.
 %
-Unfortunately, our formalism does not capture such external effects
-and exposing the Node.js libraries directly to sandboxed tasks is unsafe.
+Exposing the Node.js APIs directly to sandboxed tasks is unsafe, and
+thus we
 %
-We, instead, implement libraries such as a labeled file system as
+instead implement libraries such as a labeled file system as
 message exchanges between the sandboxed tasks (e.g., \textsf{task-1}
 in Figure~\ref{fig:node}) and the main Node.js task that implements
 our IFC monitor.\footnote{
@@ -153,25 +154,26 @@ our IFC monitor.\footnote{
   message-passing implementations.
 }
 %
-(This is safer than the approach of simply wrapping objects, which can
-potentially allow objects to be accessed outside the context.)
+This is safer than the approach of simply wrapping objects, which can
+potentially allow objects to be accessed outside the context.
 %
 This task is trusted to ensures that labels are
 propagated to files and the labels of the task and the file in question permit
 this flow.
 %
 Unfortunately, while imposing such a proof burden on the
-framework developer is undesirable, this is also somewhat expected:
+framework developer is undesirable, this also has to be expected:
 different language environments expose different libraries for
-handling external I/O.
+handling external I/O, and the correct treatment of external effects
+is application specific.
 %
 For instance, in the case of Node.js, how labels interact with the
 file system may even vary according to the application (e.g.,
 in the IFC system Hails~\cite{hails}, labels are not persisted).
 %
-While we can extend our formalism to model a particular interface to
-the file system, HTTP client, etc. the utility of this formalization is
-unclear and left to future work.
+%While we can extend our formalism to model a particular interface to
+%the file system, HTTP client, etc. the utility of this formalization is
+%unclear and left to future work.
 %
 
 
@@ -233,8 +235,8 @@ differing environments.
 
 \subsection{Haskell}
 \label{sec:real:hs}
-Our work borrows many ideas from the Haskell coarse-grained IFC
-system LIO~\cite{lio, stefan:addressing-covert}.
+Our work borrows ideas from a Haskell coarse-grained IFC
+system called LIO~\cite{lio, stefan:addressing-covert}.
 %
 LIO relies on Haskell's strong type system and monadic encoding of
 side-effecting computations to achieve isolation and define the IFC
@@ -249,9 +251,9 @@ In the context of our framework, LIO can be understood as follows: the
 \emph{pure subset} of Haskell is the target language, while the
 monadic subset of Haskell, operating in the \verb|LIO| monad, is the
 IFC language.
- 
-Indeed, by rephrasing LIO in terms of our framework, we simplified
-LIO's treatment of exceptions.
+
+%Indeed, by rephrasing LIO in terms of our framework, we simplified
+%LIO's treatment of exceptions.
 %
 LIO originally associated labels with exceptions, in a
 similar style to fine-grained
@@ -259,7 +261,7 @@ systems~\cite{stefan:2012:arxiv-flexible, Hritcu:2013:YIB:2497621.2498098}.
 %
 In particular, the label of an exception was set to the current label
 at the time of the throw, and used by a custom catch construct to
-raise the current label, thereby preventing leaks due exceptional
+raise the current label, thereby preventing leaks due to exceptional
 control flows.
 %
 In addition to being overly complex, the interaction of exceptions
@@ -268,12 +270,15 @@ Section~\ref{sec:clearance}) was incorrect: the clearance
 was restored to the clearance at point of the catch (a consequence of
 defining \verb|LIO| using a State monad).
 %
-Moreover, pure exceptions (e.g., divide by zero) always percolated to
+Furthermore, pure exceptions (e.g., divide by zero) always percolated to
 trusted code, effectively allowing for denial of service attacks.
 %
-By using isolated tasks, and thus treating the current label (and
-clearance) as global, the underlying Haskell exception system can be
-used directly: exceptional control flow does not affect IFC.
+The insights gained when viewing coarse-grained IFC as presented in this
+paper led to a much cleaner, simpler treatment of exceptions in LIO,
+which has now been adapted by LIO.
+%By using isolated tasks, and thus treating the current label (and
+%clearance) as global, the underlying Haskell exception system can be
+%used directly: exceptional control flow does not affect IFC.
 
 
 
