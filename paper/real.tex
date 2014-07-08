@@ -25,7 +25,7 @@ to other systems.
 \subsection{JavaScript}
 \label{sec:real:js}
 
-JavaScript as specified by
+JavaScript, as specified by
 ECMAScript~\cite{ecma}, does not have any built-in
 functionality for I/O
 (we denote this language as |targetLangJS|).
@@ -71,7 +71,10 @@ default, implements the JavaScript standard library (e.g.,
 filesystem by extending this global object.)
 %
 
-We leverage contexts to implement |specLangJS seqf| for Node.js.
+\subsubsection{Server-side embedding for Node.js}
+
+Using contexts as the unit of isolation, we implemented
+|specLangJS seqf| for Node.js.
 %
 Our implementation provides a library for creating new tasks, i.e.,
 contexts whose global object only contains the standard JavaScript
