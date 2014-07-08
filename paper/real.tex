@@ -143,9 +143,22 @@ a more flexible standard library, which, among other things,
 automatically marshalls JSON objects to/from strings on each
 |send|/|recv|.
 
-While the described system implements |specLangJS seqf|, Node.js
+\Red{LOCK:deian}
+While the described system implements |specLangJS seqf|, server-side
 applications may require access to the file system, HTTP server, HTTP
 client, etc.
+%
+Unfortunately, our formalism does not capture such external effects
+and exposing the Node.js libraries directly to sandboxed tasks is unsafe.
+%
+Hence, we instead implement libraries such as the file system as
+message exchanges between the sandboxed tasks (e.g., \textsf{task-1}
+in Figure~\ref{fig:node}) and main Node.js task taht 
+%
+This is in part because how external effects 
+%
+Hence, our implementation of l
+%This is, in part, because the handling of such effect
 
 
 \subsubsection{Client-side embedding: Gecko}
