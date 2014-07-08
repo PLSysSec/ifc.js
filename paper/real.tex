@@ -220,12 +220,14 @@ same label check as that of |send|, e.g., does the task label flow to
 the remote origin label.
 %
 While the external effects of COWL can be formally modeled, and indeed
-necessary, we do model these effects in our more general framework,
-since, like for Node.js case, this is a platform-specific detail.
+necessary, we do not model these effects in our more general
+framework, since, like for Node.js case, this is a platform-specific
+detail.
 %
-Indeed, the labeled HTTP client semantics of our Node.js
-implementation and that of COWL differ, even though they're both
-JavaScript systems, simply because of the different settings.
+Indeed, even the labeled HTTP client in  Node.js and COWL differ, even
+though they're both JavaScript systems, simply because of the
+different environment.
+
 
 
 \subsection{Haskell}
