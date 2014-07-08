@@ -255,7 +255,7 @@ LIO's treatment of exceptions.
 %
 LIO originally associated labels with exceptions, in a
 similar style to fine-grained
-systems~\cite{stefan:2012:arxiv-flexible, Breeze}.
+systems~\cite{stefan:2012:arxiv-flexible, Hritcu:2013:YIB:2497621.2498098}.
 %
 In particular, the label of an exception was set to the current label
 at the time of the throw, and used by a custom catch construct to
@@ -264,7 +264,7 @@ control flows.
 %
 In addition to being overly complex, the interaction of exceptions
 with clearance (which sets an upper bound on the current label, see
-Section~\ref{sec:extensions:clearance}) was incorrect: the clearance
+Section~\ref{sec:clearance}) was incorrect: the clearance
 was restored to the clearance at point of the catch (a consequence of
 defining \verb|LIO| using a State monad).
 %
