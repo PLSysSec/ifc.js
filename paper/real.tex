@@ -184,12 +184,18 @@ underpinning.
 Since the architecture of COWL is similar to that of Node.js, we focus
 on the main differences.
  
-Most notably, tasks in COWL usually correspond to browsing contexts,
-such as iframes.
-%
-Hence, the global object |tS0| also contains the DOM, the
+Tasks in COWL usually correspond to browsing contexts, such as iframes,
+where the global object |tS0| also contains the DOM, the
 \verb|XMLHttpRequest| (XHR) object, etc.
 %
+Existing browser APIs also offer \emph{web workers}, which can
+be spawned by JavaScript code and have
+the same isolation properties as tasks in our system.
+%
+The isolation of web workers was motivated by the lack of multithreading
+in JavaScript; however, their isolation properties are equally useful for information
+flow control.
+
 To ensure that JavaScript code cannot communicate using these objects
 (e.g., to the network with XHR or persistent storage using the DOM),
 COWL additionally uses content security policy (CSP)~\cite{csp1.1}.\footnote{
@@ -198,16 +204,14 @@ COWL additionally uses content security policy (CSP)~\cite{csp1.1}.\footnote{
 }
 %
 Note, that this does not prevent tasks from manipulating the DOM
-(e.g., to render information).
+(e.g., to render information), so external effects due to DOM access
+are also suppressed.
 %
-Rather, to enforce task-isolation, external effects due to DOM access
-are suppressed.
-
 Simply disallowing all external effects for all browsing contexts is
 overly-restricting; pages typically load images, perform XHR requests,
 etc.
 %
-Hence, rather than disallowing all external effects, COWL allows
+Hence, COWL allows
 controlled network communication (inter-frame communication is
 dictated by our |send| rule) by associating an implicit label with a
 remote host: namely the label corresponding to its origin.
