@@ -83,17 +83,14 @@ we state a lemma we will use.
   the appendix of the extended version of this paper
   \fi
   for a full proof.
-  The proof distinguishes two cases:
-  \begin{itemize}
-    \item If the task |it1| executed in |ic1| is erased, then there is no
+  The proof distinguishes two cases: (1) if the task |it1| executed in |ic1| is erased, then there is no
     need to take a step in |ic2|, as the computation in |ic1| does
     not have any visible effects after erasure.
-    \item Otherwise, there must be a corresponding task |it2| in |ic2|, and
+    (2) Otherwise, there must be a corresponding task |it2| in |ic2|, and
     it can take exactly the same reduction step as the task in |ic1|.
     The only difficulty is that there might be secret tasks executing
     before |it2|, but it can be shown that these do not influence the
     computation after erasure.
-  \end{itemize}
 \end{proof}
 The proof of Theorem~\ref{thm:restricted} about TINI proceeds largely
 in the same fashion as for TSNI, except that
