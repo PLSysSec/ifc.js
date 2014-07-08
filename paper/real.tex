@@ -179,51 +179,33 @@ unclear and left to future work.
 
 
 \subsubsection{Client-side embedding: Gecko}
-\Red{HERE}
 
-We remark that this is similar to the existing
-\texttt{postMessage} API used for iframe and worker
-communications~\cite{webworkers}.
+We now describe some of the implementation aspects of
+COWL~\cite{swapi}, for which this work serves as the theoretical
+underpinning.
 %
-Thus, the COWL implementation provides an IFC version of
-\texttt{postMessage}, defined in terms of |send|, that additionally
-takes a label argument.
-
+Since the architecture of COWL is similar to that of Node.js, we focus
+on the main differences.
+ 
+Most notably, tasks in COWL usually correspond to browsing contexts,
+such as iframes.
 %
-In turn, each task created with |sandbox| is
-executed in a separate thread, running a separate, \emph{fresh} instance of our
-modified JS runtime.
+Hence, the global object |tS0| also contains the DOM, the
+\verb|XMLHttpRequest| (XHR) object, etc.
 %
-Formally, |sandbox| is defined with |klone(tS) =
-tS0|, where |tS0| is the global object corresponding to the standard
-JS library (e.g., |tS0| contains \texttt{Object}, \texttt{Array},
-etc.).
-
-
-
-Unsurprisingly, our coarse-grained combined language approach has been
-inspired by existing browser (security) architectures.
-%
-Browsers, for example, isolate pages of different origins by running
-them in separate runtimes.
-%
-Similarly, they provide the worker JS object~\cite{webworkers}, which allows
-JavaScript to execute code in separate threads with separate JS
-runtimes (and fresh global objects).
-%
-In both cases, code relies on the \texttt{postMessage} message-passing
-API for communication, similar to our system.\footnote{
-  The message-passing approach is, in part, due to ECMAScript's lack
-  of well-defined semantics for concurrency.
-  %
-  Hence sharing and accessing objects such as the DOM across worker
-  threads is undefined.
+To ensure that JavaScript code cannot communicate using these objects
+(e.g., to the network with XHR or persistent storage using the DOM),
+COWL additionally uses content security policy (CSP)~\cite{csp1.1}.\footnote{
+  Since CSP does not yet address message passing or navigation, this
+  was addressed explicitly.
 }
 %
-As suggested by our formal semantics, COWL can directly leverage these
-mechanisms to implement the semantics of |specLangJS roundrobinf|
-without modifying the JS runtime or intrusively changing the browser
-layout engine.
+Note, that this does not prevent tasks from manipulating the DOM
+(e.g., to render information).
+%
+Rather, to enforce task-isolation, external effects due to DOM access
+are suppressed.
+
 
 However, a simple implementation of just associating a label with
 workers and browsing context (iframes and top-level pages) to enforce
