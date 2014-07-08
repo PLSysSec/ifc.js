@@ -33,32 +33,37 @@ per an information flow policy.  Significant research has been devoted to
 adding various forms of IFC to different kinds of programming languages
 and systems.  In the context of the web, however, there is a strong
 motivation to preserve the language JavaScript, and retrofit dynamic information
-flow control on top of it.  A key challenge in dynamic information
-flow control is implementation efficiency: when
-information flow is tracked at a fine-grained level,
-e.g., per value in the system, systems may incur
-impractical runtime overhead~\cite{JSFlow}.
+flow control on top of it.
+
+Systems that track information flow at a fine-grained level, e.g. per
+value in the system, offer great flexibility.  However, they
+require deep integration with the programming language and modify
+the semantics in non-trivial ways.  This makes fine-grained systems
+less suitable in contexts where preserving an existing language
+is important.
 %
 Moreover, the task of adding fine-grained IFC even to a simple language is
 non-trivial~\cite{hritcu2013testing}; when considering a real-world language,
 such as JavaScript, this challenge becomes almost insurmountable.
-
 
 In the alternative \textit{coarse-grained} approach to IFC,
 a system is divided into relatively coarse computational units,
 each with a single label dictating its security policy.
 Only
 communication between isolated computational units must be tracked.
-A recent system named SWAPI~\cite{swapi} adds IFC to the
-browser by identifying \emph{web workers} as an existing computational
-unit.  Communication between workers is mediated using
-IFC to ensure non-interference, preventing sensitive workers from
-influencing the computation of less sensitive workers.
+%A recent system named SWAPI~\cite{swapi} adds IFC to the
+%browser by identifying \emph{web workers} as an existing computational
+%unit.  Communication between workers is mediated using
+%IFC to ensure non-interference, preventing sensitive workers from
+%influencing the computation of less sensitive workers.
 This coarse-grained approach provides a number of advantages:
-(1) reduced runtime overhead because checks need only
-be performed at isolation boundaries, (2) minimal changes to an
-existing programming language when adding IFC, which (3) allows
-the reuse of existing programs.  Finally, (4) associating
+(1) minimal changes to an
+existing programming language when adding IFC, which (2) allows
+the reuse of existing programs.  Furthermore, (3)
+reduced runtime overhead because checks need only
+be performed at isolation boundaries, compared to fine-grained
+systems were the runtime overhead can be impractical~\cite{JSFlow}.
+Finally, (4) associating
 a single security label with the entire computational unit simplifies
 understanding and reasoning about the correctness of the
 system, without information flow reasoning about the
@@ -67,13 +72,13 @@ technical details of the semantics of the programming language.
 A further benefit of the coarse-grained approach
 is that a single IFC design and semantics can be generalized
 to a large class of programming languages.
-Leveraging this insight, we define a general form of coarse-grained
-dynamic IFC and show how it can be combined with \emph{any} programming
-language conforming to a general semantic framework.
+Leveraging this insight, we define a form of coarse-grained
+dynamic IFC and show how it can be combined with any programming
+language for which external effects can be controlled.
 At the core of our IFC system is a sandboxing construct that isolates
 potentially sensitive computations, allowing them to
 communicate only through clearly specified interfaces.
-Using the Matthews-Findler approach~\cite{Matthews:2007:OSM:1190216.1190220}
+Using an approach by Matthews-Findler~\cite{Matthews:2007:OSM:1190216.1190220}
 for combining operational semantics,
 we formally state and prove non-interference guarantees that are
 independent of the choice of specific target language.
@@ -85,27 +90,32 @@ We discuss and partially address this issue
 by characterizing isomorphisms between the operational semantics of our
 defined language and a concrete implementation, showing that if this
 relationship holds, then non-interference in the abstract specification
-carries over to the concrete specification.
+carries over to the concrete implementation.
 
 Our contributions can be summarized as follows:
 \begin{itemize}
   \item We give formal semantics for a core coarse-grained
-  information flow control language.
+  information flow control language free of non-IFC constructs.
   We then show how a large class of target languages can be combined
   with this IFC language and prove that the result provides
   non-interference. (Section~\ref{sec:retrofit})
-%  \item We show how to extend the Matthews-Findler method from just
-%  languages that are not simply expressions evaluating to values,
-%  but may be collections of threads executing nondeterministically.
   \item We provide a proof technique to show the non-interference
   of a concrete semantics for a potentially optimized IFC language
   by means of an isomorphism, and show a class of restrictions on
-  the IFC language that preserves non-interference. (Section~\ref{sec:formal})
-  \item We connect our formal semantics to real implementations of
-  coarse-grained IFC systems for JavaScript and Haskell, and explain
-  how our system could be used to enforce IFC in C. (Section~\ref{sec:real})
-  \item We briefly describe ways to enrich the core IFC language with
-  more advanced concepts such as labeled values, privileges, or a
+  the IFC language that preserves non-interference. (Section~\ref{sec:formal}
+  and~\ref{sec:concrete})
+  \item We have implemented an IFC system based on these semantics
+  for Node.js, and we connect our formalism to another implementation
+  based on this work
+  for client-side JavaScript in Gecko~\cite{swapi}.
+  Furthermore, we outline an implementation for the C programming
+  language.
+  (Section~\ref{sec:real})
+%  \item We show how to extend the Matthews-Findler method from just
+%  languages that are not simply expressions evaluating to values,
+%  but may be collections of threads executing nondeterministically.
+  \item We describe ways to enrich the core IFC language with
+  more advanced concepts such as labeled values, labeled references, or a
   notion of clearance. (Section~\ref{sec:extensions})
 \end{itemize}
 
