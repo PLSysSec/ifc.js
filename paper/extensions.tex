@@ -27,7 +27,9 @@ applications~\cite{hails}.
 %Below we
 %consider the addition of several labeled constructs to the abstract specification.
 In this section we show how to extend the language with several such
-constructs.
+constructs.  For space reasons, we mainly provide the high-level
+ideas here, and provide full formal semantics (including the soundness
+proof with the extensions) in \appendixextfirst{}.
 %
 %We remark that that the non-interference proofs must account for the
 %new constructs, since they amend the IFC calculus semantics (usually
@@ -71,10 +73,6 @@ When creating labeled values the label |il| must be above
 the current label; otherwise it cannot be said that protection has
 been transferred from the current label to |il|.
 %
-
-
-Full details with formal reduction rules are provided
-in \appendixextfirst{}, but omitted here for space reasons.
 %}
 
 \subsection{Labeled mutable references/variables/channels}
@@ -99,8 +97,6 @@ additionally contains a store that maps addresses to a value
 and a label
 which can be read and written to by different tasks through a labeled
 reference implementations.
-Again, we omit details here and refer the interested reader
-to \appendixext{}, where this extension has been fully worked out.
 
 \subsection{Clearance}
 %
@@ -142,8 +138,6 @@ label.
 %
 The other predicates are defined in a similar way and omitted for
 brevity.
-
-\Red{TODO: provide them in the appendix, and refer to them here.}
 
 
 \subsection{Privileges}
