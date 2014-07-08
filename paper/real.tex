@@ -5,11 +5,12 @@ In the introduction, we stated that the original motivation behind
 developing this embedding was in order to formally specify a
 coarse-grained information flow control language for JavaScript.
 %
-In Section~\ref{sec:retrofit}, however, we used only a simplified
-language as an example target language.
+Indeed, this work serves as the theoretical foundation for the
+JavaScript IFC systems built atop Node.js and Gecko layout engine.
 %
 In this section, we consider the application of our embedding to
-JavaScript, and two other real world target languages, Haskell, and C.
+JavaScript for these two platforms, and two other real world target
+languages, Haskell, and C.
 %
 Our goal is to show the flexibility of the embedding in settings with
 vastly different features and properties, as well as discuss the
@@ -30,17 +31,17 @@ ECMAScript~\cite{ecma}, does not have any built-in
 functionality for I/O
 (we denote this language as |targetLangJS|).
 %
-When JavaScript is embedded in web browser engines such as
-Gecko or Blink, or in server-side platforms such as Node.js, additional
-APIs such as the Document Object Model (DOM) or the file system
-get exposed as part of the runtime system.
+When JavaScript is embedded in web browser engines, such as Google's
+Blink or Mozilla's Gecko, or in server-side platforms such as Node.js,
+additional APIs such as the Document Object Model (DOM) or the file
+system get exposed as part of the runtime system.
 %
 In a similar manner, we can directly implement the embedded language
 |specLangJS roundrobinf| by exposing (only) our IFC primitives as part
 of the runtime and running multiple instances of the JavaScript VM in
 separate OS-level threads.\footnote{
-  We, indeed, do this for the Gecko implementation when considering
-  Web Workers that run operate OS threads.
+  Indeed, the Gecko implementation of this work does this for Web
+  Workers that run operate OS threads~\cite{cowl}.
 }
 %
 Unfortunately, this becomes very costly when an application relies on
@@ -52,15 +53,16 @@ create a new task for each HTTP request.)
 However, this issue of performance and JavaScript isolation is not
 unique to our work. 
 %
-In particular, browser layout engines rely on the isolation of content
-from different origins (e.g., two iframes of different origins) to
+In particular, layout engines rely on the isolation of content from
+different origins (e.g., two iframes of different origins) to
 implement the \emph{same-origin policy}.
 %
-Since creating an OS thread for each iframe is expensive, both V8 and
-SpiderMonkey provide a means for running JavaScript code in isolation,
-on disjoint sub-heaps of the same OS thread.
+Since creating an OS thread for each iframe is expensive, both
+Google's V8 and Mozilla's SpiderMonkey provide a means for running
+JavaScript code in isolation, on disjoint sub-heaps of the same OS
+thread.
 %
-In V8, this unit of isolation is called a \emph{context}~\tocite{}, in
+In V8, this unit of isolation is called a \emph{context}~\tocite{}; in
 SpiderMonkey, it called a \emph{compartment}~\tocite{}.
 %
 Each context/compartment is associated with a global object, which, by
@@ -68,13 +70,19 @@ default, implements the JavaScript standard library (e.g.,
 \verb|Object|, \verb|Array|, etc.).
 %
 (Gecko and Node.js expose features such as the DOM and
-filesystem by extending this global object.)
+file system by extending this global object.)
 %
+Naturally, our notion of a task for JavaScript directly corresponds to
+a context/compartment.
+%
+Below we describe some of the implementation details specific to
+Node.js and Gecko.
 
-\subsubsection{Server-side embedding for Node.js}
+\subsubsection{Server-side embedding: Node.js}
 
-Using contexts as the unit of isolation, we implemented
-|specLangJS seqf| for Node.js.
+We implemented |specLangJS seqf| for Node.js in the form of a module
+(library), which does not modify the Node.js or V8 code-base in any
+way.
 %
 Our implementation provides a library for creating new tasks, i.e.,
 contexts whose global object only contains the standard JavaScript
@@ -82,9 +90,9 @@ library and our IFC primitives (|send|, |sandbox|, etc.).
 %
 In turn, these tasks can create new tasks with |sandbox|.
 %
-Formally, |sandbox| is defined with |klone(tS) = tS0|, where |tS0| is
-the global object corresponding to the standard JavaScript library and
-our IFC primitives.
+In our formal treatement, |sandbox| is defined with |klone(tS) = tS0|,
+where |tS0| is the global object corresponding to the standard
+JavaScript library and our IFC primitives.
  
 \begin{figure}
 \centerline{\includegraphics[width=\columnwidth]{figs/node}}
@@ -92,16 +100,19 @@ our IFC primitives.
 This example shows how our trusted monitor (left) is used to mediate
 communication between two tasks for which IFC is enforced(left).}
 \end{figure}
+%
 As shown in Figure~\ref{fig:node}, each IFC API call from a task is mediated
 by the trusted library code (the main Node.js context), that tracks
 the current label, messages, etc. of each task.
 %
-While V8 provides a means for sharing objects between contexts that
-share a security token (in the case of Blink this is used by pages of
-the same origin), our API (conservatively) restricts the kinds of
-messages that can be exchanged.
+(This task is part of the trusted computing base (TCB) and has access
+to the full Node.js API.)
 %
-More concretely, and as mentioned in Section~\ref{sec:concrete}, we
+While V8 provides a means for sharing objects between contexts (used
+by same-origin contexts in Blink), our system conservatively restricts
+the kinds of messages that can be exchanged by tasks.
+%
+Concretely, and as mentioned in Section~\ref{sec:concrete}, we
 restrict |send| (and |sandbox|) to sending string values.
 %
 In our formalization, this amounts to restricting the IFC language rule
@@ -127,12 +138,13 @@ iS'; sched step (fullconf id il tS (iniEi unit), ldots)
 \end{mathpar}
 %}
 %
-However, our implementation is accompanied by a library that provides
+Our implementation, however, is accompanied by a library that provides
 a more flexible standard library, which, among other things,
 automatically marshalls JSON objects to/from strings on each
 |send|/|recv|.
 
 
+\subsubsection{Client-side embedding: Gecko}
 \Red{HERE}
 
 We remark that this is similar to the existing
