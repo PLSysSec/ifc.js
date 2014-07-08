@@ -1,22 +1,17 @@
 \begin{abstract}
-Many important security problems in JavaScript, such as browser extension
-security, untrusted JavaScript libraries and
-safe integration of mutually distrustful websites (mash-ups), 
-may be effectively addressed using an efficient implementation
-of course-grained information flow control.
-Using JavaScript as a motivating and illustrative example, 
-we formally specify a coarse-grained IFC system that
-can be implemented non-intrusively in a variety of language contexts, 
-resulting in
+    Many important security problems in JavaScript, such as browser extension
+    security, untrusted JavaScript libraries and
+    safe integration of mutually distrustful websites (mash-ups), may be effectively addressed using an efficient implementation
+    of information flow control.
+We formally specify a coarse-grained IFC system that
+can be implemented  non-intrusively, resulting in
 much greater implementation efficiency than previous finer-grained approaches.
-The main advance involves identifying isolation mechanisms
-that allow IFC to track interaction between program
-components whose internal operation is not tracked
-because the entire component has the same label.
-By presenting other language examples, we suggest that this 
-is a general method for adding IFC to existing
-languages,
-provided an appropriate isolation mechanism can be identified.
-We also describe how to relate optimized concrete implementations
-to the IFC systems produced by our technique.
+The central concept is an isolation mechanism whose operation does not
+depend too much on the details of the programming language used.
+Thus, we have a \emph{general} method for adding IFC to existing
+languages that is largely \emph{indifferent} to the choice of language.
+Additionally, we describe how to relate optimized concrete implementations
+to the IFC systems produced by our technique and show how various
+proposed and existing IFC systems conform to our formal framework
+and therefore enjoy the semantic properties we prove.
 \end{abstract}
