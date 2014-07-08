@@ -11,11 +11,11 @@ the web browser engine Gecko.
 
 In this section, we describe these two implementations.  Furthermore,
 we consider how our formalism could be applied to the C programming
-language, and connect it to a previous IFC system for Haskell.
+language and connect it to a previous IFC system for Haskell.
 %
-Our goal is to show the flexibility of the embedding in settings with
-vastly different properties, as well as to discuss the
-semantic gap that must be overcome in some cases to apply our formalism
+The goal of this section is to show the flexibility of the embedding in settings with
+vastly different properties and discuss the
+semantic gap that must be overcome to apply our formalism
 to other systems.
 %
 %% Two of the systems we describe have been implemented: the Haskell
@@ -44,8 +44,8 @@ creates a new task for each HTTP request.  The overhead would
 quickly become impractical.
 
 However, this issue of performance and JavaScript isolation is not
-unique to our work, and has been solved by browser engines,
-which
+unique to our work and has been solved by browser engines,
+which also
 rely on the isolation of content from
 different origins (e.g., two iframes of different origins) to
 implement the same-origin policy.
@@ -55,8 +55,8 @@ Google's V8 and Mozilla's SpiderMonkey provide a means for running
 JavaScript code in isolation in a single OS thread,
 on disjoint sub-heaps.
 %
-In V8, this unit of isolation is called a \emph{context}~\tocite{}; in
-SpiderMonkey, it is called a \emph{compartment}~\tocite{}.
+In V8, this unit of isolation is called a \emph{context}; in
+SpiderMonkey, it is called a \emph{compartment}.
 %
 Each context/compartment is associated with a global object, which, by
 default, implements the JavaScript standard library (e.g.,
@@ -73,7 +73,7 @@ system get exposed as part of the runtime system.
 These features are exposed by extending the global object, just like
 for the standard library.  For this reason, it is easy to modify
 these systems to remove arbitrary external effects when implementing
-an IFC system, and reintroducing important effects in a safe manner.
+an IFC system so important effects can be reintroduced in a safe manner.
 
 
 \subsubsection{Server-side embedding: Node.js}
@@ -103,7 +103,6 @@ All IFC primitives are mediated by the trusted library code (executing
 as the main Node.js context), which tracks the current label, messages,
 etc.\ of each task.  An example for |send|/|recv| is shown in
 Figure~\ref{fig:node}.
-
 %While V8 provides a means for sharing any object between contexts (used
 %by same-origin contexts in Blink),
 Our system conservatively restricts
@@ -155,12 +154,11 @@ our IFC monitor.\footnote{
 }
 %
 (This is safer than the approach of simply wrapping objects, which can
-potentially allow for accessing objects outside the context.)
+potentially allow objects to be accessed outside the context.)
 %
-This task is trusted to ensures that, for instance, labels are
-propagated to files and the labels of the task performing the
-operations and the file in question are inspected appropriately, as to
-preserve non-interference.
+This task is trusted to ensures that labels are
+propagated to files and the labels of the task and the file in question permit
+this flow.
 %
 Unfortunately, while imposing such a proof burden on the
 framework developer is undesirable, this is also somewhat expected:
@@ -169,11 +167,10 @@ handling external I/O.
 %
 For instance, in the case of Node.js, how labels interact with the
 file system may even vary according to the application (e.g.,
-different from our implementation, Hails~\cite{hails} does not persist
-labels).
+in the IFC system Hails~\cite{hails}, labels are not persisted).
 %
 While we can extend our formalism to model a particular interface to
-the file system, HTTP client, etc. the applicability of this are
+the file system, HTTP client, etc. the utility of this formalization is
 unclear and left to future work.
 %
 
@@ -218,15 +215,15 @@ remote host: namely the label corresponding to its origin.
 In turn, when a task perform a request, the COWL runtime performs the
 same label check as that of |send|, e.g., does the task label flow to
 the remote origin label.
-%
-While the external effects of COWL can be formally modeled, and indeed
-necessary, we do not model these effects in our more general
-framework, since, like for Node.js case, this is a platform-specific
+
+Once again, while the external effects of COWL can be formally modeled,
+we do not model these effects in our more general framework, since, like
+for Node.js case, they are a platform-specific
 detail.
 %
 Indeed, even the labeled HTTP client in  Node.js and COWL differ, even
 though they're both JavaScript systems, simply because of the
-different environment.
+differing environments.
 
 
 
