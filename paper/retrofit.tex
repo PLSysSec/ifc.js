@@ -48,7 +48,7 @@ might only allow JSON objects to be passed between tasks, rather than
 general object structures).
 
 Here are two more examples of language features which have an
-interesting interpretation when viewed in the setting of multiple tasks.
+interesting interpretation when interpreted as task communication.
 
 \paragraph{Stack frames versus scheduling}  One feature which is
 supported by some information flow control systems is the ability to
@@ -78,18 +78,18 @@ When considering tasks, we will instead say that the allocation of a new
 stack frame with a raised label corresponds to the creation of a new
 isolated task; a sample encoding using our language is shown in
 Figure~\ref{fig:toLabeled}.
-However, this is not enough: in a stack discipline, one generally
+There is one more ingredient: in a stack discipline, one generally
 expects stack entries to be processed in order, rather than in parallel
 as would be suggested by isolated tasks.  The sequential processing of
 the task queue corresponds to a specific \emph{scheduling policy} of
-these tasks.  The recasting of the problem to one of scheduling
-highlights the essential difference between termination-insensitive and
-termination-sensitive non-interference, and we will show how different
+these tasks.  In fact, the choice of scheduling here is the essential difference that
+determines whether or not one can prove termination-insensitive or
+termination-sensitive non-interference. We will show how different
 scheduling policies give different security guarantees.
 
 \paragraph{Exceptions versus message passing}
 Another language feature that has caused difficulty for
-many information flow control systems is exceptions handling,
+many information flow control systems is exception handling
 when built on top of this stack discipline.
 %
 The key difficulty appears when considering the propagation of exceptions
