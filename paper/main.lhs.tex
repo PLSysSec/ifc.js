@@ -1,4 +1,4 @@
-\documentclass[9pt]{sigplanconf}
+\documentclass[9pt]{llncs}
 %include polycode.fmt
 \newif\ifextended
 
@@ -16,7 +16,7 @@
 
 
 
-\usepackage{array, amssymb, amsthm, amsmath, mathpartir,thmtools}
+\usepackage{array, amssymb, amsmath, mathpartir,thmtools}
 \usepackage[usenames,dvipsnames]{color}
 \usepackage{balance}
 \usepackage{tikz}
@@ -28,11 +28,11 @@
 
 \usepackage{wrapfig}
 \usepackage[square,numbers,sort&compress]{natbib}
-\usepackage[compact,nonindentfirst]{titlesec}
 \usepackage{url}
-\titlespacing{\section}{0pt}{2ex}{0.5ex}
-\titlespacing{\subsection}{0pt}{1.25ex}{0.5ex}
-\titlespacing{\subsubsection}{0pt}{0.5ex}{0.0ex}
+% \usepackage[compact,nonindentfirst]{titlesec}
+% \titlespacing{\section}{0pt}{2ex}{0.5ex}
+% \titlespacing{\subsection}{0pt}{1.25ex}{0.5ex}
+% \titlespacing{\subsubsection}{0pt}{0.5ex}{0.0ex}
 
 \newcommand{\tocite}[1]{\Red{\cite{#1}}}
 \newcommand{\toref}[1]{}%\Red{XXXXX\ref{#1}}}
@@ -40,15 +40,15 @@
 \usepackage{float}
 \newfloat{listing}{htbp}{lop} \floatname{listing}{Listing}
 
-\declaretheorem{theorem}
-\declaretheorem[name=Lemma]{lemma}
-\declaretheorem[name=Corollary]{corollary}
-\declaretheorem[name=Proposition]{proposition}
-% thmstyle: definition
-\declaretheorem[name=Definition, style=definition]{definition}
-\declaretheorem[name=Example, style=definition]{example}
-% thmstyle: remark
-\declaretheorem[name=Proof sketch, style=remark]{proofsketch}
+% \declaretheorem{theorem}
+% \declaretheorem[name=Lemma]{lemma}
+% \declaretheorem[name=Corollary]{corollary}
+% \declaretheorem[name=Proposition]{proposition}
+% % thmstyle: definition
+% \declaretheorem[name=Definition, style=definition]{definition}
+% \declaretheorem[name=Example, style=definition]{example}
+% % thmstyle: remark
+% \declaretheorem[name=Proof sketch, style=remark]{proofsketch}
 
 \usepackage{url}
 
@@ -87,7 +87,7 @@ IFC Inside: Retrofitting Languages with Dynamic Information Flow Control
 %   1. Target language, 2. IFC language, 3. ... 4. Profit!!!
 %   Just add IFC
 
-\authorinfo{}{}
+%\authorinfo{}{}
 %% \authorinfo{
 %%   Stefan Heule \and
 %%   Deian Stefan \and
