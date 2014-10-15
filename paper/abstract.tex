@@ -12,6 +12,8 @@ and therefore abstracting away from the internals of JavaScript. Specifically,
 we provide a coarse-grained IFC monitor which does not require any modifications
 to either JavaScript semantics or its engine---the approach only exposes a small
 API to the JavaScript code in order to interact with the monitor. To reason
-about our design principles, we describe a formal framework which then we
-instantiate to provide guarantees to out monitor implementation in Firefox.
+about our design principles, we describe a formal framework which treat target
+languages (e.g. JavaScript) as black-boxes with a clear interface to the
+monitor. We instantiate our framework to provide security guarantees
+(i.e. non-interference) to an IFC monitor implemented in Firefox.
 \end{abstract}
