@@ -32,7 +32,7 @@ floating-label in certain situations.
 %%
 %Below we
 %consider the addition of several labeled constructs to the abstract specification.
-In this section we show how to extend our framework with several such
+In this section, we show how to extend our framework with several such
 constructs.  For space reasons, we mainly provide the high-level
 ideas here, and provide full formal semantics (including the soundness
 proof with the extensions) in \appendixextfirst{}.
@@ -186,6 +186,9 @@ outline potential future directions to alleviate them. %these limitations.
 
 \subsection{Type Safety}
 \label{sec:extensions:types}
+\Red{Ale: I don't get this part. Why are we talking about type-safety? Is the
+  problem that the combined semantics does not get stuck when the target does?
+  Is type-safety a manner to get progress?}
 
 One important consideration for any new language feature is whether
 or not it preserves type safety.  If implementations are allowed to
@@ -275,7 +278,7 @@ The last condition is required for TSNI; languages relying on
 schedulers, such as |seqf|, that do not satisfy the low-progress
 condition can at most satisfy TINI.
 %
-For simplicity, we do not treat this, more-general class of schedulers;
+For simplicity, we do not treat more-general class of schedulers;
 doing so would require modifying our calculus to keep track of the
 label on the current label of tasks and complicate the
 non-interference proofs.
@@ -294,7 +297,7 @@ Such extensions often apply security conditions which suffer
 from refinement attacks (e.g.~\cite{Smith:Volpano:MultiThreaded}) or may require to
 adapt non-trivial definitions as
 \emph{low-determinism}~\cite{Zdancewic:Myers:CSFW03,Huisman:Worah:Sunesen:CSFW06,Terauchi:2008},
-which states that a program is secure only if |l|-equivalent results are
+where programs are secure only if |l|-equivalent results are
 deterministic.
 
 \subsection{External Effects}
@@ -308,28 +311,27 @@ can be challenging.
 Yet, external effects are crucial when implementing more complex
 real-world applications.
 %
-For example, code in an IFC browser must load resources or
-perform XHR to be useful.
+For example, COWL must load resources or perform XHR to be useful.
 
-Like labeled references, features with external effects must be
+Like labeled references, features with external effects must be explicitly
 modeled in the IFC language; we must reason about the precise security
 implications of features that otherwise inherently leak data.
 %
 Previous approaches have modeled external effects by internalizing the
 effects as writes/reads to labeled channels/references~\cite{stefan:addressing-covert}.
 %
-An alternative approach is to model such effects as messages to/from
-certain labeled tasks, an approach taken by our Node.js
-implementation.
-%
-These ``special'' tasks are trusted with access to the unlabeled
-primitives that can be used to perform the external effects; since the
-interface to these tasks is already part of the IFC language, the
-proof only requires showing that this task does not leak information.
-%
-An alternative approach of restricting or wrapping unsafe primitives
-is, for example, used in COWL and JSFlow, respectively, to allow for
-controlled network communication.
+%% An alternative approach is to model such effects as messages to/from
+%% certain labeled tasks, an approach taken by our Node.js
+%% implementation.
+%% %
+%% These ``special'' tasks are trusted with access to the unlabeled
+%% primitives that can be used to perform the external effects; since the
+%% interface to these tasks is already part of the IFC language, the
+%% proof only requires showing that this task does not leak information.
+%% %
+Alternatively, COWL and JSFlow wrap unsafe primitives
+%is, for example, used in COWL and JSFlow, respectively,
+in order to allow for controlled network communication.
 %
 (By restricting the default XHR object, for example, COWL allows code
 to communicate with hosts according to the task's current label.)
