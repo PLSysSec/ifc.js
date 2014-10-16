@@ -4,15 +4,18 @@
 
 In this paper, we argued that when designing a coarse-grained IFC
 system, it is better to start with a fully isolated, multi-task system
-and work one's way back to the model of a single language.  We showed
-how to prove systems designed this way can be proved non-interferent,
-without needing to rely on details of the target language, and
-we provided conditions on how to securely refine our formal semantics to
-consider optimizations required in practice.  We connected our semantics
-to two IFC implementations for JavaScript based on this formalism,
-explained how our methodology improved an exiting IFC system for Haskell,
-and proposed
-an IFC system for C using hardware isolation.
+and work one's way back to the model of a single IFC-aware language.  We showed
+a formal framework capable to prove secure (i.e. non-interferent) systems designed this way,
+without needing to rely on details of the target language.
+%, and
+%we provided conditions on how to securely refine our formal semantics to
+%consider optimizations required in practice.
+We provide soundness guarantees for the COWL's JavaScript monitor by simply
+connecting our framework to that implementation.
+%% to two IFC implementations for JavaScript based on this formalism,
+%% explained how our methodology improved an exiting IFC system for Haskell,
+%% and proposed
+%% an IFC system for C using hardware isolation.
 By systematically applying ideas from IFC in operating systems to programming languages,
 we hope to have elucidated some of the core design principles of coarse-grained,
 dynamic IFC systems.
