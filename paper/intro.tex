@@ -49,12 +49,12 @@ and avoid any modification to its engine.
 %% non-trivial~\cite{hritcu2013testing}; when considering a real-world language,
 %% such as JavaScript, this challenge becomes almost insurmountable.
 
-Inspired by OS research~\cite{}, we present a \textit{coarse-grained} dynamic
-IFC monitor to JavaScript (as specified by ECMAScript~\cite{}). Specifically,
-JavaScript code is divided into relatively coarse computational units
-(i.e. workers), each with a single label dictating its security policy. As a
-result, it is just enough to track communication between isolated computational
-units.
+Inspired by OS research~\cite{Zeldovich:2006}, we present a
+\textit{coarse-grained} dynamic IFC monitor to JavaScript (as specified by
+ECMAScript~\cite{ecma}). Specifically, JavaScript code is divided into relatively
+coarse computational units (i.e. workers), each with a single label dictating
+its security policy. As a result, it is just enough to track communication
+between isolated computational units.
 %A recent system named COWL~\cite{swapi} adds IFC to the
 %browser by identifying \emph{web workers} as an existing computational
 %unit.  Communication between workers is mediated using
@@ -116,8 +116,8 @@ choice of the specific underlying programming language, e.g., JavaScript.
 
 Our contributions can be summarized as follows:
 \begin{itemize}
-  \item We give formal semantics for a core coarse-grained dynamic information
-    flow control monitor which is agnostic to non-IFC constructs.
+  \item We give formal semantics for a generic coarse-grained dynamic
+    information flow control monitor which is agnostic to non-IFC constructs.
     %We show how a
   \item We show non-interefence results when target languages exhibit a notion
     of isolated computations and control of external side-effects.
