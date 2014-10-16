@@ -92,7 +92,7 @@ In turn, these tasks can create new tasks with |sandbox|.
 In our formal treatement, |sandbox| is defined with |ap klone tS = tS0|,
 where |tS0| is the global object corresponding to the standard
 JavaScript library and our IFC primitives.
- 
+
 \begin{figure}
 \centerline{\includegraphics[width=\columnwidth]{figs/node}}
 \caption{\label{fig:node} Retrofitting Node.js JavaScript with IFC.
@@ -239,105 +239,105 @@ for Node.js case, they are application specific.
 
 
 
-\subsection{Haskell}
-\label{sec:real:hs}
-Our work borrows ideas from a Haskell coarse-grained IFC
-system called LIO~\cite{lio, stefan:addressing-covert}.
-%
-LIO relies on Haskell's strong type system and monadic encoding of
-side-effecting computations to achieve isolation and define the IFC
-sub-language.
-%
-Specifically LIO provides the \verb|LIO| monad as a way of restricting
-(almost all) side-effects; this monad also keeps track of a current
-label which is, in turn, used by trusted code when defining core IFC
-functions, such as |getLabel|.
-%
-In the context of our framework, LIO can be understood as follows: the
-\emph{pure subset} of Haskell is the target language, while the
-monadic subset of Haskell, operating in the \verb|LIO| monad, is the
-IFC language.
+%% \subsection{Haskell}
+%% \label{sec:real:hs}
+%% Our work borrows ideas from a Haskell coarse-grained IFC
+%% system called LIO~\cite{lio, stefan:addressing-covert}.
+%% %
+%% LIO relies on Haskell's strong type system and monadic encoding of
+%% side-effecting computations to achieve isolation and define the IFC
+%% sub-language.
+%% %
+%% Specifically LIO provides the \verb|LIO| monad as a way of restricting
+%% (almost all) side-effects; this monad also keeps track of a current
+%% label which is, in turn, used by trusted code when defining core IFC
+%% functions, such as |getLabel|.
+%% %
+%% In the context of our framework, LIO can be understood as follows: the
+%% \emph{pure subset} of Haskell is the target language, while the
+%% monadic subset of Haskell, operating in the \verb|LIO| monad, is the
+%% IFC language.
 
-%Indeed, by rephrasing LIO in terms of our framework, we simplified
-%LIO's treatment of exceptions.
-%
-LIO originally associated labels with exceptions, in a
-similar style to fine-grained
-systems~\cite{stefan:2012:arxiv-flexible, Hritcu:2013:YIB:2497621.2498098}.
-%
-In particular, the label of an exception was set to the current label
-at the time of the throw, and used by a custom catch construct to
-raise the current label, thereby preventing leaks due to exceptional
-control flows.
-%
-In addition to being overly complex, the interaction of exceptions
-with clearance (which sets an upper bound on the current label, see
-Section~\ref{sec:clearance}) was incorrect: the clearance
-was restored to the clearance at point of the catch (a consequence of
-defining \verb|LIO| using a State monad).
-%
-Furthermore, pure exceptions (e.g., divide by zero) always percolated to
-trusted code, effectively allowing for denial of service attacks.
-%
-The insights gained when viewing coarse-grained IFC as presented in this
-paper led to a much cleaner, simpler treatment of exceptions in LIO,
-which has now been adapted by LIO.
-%By using isolated tasks, and thus treating the current label (and
-%clearance) as global, the underlying Haskell exception system can be
-%used directly: exceptional control flow does not affect IFC.
-
-
+%% %Indeed, by rephrasing LIO in terms of our framework, we simplified
+%% %LIO's treatment of exceptions.
+%% %
+%% LIO originally associated labels with exceptions, in a
+%% similar style to fine-grained
+%% systems~\cite{stefan:2012:arxiv-flexible, Hritcu:2013:YIB:2497621.2498098}.
+%% %
+%% In particular, the label of an exception was set to the current label
+%% at the time of the throw, and used by a custom catch construct to
+%% raise the current label, thereby preventing leaks due to exceptional
+%% control flows.
+%% %
+%% In addition to being overly complex, the interaction of exceptions
+%% with clearance (which sets an upper bound on the current label, see
+%% Section~\ref{sec:clearance}) was incorrect: the clearance
+%% was restored to the clearance at point of the catch (a consequence of
+%% defining \verb|LIO| using a State monad).
+%% %
+%% Furthermore, pure exceptions (e.g., divide by zero) always percolated to
+%% trusted code, effectively allowing for denial of service attacks.
+%% %
+%% The insights gained when viewing coarse-grained IFC as presented in this
+%% paper led to a much cleaner, simpler treatment of exceptions in LIO,
+%% which has now been adapted by LIO.
+%% %By using isolated tasks, and thus treating the current label (and
+%% %clearance) as global, the underlying Haskell exception system can be
+%% %used directly: exceptional control flow does not affect IFC.
 
 
 
 
-\subsection{C}
-\label{sec:real:c}
-%
-C programs are able to execute arbitrary (machine) code, access
-arbitrary memory, and perform arbitrary system calls.
-%
-Thus, the confinement of C programs must be imposed by the underlying OS
-and hardware.
-%
-For instance, our notion of isolation can be achieved using Dune's
-hardware protection mechanisms~\cite{Belay:2012:DSU:2387880.2387913},
-similar to a simpler version of
-Wedge~\cite{Belay:2012:DSU:2387880.2387913,
-Bittau:2008:WSA:1387589.1387611} with an information flow control
-policy.
-%
-Using page tables, a (trusted) IFC runtime could ensure that each task,
-implemented as a lightweight process, can only access the memory it
-allocates---tasks do not have access to any shared memory.
-%
-In addition, ring protection could be used to intercept system
-calls performed by
-a task and only permit those corresponding to our IFC language (such as
-|getLabel| or |send|).
-%
-Dune's hardware protection mechanism would allow us to provide a concrete
-implementation that is efficient and relatively simple to reason
-about, but other sandboxing mechanisms could be used in place of Dune.
 
-In this setting, the combined language of Section~\ref{sec:retrofit}
-can be interpreted in the following way: calling from the target
-language to the IFC language corresponds to invoking a system call.
-%
-Creating a new task with the |sandbox| system call corresponds to
-\emph{forking} a process.  Using page tables we can ensure that
-there will be no shared memory
-(effectively
-defining |ap klone tS
-= tS0|, where |tS0| is the set of pages necessary to bootstrap a
-lightweight process.)
-%
-Similarly, control over page tables and protection bits allows us to
-define a |send| syscall that copies pages to our
-(trusted) runtime queue; and, correspondingly, a |recv| that copies
-the pages from the runtime queue to the (untrusted) receiver.
-%
-Since C is not memory safe, conditions on these system calls are
-meaningless.
-%
-We leave the implementation of this IFC system for C to future work.
+
+%% \subsection{C}
+%% \label{sec:real:c}
+%% %
+%% C programs are able to execute arbitrary (machine) code, access
+%% arbitrary memory, and perform arbitrary system calls.
+%% %
+%% Thus, the confinement of C programs must be imposed by the underlying OS
+%% and hardware.
+%% %
+%% For instance, our notion of isolation can be achieved using Dune's
+%% hardware protection mechanisms~\cite{Belay:2012:DSU:2387880.2387913},
+%% similar to a simpler version of
+%% Wedge~\cite{Belay:2012:DSU:2387880.2387913,
+%% Bittau:2008:WSA:1387589.1387611} with an information flow control
+%% policy.
+%% %
+%% Using page tables, a (trusted) IFC runtime could ensure that each task,
+%% implemented as a lightweight process, can only access the memory it
+%% allocates---tasks do not have access to any shared memory.
+%% %
+%% In addition, ring protection could be used to intercept system
+%% calls performed by
+%% a task and only permit those corresponding to our IFC language (such as
+%% |getLabel| or |send|).
+%% %
+%% Dune's hardware protection mechanism would allow us to provide a concrete
+%% implementation that is efficient and relatively simple to reason
+%% about, but other sandboxing mechanisms could be used in place of Dune.
+
+%% In this setting, the combined language of Section~\ref{sec:retrofit}
+%% can be interpreted in the following way: calling from the target
+%% language to the IFC language corresponds to invoking a system call.
+%% %
+%% Creating a new task with the |sandbox| system call corresponds to
+%% \emph{forking} a process.  Using page tables we can ensure that
+%% there will be no shared memory
+%% (effectively
+%% defining |ap klone tS
+%% = tS0|, where |tS0| is the set of pages necessary to bootstrap a
+%% lightweight process.)
+%% %
+%% Similarly, control over page tables and protection bits allows us to
+%% define a |send| syscall that copies pages to our
+%% (trusted) runtime queue; and, correspondingly, a |recv| that copies
+%% the pages from the runtime queue to the (untrusted) receiver.
+%% %
+%% Since C is not memory safe, conditions on these system calls are
+%% meaningless.
+%% %
+%% We leave the implementation of this IFC system for C to future work.
