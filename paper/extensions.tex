@@ -20,13 +20,19 @@ constructs.
 %system with labeled constructs appropriate for their envisioned
 %applications.
 %%
-For example, COWL provides a labeled version of the XHR object, while
-LIO implements a labeled file system, used in server-side web
-applications~\cite{hails}.
+In fact, COWL provides a labeled version of the XHR object to perform external
+side-effects as well as labeled messages to avoid raising the
+floating-label in certain situations.
+
+
+
+%while
+%LIO implements a labeled file system, used in server-side web
+%applications~\cite{hails}.
 %%
 %Below we
 %consider the addition of several labeled constructs to the abstract specification.
-In this section we show how to extend the language with several such
+In this section we show how to extend our framework with several such
 constructs.  For space reasons, we mainly provide the high-level
 ideas here, and provide full formal semantics (including the soundness
 proof with the extensions) in \appendixextfirst{}.
@@ -54,15 +60,16 @@ to reflect the fact that such data is in scope.
 
 If such fine-grained labeling of values is required, our base IFC
 system can be extended with explicitly labeled
-values, much like those of LIO and
-Breeze~\cite{lio, Hritcu:2013:YIB:2497621.2498098}: |iv ::= cdots
-inlinesep Labeled il ie|.
+values similarly as~\cite{lio, Hritcu:2013:YIB:2497621.2498098}:
+%, much like those of LIO and
+|iv ::= cdots inlinesep Labeled il ie|.
 %
-Following LIO, we say that the expression |ie| is protected by label |il|,
+%Following LIO,
+We say that the expression |ie| is protected by label |il|,
 while the label |il| itself is protected by the task's current label.
 %
 %
-The label of such values can be inspected the task without
+The label of such values can be inspected the a given task without
 requiring the current label to be raised.
 %
 However, when a task wishes to inspect the protected value |ie|, it
@@ -101,13 +108,13 @@ reference implementations.
 \subsection{Clearance}
 \label{sec:clearance}
 %
-Systems like LIO, COWL, and Breeze additionally provide a discretionary access
+Similar to other systems, COWL additionally provide a discretionary access
 control (DAC) mechanism---called \emph{clearance}---at the language
-level~\cite{Hritcu:2013:YIB:2497621.2498098, lio}.
+level~\cite{Zeldovich:2006,Hritcu:2013:YIB:2497621.2498098, lio}.
 %
 This mechanisms is used to restrict a computation from allocating and
 accessing data (or communicating with entities) above a specified
-label, the clearance.
+label, i.e., the clearance.
 %
 Amending our IFC language with clearance is straight forward,
 and, can be done using our notation of a restricted language.
@@ -120,19 +127,23 @@ Since this extension only adds a per-task mutable variable whose value
 has no influence on the system, all security guarantees still
 hold, by essentially the same proofs.
 %
-However, this does not implement any DAC mechanism yet.
+To extend our framework with clearance, it is enough to
+a family of predicates to each rule
+%However, this does not implement any DAC mechanism yet.
 %
 To do so, we can restrict the language with a family of predicates
-$\mathcal{P}_\text{clearance}$:
-All rules that
+%$\mathcal{P}_\text{clearance}$:
+%All rules
+that
 raise the current label (e.g., \textsc{I-setLabel}), perform
 allocation (e.g., \textsc{I-sandbox} and \textsf{I-send}), or set the
-clearance (clearance should not be arbitrarily raised), a predicate
-that uses the clearance to impose DAC is used.
+clearance (clearance should not be arbitrarily raised).
+%, a predicate
+%that uses the clearance to impose DAC is used.
 %
 For instance, the predicate for \textsc{I-setLabel} prevents the
 current label from being raised above the clearance (and thus permit
-reads above the clearance).  The predicate $P := |il
+reads above the clearance).  More specifically, the predicate $P := |il
 canFlowTo il'|$ achieves this restriction, where |il'| is the
 clearance and |il| is the current
 label.
@@ -142,12 +153,13 @@ brevity.
 
 
 \subsection{Privileges}
-Decentralized IFC extends IFC with the decentralized label model of
-Myers and Liskov~\cite{myers:dlm} to allow for more general
-applications, including systems consisting of mutually distrustful
-parties.  In a decentralized system, a computation is executed with a
-set of \emph{privileges}, which, when exercised, allow the computation
-to declassify data (e.g., by lowering the current label).
+%Decentralized IFC extends IFC with the decentralized label model of
+%Myers and Liskov~\cite{myers:dlm} to allow for more general
+%applications, including systems consisting of mutually distrustful
+%parties.
+In COWL, as well as other decentralized IFC systems~\cite{myers:dlm}, a
+computation is executed with a set of \emph{privileges}, which, when exercised,
+allow the computation to declassify data (e.g., by lowering the current label).
 %
 Practical IFC systems
 (e.g.,~\cite{Zeldovich:2006, lio,
@@ -158,20 +170,19 @@ implement many applications.
 %we believe that extending our calculus to consider privileges is
 %straight forward.
 %
-The challenge with such an extension lies in the precise
-security guarantees that must be proved, which to the best of our
-knowledge is an open research problem.
-
-Our implementation for Node.js and COWL both provide privileges, but
-we have not formalized this part any further.
+The challenge with such an extension lies in the precise security guarantees
+that must be proved, which, to the best of our knowledge, is an open research
+problem.
 %
+%COWL provides support for privileges,
+We have not formalized this part any further.
 %Addressing this problem is a natural direction for this work.
 
 
 \section{Limitations and Future Directions}
 
-In this section we state some limitations of the current system, and
-outline potential future directions to alleviate these limitations.
+In this section, we state some limitations of our formal approach, and
+outline potential future directions to alleviate them. %these limitations.
 
 \subsection{Type Safety}
 \label{sec:extensions:types}
@@ -225,7 +236,7 @@ there are few general remarks to be made:
 \subsection{Scheduling Policies}
 Our specification language is parametrized by a scheduling policy |alpha|, which
 maps a task list to a potentially different task list, i.e.,
-$\alpha_{{\tiny\mathrm{\text{step}}}}(\ifc{\Varid{t}},\ldots)$. 
+$\alpha_{{\tiny\mathrm{\text{step}}}}(\ifc{\Varid{t}},\ldots)$.
 %
 As previously discussed, the precise definition of |alpha|
 dictates whether the language is TSNI, TINI, or neither.
@@ -234,7 +245,7 @@ We described two popular policies |roundrobinf| and
 |seqf| for which we showed TSNI and TINI, respectively.
 %
 However, our definitions allow for other scheduling policies based on the
-current task list---in fact, our formalism can be easily 
+current task list---in fact, our formalism can be easily
 extended to consider history~\cite{BartheRRS07}.
 %
 As an example of generality, our approach allows to implement the scheduler of~\cite{Kashyap:2011}
@@ -248,12 +259,12 @@ can measure the delay between output events.\footnote{
 %
 More precisely, our calculus generalizes to a class of deterministic
 schedulers that are: 1) \emph{integrity-preserving}, i.e., they do not
-modify (or create) tasks; 2) \emph{non-interferent}, i.e., 
+modify (or create) tasks; 2) \emph{non-interferent}, i.e.,
 %greatest lower bound of all the labels on the task labels,\footnote{
 %  The label on a task's current label is the current label of the
 %  parent at the time of creation, i.e., the initial current label of
 %  the task.
-%} 
+%}
 scheduling decisions on public tasks do not depend on a sensitive task's
 state~\cite{russo2006securing}; and, 3) make \emph{low-progress}, i.e., if there
 is a task in the task list whose label is below (or incomparable to) the label
@@ -279,7 +290,7 @@ schedulers (or even non-deterministic target languages) is non-trivial.
 %
 %Additionally, our definitions rely on deterministic relations,
 %
-Such extensions often apply security conditions which suffer 
+Such extensions often apply security conditions which suffer
 from refinement attacks (e.g.~\cite{Smith:Volpano:MultiThreaded}) or may require to
 adapt non-trivial definitions as
 \emph{low-determinism}~\cite{Zdancewic:Myers:CSFW03,Huisman:Worah:Sunesen:CSFW06,Terauchi:2008},
