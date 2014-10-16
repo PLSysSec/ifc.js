@@ -1,19 +1,17 @@
 \begin{abstract}
 Web sites could compromise users' privacy by accidentally incorporating
 error-prone or malicious third-party JavaScript. Informa\-tion-flow control
-(IFC) is a promising technique to securely incorporate untrusted JavaScript into
-web sites and it allows the safe integration of mutually distrustful websites
-(mash-ups). Unfortunately, existing IFC approaches demand non-trivial
-modifications to the JavaScript engine or a full instrumentation of the
-JavaScript semantics in order to track how information flows inside web
-applications. Inspired by operating system research, we present an alternative
-technique based on attaching a single IFC policy to a single browsing context,
-and therefore abstracting away from the internals of JavaScript. Specifically,
-we provide a coarse-grained IFC monitor which does not require any modifications
-to either JavaScript semantics or its engine---the approach only exposes a small
-API to the JavaScript code in order to interact with the monitor. To reason
-about our design principles, we describe a formal framework which treat target
-languages (e.g. JavaScript) as black-boxes with a clear interface to the
-monitor. We instantiate our framework to provide security guarantees
-(i.e. non-interference) to an IFC monitor implemented in Firefox.
+(IFC) is a promising technique to secure web sites against untrusted JavaScript
+code. Unfortunately, existing IFC approaches demand non-trivial modifications to
+the JavaScript engine or a full instrumentation of the JavaScript semantics. In
+contrast, and inspired by operating system (OS) research, we present an
+alternative technique based on attaching a single IFC policy to a single
+execution context, and therefore abstracting away from the internals of
+JavaScript. Specifically, we provide a coarse-grained IFC monitor which does not
+require any modifications to either JavaScript's semantics or its engine---the
+approach only exposes a small API to JavaScript code in order to interact
+with the monitor. To reason about our design principles, we describe a formal
+framework which treat target languages, e.g. JavaScript, as black-boxes with a
+clear interface to the monitor. We instantiate our framework to provide security
+guarantees (i.e. non-interference) to an IFC monitor implemented in Firefox.
 \end{abstract}
