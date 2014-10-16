@@ -1,127 +1,135 @@
 \section{Retrofitting Languages with IFC}
 \label{sec:retrofit}
 
-Before moving on to the formal treatment of our system, we'd like to give
-a brief primer of information flow control and describe some example programs
-in our system, emphasizing the parallel between their implementation
-in a multi-task setting, and the traditional, ``monolithic'' programming
-language feature they simulate.
+%% Before moving on to the formal treatment of our system, we'd like to give
+%% a brief primer of information flow control and describe some example programs
+%% in our system, emphasizing the parallel between their implementation
+%% in a multi-task setting, and the traditional, ``monolithic'' programming
+%% language feature they simulate.
 
-Information flow control systems operate by associating data with \emph{labels},
-and specifying whether or not data tagged with one label |l1| can flow
-to another
-label |l2| (written as |canFlowTo2 l1 l2|).  These labels encode the desired
-security policy (for example, confidential information should not flow to
-a public channel), and the work of specifying the semantics of an information
-flow language involves demonstrating that impermissible flows cannot happen,
-a property called \emph{non-interference}.
-%
-In our coarse-grained floating-label approach, labels are associated with tasks.
-%
-The task label---we refer to the label of the currently executing task as the
-\emph{current label}---serves to protect everything in the task's scope;
-all data in a task shares this common label.
+%% Information flow control systems operate by associating data with \emph{labels},
+%% and specifying whether or not data tagged with one label |l1| can flow
+%% to another
+%% label |l2| (written as |canFlowTo2 l1 l2|).  These labels encode the desired
+%% security policy (for example, confidential information should not flow to
+%% a public channel), and the work of specifying the semantics of an information
+%% flow language involves demonstrating that impermissible flows cannot happen,
+%% a property called \emph{non-interference}.
+%% %
+%% In our coarse-grained floating-label approach, labels are associated with tasks.
+%% %
+%% The task label---we refer to the label of the currently executing task as the
+%% \emph{current label}---serves to protect everything in the task's scope;
+%% all data in a task shares this common label.
 
-For our first example, here is a program which spawns a new isolated task,
-and then sends it a mutable reference:
-\begin{align*}
-    & |let i = TI (sandbox (brecvf x _ (IT (!(TI x)))))|\\
-    & |in TI (send (IT i) l (IT (ref true)))|
-\end{align*}
-For now, ignore the tags |TI| and |IT|: roughly, this code creates a new
-|sandbox|ed task with identifier $i$ which waits (\textbf{blockingRecv}, binding $x$ with the received message) for a
-message, and then \textbf{send}s the task a mutable reference |(ref
-true)| which it labels $l$.  If this operation actually shared the mutable cell between the two tasks, it
-could be used to violate information flow control if the tasks had differing labels.  At this point, the designer of an IFC system might add label checks to mutable references, to check the labels of the reader and writer---solving the leak, but also dooming the performance of mutable references in the system.
+%% For our first example, here is a program which spawns a new isolated task,
+%% and then sends it a mutable reference:
+%% \begin{align*}
+%%     & |let i = TI (sandbox (brecvf x _ (IT (!(TI x)))))|\\
+%%     & |in TI (send (IT i) l (IT (ref true)))|
+%% \end{align*}
+%% For now, ignore the tags |TI| and |IT|: roughly, this code creates a new
+%% |sandbox|ed task with identifier $i$ which waits (\textbf{blockingRecv}, binding $x$ with the received message) for a
+%% message, and then \textbf{send}s the task a mutable reference |(ref
+%% true)| which it labels $l$.  If this operation actually shared the mutable cell between the two tasks, it
+%% could be used to violate information flow control if the tasks had differing labels.  At this point, the designer of an IFC system might add label checks to mutable references, to check the labels of the reader and writer---solving the leak, but also dooming the performance of mutable references in the system.
 
-Our design principles suggests a different resolution: when these
-constructs are treated as isolated tasks, each of which have their own heaps, it
-is obviously the case that there is no sharing: in fact, the sandboxed task receives a dangling pointer.  Even if there is only one heap, if we enforce that references
-not be shared, the two systems are morally equivalent. (We elaborate on
-this formally in Section~\ref{sec:single-heap}.)  Finally, these
-semantics strongly suggest that one should restrict the types of
-data which may be passed between tasks (for example, in JavaScript, one
-might only allow JSON objects to be passed between tasks, rather than
-general object structures).
+%% Our design principles suggests a different resolution: when these
+%% constructs are treated as isolated tasks, each of which have their own heaps, it
+%% is obviously the case that there is no sharing: in fact, the sandboxed task receives a dangling pointer.  Even if there is only one heap, if we enforce that references
+%% not be shared, the two systems are morally equivalent. (We elaborate on
+%% this formally in Section~\ref{sec:single-heap}.)  Finally, these
+%% semantics strongly suggest that one should restrict the types of
+%% data which may be passed between tasks (for example, in JavaScript, one
+%% might only allow JSON objects to be passed between tasks, rather than
+%% general object structures).
 
-Here are two more examples of language features which have an
-interesting interpretation when interpreted as task communication.
+%% Here are two more examples of language features which have an
+%% interesting interpretation when interpreted as task communication.
 
-\paragraph{Stack frames versus scheduling}  One feature which is
-supported by some information flow control systems is the ability to
-temporarily raise the current label in order to do computation on data
-(as done by LIO's |toLabeled| and Breeze's
-brackets~\cite{Hritcu:2013:YIB:2497621.2498098,
-stefan:2012:arxiv-flexible}).  After the computation, the label is lowered back to the original label,
-enforcing a stack discipline.  When this occurs, care must be taken to ensure that information doesn't leak when
-the label is lowered (e.g., the result must not be readable). In fact, systems with this feature generally only
-achieve termination-insensitive non-interference: if the high secrecy
-section doesn't terminate, this is observable by the non-execution of
-the defunct public continuation.
+%% \paragraph{Stack frames versus scheduling}  One feature which is
+%% supported by some information flow control systems is the ability to
+%% temporarily raise the current label in order to do computation on data
+%% (as done by LIO's |toLabeled| and Breeze's
+%% brackets~\cite{Hritcu:2013:YIB:2497621.2498098,
+%% stefan:2012:arxiv-flexible}).  After the computation, the label is lowered back to the original label,
+%% enforcing a stack discipline.  When this occurs, care must be taken to ensure that information doesn't leak when
+%% the label is lowered (e.g., the result must not be readable). In fact, systems with this feature generally only
+%% achieve termination-insensitive non-interference: if the high secrecy
+%% section doesn't terminate, this is observable by the non-execution of
+%% the defunct public continuation.
 
-\begin{figure}
-\begin{align*}
-    & |toLabeled l te @= | \\
-    & |tab let i = taskId in| \\
-%%    & |tab let j = TI (sandbox (IT (TI (setLabel l); TI (send i l (IT te)))))| \\
-    & |tab let j = TI (sandbox (IT (TI (send i l (IT te)))))| \\
-    & |tab in (\ _ . TI (setLabel l); TI (recvf x _ x unit))|
-\end{align*}
-\caption{Encoding of toLabeled using isolated tasks.}\label{fig:toLabeled}
-\end{figure}
+%% \begin{figure}
+%% \begin{align*}
+%%     & |toLabeled l te @= | \\
+%%     & |tab let i = taskId in| \\
+%% %%    & |tab let j = TI (sandbox (IT (TI (setLabel l); TI (send i l (IT te)))))| \\
+%%     & |tab let j = TI (sandbox (IT (TI (send i l (IT te)))))| \\
+%%     & |tab in (\ _ . TI (setLabel l); TI (recvf x _ x unit))|
+%% \end{align*}
+%% \caption{Encoding of toLabeled using isolated tasks.}\label{fig:toLabeled}
+%% \end{figure}
 
 
-When considering tasks, we will instead say that the allocation of a new
-stack frame with a raised label corresponds to the creation of a new
-isolated task; a sample encoding using our language is shown in
-Figure~\ref{fig:toLabeled}.
-There is one more ingredient: in a stack discipline, one generally
-expects stack entries to be processed in order, rather than in parallel
-as would be suggested by isolated tasks.  The sequential processing of
-the task queue corresponds to a specific \emph{scheduling policy} of
-these tasks.  In fact, the choice of scheduling here is the essential difference that
-determines whether or not one can prove termination-insensitive or
-termination-sensitive non-interference. We will show how different
-scheduling policies give different security guarantees.
+%% When considering tasks, we will instead say that the allocation of a new
+%% stack frame with a raised label corresponds to the creation of a new
+%% isolated task; a sample encoding using our language is shown in
+%% Figure~\ref{fig:toLabeled}.
+%% There is one more ingredient: in a stack discipline, one generally
+%% expects stack entries to be processed in order, rather than in parallel
+%% as would be suggested by isolated tasks.  The sequential processing of
+%% the task queue corresponds to a specific \emph{scheduling policy} of
+%% these tasks.  In fact, the choice of scheduling here is the essential difference that
+%% determines whether or not one can prove termination-insensitive or
+%% termination-sensitive non-interference. We will show how different
+%% scheduling policies give different security guarantees.
 
-\paragraph{Exceptions versus message passing}
-Another language feature that has caused difficulty for
-many information flow control systems is exception handling
-when built on top of this stack discipline.
-%
-The key difficulty appears when considering the propagation of exceptions
-across stack boundaries where the current label is restored.
-%
-If the exception crosses this boundary, it can leak information about the
-inner secret computation into a public computation; hence, one must
-explicitly ensure that |toLabeled| does not propagate exceptions.
-%
-When stack frames are treated as isolated tasks, the correct semantics
-are achieved automatically.
-%
-Exceptions simply stop when the hit the top-level of a task:
-the only way for the frame to communicate information is by
-initiating inter-task message passing.
-%
-For instance, 
-\begin{code}
-TI(toLabeled l (IT (if te then fail else true))); true
-\end{code}
-always evaluates to |true|, regardless of the value of |te|.
+%% \paragraph{Exceptions versus message passing}
+%% Another language feature that has caused difficulty for
+%% many information flow control systems is exception handling
+%% when built on top of this stack discipline.
+%% %
+%% The key difficulty appears when considering the propagation of exceptions
+%% across stack boundaries where the current label is restored.
+%% %
+%% If the exception crosses this boundary, it can leak information about the
+%% inner secret computation into a public computation; hence, one must
+%% explicitly ensure that |toLabeled| does not propagate exceptions.
+%% %
+%% When stack frames are treated as isolated tasks, the correct semantics
+%% are achieved automatically.
+%% %
+%% Exceptions simply stop when the hit the top-level of a task:
+%% the only way for the frame to communicate information is by
+%% initiating inter-task message passing.
+%% %
+%% For instance,
+%% \begin{code}
+%% TI(toLabeled l (IT (if te then fail else true))); true
+%% \end{code}
+%% always evaluates to |true|, regardless of the value of |te|.
 
-\subsection{Preliminaries}
+%\subsection{Preliminaries}
 
-Our goal now is to
-describe how to take a \textbf{{\color{red} target
-language}} with a formal operational semantics and combine it with an
-\textit{{\color{blue} information flow control language}}.  For example,
-taking ECMAScript as the target language and combining it with our IFC
-language should produce the formal semantics for COWL~\cite{swapi}.  In this
-presentation, we use a simple, untyped lambda calculus with mutable
-references and fixpoint in place of ECMAScript, to demonstrate some of the key
-properties without having too much detail (and because the embedding really
-doesn't care about what, exactly, is in the target language); we discuss the proper
-embedding in more detail in Section~\ref{sec:real}.
+Our goal now is to describe how to take a \textbf{{\color{red} target
+language}}
+%with a formal operational semantics
+and combine it with an \textit{{\color{blue} information flow control language}}
+(or IFC-aware API).  It is precisely this combination what enables executing the
+target language under a coarse-grained IFC monitor. In Section~\ref{sec:real},
+we show that taking ECMAScript as the target language and combining it with our
+IFC language provides the formal semantics for COWL~\cite{swapi}.  In this
+section, we intentionally avoid too much detail about the target language; after
+all, our technique really does not care too much about what, exactly, is in
+there.
+% we discuss the proper
+% embedding in more detail in Section~\ref{sec:real}.
+
+%use a simple,
+%untyped lambda calculus with mutable references and fixpoint in place of
+%ECMAScript,
+%to demonstrate some of the key properties without having too much
+%detail
 
 \paragraph{Notation}
 We have typeset nonterminals of the target language using \textbf{{\color{red}
@@ -130,84 +138,87 @@ with \textit{{\color{blue} italic font}}.  Readers are encouraged to view
 a color copy of this paper, where target language nonterminals are colored \textbf{{\color{red} red}}
 while IFC language nonterminals are colored \textit{{\color{blue} blue}}.
 
-\subsection{Target Language: Mini-ES}
+\subsection{Target Language}
 
-In Figure~\ref{fig:ml}, we give a simple, untyped lambda calculus with
-mutable references and fixpoint, prepared for combination with an
-information flow control language.  The presentation is mostly standard, and utilizes Felleisen-Hieb reduction
-semantics~\cite{Felleisen:1992:RRS:136293.136297} to define the
-operational semantics of the system.  One peculiarity is that our language
-defines an evaluation context |tE|, but, the evaluation rules have been
-expressed in terms of a different evaluation context |curlyRedE|;
-Here, we follow the approach of Matthews and
+%% In Figure~\ref{fig:ml}, we give a simple, untyped lambda calculus with
+%% mutable references and fixpoint, prepared for combination with an
+%% information flow control language.
+The framework assumes target languages utilizing
+%The presentation is mostly standard, and utilizes
+Felleisen-Hieb reduction semantics~\cite{Felleisen:1992:RRS:136293.136297} in
+order to define their operational semantics. Specifically, we require that a
+target language be expressed in terms of some global machine state |tS|, some
+evaluation context |tE|, some expressions |te|, some set of values |tv| and a
+\emph{deterministic} reduction relation on full configurations $|tS| \times |tE|
+\times |te|$.
+
+One peculiarity of our approach is that reductions rules in the target language
+are reformulated in terms of a different evaluation context |curlyRedE| (instead
+of |tE|); Here,
+we follow the approach of Matthews and
 Findler~\cite{Matthews:2007:OSM:1190216.1190220} in order to simplify combining
-semantics of multiple languages. 
-To derive the usual operational semantics for this language, the evaluation
-context merely needs to be defined as |conf tS te @= tS, bracket tE te|.
-However, when we combine this language with an IFC language, we
-reinterpret the meaning of this evaluation context.
+semantics of multiple languages. To derive the usual operational semantics for
+the target language, the evaluation context merely needs to be defined as |conf
+tS te @= tS, bracket tE te|.  However, when we combine this language with an IFC
+language, we reinterpret the meaning of |conf tS te|.
 
-In general, we require that a target language be expressed in terms
-of some global machine state |tS|, some evaluation context |tE|,
-some expressions |te|, some set of values |tv| and a \emph{deterministic}
-reduction relation on full configurations $|tS| \times |tE| \times |te|$.
 
-\begin{figure}
-\begin{code}
-tv   ::= \tx.te | true | false | ta
-te   ::= tv | tx | te te | if te then te else te
-       | ref te | !te | te := te | fix te
-tE   ::= tHole | tE te | tv tE | if tE then te else te
-       | ref tE | !tE | tE := te | tv := tE | fix tE
+%% \begin{figure}
+%% \begin{code}
+%% tv   ::= \tx.te | true | false | ta
+%% te   ::= tv | tx | te te | if te then te else te
+%%        | ref te | !te | te := te | fix te
+%% tE   ::= tHole | tE te | tv tE | if tE then te else te
+%%        | ref tE | !tE | tE := te | tv := tE | fix tE
 
-te1 ; te2            @= (\tx.te2) te1  where  tx notmember FV(te2)
-let tx = te1 in te2  @= (\tx.te2) te1
-\end{code}
+%% te1 ; te2            @= (\tx.te2) te1  where  tx notmember FV(te2)
+%% let tx = te1 in te2  @= (\tx.te2) te1
+%% \end{code}
 
-\begin{mathpar}
+%% \begin{mathpar}
 
-\inferrule[T-app]
-{ } {| conf tS ((\x.te) tv) -> conf tS ({tv/x} te) |}
+%% \inferrule[T-app]
+%% { } {| conf tS ((\x.te) tv) -> conf tS ({tv/x} te) |}
 
-\and
-\inferrule[T-ifTrue]
-{ } {| conf tS (if true then te1 else te2) -> conf tS te1|}
+%% \and
+%% \inferrule[T-ifTrue]
+%% { } {| conf tS (if true then te1 else te2) -> conf tS te1|}
 
-\and
-\inferrule[T-ifFalse]
-{ } {| conf tS (if false then te1 else te2) -> conf tS te2|}
+%% \and
+%% \inferrule[T-ifFalse]
+%% { } {| conf tS (if false then te1 else te2) -> conf tS te2|}
 
-\and
-\inferrule[T-ref]
-{ | fresh ta | }
-{| conf tS (ref tv) -> conf (bracket tS (mapsto ta tv)) ta |}
+%% \and
+%% \inferrule[T-ref]
+%% { | fresh ta | }
+%% {| conf tS (ref tv) -> conf (bracket tS (mapsto ta tv)) ta |}
 
-\and
-\inferrule[T-deref]
-{ |memberf ((ta, tv)) tS| }
-{| conf tS (!ta) -> conf tS (tv) |}
+%% \and
+%% \inferrule[T-deref]
+%% { |memberf ((ta, tv)) tS| }
+%% {| conf tS (!ta) -> conf tS (tv) |}
 
-\and
-\inferrule[T-ass]
-{ }
-{| conf tS (ta := tv) -> conf (bracket tS (mapsto ta tv)) tv |}
+%% \and
+%% \inferrule[T-ass]
+%% { }
+%% {| conf tS (ta := tv) -> conf (bracket tS (mapsto ta tv)) tv |}
 
-\and
-\inferrule[T-fix]
-{ }
-{| conf tS (fix (\ x . e)) -> conf tS ({fix (\ x . e)/x} e) |}
+%% \and
+%% \inferrule[T-fix]
+%% { }
+%% {| conf tS (fix (\ x . e)) -> conf tS ({fix (\ x . e)/x} e) |}
 
-%\and
-%\inferrule[T-fail]
-%{ }
-%{| conf tS ( tE [ fail ] ) -> conf tS fail |}
-\end{mathpar}
+%% %\and
+%% %\inferrule[T-fail]
+%% %{ }
+%% %{| conf tS ( tE [ fail ] ) -> conf tS fail |}
+%% \end{mathpar}
 
-\caption{|targetLangML|: simple untyped lambda calculus extended with booleans,
-mutable references and general recursion. |FV(te)| returns the set of free
-variables in expression |te|.}
-\label{fig:ml}
-\end{figure}
+%% \caption{|targetLangML|: simple untyped lambda calculus extended with booleans,
+%% mutable references and general recursion. |FV(te)| returns the set of free
+%% variables in expression |te|.}
+%% \label{fig:ml}
+%% \end{figure}
 
 \subsection{IFC Language}
 
@@ -231,7 +242,7 @@ to allow the task to read from more sensitive entities at the cost of giving up
 the ability to write to certain entities.
 
 In Figure~\ref{fig:ifc}, we give the syntax and \emph{single-task}
-evaluation rules for a minimal information-flow control language.  
+evaluation rules for a minimal information-flow control language.
 Ordinarily, information flow control languages are defined by directly
 stating a base language plus information flow control operators.  In
 contrast, our language is purposely minimal: it does not have sequencing
@@ -253,19 +264,17 @@ labels (|canFlowTo|, |lub| and |glb|).
 %%     protected by the message label.
 %%     Dually, when reading a message with |recv| the current label of the
 %%     receiver must be at least as high as the message label.
-    \item A sandboxing operation used to spawn new isolated tasks. In
-    concurrent settings |fork| corresponds to a fork-like primitive,
-    whereas in a
-    sequential setting, it more closely resembles the LIO
-    |toLabeled|~\cite{lio} and Breeze
-    bracket~\cite{Hritcu:2013:YIB:2497621.2498098} constructs.
+    \item A sandboxing operation used to spawn new isolated tasks. In concurrent
+      settings |fork| corresponds to a fork-like primitive, whereas in a
+      sequential setting, it more closely resembles a sub-computation which might
+      temporarily raise the floating-label~\cite{lio,Hritcu:2013:YIB:2497621.2498098}.
 \end{itemize}
 
 These operations are all defined with respect to an evaluation context
 |curlyBlueE| that represents the context of the current task which, by
 conventions is running. The evaluation context has three important pieces of
 state: the global message queues |iS|, the current label |il| and the task ID |id|.
- 
+
 We note that first class labels, tasks (albeit named differently), and
 operations for inspecting the current label are are essentially universal to
 all floating-label systems.
@@ -389,12 +398,13 @@ niconf iS' id il ie2
 \label{fig:ifc}
 \end{figure}
 
-\subsection{The Embedding}
-Figure~\ref{fig:embedding}
-provides all of the rules responsible for actually carrying out the embedding of the IFC language with the target language.
-The most important feature of this embedding is that every task maintains its own
-copy of the target language global state and evaluation context, thus
-enforcing isolation between various tasks.  In more detail:
+\subsection{Monitored executions}
+Figure~\ref{fig:embedding} provides all of the rules responsible for % actually
+carrying out the embedding of the IFC language with the target language. The
+resulting semantics then guarantees that programs written in the target language are
+monitored. The most important feature of this embedding is that every task
+maintains its own copy of the target language global state and evaluation
+context, thus enforcing isolation between various tasks.  In more detail:
 
 \begin{figure}
 %{
@@ -425,7 +435,7 @@ CE[e] -> iconf iS (it, ldots) @= CE[e] .-> iconf iS (sched step (it, ldots))
 
 \begin{mathpar}
 \inferrule[I-sandbox]
-{ 
+{
 |iS' = bracket iS (mapsto id' nil)|\\
 |tS' = klone(tS)|\\
 |it1 = fullconf id il tS (iniE id')|\\
@@ -451,7 +461,7 @@ iS ; sched done (fullconf id il tS iv, ldots)
 \and
 \inferrule[I-noStep]
 {|
-iconf iS (it, ldots) .-/> 
+iconf iS (it, ldots) .-/>
 |}
 {|
 iconf iS (it, ldots)
@@ -518,14 +528,18 @@ The \textsc{I-sandbox} rule is used to create a new isolated task that
 executes separately from the existing tasks (and can be communicated
 with via |send| and |recv|).  When the new task is created, there
 is the question of what the target language state of the new task should
-be.  Our rule is stated generically in terms of a function |klone|.
+be.  Our rule is stated generically in terms of a the function |klone|.
 Conservatively, |klone| may be simply thought of as the identity
 function, in which
 case the semantics of sandbox are such that the state of the target language is \emph{cloned}
 when sandboxing occurs.  However, this is not necessary: it is also valid for |klone|
-to remove entries from the state.  In Section~\ref{sec:concrete}, we give a more detailed
-discussion of the implications of the choice of |klone|, but all our
-security claims will hold regardless of the choice of |klone|.
+to remove certain entries from the state.
+\Red{Ale: TODO we need to say that what is important about k is that there is no
+sharing between tasks. Moreover, |klone| should be implementable either by the
+target language or its runtime system}
+% ---we will discuss   In Section~\ref{sec:concrete}, we give a more detailed
+% discussion of the implications of the choice of |klone|, but all our
+% security claims will hold regardless of the choice of |klone|.
 
 The rule \textsc{I-noStep} says something about configurations for which
 it is not possible to take a transition.  The notation
@@ -558,33 +572,33 @@ languages.
 Intuitively, the boundaries respectively correspond to an upcall into and
 downcall from the IFC runtime.
 %
-As an example, taking |targetLangML| as the target language, we can now define a
-blocking receive (inefficiently) in terms of the asynchronous |recv| as series
-of cross-language calls:
-\begin{code}
-  brecvf ix1 ix2 ie @=
-  tab tab tab (IT (fix (\ k . TI (recvf ix1 ix2 ie (IT k)) )))
-\end{code}
+%% As an example, taking |targetLangML| as the target language, we can now define a
+%% blocking receive (inefficiently) in terms of the asynchronous |recv| as series
+%% of cross-language calls:
+%% \begin{code}
+%%   brecvf ix1 ix2 ie @=
+%%   tab tab tab (IT (fix (\ k . TI (recvf ix1 ix2 ie (IT k)) )))
+%% \end{code}
 
-We note that our embedding corresponds to the lump embedding
-of~\cite{Matthews:2007:OSM:1190216.1190220} where terms in one language are
-treated opaquely in the other.
-%
-Indeed since our embedding is defined for an arbitrary language |targetLang|,
-we cannot do better.
-%
-However, when we have more information about the target language, it is
-possible to add rules for a natural embedding of expressions that occur in both
-languages.  In our specific example with |targetLangML|, we can choose to
-preserve booleans across language boundaries as follows:
-\begin{mathpar}
-\inferrule
-{ |b member {true, false}|  } {| iniE (IT b) -> iniE b |}
-\and
-\inferrule
-{ |b member {true, false}| } {| intE (TI b) -> intE b |}
-\end{mathpar}
+%% We note that our embedding corresponds to the lump embedding
+%% of~\cite{Matthews:2007:OSM:1190216.1190220} where terms in one language are
+%% treated opaquely in the other.
+%% %
+%% Indeed since our embedding is defined for an arbitrary language |targetLang|,
+%% we cannot do better.
+%% %
+%% However, when we have more information about the target language, it is
+%% possible to add rules for a natural embedding of expressions that occur in both
+%% languages.  In our specific example with |targetLangML|, we can choose to
+%% preserve booleans across language boundaries as follows:
+%% \begin{mathpar}
+%% \inferrule
+%% { |b member {true, false}|  } {| iniE (IT b) -> iniE b |}
+%% \and
+%% \inferrule
+%% { |b member {true, false}| } {| intE (TI b) -> intE b |}
+%% \end{mathpar}
 
 For any target language |targetLang| and scheduling policy |alpha|, this
-embedding defines an IFC language, which we will
+embedding defines a coarse-grained IFC-aware language, which we will
 refer to as |specLang alpha targetLang|.
