@@ -59,7 +59,9 @@ achieve termination-insensitive non-interference: if the high secrecy
 section doesn't terminate, this is observable by the non-execution of
 the defunct public continuation.
 
-\begin{figure}
+When considering tasks, we will instead say that the allocation of a new
+stack frame with a raised label corresponds to the creation of a new
+isolated task; a sample encoding using our language is as follows:
 \begin{align*}
     & |toLabeled l te @= | \\
     & |tab let i = taskId in| \\
@@ -67,14 +69,6 @@ the defunct public continuation.
     & |tab let j = TI (sandbox (IT (TI (send i l (IT te)))))| \\
     & |tab in (\ _ . TI (setLabel l); TI (recvf x _ x unit))|
 \end{align*}
-\caption{Encoding of toLabeled using isolated tasks.}\label{fig:toLabeled}
-\end{figure}
-
-
-When considering tasks, we will instead say that the allocation of a new
-stack frame with a raised label corresponds to the creation of a new
-isolated task; a sample encoding using our language is shown in
-Figure~\ref{fig:toLabeled}.
 There is one more ingredient: in a stack discipline, one generally
 expects stack entries to be processed in order, rather than in parallel
 as would be suggested by isolated tasks.  The sequential processing of
@@ -169,39 +163,11 @@ let tx = te1 in te2  @= (\tx.te2) te1
 \inferrule[T-ifTrue]
 { } {| conf tS (if true then te1 else te2) -> conf tS te1|}
 
-\and
-\inferrule[T-ifFalse]
-{ } {| conf tS (if false then te1 else te2) -> conf tS te2|}
-
-\and
-\inferrule[T-ref]
-{ | fresh ta | }
-{| conf tS (ref tv) -> conf (bracket tS (mapsto ta tv)) ta |}
-
-\and
-\inferrule[T-deref]
-{ |memberf ((ta, tv)) tS| }
-{| conf tS (!ta) -> conf tS (tv) |}
-
-\and
-\inferrule[T-ass]
-{ }
-{| conf tS (ta := tv) -> conf (bracket tS (mapsto ta tv)) tv |}
-
-\and
-\inferrule[T-fix]
-{ }
-{| conf tS (fix (\ x . e)) -> conf tS ({fix (\ x . e)/x} e) |}
-
-%\and
-%\inferrule[T-fail]
-%{ }
-%{| conf tS ( tE [ fail ] ) -> conf tS fail |}
 \end{mathpar}
 
 \caption{|targetLangML|: simple untyped lambda calculus extended with booleans,
-mutable references and general recursion. |FV(te)| returns the set of free
-variables in expression |te|.}
+mutable references and general recursion.  For space reasons we only show two
+representative reduction rules;  full rules can be found in \appref{sec:app:semantics}.}
 \label{fig:ml}
 \end{figure}
 
