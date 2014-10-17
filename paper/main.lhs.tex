@@ -1,15 +1,16 @@
 \documentclass[9pt]{llncs}
 %include polycode.fmt
 \newif\ifextended
-
+\newif\ifextendedtitle
 
 
 
 
 % ------------------------------------------
 % CONFIGURATION: are we building the exteded version?
-%\extendedtrue
-\extendedfalse
+\extendedtrue
+%\extendedfalse
+\extendedtitlefalse
 % ------------------------------------------
 
 
@@ -100,7 +101,7 @@
 \title{
 IFC Inside: Retrofitting Languages with Dynamic Information Flow Control
 }
-\ifextended
+\ifextendedtitle
 \subtitle{Extended Version}
 \fi
 %   Generic, Efficient, Coarse-grained Information Flow Control
@@ -158,7 +159,7 @@ IFC Inside: Retrofitting Languages with Dynamic Information Flow Control
 }
 
 \ifextended
-%\clearpage
+\clearpage
 \balance
 %include appendix.tex
 \fi
