@@ -32,7 +32,15 @@
 % \usepackage[compact,nonindentfirst]{titlesec}
 % \titlespacing{\section}{0pt}{2ex}{0.5ex}
 % \titlespacing{\subsection}{0pt}{1.25ex}{0.5ex}
-% \titlespacing{\subsubsection}{0pt}{0.5ex}{0.0ex}
+% \titlespacing{\subsubsection}{0pt}{0.5ex}{0.0ex}.
+
+% At least 80% of every float page must be taken up by
+% floats; there will be no page with more than 20% white space.
+\def\topfraction{.85}
+\def\dbltopfraction{\topfraction}
+\def\floatpagefraction{\topfraction}     % default .5
+\def\dblfloatpagefraction{\topfraction}  % default .5
+\def\textfraction{.15}
 
 \newcommand{\tocite}[1]{\Red{\cite{#1}}}
 \newcommand{\toref}[1]{}%\Red{XXXXX\ref{#1}}}
@@ -118,7 +126,6 @@ IFC Inside: Retrofitting Languages with Dynamic Information Flow Control
 %NDSEG Fellowship Program.
 
 
-\balance
 {\frenchspacing\scriptsize
   \setlength{\bibsep}{2pt}
   \bibliographystyle{abbrvnat}

@@ -155,15 +155,11 @@ reduction relation on full configurations $|tS| \times |tE| \times |te|$.
 \begin{figure}
 \begin{code}
 tv   ::= \tx.te | true | false | ta
-te   ::= tv | tx | te te | if te then te else te
-       | ref te | !te | te := te | fix te
-tE   ::= tHole | tE te | tv tE | if tE then te else te
-       | ref tE | !tE | tE := te | tv := tE | fix tE
-
+te   ::= tv | tx | te te | if te then te else te | ref te | !te | te := te | fix te
+tE   ::= tHole | tE te | tv tE | if tE then te else te | ref tE | !tE | tE := te | tv := tE | fix tE
 te1 ; te2            @= (\tx.te2) te1  where  tx notmember FV(te2)
 let tx = te1 in te2  @= (\tx.te2) te1
 \end{code}
-
 \begin{mathpar}
 
 \inferrule[T-app]
@@ -305,17 +301,12 @@ than their current label would allow.
 
 \begin{figure}
 \begin{code}
-lop  ::=  canFlowTo | lub | glb
-iv   ::=  id | il | true | false | unit
-ie   ::=  iv | ix | ie lop ie | getLabel | setLabel ie | getTaskId
-       |  sandbox ie | send ie ie ie | recvf ix ix ie ie
-iE   ::=  iHole | iE lop ie | iv lop iE | setLabel iE
-       |  send iE ie ie | send iv iE ie | send iv iv iE
-io   ::=  (il, id ie)
-Q    ::=  nil | io , Q
-iS   ::=  emptyset | bracket iS (mapsto id Q)
+iv   ::=  id | il | true | false | unit qquad qquad lop  ::=  canFlowTo | lub | glb
+ie   ::=  iv | ix | ie lop ie | getLabel | setLabel ie | getTaskId |  sandbox ie
+       | send ie ie ie | recvf ix ix ie ie
+iE   ::=  iHole | iE lop ie | iv lop iE | setLabel iE |  send iE ie ie | send iv iE ie | send iv iv iE
+io   ::=  (il, id ie)  qquad qquad   Q    ::=  nil | io , Q   qquad   iS   ::=  emptyset | bracket iS (mapsto id Q)
 \end{code}
-
 \begin{mathpar}
 
 \inferrule[I-getTaskId]
@@ -384,6 +375,7 @@ niconf iS' id il ie2
 \inferrule[I-labelOp]
 { |denot (il1 lop il2) = iv|}
 { |niconf iS id il (il1 lop il2) -> niconf iS id il iv| }
+
 \end{mathpar}
 \caption{IFC language with all single-task operations.}
 \label{fig:ifc}
@@ -400,7 +392,7 @@ enforcing isolation between various tasks.  In more detail:
 %{
 %format .->  = "\overset{\alpha}{\hookrightarrow}"
 %format .-/>  = "\not\overset{\alpha}{\hookrightarrow}"
-\begin{tabular}{ll}
+\begin{tabular}{lll}
 \begin{minipage}{.22\textwidth}
 \begin{code}
 iv  ::= cdots | IT tv
@@ -414,15 +406,15 @@ tv  ::= cdots | TI iv
 te  ::= cdots | TI ie
 tE  ::= cdots | TI iE
 \end{code}
-\end{minipage}
-\end{tabular}
-
+\end{minipage} &
+\begin{minipage}{.42\textwidth}
 \begin{code}
 conf tS te @= iconf iS (fullconf id il tS (iniEt te), ldots)
 niconf iS id il ie @= iconf iS (fullconf id il tS (iniEi ie), ldots)
 CE[e] -> iconf iS (it, ldots) @= CE[e] .-> iconf iS (sched step (it, ldots))
 \end{code}
-
+\end{minipage}
+\end{tabular}
 \begin{mathpar}
 \inferrule[I-sandbox]
 { 
@@ -495,14 +487,16 @@ te| ( ``IFC-outside, target-inside'').
 \end{itemize}
 
 \begin{figure}
-  Concurrent, round robin:
+\begin{tabular}{ll}
+\begin{minipage}{.45\textwidth}
 \begin{code}
   roundrobin step (it1, it2, ldots)    = it2, ldots, it1
   roundrobin done (it1, it2, ldots)    = it2, ldots
   roundrobin nostep (it1, it2, ldots)  = it2, ldots
   roundrobin box (it1, it2, ldots)     = it2, ldots, it1
 \end{code}
-  Sequential:
+\end{minipage} &
+\begin{minipage}{.45\textwidth}
 \begin{code}
   seq step (it1, it2, ldots)      = it1, it2, ldots
   seq nostep (it1, it2, ldots)    = it1, it2, ldots
@@ -510,7 +504,9 @@ te| ( ``IFC-outside, target-inside'').
   seq done (it1, it2, ldots)      = it2, ldots
   seq box (it1, it2, ldots, itn)  = itn, it1, it2, ldots
 \end{code}
-\caption{Scheduling policies}
+\end{minipage}
+\end{tabular}
+\caption{Scheduling policies (concurrent round robin on the left, sequential on the right).}
 \label{fig:scheduler}
 \end{figure}
 
