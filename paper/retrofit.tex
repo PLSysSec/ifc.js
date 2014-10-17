@@ -245,7 +245,7 @@ message with a label |il'| (which must be above the tasks current label |il|).
 Messages can only be received by a task if its current label is
 at least as high as the label of the message.
 Specifically, receiving a message using
-\[ |recvf ix1 ix2 ie1 ie2| \]
+$|recvf ix1 ix2 ie1 ie2|$
 binds the message and the sender's task identifier
 to local variables |ix1| and |ix2|, respectively, and then executes |ie1|.
 Otherwise the message gets removed from the queue by rule \textsc{I-noRecv},
@@ -282,6 +282,7 @@ niconf iS id il getTaskId
 ->
 niconf iS id il id
 |}
+\hspace*{-0.5cm}
 
 \and
 \inferrule[I-getLabel]
@@ -291,15 +292,13 @@ niconf iS id il getLabel
 ->
 niconf iS id il il
 |}
+\hspace*{-0.5cm}
 
 \and
-\inferrule[I-setLabel]
-{ |il canFlowTo il'| }
-{|
-niconf iS id il (setLabel il')
-->
-niconf iS id il' unit
-|}
+\inferrule[I-labelOp]
+{ |denot (il1 lop il2) = iv|}
+{ |niconf iS id il (il1 lop il2) -> niconf iS id il iv| }
+
 
 \and
 \inferrule[I-send]
@@ -338,9 +337,14 @@ niconf iS  id il (recvf ix1 ix2 ie1 ie2)
 niconf iS' id il ie2
 |}
 
-\inferrule[I-labelOp]
-{ |denot (il1 lop il2) = iv|}
-{ |niconf iS id il (il1 lop il2) -> niconf iS id il iv| }
+\and
+\inferrule[I-setLabel]
+{ |il canFlowTo il'| }
+{|
+niconf iS id il (setLabel il')
+->
+niconf iS id il' unit
+|}
 
 \end{mathpar}
 \caption{IFC language with all single-task operations.}
