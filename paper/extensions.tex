@@ -1,3 +1,5 @@
+
+\nop{
 \section{Extensions}
 \label{sec:extensions}
 \label{sec:extensions:labeled}
@@ -285,6 +287,30 @@ adapt non-trivial definitions as
 \emph{low-determinism}~\cite{Zdancewic:Myers:CSFW03,Huisman:Worah:Sunesen:CSFW06,Terauchi:2008},
 which states that a program is secure only if |l|-equivalent results are
 deterministic.
+
+
+}
+
+
+
+
+\section{Extensions, Limitations, and Future Direction}
+\label{sec:extensions}
+\label{sec:extensions:labeled}
+
+While the IFC language presented thus far provides the basic
+information flow primitives, actual IFC implementations
+may wish to extend the minimal system with more specialized
+constructs.
+For example, COWL provides a labeled version of the XHR object, while
+LIO implements a labeled file system, used in server-side web
+applications~\cite{hails}.
+
+Our system can be extended with construct such as labeled values,
+labeled mutable references, clearance, and privileges.
+For space reasons, we provide full formal semantics (including the soundness
+proof with the extensions) in \appendixextfirst{}.
+
 
 \subsection{External Effects}
 \label{sec:extensions:external}
