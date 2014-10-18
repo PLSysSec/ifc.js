@@ -5,9 +5,9 @@ In this section, we describe two JavaScript IFC implementations
 building on the theoretical foundations of this work.
 %
 Furthermore, we consider how our formalism could be applied to the C
-programming language.
-% and connect it to a previous IFC system for
-%Haskell.
+programming language
+and connect it to a previous IFC system for
+Haskell.
 %
 %% The goal of this section is to show the flexibility of the embedding in settings with
 %% vastly different properties and discuss the
@@ -211,52 +211,43 @@ Node.js case, they are specific to this system.
 
 
 
-%\subsection{Haskell}
-%\label{sec:real:hs}
-%Our work borrows ideas from a Haskell coarse-grained IFC
-%system called LIO~\cite{lio, stefan:addressing-covert}.
-%%
-%LIO relies on Haskell's strong type system and monadic encoding of
-%side-effecting computations to achieve isolation and define the IFC
-%sub-language.
-%%
-%Specifically LIO provides the \verb|LIO| monad as a way of restricting
-%(almost all) side-effects; this monad also keeps track of a current
-%label which is, in turn, used by trusted code when defining core IFC
-%functions, such as |getLabel|.
-%%
-%In the context of our framework, LIO can be understood as follows: the
-%\emph{pure subset} of Haskell is the target language, while the
-%monadic subset of Haskell, operating in the \verb|LIO| monad, is the
-%IFC language.
+\subsection{Haskell}
+\label{sec:real:hs}
+Our work borrows ideas from the LIO Haskell coarse-grained IFC
+system~\cite{lio, stefan:addressing-covert}.
 %
-%%Indeed, by rephrasing LIO in terms of our framework, we simplified
-%%LIO's treatment of exceptions.
-%%
-%LIO originally associated labels with exceptions, in a
-%similar style to fine-grained
-%systems~\cite{stefan:2012:arxiv-flexible, Hritcu:2013:YIB:2497621.2498098}.
-%%
-%In particular, the label of an exception was set to the current label
-%at the time of the throw, and used by a custom catch construct to
-%raise the current label, thereby preventing leaks due to exceptional
-%control flows.
-%%
-%In addition to being overly complex, the interaction of exceptions
-%with clearance (which sets an upper bound on the current label, see
-%Section~\ref{sec:clearance}) was incorrect: the clearance
-%was restored to the clearance at point of the catch (a consequence of
-%defining \verb|LIO| using a State monad).
-%%
-%Furthermore, pure exceptions (e.g., divide by zero) always percolated to
-%trusted code, effectively allowing for denial of service attacks.
-%%
-%The insights gained when viewing coarse-grained IFC as presented in this
-%paper led to a much cleaner, simpler treatment of exceptions in LIO,
-%which has now been adapted by LIO.
-%%By using isolated tasks, and thus treating the current label (and
-%%clearance) as global, the underlying Haskell exception system can be
-%%used directly: exceptional control flow does not affect IFC.
+LIO relies on Haskell's type system and monadic encoding of
+effects to achieve isolation and define the IFC sub-language.
+%
+Specifically, LIO provides the \verb|LIO| monad as a way of restricting
+(almost all) side-effects.
+%
+In the context of our framework, LIO can be understood as follows: the
+\emph{pure subset} of Haskell is the target language, while the
+monadic subset of Haskell, operating in the \verb|LIO| monad, is the
+IFC language.
+
+%Indeed, by rephrasing LIO in terms of our framework, we simplified
+%LIO's treatment of exceptions.
+%
+Different from our proposal, LIO originally associated labels with exceptions, in a
+similar style to fine-grained
+systems~\cite{stefan:2012:arxiv-flexible, Hritcu:2013:YIB:2497621.2498098}.
+%
+In addition to being overly complex, the interaction of exceptions
+with clearance (which sets an upper bound on the floating label, see
+Section~\ref{sec:clearance}) was incorrect: the clearance
+was restored to the clearance at point of the catch.
+%
+Furthermore, pure exceptions (e.g., divide by zero) always percolated to
+trusted code, effectively allowing for denial of service attacks.
+%
+The insights gained when viewing coarse-grained IFC as presented in this
+paper led to a much cleaner, simpler treatment of exceptions in LIO,
+which has now been adapted by LIO.
+%By using isolated tasks, and thus treating the current label (and
+%clearance) as global, the underlying Haskell exception system can be
+%used directly: exceptional control flow does not affect IFC.
 
 
 
