@@ -1,6 +1,163 @@
 \appendix
 
 
+\section{Full Semantics for |targetLangML|}
+\label{sec:app:semantics}
+
+In Figure~\ref{fig:ml-full} we give the full semantics for |targetLangML|.  A subset
+of them has been given in Figure~\ref{fig:ml} earlier in the paper.
+
+\begin{figure}
+\begin{code}
+tv   ::= \tx.te | true | false | ta
+te   ::= tv | tx | te te | if te then te else te | ref te | !te | te := te | fix te
+tE   ::= tHole | tE te | tv tE | if tE then te else te | ref tE | !tE | tE := te | tv := tE | fix tE
+te1 ; te2            @= (\tx.te2) te1  where  tx notmember FV(te2)
+let tx = te1 in te2  @= (\tx.te2) te1
+\end{code}
+\begin{mathpar}
+
+\inferrule[T-app]
+{ } {| conf tS ((\x.te) tv) -> conf tS ({tv/x} te) |}
+
+\and
+\inferrule[T-ifTrue]
+{ } {| conf tS (if true then te1 else te2) -> conf tS te1|}
+
+\and
+\inferrule[T-ifFalse]
+{ } {| conf tS (if false then te1 else te2) -> conf tS te2|}
+
+\and
+\inferrule[T-ref]
+{ | fresh ta | }
+{| conf tS (ref tv) -> conf (bracket tS (mapsto ta tv)) ta |}
+
+\and
+\inferrule[T-deref]
+{ |memberf ((ta, tv)) tS| }
+{| conf tS (!ta) -> conf tS (tv) |}
+
+\and
+\inferrule[T-ass]
+{ }
+{| conf tS (ta := tv) -> conf (bracket tS (mapsto ta tv)) tv |}
+
+\and
+\inferrule[T-fix]
+{ }
+{| conf tS (fix (\ x . e)) -> conf tS ({fix (\ x . e)/x} e) |}
+
+\end{mathpar}
+
+\caption{|targetLangML|: simple untyped lambda calculus extended with booleans,
+mutable references and general recursion. |FV(te)| returns the set of free
+variables in expression |te|.}
+\label{fig:ml-full}
+\end{figure}
+
+
+
+\section{IFC Language with a Single Heap}
+\label{sec:single-heap}
+
+As a concrete instantiation of this proof technique, we show
+how to make implement our IFC language using a single heap and
+ensure its non-interference using the techniques presented.
+First, we can construct the restricted language
+|restrictedLangNoRef alpha targetLangML|, where |noRefs| is
+the family of always valid predicates, except for the ones for
+\textsc{I-sandbox} and \textsc{I-send}, which we define as
+$ P(|ie|) = (\mathcal{AV}(|ie|) = \emptyset{}) $
+where $\mathcal{AV}(|ie|)$ denotes the set of address variables in |ie|.
+That is, we do not restrict any rules except for \textsc{I-sandbox}
+and \textsc{I-send}.
+Since $P$ only depends on |ie|, which is part of the current
+task and thus never erased w.r.t.\ the label of the first task,
+this language satisfies non-interference by Theorem~\ref{thm:restricted}.
+
+\begin{figure}
+  
+  \begin{mathpar}
+    \inferrule[C-sandbox]
+    {
+      \mathcal{AV}(|ie|) = \emptyset{}\\
+      |iS' = bracket iS (mapsto id' nil)|\\
+      |it1 = oneheapfullconf id il (iniE id')|\\
+      |itnew = oneheapfullconf id' il (TI ie)|\\
+      |fresh id'|
+    }
+    {|
+      oneheapiconf iS tS (oneheapfullconf id1 il1 (iniEi (sandbox ie)), ldots)
+      .->
+      iS'; tS; sched box (it1, ldots, itnew)
+    |}
+    \and
+    \inferrule[C-send]
+    {
+      \mathcal{AV}(|ie|) = \emptyset{}\\
+      |canFlowTo2 il il'|\\
+      |iS(id') = Q|\\
+      |iS' = bracket iS (mapsto id' (il', id,  iv) , Q)|
+    }
+    {|
+      oneheapiconf iS tS (oneheapfullconf id il (iniEi (send id' il' iv)), ldots)
+      ->
+      iS; tS; sched step (oneheapfullconf id il unit, ldots)
+    |}
+  \end{mathpar}
+  
+  \caption{A selection of the reduction rules for |concreteLangMl alpha|.}
+  \label{fig:concrete}
+\end{figure}
+
+The essential parts of the semantics for the concrete language
+with a single heap,
+which we call |concreteLangMl alpha|,
+are given in Figure~\ref{fig:concrete}.  Most rules are
+straight-forward translations of the rules in Figures~\ref{fig:ifc}
+and~\ref{fig:embedding} but for a single heap.  For conciseness, we
+only show the interesting ones.
+Now, we can show an isomorphism between this language and
+|restrictedLangNoRef alpha targetLangML|, which
+(by Theorem~\ref{thm:iso-tsni} and~\ref{thm:iso-tini}) guarantees
+non-interference for an appropriate scheduling policy |alpha|.
+
+To this end, we represent addresses in the concrete language as
+pairs $(|id|,|ta|)$ where |id| is a task identifier, and |ta| an
+address in the abstract system\footnote{Note that this does
+  not make the isomorphism trivial, as in the single heap, there
+  is nothing preventing task 1 to access an address (2,|ta|).
+  Furthermore, it is common to represent addresses in this way
+  for efficient garbage collection of dead tasks.}.
+We also formulate the following well-formedness condition for
+configurations:
+\[
+  |wf c| = \forall |oneheapfullconf id il ie| \in |ic|.\ 
+  \{ (|id'|,|ie'|) \in \mathcal{AV}(|ie|) \ \vert\ |id| \neq |id'| \} = \emptyset
+\]
+Essentially, every address in a given task must have the correct
+identifier as the first part of the address.  It is easy to
+see that the initial configuration satisfies this condition, and
+any step in the concrete semantics preserves the condition.
+Therefore, we only need to consider well-formed configurations,
+which allows us to give the two required functions
+|f| and |finv| for the isomorphism.  For conciseness, we only give
+the interesting parts of their definition,
+and leave out the straight-forward proof that they
+actually provide an isomorphism.
+\begin{itemize}
+  \item Addresses can be directly translated with
+  $|f|((|id|,|ta|))=|ta|$, and $|finv|(|ta|)=|(id,ta)|$ for
+  an address |ta| that occurs in task |id|.
+  \item |f| splits the single heap into multiple heaps based on
+  the |id| of the addresses.  |finv| produces a single heap
+  by translating the addresses and collapsing everything to a single
+  store.
+\end{itemize}
+
+
+
 \section{Formal Extensions}
 \label{sec:appendix-extensions}
 

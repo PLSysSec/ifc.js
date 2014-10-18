@@ -1,15 +1,16 @@
 \documentclass[9pt]{llncs}
 %include polycode.fmt
 \newif\ifextended
-
+\newif\ifextendedtitle
 
 
 
 
 % ------------------------------------------
 % CONFIGURATION: are we building the exteded version?
-%\extendedtrue
-\extendedfalse
+\extendedtrue
+%\extendedfalse
+\extendedtitlefalse
 % ------------------------------------------
 
 
@@ -78,6 +79,14 @@
   \fi%
 }
 
+\newcommand{\appref}[1]{%
+  \ifextended%
+  Appendix~\ref{#1}%
+  \else%
+  the appendix of the extended version of this paper%
+  \fi%
+}
+
 \newcommand{\codelink}{\url{http://informationflowcontrol.net/ifc-inside/code}}
 \newcommand{\nop}[1]{}
 
@@ -93,7 +102,7 @@
 \title{
 IFC Inside: Retrofitting Languages with Dynamic Information Flow Control
 }
-\ifextended
+\ifextendedtitle
 \subtitle{Extended Version}
 \fi
 %   Generic, Efficient, Coarse-grained Information Flow Control
@@ -104,16 +113,6 @@ IFC Inside: Retrofitting Languages with Dynamic Information Flow Control
 %   1. Target language, 2. IFC language, 3. ... 4. Profit!!!
 %   Just add IFC
 
-%\authorinfo{}{}
-%% \authorinfo{
-%%   Stefan Heule \and
-%%   Deian Stefan \and
-%%   Edward Z. Yang \and
-%%   John C. Mitchell \and
-%%   Alejandro Russo
-%% }{Stanford University, Chalmers University}{
-%% \verb|{sheule,deian,ezyang,mitchell}@cs.stanford.edu|, \verb|russo@chalmers.se|
-%% }
 \author{
  Stefan Heule\inst{1} \and
  Deian Stefan\inst{1} \and
@@ -151,7 +150,7 @@ IFC Inside: Retrofitting Languages with Dynamic Information Flow Control
 }
 
 \ifextended
-%\clearpage
+\clearpage
 \balance
 %include appendix.tex
 \fi
