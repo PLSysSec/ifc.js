@@ -41,7 +41,7 @@ performance of the system.
 
 Our design principles suggests a different resolution: when these
 constructs are treated as isolated tasks, each of which have their own heaps, it
-is obviously the case that there is no sharing: in fact, the sandboxed task receives a dangling pointer.  Even if there is only one heap, if we enforce that references
+is obviously the case that there is no sharing; in fact, the sandboxed task receives a dangling pointer.  Even if there is only one heap, if we enforce that references
 not be shared, the two systems are morally equivalent. (We elaborate on
 this formally in Section~\ref{sec:single-heap}.)  Finally, these
 semantics strongly suggest that one should restrict the types of
@@ -77,11 +77,11 @@ describe how to take a \textbf{{\color{red} target
 language}} with a formal operational semantics and combine it with an
 \textit{{\color{blue} information flow control language}}.  For example,
 taking ECMAScript as the target language and combining it with our IFC
-language should produce the formal semantics for COWL~\cite{swapi}.  In this
+language should produce the formal semantics for the core part of COWL~\cite{swapi}.  In this
 presentation, we use a simple, untyped lambda calculus with mutable
 references and fixpoint in place of ECMAScript, to demonstrate some of the key
 properties without having too much detail (and because the embedding really
-doesn't care about what, exactly, is in the target language); we discuss the proper
+does not care about what, exactly, is in the target language); we discuss the proper
 embedding in more detail in Section~\ref{sec:real}.
 
 \vspace{1pt}
@@ -159,7 +159,7 @@ Similarly, it can only read from entities that are less sensitive.
 %
 However, as in other floating-label systems, this current label can be raised
 to allow the task to read from more sensitive entities at the cost of giving up
-the ability to write to certain entities.
+the ability to write to others. %certain entities.
 
 In Figure~\ref{fig:ifc}, we give the syntax and \emph{single-task}
 evaluation rules for a minimal information-flow control language.
@@ -199,14 +199,14 @@ conventions is running. The evaluation context has three important pieces of
 state: the global message queues |iS|, the current label |il| and the task ID |id|.
 
 We note that first class labels, tasks (albeit named differently), and
-operations for inspecting the current label are are essentially universal to
+operations for inspecting the current label are essentially universal to
 all floating-label systems.
 %
 However, our choice of communication primitives is motivated by
 those present in browsers, namely \texttt{postMessage}~\cite{webmessaging}.
 %
 Of course, other choices, such as blocking communication or labeled channels,
-are possible (see Section~\ref{sec:extensions}).
+are possible. %(see Section~\ref{sec:extensions}).
 %
 
 These asynchronous communication primitives are worth further
@@ -416,9 +416,9 @@ niconf iS id il ie
       be embedded in the other, as
       in~\cite{Matthews:2007:OSM:1190216.1190220}.
     %
-In the target language, an IFC expression appears as |TI ie| (``target-outside,
+In the target language, an IFC expression appears as |TI ie| (``\Red{T}arget-outside,
 IFC-inside''); in the IFC language, a target language expression appears as |IT
-te| ( ``IFC-outside, target-inside'').
+te| ( ``IFC-outside, target-{\color{blue}{I}}nside'').
     \item We reinterpret |CE| to be evaluation contexts on task lists, providing definitions for |curlyRedE| and |curlyBlueE|.  These rules only operate on the first task in the task list, which by convention is the only task executing.
     \item We reinterpret |->|, an operation on a single task, in terms of |.->|, operation on task lists.  The correspondence is simple: a task executes a step and then is rescheduled in the task list according to schedule policy |alpha|.
     Figure~\ref{fig:scheduler} defines two concrete schedulers.
@@ -475,8 +475,8 @@ stuck task gets removed.
 Rules \textsc{I-done} and \textsc{I-noStep} define the behavior of the system
 when the current thread has reduced to a value, or gotten stuck, respectively.
 %
-While these definitions simply rely on the underlying scheduling policy,
-|alpha|, to modify the task list, as we describe in Sections~\ref{sec:formal}
+While these definitions simply rely on the underlying scheduling policy
+|alpha| to modify the task list, as we describe in Sections~\ref{sec:formal}
 and~\ref{sec:extensions}, these rules (notably, \textsc{I-noStep}) are crucial
 to proving our security guarantees.
 %
