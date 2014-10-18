@@ -49,81 +49,84 @@ data which may be passed between tasks (for example, in JavaScript, one
 might only allow JSON objects to be passed between tasks, rather than
 general object structures).
 
-\Red{
 Existing language-based coarse-grained IFC
-system~\cite{Hritcu:2013:YIB:2497621.2498098,stefan:2012:arxiv-flexible} allow a
-sub-computation to temporarily raise the floating-label; after the
-sub-computation is done, the floating-label is restore to its original
-label. When this occurs, the enforcement must ensure, through IFC checks, that
-information does not leak to the (less confidential) program continuation. The
-presence of exceptions clearly adds intricacies to the enforcement---the
-exception should not cross from the sub-computation directly into the program
-continuation. In contrast, our system provides the same guarantees with no extra
-IFC checks: task are allowed to temporarily raise their floating-label, but the
-mere definition of isolated tasks guarantees that (a) tasks only transfer data
-to the program continuation by using intra-task communication means, and (b)
-exceptions cannot cross tasks boundaries.
-}
+system~\cite{Hritcu:2013:YIB:2497621.2498098,stefan:2012:arxiv-flexible}
+allow a sub-computation to temporarily raise the floating-label; after
+the sub-computation is done, the floating-label is restored to its
+original label. When this occurs, the enforcement mechanism must
+ensure that information does not leak to the (less confidential)
+program continuation. The presence of exceptions adds yet more
+intricacies.  For instance, exceptions should not automatically
+propagate from a sub-computation directly into the program
+continuation, and, if such exceptions are allowed to be inspected, the
+floating-label at the point of the exception-raise must be tracked
+alongside the exception value~\cite{Hritcu:2013:YIB:2497621.2498098,
+stefan:2012:arxiv-flexiblea, Hedin:2012}.  In contrast, our system
+provides the same flexibility and guarantees with no extra checks: tasks
+are used to execute sub-computations, but the mere definition of
+isolated tasks guarantees that (a) tasks only transfer data to the
+program continuation by using inter-task communication means, and (b)
+exceptions do cross tasks boundaries automatically.
 
 
-Here are two more examples of language features which have an
-interesting interpretation when interpreted as task communication.
-
-\paragraph{Stack frames versus scheduling}  One feature which is
-supported by some information flow control systems is the ability to
-temporarily raise the current label in order to do computation on data
-(as done by LIO's |toLabeled| and Breeze's
-brackets~\cite{Hritcu:2013:YIB:2497621.2498098,
-stefan:2012:arxiv-flexible}).  After the computation, the label is lowered back to the original label,
-enforcing a stack discipline.  When this occurs, care must be taken to ensure that information doesn't leak when
-the label is lowered (e.g., the result must not be readable). In fact, systems with this feature generally only
-achieve termination-insensitive non-interference: if the high secrecy
-section doesn't terminate, this is observable by the non-execution of
-the defunct public continuation.
-
-When considering tasks, we will instead say that the allocation of a new
-stack frame with a raised label corresponds to the creation of a new
-isolated task; a sample encoding using our language is as follows:
-\begin{align*}
-    & |toLabeled l te @= | \\
-    & |tab let i = taskId in| \\
-%%    & |tab let j = TI (sandbox (IT (TI (setLabel l); TI (send i l (IT te)))))| \\
-    & |tab let j = TI (sandbox (IT (TI (send i l (IT te)))))| \\
-    & |tab in (\ _ . TI (setLabel l); TI (recvf x _ x unit))|
-\end{align*}
-There is one more ingredient: in a stack discipline, one generally
-expects stack entries to be processed in order, rather than in parallel
-as would be suggested by isolated tasks.  The sequential processing of
-the task queue corresponds to a specific \emph{scheduling policy} of
-these tasks.  In fact, the choice of scheduling here is the essential difference that
-determines whether or not one can prove termination-insensitive or
-termination-sensitive non-interference. We will show how different
-scheduling policies give different security guarantees.
-
-\paragraph{Exceptions versus message passing}
-Another language feature that has caused difficulty for
-many information flow control systems is exception handling
-when built on top of this stack discipline.
-%
-The key difficulty appears when considering the propagation of exceptions
-across stack boundaries where the current label is restored.
-%
-If the exception crosses this boundary, it can leak information about the
-inner secret computation into a public computation; hence, one must
-explicitly ensure that |toLabeled| does not propagate exceptions.
-%
-When stack frames are treated as isolated tasks, the correct semantics
-are achieved automatically.
-%
-Exceptions simply stop when the hit the top-level of a task:
-the only way for the frame to communicate information is by
-initiating inter-task message passing.
-%
-For instance,
-\begin{code}
-TI(toLabeled l (IT (if te then fail else true))); true
-\end{code}
-always evaluates to |true|, regardless of the value of |te|.
+%% Here are two more examples of language features which have an
+%% interesting interpretation when interpreted as task communication.
+%% 
+%% \paragraph{Stack frames versus scheduling}  One feature which is
+%% supported by some information flow control systems is the ability to
+%% temporarily raise the current label in order to do computation on data
+%% (as done by LIO's |toLabeled| and Breeze's
+%% brackets~\cite{Hritcu:2013:YIB:2497621.2498098,
+%% stefan:2012:arxiv-flexible}).  After the computation, the label is lowered back to the original label,
+%% enforcing a stack discipline.  When this occurs, care must be taken to ensure that information doesn't leak when
+%% the label is lowered (e.g., the result must not be readable). In fact, systems with this feature generally only
+%% achieve termination-insensitive non-interference: if the high secrecy
+%% section doesn't terminate, this is observable by the non-execution of
+%% the defunct public continuation.
+%% 
+%% When considering tasks, we will instead say that the allocation of a new
+%% stack frame with a raised label corresponds to the creation of a new
+%% isolated task; a sample encoding using our language is as follows:
+%% \begin{align*}
+%%     & |toLabeled l te @= | \\
+%%     & |tab let i = taskId in| \\
+%% %%    & |tab let j = TI (sandbox (IT (TI (setLabel l); TI (send i l (IT te)))))| \\
+%%     & |tab let j = TI (sandbox (IT (TI (send i l (IT te)))))| \\
+%%     & |tab in (\ _ . TI (setLabel l); TI (recvf x _ x unit))|
+%% \end{align*}
+%% There is one more ingredient: in a stack discipline, one generally
+%% expects stack entries to be processed in order, rather than in parallel
+%% as would be suggested by isolated tasks.  The sequential processing of
+%% the task queue corresponds to a specific \emph{scheduling policy} of
+%% these tasks.  In fact, the choice of scheduling here is the essential difference that
+%% determines whether or not one can prove termination-insensitive or
+%% termination-sensitive non-interference. We will show how different
+%% scheduling policies give different security guarantees.
+%% 
+%% \paragraph{Exceptions versus message passing}
+%% Another language feature that has caused difficulty for
+%% many information flow control systems is exception handling
+%% when built on top of this stack discipline.
+%% %
+%% The key difficulty appears when considering the propagation of exceptions
+%% across stack boundaries where the current label is restored.
+%% %
+%% If the exception crosses this boundary, it can leak information about the
+%% inner secret computation into a public computation; hence, one must
+%% explicitly ensure that |toLabeled| does not propagate exceptions.
+%% %
+%% When stack frames are treated as isolated tasks, the correct semantics
+%% are achieved automatically.
+%% %
+%% Exceptions simply stop when the hit the top-level of a task:
+%% the only way for the frame to communicate information is by
+%% initiating inter-task message passing.
+%% %
+%% For instance,
+%% \begin{code}
+%% TI(toLabeled l (IT (if te then fail else true))); true
+%% \end{code}
+%% always evaluates to |true|, regardless of the value of |te|.
 
 
 \subsection{Preliminaries}
