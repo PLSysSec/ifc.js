@@ -1,22 +1,17 @@
 \section{Real World Languages}
 \label{sec:real}
 
-In the introduction, we stated that the original motivation behind
-this work was to formally specify a
-coarse-grained information flow control language for JavaScript.
+In this section, we describe two JavaScript IFC implementations
+building on the theoretical foundations of this work.
 %
-Indeed, our formalism serves as the theoretical foundation for two
-IFC systems for JavaScript, built on top of Node.js as well as
-the web browser engine Gecko.
-
-In this section, we describe these two implementations.  Furthermore,
-we consider how our formalism could be applied to the C programming
-language and connect it to a previous IFC system for Haskell.
+Furthermore, we consider how our formalism could be applied to the C
+programming language and connect it to a previous IFC system for
+Haskell.
 %
-The goal of this section is to show the flexibility of the embedding in settings with
-vastly different properties and discuss the
-semantic gap that must be overcome to apply our formalism
-to other systems.
+%% The goal of this section is to show the flexibility of the embedding in settings with
+%% vastly different properties and discuss the
+%% semantic gap that must be overcome to apply our formalism
+%% to other systems.
 %
 %% Two of the systems we describe have been implemented: the Haskell
 %% system~\cite{lio} and the COWL~\cite{swapi} system; we leave the
@@ -36,79 +31,78 @@ For this language, which we denote by |targetLangJS|, the IFC system
 to JavaScript as part of the runtime, and running multiple instances
 of the JavaScript virtual machine in separate OS-level threads.
 %
-Unfortunately, this becomes very costly when an application relies on
-many tasks.
+Unfortunately, this becomes very costly when a system, such as a
+server-side web application, relies on many tasks.
 %
-For instance, consider a server-side web application that
-creates a new task for each HTTP request.  The overhead would
-quickly become impractical.
+%% For instance, consider a server-side web application that
+%% creates a new task for each HTTP request.  The overhead would
+%% quickly become impractical.
 
-However, this issue of performance and JavaScript isolation is not
-unique to our work and has been solved by browser engines,
-which also
-rely on the isolation of content from
-different origins (e.g., two iframes of different origins) to
-implement the same-origin policy.
+Luckly, this issue is not unique to our work---browser layout engines
+also rely isolating code of different origins (e.g., according to the
+same-origin policy).
 %
 Since creating an OS thread for each iframe is expensive, both
-Google's V8 and Mozilla's SpiderMonkey provide a means for running
+the V8 and SpiderMonkey JavaScript engines provide a means for running
 JavaScript code in isolation in a single OS thread,
 on disjoint sub-heaps.
 %
 In V8, this unit of isolation is called a \emph{context}; in
 SpiderMonkey, it is called a \emph{compartment}.
 %
-Each context/compartment is associated with a global object, which, by
+(We will use these terms interchangably.)
+%
+Each context is associated with a global object, which, by
 default, implements the JavaScript standard library (e.g.,
 \verb|Object|, \verb|Array|, etc.).
 %
-Naturally, our notion of a task for JavaScript directly corresponds to
-a context/compartment.
+Naturally, we adopt contexts to implement our notion of tasks.
 
 
-When JavaScript is embedded in web browser engines, such as Google's
-Blink or Mozilla's Gecko, or in server-side platforms such as Node.js,
+When JavaScript is embedded in browser layout engines, 
+or in server-side platforms such as Node.js,
 additional APIs such as the Document Object Model (DOM) or the file
 system get exposed as part of the runtime system.
 These features are exposed by extending the global object, just like
-for the standard library.  For this reason, it is easy to modify
+the standard library.  For this reason, it is easy to modify
 these systems to remove arbitrary external effects when implementing
 an IFC system so important effects can be reintroduced in a safe manner.
 
 
-\subsubsection{Server-side IFC: Node.js}
-
-We have implemented |specLangJS seqf| for Node.js in the form of a module
-(library), which does not modify the Node.js or V8 code-base in any
-way.
-%
-Our implementation\footnote{The source code of our implementation can be found at
-  \codelink{}.} provides a library for creating new tasks, i.e.,
-contexts whose global object only contains the standard JavaScript
-library as well as our IFC primitives (such as |send| and |sandbox|).
-%
-In turn, these tasks can create new tasks with |sandbox|.
-%
-In our formal treatement, |sandbox| is defined with |ap klone tS = tS0|,
-where |tS0| is the global object corresponding to the standard
-JavaScript library and our IFC primitives.
  
-\begin{figure}
+\begin{figure}[t]
 \centerline{\includegraphics[width=0.7\columnwidth]{figs/node}}
-\caption{\label{fig:node} Retrofitting Node.js JavaScript with IFC.
+\caption{\label{fig:node}
 This example shows how our trusted monitor (left) is used to mediate
 communication between two tasks for which IFC is enforced (right).}
 \end{figure}
 %
-All IFC primitives are mediated by the trusted library code (executing
-as the main Node.js context), which tracks the current label, messages,
-etc.\ of each task.  An example for |send|/|recv| is shown in
+\subsubsection{Server-side Node.js IFC:}\ 
+We have implemented |specLangJS seqf| for Node.js in the form of a
+library, without modifying Node.js or the V8 JavaScript engine.
+%
+Our implementation\footnote{Available at \codelink{}.} provides a
+library for creating new tasks, i.e., contexts whose global object
+only contains the standard JavaScript library and our IFC primitives
+(e.g., |send| and |sandbox|).
+%
+When mapped to our formal treatement, |sandbox| is defined with |ap
+klone tS = tS0|, where |tS0| is the global object corresponding to the
+standard JavaScript library and our IFC primitives.
+%
+%These tasks can communicate and create new tasks, in turn.
+%
+These IFC operations are mediated by the trusted library code (executing
+as the main Node.js context), which tracks the state (current label, messages,
+etc.) of each task.  An example for |send|/|recv| is shown in
 Figure~\ref{fig:node}.
 %While V8 provides a means for sharing any object between contexts (used
 %by same-origin contexts in Blink),
-Our system conservatively restricts
-the kinds of messages that can be exchanged by tasks by
-only allowing string values to be exchanged via |send| (and |sandbox|).
+We remark that our system conservatively restricts
+the kinds of messages that can be exchanged, via |send| (and |sandbox|),
+to string values.
+%
+(We provide a convenience library which marshalls JSON objects to/from strings.)
 %
 In our formalization, this amounts to restricting the IFC language rule
 for |send| in the following way:
@@ -133,43 +127,30 @@ iS'; sched step (fullconf id il tS (iniEi unit), ldots)
 \end{mathpar}
 %}
 %
-For convenience, we have implemented a library that provides
-more flexible primitives, which, among other things,
-automatically marshalls JSON objects to/from strings on each
-|send|/|recv|.
 
-While the described system implements |specLangJS seqf|, server-side
-applications may require access to the file system, HTTP server, HTTP
-client, or other APIs that have external effects.
+While the described system implements |specLangJS seqf|, applications
+typically require access to libraries (e.g., the file system library
+\textsf{fs}) that that have external effects.
 %
-Exposing the Node.js APIs directly to sandboxed tasks is unsafe, and
-thus we
-%
-instead implement libraries such as a labeled file system as
+Exposing the Node.js APIs directly to sandboxed tasks is unsafe.
+Instead, we implement libraries such as a labeled \textsf{fs} as
 message exchanges between the sandboxed tasks (e.g., \textsf{task-1}
 in Figure~\ref{fig:node}) and the main Node.js task that implements
-our IFC monitor.\footnote{
-  Importantly, we provide mostly-identical interfaces to
-  the standard Node.js libraries, hiding the underlying
-  message-passing implementations.
-}
+the IFC monitor.
 %
-This is safer than the approach of simply wrapping objects, which can
-potentially allow objects to be accessed outside the context.
+While this is safer than simply wrapping unsafe objects, adding
+featuers such as the \textsf{fs} requires the code in the main task to
+ensures that labels are properly propagated and enforced.
 %
-This task is trusted to ensures that labels are
-propagated to files and the labels of the task and the file in question permit
-this flow.
-%
-Unfortunately, while imposing such a proof burden on the
-framework developer is undesirable, this also has to be expected:
+Unfortunately, while imposing such a proof burden
+is undesirable, this also has to be expected:
 different language environments expose different libraries for
 handling external I/O, and the correct treatment of external effects
 is application specific.
 %
-For instance, in the case of Node.js, how labels interact with the
-file system may even vary according to the application (e.g.,
-in the IFC system Hails~\cite{hails}, labels are not persisted).
+%% For instance, in the case of Node.js, how labels interact with the
+%% file system may even vary according to the application (e.g.,
+%% in the IFC system Hails~\cite{hails}, labels are not persisted).
 %
 %While we can extend our formalism to model a particular interface to
 %the file system, HTTP client, etc. the utility of this formalization is
@@ -181,8 +162,7 @@ specific to the Node.js implementation and does not generalize
 to other systems.
 
 
-\subsubsection{Client-side IFC: Gecko}
-
+\subsubsection{Client-side COWL IFC:}\
 We now describe some of the implementation aspects of
 COWL, a JavaScript implementation of coarse-grained
 IFC for Mozilla's Gecko.  This work provides the formal basis for
