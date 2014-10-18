@@ -32,51 +32,42 @@ Untrusted code is confined so that it cannot exfiltrate data, except as
 per an information flow policy.  Significant research has been devoted to
 adding various forms of IFC to different kinds of programming languages
 and systems.  In the context of the web, however, there is a strong
-motivation to preserve JavaScript's semantics \Red{and avoid any modifications
-  to its engine}, while retrofitting it with dynamic information
+motivation to preserve JavaScript's semantics and avoid
+JavaScript-engine modifications, while retrofitting it with dynamic information
 flow control.
 
-\Red{\sout{One approach to information flow control is fine-grained tracking,
-which offers great flexibility.
-However, these systems
-require deep integration with the programming language and modify
-the semantics in non-trivial ways.  This makes fine-grained systems
-less suitable in contexts where preserving an existing language
-is important.
-%
-Moreover, the task of adding fine-grained IFC even to a simple language is
-non-trivial~\cite{hritcu2013testing}; when considering a real-world language,
-such as JavaScript, this challenge becomes almost insurmountable.}}
 
 %In the alternative \textit{coarse-grained} approach to IFC,
-\Red{Operating systems research (e.g.~\cite{Zeldovich:2006}) proposes
-\textit{coarse-grained} approaches to IFC, where}
-a system is divided into relatively coarse computational units,
-each with a single label dictating its security policy.
-Only
-communication between isolated computational units must be tracked.
+The Operating Systems community has tackled this challenge (e.g.,
+in~\cite{Zeldovich:2006}) by taking a \textit{coarse-grained} approach
+to IFC: dividing an application into coarse computational units,
+each with a single label dictating its security policy, and only
+monitoring communication between them.
+%Only communication between isolated computational units must be tracked.
 %A recent system named COWL~\cite{swapi} adds IFC to the
 %browser by identifying \emph{web workers} as an existing computational
 %unit.  Communication between workers is mediated using
 %IFC to ensure non-interference, preventing sensitive workers from
 %influencing the computation of less sensitive workers.
-This coarse-grained approach provides a number of advantages:
-(1) minimal changes to an
-existing programming language when adding IFC, which (2) allows
-the reuse of existing programs.  Furthermore, (3)
-reduced runtime overhead because checks need only
+This coarse-grained approach provides a number of advantages when
+compared to the fine-grained approaches typically employed by language-based systems.
+First, adding IFC does not require intrusive changes to an
+existing programming language, thereby also allowing
+the reuse of existing programs.  Second, it has a small
+runtime overhead because checks need only
 be performed at isolation boundaries
-\Red{instead of at every instruction in the code~(e.g. \cite{JSFlow})}.
+instead of (almost) every program instruction~(e.g.,~\cite{JSFlow}).
 %, compared to fine-grained
 %systems were the runtime overhead can be impractical~\cite{JSFlow}.
-Finally, (4) associating
+Finally, by associating
 a single security label with the entire computational unit simplifies
-understanding and reasoning about \Red{the security guarantees} of the
-system, without \sout{information flow} reasoning about \Red{most of} the
-technical details of the semantics of the \Red{underlying} programming language.
+understanding and reasoning about the security guarantees of the
+system, without reasoning about most of the
+technical details of the semantics of the underlying programming language.
+\Red{ds: this last senstence needs work}
 
-In this paper, \Red{we present a framework which translates coarse-grained IFC
-ideas into a language-based setting}:
+In this paper, we present a framework which brings coarse-grained IFC
+ideas into a language-based setting:
 %take coarse-grained labeling~\cite{Zeldovich:2006,
 %lio} to its logical extreme:
 an information flow control system should
@@ -113,7 +104,7 @@ abstract language and a concrete implementation, showing that if this
 relationship holds, then non-interference in the abstract specification
 carries over to the concrete implementation.
 
-Our contributions can be summarized as follows:
+Our contributions can be summarized as follows: \Red{fixme:}
 \begin{itemize}
   \item We give formal semantics for a core coarse-grained
   dynamic information flow control language free of non-IFC constructs.
@@ -127,7 +118,7 @@ Our contributions can be summarized as follows:
   \item We have implemented an IFC system based on these semantics
   for Node.js, and we connect our formalism to another implementation
   based on this work
-  for client-side JavaScript in Gecko~\cite{swapi}.
+  for client-side JavaScript in~\cite{swapi}.
   Furthermore, we outline an implementation for the C programming
   language.
   (Section~\ref{sec:real})
