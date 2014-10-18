@@ -32,7 +32,12 @@ For now, ignore the tags |TI| and |IT|: roughly, this code creates a new
 |sandbox|ed task with identifier $i$ which waits (\textbf{blockingRecv}, binding $x$ with the received message) for a
 message, and then \textbf{send}s the task a mutable reference |(ref
 true)| which it labels $l$.  If this operation actually shared the mutable cell between the two tasks, it
-could be used to violate information flow control if the tasks had differing labels.  At this point, the designer of an IFC system might add label checks to mutable references, to check the labels of the reader and writer---solving the leak, but also dooming the performance of mutable references in the system.
+could be used to violate information flow control if the tasks had
+differing labels.  At this point, the designer of an IFC system might
+add label checks to mutable references, to check the labels of the
+reader and writer. While this solves the leak, for languages like
+JavaScript, where references are prevalently used, this also dooms the
+performance of the system.
 
 Our design principles suggests a different resolution: when these
 constructs are treated as isolated tasks, each of which have their own heaps, it
