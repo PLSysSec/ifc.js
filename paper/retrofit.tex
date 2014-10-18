@@ -22,7 +22,7 @@ The task label---we refer to the label of the currently executing task as the
 \emph{current label}---serves to protect everything in the task's scope;
 all data in a task shares this common label.
 
-For our first example, here is a program which spawns a new isolated task,
+As an example, here is a program which spawns a new isolated task,
 and then sends it a mutable reference:
 \begin{align*}
     & |let i = TI (sandbox (brecvf x _ (IT (!(TI x)))))|\\
