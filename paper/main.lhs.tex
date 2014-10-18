@@ -29,6 +29,13 @@
 
 \usepackage{wrapfig}
 \usepackage[square,numbers,sort&compress]{natbib}
+%% This is to not brake line with references
+\makeatletter
+\renewcommand\bibsection{
+  \section*{\refname}{}
+}
+\makeatother
+
 \usepackage{url}
 \usepackage{ulem} %% To strike out sentences
 
@@ -89,6 +96,7 @@
 
 \newcommand{\codelink}{\url{http://informationflowcontrol.net/ifc-inside/code}}
 \newcommand{\nop}[1]{}
+
 
 \begin{document}
 %include notation.lhs.tex
