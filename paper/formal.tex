@@ -5,12 +5,13 @@ We are interested in proving non-interference about many programming
 languages.  This requires an appropriate definition of this notion
 that is language agnostic, so in this section, we present a few
 general definitions for what an information flow control language is
-and what non-interference properties it may have.  We also state
-theorems about our system which we prove in
-\appref{sec:app:proof}.
+and what non-interference properties it may have.
 In particular, we show that |specLang alpha targetLang|, with an appropriate
 scheduler |alpha|, satisfies non-interference~\cite{Goguen82},
 without making any reference to properties of |targetLang|.
+We state the appropriate theorems here, and provide the formal
+proofs in
+\appref{sec:app:proof}.
 
 \cut{
 The precise scheduling policy dictates

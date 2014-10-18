@@ -218,8 +218,7 @@ Specifically, receiving a message using
 $|recvf ix1 ix2 ie1 ie2|$
 binds the message and the sender's task identifier
 to local variables |ix1| and |ix2|, respectively, and then executes |ie1|.
-Otherwise the message gets removed from the queue by rule \textsc{I-noRecv},
-and that tasks continues its execution with |ie2|.
+Otherwise, if there are no messages, that tasks continues its execution with |ie2|.
 We denote the filtering of the message queue by |filter il Q|,
 which is defined as follows.
 If |Q| is the empty list |nil|, the
@@ -418,7 +417,7 @@ niconf iS id il ie
     %
 In the target language, an IFC expression appears as |TI ie| (``\Red{T}arget-outside,
 IFC-inside''); in the IFC language, a target language expression appears as |IT
-te| ( ``IFC-outside, target-{\color{blue}{I}}nside'').
+te| ( ``{\color{blue}{I}}FC-outside, target-Inside'').
     \item We reinterpret |CE| to be evaluation contexts on task lists, providing definitions for |curlyRedE| and |curlyBlueE|.  These rules only operate on the first task in the task list, which by convention is the only task executing.
     \item We reinterpret |->|, an operation on a single task, in terms of |.->|, operation on task lists.  The correspondence is simple: a task executes a step and then is rescheduled in the task list according to schedule policy |alpha|.
     Figure~\ref{fig:scheduler} defines two concrete schedulers.
