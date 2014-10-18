@@ -1,5 +1,5 @@
 
-\section{Extensions, Limitations, and Future Direction}
+\section{Extensions and Limitations}
 \label{sec:extensions}
 \label{sec:extensions:labeled}
 
@@ -10,18 +10,21 @@ constructs.
 For example, COWL provides a labeled version of the XHR object.
 %while LIO implements a labeled file system, used in server-side web
 %applications~\cite{hails}.
-
+%
 Our system can be extended with constructs such as labeled values,
 labeled mutable references, clearance, and privileges.
-For space reasons, however, we provide
+For space reasons, we provide
 details of this, including the soundness
 proof with the extensions, in \appendixextfirst{}.
+%
+Here, we instead discuss a limitation of our formalism: the lack of
+external effects.
 
 
-\subsection{External Effects}
-\label{sec:extensions:external}
-Our embedding assumes that the target language does not have any
-primitives that can induce external effects.
+%\subsection{External Effects}
+%\label{sec:extensions:external}
+Specifically, our embedding assumes that the target language does not
+have any primitives that can induce external effects.
 %
 As discussed in Section~\ref{sec:real}, imposing this restriction
 can be challenging.
