@@ -115,7 +115,7 @@ of some global machine state |tS|, some evaluation context |tE|,
 some expressions |te|, some set of values |tv| and a \emph{deterministic}
 reduction relation on full configurations $|tS| \times |tE| \times |te|$.
 
-\begin{figure}
+\begin{figure}[t]
 \begin{code}
 tv   ::= \tx.te | true | false | ta
 te   ::= tv | tx | te te | if te then te else te | ref te | !te | te := te | fix te
