@@ -78,7 +78,7 @@ This example shows how our trusted monitor (left) is used to mediate
 communication between two tasks for which IFC is enforced (right).}
 \end{figure}
 %
-\subsubsection{Server-side Node.js IFC:}\ 
+\paragraph{Server-side with Node.js:}
 We have implemented |specLangJS seqf| for Node.js in the form of a
 library, without modifying Node.js or the V8 JavaScript engine.
 %
@@ -140,7 +140,7 @@ in Figure~\ref{fig:node}) and the main Node.js task that implements
 the IFC monitor.
 %
 While this is safer than simply wrapping unsafe objects, adding
-featuers such as the \textsf{fs} requires the code in the main task to
+features such as the \textsf{fs} requires the code in the main task to
 ensures that labels are properly propagated and enforced.
 %
 Unfortunately, while imposing such a proof burden
@@ -163,56 +163,46 @@ specific to the Node.js implementation and does not generalize
 to other systems.
 
 
-\subsubsection{Client-side COWL IFC:}\
-We now describe some of the implementation aspects of
-COWL, a JavaScript implementation of coarse-grained
-IFC for Mozilla's Gecko.  This work provides the formal basis for
-the implementation, and COWL is described in much more detail in~\cite{swapi}.
+\paragraph{Client-side with COWL:}
+This work provides the formal basis for the core part of the COWL
+client-side JavaScript IFC system~\cite{swapi}.
 %
-Since the architecture of COWL is similar to that of Node.js, we focus
-on the main differences.
+Like our Node.js implementation, COWL takes a coarse-grained approach
+to providing IFC for JavaScript programs.
+%
+Unlike our implementation, however, COWL's IFC monitor is implemented in
+the browser layout engine (though still leaving the JavaScript engine
+unmodified).
 
-%Tasks in COWL  correspond to browsing contexts, such as iframes,
-%where the global object |tS0| also contains the DOM, the
-%\verb|XMLHttpRequest| (XHR) object, etc.
+Furthermore, COWL repurposes existing contexts (e.g., iframes and
+pages) as IFC tasks, only imposing additional constraints on how they
+communicate.
 %
-Existing browser APIs offer \emph{web workers}, which can
-be spawned by JavaScript code and have
-the same isolation properties as tasks in our system.
+Much like Node.js case, at its core, the global object of a COWL task
+should only contain the standard JavaScript libraries and
+\texttt{postMessage}, whose semantics are modeled by our
+\textsc{JS-send} rule.
 %
-The isolation of web workers was motivated by the lack of multithreading
-in JavaScript; however, their isolation properties are equally useful for information
-flow control.
+However, existing contexts have objects such as the DOM and COWL must
+ensure that a task's external effects are restricted.
+%
+To this end, any communication (even via the DOM) is mediated at
+the context boundary by COWL.
 
-To ensure that JavaScript code cannot communicate using the global object
-(e.g., to the network with XHR or persistent storage using the DOM),
-COWL additionally uses content security policy (CSP)~\cite{csp1.1}.\footnote{
-  Since CSP does not yet restrict message-passing or navigation, this
-  was addressed explicitly in the implementation.
-}
+Simply disallowing all external effects for is overly-restricting for
+real-world applications (e.g., pages typically load images, perform
+XHR requests etc.).
 %
-Note, that this does not prevent tasks from manipulating the DOM
-(e.g., to render information), so external effects due to DOM access
-are also suppressed.
+Hence, COWL allows safe network communication by associating an
+implicit label with remote hosts (a host's label corresponds to
+its origin).
 %
-Simply disallowing all external effects for all browsing contexts is
-overly-restricting; pages typically load images, perform XHR requests
-to dynamically load data,
-etc.
+In turn, when a task perform a request, the COWL IFC monitor
+ensures that the task label can flow to the remote origin label.
 %
-Hence, COWL allows
-controlled network communication (inter-frame communication is
-dictated by our |send| rule) by associating an implicit label with a
-remote host: namely the label corresponding to its origin.
-%
-In turn, when a task perform a request, the COWL runtime performs the
-same label check as that of |send|, namely that the task label can
-flow to
-the remote origin label.
-
-Once again, while the external effects of COWL can be formally modeled,
-we do not model these effects in our more general framework, since, like
-for Node.js case, they are application specific.
+While the external effects of COWL can be formally modeled, we do not
+model these effects in our more general framework, since, like for
+Node.js case, they are specific to this system.
 %
 %Indeed, even the labeled HTTP client in  Node.js and COWL differ, even
 %though they're both JavaScript systems, simply because of the
