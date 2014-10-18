@@ -40,7 +40,7 @@ server-side web application, relies on many tasks.
 %% quickly become impractical.
 
 Luckly, this issue is not unique to our work---browser layout engines
-also rely isolating code of different origins (e.g., according to the
+also rely on isolating code of different origins (e.g., according to the
 same-origin policy).
 %
 Since creating an OS thread for each iframe is expensive, both
@@ -60,17 +60,17 @@ default, implements the JavaScript standard library (e.g.,
 Naturally, we adopt contexts to implement our notion of tasks.
 
 
-When JavaScript is embedded in browser layout engines, 
+When JavaScript is embedded in browser layout engines,
 or in server-side platforms such as Node.js,
 additional APIs such as the Document Object Model (DOM) or the file
 system get exposed as part of the runtime system.
 These features are exposed by extending the global object, just like
 the standard library.  For this reason, it is easy to modify
-these systems to remove arbitrary external effects when implementing
-an IFC system so important effects can be reintroduced in a safe manner.
+these systems to forbid external effects when implementing
+an IFC system, so important effects can be reintroduced in a safe manner.
 
 
- 
+
 \begin{figure}[t]
 \centerline{\includegraphics[width=0.7\columnwidth]{figs/node}}
 \caption{\label{fig:node}
@@ -78,7 +78,7 @@ This example shows how our trusted monitor (left) is used to mediate
 communication between two tasks for which IFC is enforced (right).}
 \end{figure}
 %
-\paragraph{Server-side with Node.js:}
+\paragraph{Server-side IFC for Node.js:}
 We have implemented |specLangJS seqf| for Node.js in the form of a
 library, without modifying Node.js or the V8 JavaScript engine.
 %
@@ -131,15 +131,16 @@ iS'; sched step (fullconf id il tS (iniEi unit), ldots)
 
 While the described system implements |specLangJS seqf|, applications
 typically require access to libraries (e.g., the file system library
-\textsf{fs}) that that have external effects.
+\textsf{fs}) that have external effects.
 %
 Exposing the Node.js APIs directly to sandboxed tasks is unsafe.
-Instead, we implement libraries such as a labeled \textsf{fs} as
+Instead, we implement libraries (like a labeled version of \textsf{fs}) as
 message exchanges between the sandboxed tasks (e.g., \textsf{task-1}
 in Figure~\ref{fig:node}) and the main Node.js task that implements
 the IFC monitor.
 %
-While this is safer than simply wrapping unsafe objects, adding
+While this is safer than simply wrapping unsafe objects, which can
+potentially be exploited to access objects outside the context, adding
 features such as the \textsf{fs} requires the code in the main task to
 ensures that labels are properly propagated and enforced.
 %
@@ -163,7 +164,7 @@ specific to the Node.js implementation and does not generalize
 to other systems.
 
 
-\paragraph{Client-side with COWL:}
+\paragraph{Client-side IFC:}
 This work provides the formal basis for the core part of the COWL
 client-side JavaScript IFC system~\cite{swapi}.
 %
@@ -296,7 +297,7 @@ can be interpreted in the following way: calling from the target
 language to the IFC language corresponds to invoking a system call.
 %
 Creating a new task with the |sandbox| system call corresponds to
-\emph{forking} a process.  Using page tables we can ensure that
+\emph{forking} a process.  Using page tables, we can ensure that
 there will be no shared memory
 (effectively
 defining |ap klone tS
@@ -311,4 +312,4 @@ the pages from the runtime queue to the (untrusted) receiver.
 Since C is not memory safe, conditions on these system calls are
 meaningless.
 %
-We leave the implementation of this IFC system for C to future work.
+We leave the implementation of this IFC system for C as future work.

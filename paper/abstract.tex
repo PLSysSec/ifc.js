@@ -4,9 +4,9 @@ extension security, untrusted JavaScript libraries and safe
 integration of mutually distrustful websites (mash-ups), may be
 effectively addressed using an efficient implementation of information
 flow control (IFC).  Unfortunately existing fine-grained approaches to
-JavaScript IFC require modifications to the language semantics, a
-non-goal for browser applications.  In this work we take the ideas of
-coarse-grained dynamic IFC to the limit and provide the theoretical
+JavaScript IFC require modifications to the language semantics and its engine, a
+non-goal for browser applications.  In this work, we take the ideas of
+coarse-grained dynamic IFC and provide the theoretical
 foundation for a language-based approach that can be applied to any
 programming language for which external effects can be controlled.  We
 then apply this formalism to JavaScript, in the context of Node.js and
@@ -14,5 +14,5 @@ Firefox, and show how it generalizes to the C programmings language.  Our method
 design principles for the construction of information flow control
 systems when isolation can easily be achieved, as well as
 compositional proofs for optimized concrete implementations of these
-systems, by relating them to their fully isolated variants.
+systems, by relating them to their isolated variants.
 \end{abstract}

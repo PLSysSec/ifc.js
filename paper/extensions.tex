@@ -7,20 +7,21 @@ While the IFC language presented thus far provides the basic
 information flow primitives, actual IFC implementations
 may wish to extend the minimal system with more specialized
 constructs.
-For example, COWL provides a labeled version of the XHR object, while
-LIO implements a labeled file system, used in server-side web
-applications~\cite{hails}.
+For example, COWL provides a labeled version of the XHR object.
+%while LIO implements a labeled file system, used in server-side web
+%applications~\cite{hails}.
 
-Our system can be extended with construct such as labeled values,
+Our system can be extended with constructs such as labeled values,
 labeled mutable references, clearance, and privileges.
-For space reasons, we provide full formal semantics (including the soundness
-proof with the extensions) in \appendixextfirst{}.
+For space reasons, however, we provide
+details of this, including the soundness
+proof with the extensions, in \appendixextfirst{}.
 
 
 \subsection{External Effects}
 \label{sec:extensions:external}
-Our embedding assumes that the target language not have any
-primitives that can induce external-world effects.
+Our embedding assumes that the target language does not have any
+primitives that can induce external effects.
 %
 As discussed in Section~\ref{sec:real}, imposing this restriction
 can be challenging.
@@ -38,7 +39,7 @@ implications of features that otherwise inherently leak data.
 Previous approaches have modeled external effects by internalizing the
 effects as writes/reads to labeled channels/references~\cite{stefan:addressing-covert}.
 %
-An alternative approach is to model such effects as messages to/from
+Alternatively, it is possible to model such effects as messages to/from
 certain labeled tasks, an approach taken by our Node.js
 implementation.
 %
@@ -47,9 +48,9 @@ primitives that can be used to perform the external effects; since the
 interface to these tasks is already part of the IFC language, the
 proof only requires showing that this task does not leak information.
 %
-An alternative approach of restricting or wrapping unsafe primitives
-is, for example, used in COWL and JSFlow, respectively, to allow for
-controlled network communication.
+Instead of restricting or wrapping unsafe primitives,
+COWL allow for
+controlled network communication at the context boundary.
 %
 (By restricting the default XHR object, for example, COWL allows code
 to communicate with hosts according to the task's current label.)

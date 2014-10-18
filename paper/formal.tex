@@ -5,12 +5,13 @@ We are interested in proving non-interference about many programming
 languages.  This requires an appropriate definition of this notion
 that is language agnostic, so in this section, we present a few
 general definitions for what an information flow control language is
-and what non-interference properties it may have.  We also state
-theorems about our system which we prove in
-\appref{sec:app:proof}.
+and what non-interference properties it may have.
 In particular, we show that |specLang alpha targetLang|, with an appropriate
 scheduler |alpha|, satisfies non-interference~\cite{Goguen82},
 without making any reference to properties of |targetLang|.
+We state the appropriate theorems here, and provide the formal
+proofs in
+\appref{sec:app:proof}.
 
 \cut{
 The precise scheduling policy dictates
@@ -102,7 +103,7 @@ Section~\ref{sec:extensions}, then this will no longer be the case.
 \end{figure}
 
 The definition of an erasure function is quite important: it captures
-the attack model, stating what can and cannot be observed by the attacker.
+the attacker model, stating what can and cannot be observed by the attacker.
 %
 In our case, we assume that the attacker cannot observe sensitive tasks or
 messages, or even the number of such entities.
@@ -163,7 +164,7 @@ Formally, we define TSNI as follows:
   \end{equation}
 \end{definition}
 %
-In other words if we take two |l|-equivalent configurations, then for every
+In other words, if we take two |l|-equivalent configurations, then for every
 intermediate step taken by the first configuration, there is a corresponding
 number of steps that the second configuration can take to result in a
 configuration that is |l|-equivalent to the first resultant configuration.
@@ -172,7 +173,7 @@ configuration that is |l|-equivalent to the first resultant configuration.
 Our IFC language satisfies TSNI %under a particular
 %scheduling policy.
 %
-%Specifically, we consider the language 
+%Specifically, we consider the language
 under the round-robin scheduler
 |roundrobinf| given in Figure~\ref{fig:scheduler}.
 
@@ -208,8 +209,8 @@ Consider the following two configurations in this language:
 ic1 = iS ; fullconf 1 sec tS1 (IT(if false then diverge else true)),  fullconf 2 pub tS2 ie
 ic2 = iS ; fullconf 1 sec tS1 (IT(if true then diverge else true)),   fullconf 2 pub tS2 ie
 \end{code}
-These two configurations are |pub|-equivalent, but |ic1| will reduce 
-(in two steps) 
+These two configurations are |pub|-equivalent, but |ic1| will reduce
+(in two steps)
 to |ic1 = iS ; fullconf 2 pub tS1 (IT true)|, whereas |ic2| will not make
 any progress.
 %
