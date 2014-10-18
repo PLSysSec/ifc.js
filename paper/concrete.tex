@@ -125,9 +125,10 @@ despite our initial motivation of a more efficient implementation.
 A better solution is to forbid sandboxed expressions as well
 as messages sent to other tasks to contain memory addresses in the
 first place.  In a statically typed language, the type system could
-prevent this from happening, and we talk more about how our
-approach integrates with typed languages in
-Section~\ref{sec:extensions:types}.
+prevent this from happening.
+%, and we talk more about how our
+%approach integrates with typed languages in
+%Section~\ref{sec:extensions:types}.
 In dynamically typed languages such as |targetLangML|, we might
 restrict the transition for |sandbox| and |send| to only allow expressions
 without memory addresses.

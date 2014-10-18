@@ -49,6 +49,23 @@ data which may be passed between tasks (for example, in JavaScript, one
 might only allow JSON objects to be passed between tasks, rather than
 general object structures).
 
+\Red{
+Existing language-based coarse-grained IFC
+system~\cite{Hritcu:2013:YIB:2497621.2498098,stefan:2012:arxiv-flexible} allow a
+sub-computation to temporarily raise the floating-label; after the
+sub-computation is done, the floating-label is restore to its original
+label. When this occurs, the enforcement must ensure, through IFC checks, that
+information does not leak to the (less confidential) program continuation. The
+presence of exceptions clearly adds intricacies to the enforcement---the
+exception should not cross from the sub-computation directly into the program
+continuation. In contrast, our system provides the same guarantees with no extra
+IFC checks: task are allowed to temporarily raise their floating-label, but the
+mere definition of isolated tasks guarantees that (a) tasks only transfer data
+to the program continuation by using intra-task communication means, and (b)
+exceptions cannot cross tasks boundaries.
+}
+
+
 Here are two more examples of language features which have an
 interesting interpretation when interpreted as task communication.
 
@@ -107,6 +124,7 @@ For instance,
 TI(toLabeled l (IT (if te then fail else true))); true
 \end{code}
 always evaluates to |true|, regardless of the value of |te|.
+
 
 \subsection{Preliminaries}
 
