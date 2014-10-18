@@ -120,9 +120,7 @@ the only way for the frame to communicate information is by
 initiating inter-task message passing.
 %
 For instance,
-\begin{code}
-TI(toLabeled l (IT (if te then fail else true))); true
-\end{code}
+$|TI(toLabeled l (IT (if te then fail else true))); true|$
 always evaluates to |true|, regardless of the value of |te|.
 
 
@@ -140,7 +138,9 @@ properties without having too much detail (and because the embedding really
 doesn't care about what, exactly, is in the target language); we discuss the proper
 embedding in more detail in Section~\ref{sec:real}.
 
-\paragraph{Notation}
+\vspace{1pt}
+\noindent
+\textit{Notation}
 We have typeset nonterminals of the target language using \textbf{{\color{red}
 bold font}} while the nonterminals of the IFC language have been typeset
 with \textit{{\color{blue} italic font}}.  Readers are encouraged to view
@@ -558,8 +558,7 @@ As an example, taking |targetLangML| as the target language, we can now define a
 blocking receive (inefficiently) in terms of the asynchronous |recv| as series
 of cross-language calls:
 \begin{code}
-  brecvf ix1 ix2 ie @=
-  tab tab tab (IT (fix (\ k . TI (recvf ix1 ix2 ie (IT k)) )))
+brecvf ix1 ix2 ie @= (IT (fix (\ k . TI (recvf ix1 ix2 ie (IT k)) )))
 \end{code}
 
 
