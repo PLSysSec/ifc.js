@@ -555,24 +555,25 @@ of cross-language calls:
   tab tab tab (IT (fix (\ k . TI (recvf ix1 ix2 ie (IT k)) )))
 \end{code}
 
-We note that our embedding corresponds to the lump embedding
-of~\cite{Matthews:2007:OSM:1190216.1190220} where terms in one language are
-treated opaquely in the other.
-%
-Indeed since our embedding is defined for an arbitrary language |targetLang|,
-we cannot do better.
-%
-However, when we have more information about the target language, it is
-possible to add rules for a natural embedding of expressions that occur in both
-languages.  In our specific example with |targetLangML|, we can choose to
-preserve booleans across language boundaries as follows:
-\begin{mathpar}
-\inferrule
-{ |b member {true, false}|  } {| iniE (IT b) -> iniE b |}
-\and
-\inferrule
-{ |b member {true, false}| } {| intE (TI b) -> intE b |}
-\end{mathpar}
+
+%We note that our embedding corresponds to the lump embedding
+%of~\cite{Matthews:2007:OSM:1190216.1190220} where terms in one language are
+%treated opaquely in the other.
+%%
+%Indeed since our embedding is defined for an arbitrary language |targetLang|,
+%we cannot do better.
+%%
+%However, when we have more information about the target language, it is
+%possible to add rules for a natural embedding of expressions that occur in both
+%languages.  In our specific example with |targetLangML|, we can choose to
+%preserve booleans across language boundaries as follows:
+%\begin{mathpar}
+%\inferrule
+%{ |b member {true, false}|  } {| iniE (IT b) -> iniE b |}
+%\and
+%\inferrule
+%{ |b member {true, false}| } {| intE (TI b) -> intE b |}
+%\end{mathpar}
 
 For any target language |targetLang| and scheduling policy |alpha|, this
 embedding defines an IFC language, which we will
