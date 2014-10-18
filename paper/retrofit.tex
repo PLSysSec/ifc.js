@@ -558,8 +558,7 @@ As an example, taking |targetLangML| as the target language, we can now define a
 blocking receive (inefficiently) in terms of the asynchronous |recv| as series
 of cross-language calls:
 \begin{code}
-  brecvf ix1 ix2 ie @=
-  tab tab tab (IT (fix (\ k . TI (recvf ix1 ix2 ie (IT k)) )))
+brecvf ix1 ix2 ie @= (IT (fix (\ k . TI (recvf ix1 ix2 ie (IT k)) )))
 \end{code}
 
 
