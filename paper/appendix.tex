@@ -365,8 +365,7 @@ references require us to update the erasure function
   \end{cases} \\
   &|erase il emptyset = emptyset|\\
   &|erase il (bracket iS (mapsto id Q)) =| \begin{cases}
-  |erase il iS| & \text{|il' cantFlowTo il|, where |il'| is}\\
-  & \text{the label of thread |id|} \\
+  |erase il iS| & \text{|il' cantFlowTo il|, where |il'| is the label of thread |id|}\\
   |bracket (erase il iS) (mapsto id (erase il Q))| & \text{otherwise}
   \end{cases} \\
   &|erase il (bracket iS (mapsto (iall il') iv)) =| \begin{cases}
