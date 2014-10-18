@@ -43,7 +43,7 @@ Our design principles suggests a different resolution: when these
 constructs are treated as isolated tasks, each of which have their own heaps, it
 is obviously the case that there is no sharing; in fact, the sandboxed task receives a dangling pointer.  Even if there is only one heap, if we enforce that references
 not be shared, the two systems are morally equivalent. (We elaborate on
-this formally in Section~\ref{sec:single-heap}.)  Finally, these
+this formally in Section~\ref{sec:concrete}.)  Finally, these
 semantics strongly suggest that one should restrict the types of
 data which may be passed between tasks (for example, in JavaScript, one
 might only allow JSON objects to be passed between tasks, rather than
