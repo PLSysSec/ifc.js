@@ -163,7 +163,7 @@ Formally, we define TSNI as follows:
   \end{equation}
 \end{definition}
 %
-In other words if we take two |l|-equivalent configurations, then for every
+In other words, if we take two |l|-equivalent configurations, then for every
 intermediate step taken by the first configuration, there is a corresponding
 number of steps that the second configuration can take to result in a
 configuration that is |l|-equivalent to the first resultant configuration.
@@ -172,7 +172,7 @@ configuration that is |l|-equivalent to the first resultant configuration.
 Our IFC language satisfies TSNI %under a particular
 %scheduling policy.
 %
-%Specifically, we consider the language 
+%Specifically, we consider the language
 under the round-robin scheduler
 |roundrobinf| given in Figure~\ref{fig:scheduler}.
 
@@ -208,8 +208,8 @@ Consider the following two configurations in this language:
 ic1 = iS ; fullconf 1 sec tS1 (IT(if false then diverge else true)),  fullconf 2 pub tS2 ie
 ic2 = iS ; fullconf 1 sec tS1 (IT(if true then diverge else true)),   fullconf 2 pub tS2 ie
 \end{code}
-These two configurations are |pub|-equivalent, but |ic1| will reduce 
-(in two steps) 
+These two configurations are |pub|-equivalent, but |ic1| will reduce
+(in two steps)
 to |ic1 = iS ; fullconf 2 pub tS1 (IT true)|, whereas |ic2| will not make
 any progress.
 %
