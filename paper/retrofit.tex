@@ -49,6 +49,17 @@ data which may be passed between tasks (for example, in JavaScript, one
 might only allow JSON objects to be passed between tasks, rather than
 general object structures).
 
+Existing language-based coarse-grained IFC
+system~\cite{Hritcu:2013:YIB:2497621.2498098,stefan:2012:arxiv-flexible} allow
+a sub-computation to temporarily raise the floating-label; after its
+completion, the floating-label is restore to its original label. When this
+occurs, the enforcement must ensure, through several IFC checks, that information
+does not leak to the (less confidential) program continuation. The presence of
+exceptions clearly adds intricacies to the enforcement.
+
+
+
+
 Here are two more examples of language features which have an
 interesting interpretation when interpreted as task communication.
 
