@@ -102,7 +102,7 @@ Exceptions simply stop when the hit the top-level of a task:
 the only way for the frame to communicate information is by
 initiating inter-task message passing.
 %
-For instance, 
+For instance,
 \begin{code}
 TI(toLabeled l (IT (if te then fail else true))); true
 \end{code}
@@ -140,7 +140,7 @@ defines an evaluation context |tE|, but, the evaluation rules have been
 expressed in terms of a different evaluation context |curlyRedE|;
 Here, we follow the approach of Matthews and
 Findler~\cite{Matthews:2007:OSM:1190216.1190220} in order to simplify combining
-semantics of multiple languages. 
+semantics of multiple languages.
 To derive the usual operational semantics for this language, the evaluation
 context merely needs to be defined as |conf tS te @= tS, bracket tE te|.
 However, when we combine this language with an IFC language, we
@@ -198,7 +198,7 @@ to allow the task to read from more sensitive entities at the cost of giving up
 the ability to write to certain entities.
 
 In Figure~\ref{fig:ifc}, we give the syntax and \emph{single-task}
-evaluation rules for a minimal information-flow control language.  
+evaluation rules for a minimal information-flow control language.
 Ordinarily, information flow control languages are defined by directly
 stating a base language plus information flow control operators.  In
 contrast, our language is purposely minimal: it does not have sequencing
@@ -223,16 +223,22 @@ labels (|canFlowTo|, |lub| and |glb|).
     \item A sandboxing operation used to spawn new isolated tasks. In
     concurrent settings |fork| corresponds to a fork-like primitive,
     whereas in a
-    sequential setting, it more closely resembles the LIO
+    sequential setting, it more closely resembles
+
+    \sout{the LIO
     |toLabeled|~\cite{lio} and Breeze
-    bracket~\cite{Hritcu:2013:YIB:2497621.2498098} constructs.
+    bracket~\cite{Hritcu:2013:YIB:2497621.2498098} constructs.}
+    \Red{
+      computations which might temporarely raise the current
+      floating-label~\cite{lio,Hritcu:2013:YIB:2497621.2498098}.
+    }
 \end{itemize}
 
 These operations are all defined with respect to an evaluation context
 |curlyBlueE| that represents the context of the current task which, by
 conventions is running. The evaluation context has three important pieces of
 state: the global message queues |iS|, the current label |il| and the task ID |id|.
- 
+
 We note that first class labels, tasks (albeit named differently), and
 operations for inspecting the current label are are essentially universal to
 all floating-label systems.
@@ -392,7 +398,7 @@ CE[e] -> iconf iS (it, ldots) @= CE[e] .-> iconf iS (sched step (it, ldots))
 \end{tabular}
 \begin{mathpar}
 \inferrule[I-sandbox]
-{ 
+{
 |iS' = bracket iS (mapsto id' nil)|\\
 |tS' = klone(tS)|\\
 |it1 = fullconf id il tS (iniE id')|\\
@@ -418,7 +424,7 @@ iS ; sched done (fullconf id il tS iv, ldots)
 \and
 \inferrule[I-noStep]
 {|
-iconf iS (it, ldots) .-/> 
+iconf iS (it, ldots) .-/>
 |}
 {|
 iconf iS (it, ldots)
