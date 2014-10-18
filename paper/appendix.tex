@@ -360,20 +360,15 @@ write that value:
 \section{Full Non-Interference Proof}
 \label{sec:appendix}
 
-In the main body of the paper we have only sketched the proof structure
-for Lemma~\ref{lemma:rr-tsni-general}.  Here we give it with full
-details, and first state and proof another lemma that will be used in that
-proof.
+In this section we prove the theorems we have stated in the paper.
+We first observe that the non-interference claims for the languages
+|specLang seqf targetLang| and |specLang roundrobinf targetLang|
+in Theorems~\ref{thm:rr-tsni} and~\ref{thm:seq-tini} follow directly
+from Theorem~\ref{thm:restricted}, where the set
+of predicates is the set of always valid predicates (i.e., no restriction).
 
-%\begin{lemma}
-%  For any task lists |its|, |its'|, and tasks |it|, |it'| we have that
-%  if
-%  \begin{enumerate}
-%    \item |iconf iS (it1, its) .-> iconf iS' (its')|
-%    \item $|erase il it1|=|bullet|$
-%  \end{enumerate}
-%  then
-%\end{lemma}
+Before we proceed with the proof of Theorem~\ref{thm:restricted},
+we state and proof two lemmas we will use.
 
 \begin{lemma}
   \label{lemma:high-not-blocking}
@@ -423,28 +418,27 @@ proof.
   \end{description}
 \end{proof}
 
-%\begin{lemma}
-%  \label{lemma:erase-context}
-%  For any expressions |ie1|, |ie2|, |ie1'|, context |iE1| as well as
-%  label |il|, if
-%  \[ |ie1= iHole2 iE1 ie1'| \quad \land \quad |erase il ie1 = erase il ie2| \]
-%  then there exist |iE2|, |ie2'| such that
-%  \[ |ie2= iHole2 iE2 ie2'| \quad \land \quad
-%  |erase il ie1' = erase il ie2'|\neq|bullet| \]
-%  Similarly, for any
-%  expressions |ie1|, |ie2|, |te1'|, context |iE1| as well as
-%  label |il|, if
-%  \[ |ie1= tHole2 iE1 te1'| \quad \land \quad |erase il ie1 = erase il ie2| \]
-%  then there exist |iE2|, |te2'| such that
-%  \[ |ie2= tHole2 iE2 te2'| \quad \land \quad
-%  |erase il te1' = erase il te2'|\neq|bullet| \]
-%\end{lemma}
-%\begin{proof}
-%  TODO
-%\end{proof}
-
-
-\begin{proof}[Proof of Lemma~\ref{lemma:rr-tsni-general}]
+\begin{lemma}
+  \label{lemma:rr-tsni-general}
+  We consider, for any target language |targetLang|,
+  the restricted IFC language |restrictedLang alpha targetLang|
+  (according to Definition~\ref{def:restricted}).
+  Then,
+  for any configurations |ic1|, |ic1'|, |ic2|, and label |il| where
+  \begin{equation} \label{eq:tsni-lemma-lhs}
+  |ic1| \approx_{|il|} |ic2|
+  \qquad \text{and} \qquad
+  |ic1| |.->| |ic1'|
+  \end{equation}
+  there exists a configuration |ic2'| such that
+  \begin{equation} \label{eq:tsni-lemma-rhs}
+  |ic1'| \approx_{|il|} |ic2'|
+  \qquad \text{and} \qquad
+  |ic2| |.->|^* |ic2'|
+  \ \text{.}
+  \end{equation}
+\end{lemma}
+\begin{proof}
   First, we observe there must be at least one task in |ic1|, otherwise
   it could not take a step.  Thus, |ic1| is of the form
   |iconf iS1 (it1, its1)|.
@@ -565,3 +559,59 @@ proof.
     \quad \land \quad |ic1'| \approx_{|il|} |ic2'| \text{.}\]
   \end{itemize}
 \end{proof}
+With this, it is easy to proof Theorem~\ref{thm:restricted} as follows.
+\begin{proof}[Proof of Theorem~\ref{thm:restricted}, TSNI]
+% short version:
+%  We prove the theorem by induction on the length of the derivation sequence in~\eqref{eq:tsni-lhs}.
+%  The base case for derivations
+%  of length 0 is trivial, allowing
+%  us to simply chose $|ic2'=ic2|$.  In the step case,
+%  we split the derivation sequence from~\eqref{eq:tsni-lhs} of length $n+1$ as
+%  $|ic1| |.->| |ic1''| |.->|^n |ic1'|$
+%  for some configuration |ic1''|.  By Lemma~\ref{lemma:rr-tsni-general} to
+%  the first step and
+%  the induction hypothesis to the rest of the derivation sequence,
+%  we directly get the desired property.
+  We proof the theorem by induction on the length of the derivation sequence in~\eqref{eq:tsni-lhs}.
+  The base case for derivations
+  of length 0 is trivial, allowing
+  us to simple chose $|ic2'=ic2|$.  In the step case, we assume
+  the theorem holds for derivation sequences of length up to $n$, and show that it also
+  holds for those of length $n+1$.  We split the derivation sequence from~\eqref{eq:tsni-lhs} as follows:
+  \[
+  |ic1| |.->| |ic1''| |.->|^n |ic1'|
+  \]
+  for some configuration |ic1''|.  By Lemma~\ref{lemma:rr-tsni-general}, we get
+  |ic''| with
+  \begin{equation} \label{eq:tsni-proof-1}
+  |ic1''| \approx_{|il|} |ic2''|
+  \qquad \text{and} \qquad
+  |ic2| |.->|^* |ic2''|
+  \end{equation}
+  Applying the induction hypothesis to
+  $|ic1''| |.->|^n |ic1'|$, we get |ic2'| with
+  \begin{equation} \label{eq:tsni-proof-2}
+  |ic1'| \approx_{|il|} |ic2'|
+  \qquad \text{and} \qquad
+  |ic2''| |.->|^* |ic2'|
+  \end{equation}
+  Stitching together the derivation sequences from~\eqref{eq:tsni-proof-1} and~\eqref{eq:tsni-proof-2} directly gives
+  us the right-hand side of the implication in the TSNI
+  definition~\eqref{eq:tsni-rhs}, which concludes the proof.
+\end{proof}
+
+%\begin{lemma}
+%  For any task lists |its|, |its'|, and tasks |it|, |it'| we have that
+%  if
+%  \begin{enumerate}
+%    \item |iconf iS (it1, its) .-> iconf iS' (its')|
+%    \item $|erase il it1|=|bullet|$
+%  \end{enumerate}
+%  then
+%\end{lemma}
+
+
+
+
+
+
