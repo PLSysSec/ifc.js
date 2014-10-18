@@ -417,7 +417,7 @@ niconf iS id il ie
     %
 In the target language, an IFC expression appears as |TI ie| (``\Red{T}arget-outside,
 IFC-inside''); in the IFC language, a target language expression appears as |IT
-te| ( ``{\color{blue}{I}}FC-outside, target-Inside'').
+te| ( ``{\color{blue}{I}}FC-outside, target-inside'').
     \item We reinterpret |CE| to be evaluation contexts on task lists, providing definitions for |curlyRedE| and |curlyBlueE|.  These rules only operate on the first task in the task list, which by convention is the only task executing.
     \item We reinterpret |->|, an operation on a single task, in terms of |.->|, operation on task lists.  The correspondence is simple: a task executes a step and then is rescheduled in the task list according to schedule policy |alpha|.
     Figure~\ref{fig:scheduler} defines two concrete schedulers.
