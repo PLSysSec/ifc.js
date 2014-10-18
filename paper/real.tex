@@ -171,38 +171,40 @@ client-side JavaScript IFC system~\cite{swapi}.
 Like our Node.js implementation, COWL takes a coarse-grained approach
 to providing IFC for JavaScript programs.
 %
-Unlike our implementation, however, COWL's IFC monitor is implemented in
-the browser layout engine (though still leaving the JavaScript engine
+%Unlike our implementation,
+However, COWL's IFC monitor is implemented in
+the browser layout engine instead (though still leaving the JavaScript engine
 unmodified).
 
 Furthermore, COWL repurposes existing contexts (e.g., iframes and
 pages) as IFC tasks, only imposing additional constraints on how they
 communicate.
 %
-Much like Node.js case, at its core, the global object of a COWL task
+As for Node.js, at its core, the global object of a COWL task
 should only contain the standard JavaScript libraries and
 \texttt{postMessage}, whose semantics are modeled by our
 \textsc{JS-send} rule.
 %
-However, existing contexts have objects such as the DOM and COWL must
-ensure that a task's external effects are restricted.
+However, existing contexts have objects such as the DOM, which
+demands COWL to restrict a task's external effects.
 %
-To this end, any communication (even via the DOM) is mediated at
-the context boundary by COWL.
+To this end, COWL mediates any communication (even via the DOM) at
+the context boundary. %by COWL.
 
-Simply disallowing all external effects for is overly-restricting for
+Simply disallowing all the external effects is overly-restricting for
 real-world applications (e.g., pages typically load images, perform
-XHR requests etc.).
+XHR requests, etc.).
 %
-Hence, COWL allows safe network communication by associating an
+In this light, COWL allows safe network communication by associating an
 implicit label with remote hosts (a host's label corresponds to
 its origin).
 %
-In turn, when a task perform a request, the COWL IFC monitor
+In turn, when a task perform a request, the COWL's IFC monitor
 ensures that the task label can flow to the remote origin label.
 %
 While the external effects of COWL can be formally modeled, we do not
-model these effects in our more general framework, since, like for
+model them in our formalism, %more general framework,
+since, like for the
 Node.js case, they are specific to this system.
 %
 %Indeed, even the labeled HTTP client in  Node.js and COWL differ, even
