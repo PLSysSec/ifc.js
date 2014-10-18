@@ -60,8 +60,9 @@ intricacies.  For instance, exceptions should not automatically
 propagate from a sub-computation directly into the program
 continuation, and, if such exceptions are allowed to be inspected, the
 floating-label at the point of the exception-raise must be tracked
-alongside the exception value~\cite{Hritcu:2013:YIB:2497621.2498098,
-stefan:2012:arxiv-flexiblea, Hedin:2012}.  In contrast, our system
+alongside the exception
+value~\cite{Hritcu:2013:YIB:2497621.2498098,stefan:2012:arxiv-flexible,Hedin:2012}.
+In contrast, our system
 provides the same flexibility and guarantees with no extra checks: tasks
 are used to execute sub-computations, but the mere definition of
 isolated tasks guarantees that (a) tasks only transfer data to the
