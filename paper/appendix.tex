@@ -58,7 +58,7 @@ variables in expression |te|.}
 
 
 
-\section{IFC Language with a Single Heap}
+\section{Example IFC Language with a Single Heap}
 \label{sec:single-heap}
 
 As a concrete instantiation of this proof technique, we show
@@ -159,7 +159,7 @@ actually provide an isomorphism.
 
 
 
-\section{Extensions}
+\section{Extending the Core Calculus}
 \label{sec:appendix-extensions}
 
 As mentioned in the main body of this paper,
@@ -498,123 +498,123 @@ we have not formalized this part any further.
 
 
 
-\section{Limitations and Future Directions}
-
-In this section we state some limitations of the current system, and
-outline potential future directions to alleviate these limitations.
-
-\subsection{Type Safety}
-\label{sec:extensions:types}
-
-One important consideration for any new language feature is whether
-or not it preserves type safety.  If implementations are allowed to
-have undefined behavior when the system gets stuck, concerns of type
-safety can be directly applicable to security.
-
-In our presentation, we have demanded that implementations \emph{not}
-have undefined behavior when getting stuck: in such situations, the
-\textsc{I-noStep} rule applies, where the stuck thread should be dropped
-from execution.  Our combined language will be not get stuck, even if
-the target language could get stuck.  This sort of guarantee can be
-achieved at a coarse granularity for languages like C by using hard
-isolation.  However, for many other languages, this is too stringent a
-requirement.
-
-A possible way to relax this requirement is to drop the \textsc{I-noStep}
-rule, and instead demand type-safety of the combined language.  This
-depends on the type system of the target language, so it is difficult to
-make any general statements about how one would go about doing this.  However,
-there are few general remarks to be made:
-
-\begin{itemize}
-    \item In Matthews and Findler's original
-        paper~\cite{Matthews:2007:OSM:1190216.1190220}, an emphasis was
-        on using type boundaries to mediate between the type systems of
-        the two languages, i.e. handling conversions of values from
-        one language to the other.  These techniques are directly applicable here.
-
-    \item In the case of mini-ES, type safety proceeds by a preservation theorem
-        that refers to well-typed stores.  In our setting, there are now multiple
-        stores, and expressions may move from being interpreted with one store
-        to another (e.g. when an address is sent from one thread to
-        another); a clear violation of type safety.  In this case, operations
-        such as |send| have their typing rules require
-        the expressions being sent be typeable in an arbitrary well-typed store,
-        statically disallowing the sending of addresses, or any types which
-        may contain addresses.  In practice, this may be further restricted to
-        types which can be easily marshalled, e.g. strings.
-
-    \item Similarly, the choice of $\kappa$ (from Section~\ref{sec:retrofit}) directly
-        influences the difficulty of the type-safety proof for
-        |sandbox| when the target language has a store.  When
-        $\kappa$ is identity, most expressions can be allowed, since the store
-        remains the same; if $\kappa$ drops the store, however, only closed expressions
-        can be sandboxed.
-\end{itemize}
-
-\subsection{Scheduling Policies}
-Our specification language is parametrized by a scheduling policy |alpha|, which
-maps a task list to a potentially different task list, i.e.,
-$\alpha_{{\tiny\mathrm{\text{step}}}}(\ifc{\Varid{t}},\ldots)$. 
-%
-As previously discussed, the precise definition of |alpha|
-dictates whether the language is TSNI, TINI, or neither.
-%
-We described two popular policies |roundrobinf| and
-|seqf| for which we showed TSNI and TINI, respectively.
-%
-However, our definitions allow for other scheduling policies based on the
-current task list---in fact, our formalism can be easily 
-extended to consider history~\cite{BartheRRS07}.
-%
-As an example of generality, our approach allows to implement the scheduler of~\cite{Kashyap:2011}
-which always schedules less sensitive threads first; this can be
-employed to address external timing covert channels where an attacker
-can measure the delay between output events.\footnote{
-  When considering a label lattice that is not totally ordered, e.g.,
-  DLM~\cite{myers:dlm} or DCLabels~\cite{dclabels}, this scheduling policy is
-  considerably more complex.
-}
-%
-More precisely, our calculus generalizes to a class of deterministic
-schedulers that are: 1) \emph{integrity-preserving}, i.e., they do not
-modify (or create) tasks; 2) \emph{non-interferent}, i.e., 
-%greatest lower bound of all the labels on the task labels,\footnote{
-%  The label on a task's current label is the current label of the
-%  parent at the time of creation, i.e., the initial current label of
-%  the task.
-%} 
-scheduling decisions on public tasks do not depend on a sensitive task's
-state~\cite{russo2006securing}; and, 3) make \emph{low-progress}, i.e., if there
-is a task in the task list whose label is below (or incomparable to) the label
-of another task, this task (or another one at the same level) must eventually
-run.
-%
-The last condition is required for TSNI; languages relying on
-schedulers, such as |seqf|, that do not satisfy the low-progress
-condition can at most satisfy TINI.
-%
-For simplicity, we do not treat this, more-general class of schedulers;
-doing so would require modifying our calculus to keep track of the
-label on the current label of tasks and complicate the
-non-interference proofs.
-
-More fundamentally, our scheduler parametrization is limited in being
-deterministic, and thus extending the system to consider non-deterministic
-schedulers (or even non-deterministic target languages) is non-trivial.
-%
-%For instance,  we do not consider  schedulers that, among other, rely
-%on the global state |iS| or previous task configurations, as treated
-%in~\cite{russo2006securing}.
-%
-%Additionally, our definitions rely on deterministic relations,
-%
-Such extensions often apply security conditions which suffer 
-from refinement attacks (e.g.~\cite{Smith:Volpano:MultiThreaded}) or may require to
-adapt non-trivial definitions as
-\emph{low-determinism}~\cite{Zdancewic:Myers:CSFW03,Huisman:Worah:Sunesen:CSFW06,Terauchi:2008},
-which states that a program is secure only if |l|-equivalent results are
-deterministic.
+%% \section{Limitations and Future Directions}
+%% 
+%% In this section we state some limitations of the current system, and
+%% outline potential future directions to alleviate these limitations.
+%% 
+%% \subsection{Type Safety}
+%% \label{sec:extensions:types}
+%% 
+%% One important consideration for any new language feature is whether
+%% or not it preserves type safety.  If implementations are allowed to
+%% have undefined behavior when the system gets stuck, concerns of type
+%% safety can be directly applicable to security.
+%% 
+%% In our presentation, we have demanded that implementations \emph{not}
+%% have undefined behavior when getting stuck: in such situations, the
+%% \textsc{I-noStep} rule applies, where the stuck thread should be dropped
+%% from execution.  Our combined language will be not get stuck, even if
+%% the target language could get stuck.  This sort of guarantee can be
+%% achieved at a coarse granularity for languages like C by using hard
+%% isolation.  However, for many other languages, this is too stringent a
+%% requirement.
+%% 
+%% A possible way to relax this requirement is to drop the \textsc{I-noStep}
+%% rule, and instead demand type-safety of the combined language.  This
+%% depends on the type system of the target language, so it is difficult to
+%% make any general statements about how one would go about doing this.  However,
+%% there are few general remarks to be made:
+%% 
+%% \begin{itemize}
+%%     \item In Matthews and Findler's original
+%%         paper~\cite{Matthews:2007:OSM:1190216.1190220}, an emphasis was
+%%         on using type boundaries to mediate between the type systems of
+%%         the two languages, i.e. handling conversions of values from
+%%         one language to the other.  These techniques are directly applicable here.
+%% 
+%%     \item In the case of mini-ES, type safety proceeds by a preservation theorem
+%%         that refers to well-typed stores.  In our setting, there are now multiple
+%%         stores, and expressions may move from being interpreted with one store
+%%         to another (e.g. when an address is sent from one thread to
+%%         another); a clear violation of type safety.  In this case, operations
+%%         such as |send| have their typing rules require
+%%         the expressions being sent be typeable in an arbitrary well-typed store,
+%%         statically disallowing the sending of addresses, or any types which
+%%         may contain addresses.  In practice, this may be further restricted to
+%%         types which can be easily marshalled, e.g. strings.
+%% 
+%%     \item Similarly, the choice of $\kappa$ (from Section~\ref{sec:retrofit}) directly
+%%         influences the difficulty of the type-safety proof for
+%%         |sandbox| when the target language has a store.  When
+%%         $\kappa$ is identity, most expressions can be allowed, since the store
+%%         remains the same; if $\kappa$ drops the store, however, only closed expressions
+%%         can be sandboxed.
+%% \end{itemize}
+%% 
+%% \subsection{Scheduling Policies}
+%% Our specification language is parametrized by a scheduling policy |alpha|, which
+%% maps a task list to a potentially different task list, i.e.,
+%% $\alpha_{{\tiny\mathrm{\text{step}}}}(\ifc{\Varid{t}},\ldots)$. 
+%% %
+%% As previously discussed, the precise definition of |alpha|
+%% dictates whether the language is TSNI, TINI, or neither.
+%% %
+%% We described two popular policies |roundrobinf| and
+%% |seqf| for which we showed TSNI and TINI, respectively.
+%% %
+%% However, our definitions allow for other scheduling policies based on the
+%% current task list---in fact, our formalism can be easily 
+%% extended to consider history~\cite{BartheRRS07}.
+%% %
+%% As an example of generality, our approach allows to implement the scheduler of~\cite{Kashyap:2011}
+%% which always schedules less sensitive threads first; this can be
+%% employed to address external timing covert channels where an attacker
+%% can measure the delay between output events.\footnote{
+%%   When considering a label lattice that is not totally ordered, e.g.,
+%%   DLM~\cite{myers:dlm} or DCLabels~\cite{dclabels}, this scheduling policy is
+%%   considerably more complex.
+%% }
+%% %
+%% More precisely, our calculus generalizes to a class of deterministic
+%% schedulers that are: 1) \emph{integrity-preserving}, i.e., they do not
+%% modify (or create) tasks; 2) \emph{non-interferent}, i.e., 
+%% %greatest lower bound of all the labels on the task labels,\footnote{
+%% %  The label on a task's current label is the current label of the
+%% %  parent at the time of creation, i.e., the initial current label of
+%% %  the task.
+%% %} 
+%% scheduling decisions on public tasks do not depend on a sensitive task's
+%% state~\cite{russo2006securing}; and, 3) make \emph{low-progress}, i.e., if there
+%% is a task in the task list whose label is below (or incomparable to) the label
+%% of another task, this task (or another one at the same level) must eventually
+%% run.
+%% %
+%% The last condition is required for TSNI; languages relying on
+%% schedulers, such as |seqf|, that do not satisfy the low-progress
+%% condition can at most satisfy TINI.
+%% %
+%% For simplicity, we do not treat this, more-general class of schedulers;
+%% doing so would require modifying our calculus to keep track of the
+%% label on the current label of tasks and complicate the
+%% non-interference proofs.
+%% 
+%% More fundamentally, our scheduler parametrization is limited in being
+%% deterministic, and thus extending the system to consider non-deterministic
+%% schedulers (or even non-deterministic target languages) is non-trivial.
+%% %
+%% %For instance,  we do not consider  schedulers that, among other, rely
+%% %on the global state |iS| or previous task configurations, as treated
+%% %in~\cite{russo2006securing}.
+%% %
+%% %Additionally, our definitions rely on deterministic relations,
+%% %
+%% Such extensions often apply security conditions which suffer 
+%% from refinement attacks (e.g.~\cite{Smith:Volpano:MultiThreaded}) or may require to
+%% adapt non-trivial definitions as
+%% \emph{low-determinism}~\cite{Zdancewic:Myers:CSFW03,Huisman:Worah:Sunesen:CSFW06,Terauchi:2008},
+%% which states that a program is secure only if |l|-equivalent results are
+%% deterministic.
 
 
 
