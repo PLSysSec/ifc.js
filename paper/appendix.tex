@@ -158,68 +158,65 @@ actually provide an isomorphism.
 
 
 
-\section{Formal Extensions}
+
+\section{Extensions}
 \label{sec:appendix-extensions}
 
-Here we formally define the syntax and semantics of the extensions
-sketched in Section~\ref{sec:extensions}.
-In Figure~\ref{fig:labeled-vals} we show how labeled values can be added,
-while Figure~\ref{fig:labeled-refs} details labeled references formally.
-For labeled values, we assume that the constructor |Labeled| is not part
-of the surface syntax, but rather an internal construct.  Similarly,
-the construct |ial| is internal in the labeled reference implementation.
-These changes to the semantics require us to update the erasure function
-|erasef il|, whose full definition is shown in Figure~\ref{fig:erasure2}.
-Note that the soundness proof in Appendix~\ref{sec:appendix}
-is done for the fully extended language with labeled values and
-labeled references.
+As mentioned in the main body of this paper,
+actual IFC implementations
+may wish to extend the minimal system with more specialized
+constructs.
+In this section we show how to extend the language with several such
+constructs.
+%
+%We remark that that the non-interference proofs must account for the
+%new constructs, since they amend the IFC calculus semantics (usually
+%by addition).
 
-We also give details for the clearance extension below.
+\subsection{Labeled values}
+%{
+%format Lb = "\textbf{Labeled}"
+%format label = "\textbf{label}"
+In traditional language-based dynamic IFC systems, a label is
+associated with values.
+%
+Hence, a program that, for example, simply writes labeled messages to
+a labeled log can operate on both public and sensitive values.
+Similarly, a task that receives a sensitive value and forwards it
+to another task does not have be be at a sensitive level, if the
+value is not inspected.
+%
+In its simplest form, our coarse grained system requires that the
+current label of a task be at least at the level of the sensitive data
+to reflect the fact that such data is in scope.
 
-\subsection{Clearance}
+If such fine-grained labeling of values is required, our base IFC
+system can be extended with explicitly labeled
+values, much like those of LIO and
+Breeze~\cite{lio, Hritcu:2013:YIB:2497621.2498098}: |iv ::= cdots
+inlinesep Labeled il ie|.
+%
+Following LIO, we say that the expression |ie| is protected by label |il|,
+while the label |il| itself is protected by the task's current label.
+%
+%
+The label of such values can be inspected the task without
+requiring the current label to be raised.
+%
+However, when a task wishes to inspect the protected value |ie|, it
+must first raise its label to at least |il| to reflect that it is
+incorporating data at such sensitivity level in its scope.
+%
+When creating labeled values the label |il| must be above
+the current label; otherwise it cannot be said that protection has
+been transferred from the current label to |il|.
+%
+%}
 
-As we have outlined in Section~\ref{sec:clearance}, we first extend
-tasks with an additional label |ilc|, which corresponds to the
-clearance of that task, and provide two primitives to read and
-write that value:
-\[ |fullconfc id il ilc tS ie| \]
-
-\begin{figure}
-  %{
-  %format .->  = "\overset{\alpha}{\hookrightarrow}"
-  %format .-/>  = "\not\overset{\alpha}{\hookrightarrow}"
-  \begin{code}
-    ie  ::= cdots | getClearance | setClearance ie
-    iE  ::= cdots | setClearance iE
-  \end{code}
-  \begin{mathpar}
-      \inferrule[I-getClearance]
-      { }
-      {|
-        niconf iS id il ilc getClearance
-        ->
-        niconf iS id il ilc ilc
-        |}
-      
-      \and
-      \inferrule[I-setClearance]
-      { }
-      {|
-        niconf iS id il ilc (setClearance ilc')
-        ->
-        niconf iS id il ilc' unit
-        |}
-  \end{mathpar}
-  \caption{Syntax and semantics for clearance.  These rules are
-    understood to be an addition to the existing rules given earlier,
-    except for the \textsc{I-sandbox} rule, which replaces the previous
-    one.
-    All existing rules do not modify the clearance.}
-  \label{fig:clearance}
-  %}
-\end{figure}
-
-
+In Figure~\ref{fig:labeled-vals}, we formally show how to add this
+extension to the language.
+We assume that the constructor |Labeled| is not part
+of the surface syntax, but rather an internal construct.
 
 \begin{figure}
   %{
@@ -263,6 +260,37 @@ write that value:
   \label{fig:labeled-vals}
   %}
 \end{figure}
+
+\subsection{Labeled mutable references/variables/channels}
+%
+Extending the calculus with other labeled features, such as
+references, mutable variables (MVars)~\cite{CH96}, or channels,
+can be done in a similar manner: these references are implemented
+in the IFC language, separately from any preexisting notions of
+mutable references in the target language.
+%
+%While we can modify the IFC calculus to add such labeled state to each
+%individual task, adding it to the system state |iS| leads to more
+%interesting use cases.
+%
+There is some minor additional state to track: specifically, by amending |iS|, as in~\cite{lio,
+stefan:addressing-covert}, we can allow threads to use these
+constructs to synchronize, or communicate with constructs other than
+|send|/|recv| in a safe manner.
+%
+For example, when extending the calculus with labeled references, |iS|
+additionally contains a store that maps addresses to a value
+and a label
+which can be read and written to by different tasks through a labeled
+reference implementations.
+
+In Figure~\ref{fig:labeled-refs} details labeled references formally.
+The construct |ial| is internal in the labeled reference implementation,
+and not part of the surface syntax.
+The changes to the language for labeled values and
+references require us to update the erasure function
+|erasef il|, whose full definition is shown in Figure~\ref{fig:erasure2}.
+
 
 \begin{figure}
   %{
@@ -356,12 +384,250 @@ write that value:
   \label{fig:erasure2}
 \end{figure}
 
+\subsection{Clearance}
+\label{sec:clearance}
+%
+Systems like LIO, COWL, and Breeze additionally provide a discretionary access
+control (DAC) mechanism---called \emph{clearance}---at the language
+level~\cite{Hritcu:2013:YIB:2497621.2498098, lio}.
+%
+This mechanisms is used to restrict a computation from allocating and
+accessing data (or communicating with entities) above a specified
+label, the clearance.
+%
+Amending our IFC language with clearance is straight forward,
+and, can be done using our notation of a restricted language.
+%
+To this end, we first extend tasks to track a clearance label
+alongside the current label, and amend the core IFC language with two
+new terminals for retrieving and setting this value.
+%
+Since this extension only adds a per-task mutable variable whose value
+has no influence on the system, all security guarantees still
+hold, by essentially the same proofs.
+%
+However, this does not implement any DAC mechanism yet.
+%
+To do so, we can restrict the language with a family of predicates
+$\mathcal{P}_\text{clearance}$:
+All rules that
+raise the current label (e.g., \textsc{I-setLabel}), perform
+allocation (e.g., \textsc{I-sandbox} and \textsf{I-send}), or set the
+clearance (clearance should not be arbitrarily raised), a predicate
+that uses the clearance to impose DAC is used.
+%
+For instance, the predicate for \textsc{I-setLabel} prevents the
+current label from being raised above the clearance (and thus permit
+reads above the clearance).  The predicate $P := |il
+canFlowTo il'|$ achieves this restriction, where |il'| is the
+clearance and |il| is the current
+label.
+%
+The other predicates are defined in a similar way and omitted for
+brevity.
 
-\section{Full Non-Interference Proof}
+
+\subsection{Privileges}
+Decentralized IFC extends IFC with the decentralized label model of
+Myers and Liskov~\cite{myers:dlm} to allow for more general
+applications, including systems consisting of mutually distrustful
+parties.  In a decentralized system, a computation is executed with a
+set of \emph{privileges}, which, when exercised, allow the computation
+to declassify data (e.g., by lowering the current label).
+%
+Practical IFC systems
+(e.g.,~\cite{Zeldovich:2006, lio,
+  Hritcu:2013:YIB:2497621.2498098, myers:jif}) rely on privileges to
+implement many applications.
+%
+%Since both the LIO and COWL implementations already support such features,
+%we believe that extending our calculus to consider privileges is
+%straight forward.
+%
+The challenge with such an extension lies in the precise
+security guarantees that must be proved, which to the best of our
+knowledge is an open research problem.
+
+Our implementation for Node.js and COWL both provide privileges, but
+we have not formalized this part any further.
+
+%We also give details for the clearance extension below.
+%
+%\subsection{Clearance}
+%
+%As we have outlined in Section~\ref{sec:clearance}, we first extend
+%tasks with an additional label |ilc|, which corresponds to the
+%clearance of that task, and provide two primitives to read and
+%write that value:
+%\[ |fullconfc id il ilc tS ie| \]
+%
+%\begin{figure}
+%  %{
+%  %format .->  = "\overset{\alpha}{\hookrightarrow}"
+%  %format .-/>  = "\not\overset{\alpha}{\hookrightarrow}"
+%  \begin{code}
+%    ie  ::= cdots | getClearance | setClearance ie
+%    iE  ::= cdots | setClearance iE
+%  \end{code}
+%  \begin{mathpar}
+%      \inferrule[I-getClearance]
+%      { }
+%      {|
+%        niconf iS id il ilc getClearance
+%        ->
+%        niconf iS id il ilc ilc
+%        |}
+%      
+%      \and
+%      \inferrule[I-setClearance]
+%      { }
+%      {|
+%        niconf iS id il ilc (setClearance ilc')
+%        ->
+%        niconf iS id il ilc' unit
+%        |}
+%  \end{mathpar}
+%  \caption{Syntax and semantics for clearance.  These rules are
+%    understood to be an addition to the existing rules given earlier,
+%    except for the \textsc{I-sandbox} rule, which replaces the previous
+%    one.
+%    All existing rules do not modify the clearance.}
+%  \label{fig:clearance}
+%  %}
+%\end{figure}
+
+
+
+
+\section{Limitations and Future Directions}
+
+In this section we state some limitations of the current system, and
+outline potential future directions to alleviate these limitations.
+
+\subsection{Type Safety}
+\label{sec:extensions:types}
+
+One important consideration for any new language feature is whether
+or not it preserves type safety.  If implementations are allowed to
+have undefined behavior when the system gets stuck, concerns of type
+safety can be directly applicable to security.
+
+In our presentation, we have demanded that implementations \emph{not}
+have undefined behavior when getting stuck: in such situations, the
+\textsc{I-noStep} rule applies, where the stuck thread should be dropped
+from execution.  Our combined language will be not get stuck, even if
+the target language could get stuck.  This sort of guarantee can be
+achieved at a coarse granularity for languages like C by using hard
+isolation.  However, for many other languages, this is too stringent a
+requirement.
+
+A possible way to relax this requirement is to drop the \textsc{I-noStep}
+rule, and instead demand type-safety of the combined language.  This
+depends on the type system of the target language, so it is difficult to
+make any general statements about how one would go about doing this.  However,
+there are few general remarks to be made:
+
+\begin{itemize}
+    \item In Matthews and Findler's original
+        paper~\cite{Matthews:2007:OSM:1190216.1190220}, an emphasis was
+        on using type boundaries to mediate between the type systems of
+        the two languages, i.e. handling conversions of values from
+        one language to the other.  These techniques are directly applicable here.
+
+    \item In the case of mini-ES, type safety proceeds by a preservation theorem
+        that refers to well-typed stores.  In our setting, there are now multiple
+        stores, and expressions may move from being interpreted with one store
+        to another (e.g. when an address is sent from one thread to
+        another); a clear violation of type safety.  In this case, operations
+        such as |send| have their typing rules require
+        the expressions being sent be typeable in an arbitrary well-typed store,
+        statically disallowing the sending of addresses, or any types which
+        may contain addresses.  In practice, this may be further restricted to
+        types which can be easily marshalled, e.g. strings.
+
+    \item Similarly, the choice of $\kappa$ (from Section~\ref{sec:retrofit}) directly
+        influences the difficulty of the type-safety proof for
+        |sandbox| when the target language has a store.  When
+        $\kappa$ is identity, most expressions can be allowed, since the store
+        remains the same; if $\kappa$ drops the store, however, only closed expressions
+        can be sandboxed.
+\end{itemize}
+
+\subsection{Scheduling Policies}
+Our specification language is parametrized by a scheduling policy |alpha|, which
+maps a task list to a potentially different task list, i.e.,
+$\alpha_{{\tiny\mathrm{\text{step}}}}(\ifc{\Varid{t}},\ldots)$. 
+%
+As previously discussed, the precise definition of |alpha|
+dictates whether the language is TSNI, TINI, or neither.
+%
+We described two popular policies |roundrobinf| and
+|seqf| for which we showed TSNI and TINI, respectively.
+%
+However, our definitions allow for other scheduling policies based on the
+current task list---in fact, our formalism can be easily 
+extended to consider history~\cite{BartheRRS07}.
+%
+As an example of generality, our approach allows to implement the scheduler of~\cite{Kashyap:2011}
+which always schedules less sensitive threads first; this can be
+employed to address external timing covert channels where an attacker
+can measure the delay between output events.\footnote{
+  When considering a label lattice that is not totally ordered, e.g.,
+  DLM~\cite{myers:dlm} or DCLabels~\cite{dclabels}, this scheduling policy is
+  considerably more complex.
+}
+%
+More precisely, our calculus generalizes to a class of deterministic
+schedulers that are: 1) \emph{integrity-preserving}, i.e., they do not
+modify (or create) tasks; 2) \emph{non-interferent}, i.e., 
+%greatest lower bound of all the labels on the task labels,\footnote{
+%  The label on a task's current label is the current label of the
+%  parent at the time of creation, i.e., the initial current label of
+%  the task.
+%} 
+scheduling decisions on public tasks do not depend on a sensitive task's
+state~\cite{russo2006securing}; and, 3) make \emph{low-progress}, i.e., if there
+is a task in the task list whose label is below (or incomparable to) the label
+of another task, this task (or another one at the same level) must eventually
+run.
+%
+The last condition is required for TSNI; languages relying on
+schedulers, such as |seqf|, that do not satisfy the low-progress
+condition can at most satisfy TINI.
+%
+For simplicity, we do not treat this, more-general class of schedulers;
+doing so would require modifying our calculus to keep track of the
+label on the current label of tasks and complicate the
+non-interference proofs.
+
+More fundamentally, our scheduler parametrization is limited in being
+deterministic, and thus extending the system to consider non-deterministic
+schedulers (or even non-deterministic target languages) is non-trivial.
+%
+%For instance,  we do not consider  schedulers that, among other, rely
+%on the global state |iS| or previous task configurations, as treated
+%in~\cite{russo2006securing}.
+%
+%Additionally, our definitions rely on deterministic relations,
+%
+Such extensions often apply security conditions which suffer 
+from refinement attacks (e.g.~\cite{Smith:Volpano:MultiThreaded}) or may require to
+adapt non-trivial definitions as
+\emph{low-determinism}~\cite{Zdancewic:Myers:CSFW03,Huisman:Worah:Sunesen:CSFW06,Terauchi:2008},
+which states that a program is secure only if |l|-equivalent results are
+deterministic.
+
+
+
+
+
+\section{Non-Interference Proof}
 \label{sec:appendix}
 \label{sec:app:proof}
 
 In this section we prove the theorems we have stated in the paper.
+Note that we prove soundness of the system including the formally
+defined extensions from Appendix~\ref{sec:appendix-extensions}.
 We first observe that the non-interference claims for the languages
 |specLang seqf targetLang| and |specLang roundrobinf targetLang|
 in Theorems~\ref{thm:rr-tsni} and~\ref{thm:seq-tini} follow directly
