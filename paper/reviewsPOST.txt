@@ -1,3 +1,20 @@
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+
+Top level points:
+
+- Most of the comments are easy to address
+
+- Expand how to achieve the scheduler behavior required by the formalism to
+  achieve the security guarantees.
+
+- Reviewer 3 seems to dislike the claims about the practicality of the approach
+  without having simulation results to back up those claims (and I believe that
+  is the main reason for the score). We should revisit the strength of those
+  claims.
+
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
 
 
 ----------------------- REVIEW 1 ---------------------
@@ -22,7 +39,7 @@ all. The authors demonstrate how their IFC language can easily be merged with a
 range of target languages, beginning with an untyped lambda calculus, and
 investigate the various forms of non-interference that can be guaranteed in this
 merged language; they go on to demonstrate how it can be applied to both server-
-and clien!  t-side JavaScript implementations, Haskell's LIO library, and
+and client-side JavaScript implementations, Haskell's LIO library, and
 convincingly outline how their IFC language could be applied to C.
 
 This is a brilliant contribution to the qualitative information flow analysis
@@ -38,12 +55,45 @@ follow it. I strongly recommend this paper's acceptance.
 
 Technical comments for the authors:
 
-- In Section 2.3, you briefly introduce the concept of security labels, and state that you just use the metavariable "l" to represent them. In fact, later in the paper, you give a concrete example of these labels ("sec" and "pub" in your discussion of Theorem 1); it would be better to introduce this simple labelling example in Section 2.3, and then state that your partial ordering doesn't actually depend on any particular set of labels, and that the programmer is free to impose a partial ordering on whatever labels they wish. By doing this, you'll give the general audience an idea of the purpose of security labels without having to explain them in excruciating detail, as you avoided having to do in the paper.
-- "e ::= sandbox e" is defined in the grammar of the IFC language in Fig. 2, but the semantics is not given until Fig. 3. I appreciate this breaks the neat symmetry of the two figures, but it's probably best to move "e ::= sandbox e" into the extended grammar of "e" shown in Fig. 3 to avoid confusion (and also emphasise that the semantics of "sandbox" depend partially on the target language).
-- In Section 2.3, you state that when sending a message the recipient's label must be "above" that of the sender. In a way, this is surprising: why are tasks with the same label not allowed to communicate?
-- You discuss the security implications of choosing various IFC schedulers at the end of Section 2. It would be nice to see some discussion of how this works in practice: presumably you have to implement another scheduling layer in your target language as part of your IFC monitor?
-- \hookrightarrow is defined twice, once in Section 2.4 and again in Definition 1. I would avoid redefining symbols halfway through, and instead use different symbols for each meaning.
-- In Definition 6, I think you mean to say "Furthermore, the predicate P" --- this certainly seems to make more sense than the other alternative, "the predicates \mathcal{P}", but it should be clarified nonetheless.
+- In Section 2.3, you briefly introduce the concept of security labels, and
+ state that you just use the metavariable "l" to represent them. In fact, later
+ in the paper, you give a concrete example of these labels ("sec" and "pub" in
+ your discussion of Theorem 1); it would be better to introduce this simple
+ labelling example in Section 2.3, and then state that your partial ordering
+ doesn't actually depend on any particular set of labels, and that the
+ programmer is free to impose a partial ordering on whatever labels they
+ wish. By doing this, you'll give the general audience an idea of the purpose of
+ security labels without having to explain them in excruciating detail, as you
+ avoided having to do in the paper.
+
+- "e ::= sandbox e" is defined in the grammar of the IFC language in Fig. 2, but
+  the semantics is not given until Fig. 3. I appreciate this breaks the neat
+  symmetry of the two figures, but it's probably best to move "e ::= sandbox e"
+  into the extended grammar of "e" shown in Fig. 3 to avoid confusion (and also
+  emphasise that the semantics of "sandbox" depend partially on the target
+  language).
+
+- In Section 2.3, you state that when sending a message the recipient's label
+  must be "above" that of the sender. In a way, this is surprising: why are
+  tasks with the same label not allowed to communicate?
+
+Ale: typo
+
+- You discuss the security implications of choosing various IFC schedulers at
+  the end of Section 2. It would be nice to see some discussion of how this
+  works in practice: presumably you have to implement another scheduling layer
+  in your target language as part of your IFC monitor?
+
+Ale: we could just say that and refer to our papers from ESORICS 2013, TGC 2013
+as clear examples for that.
+
+- \hookrightarrow is defined twice, once in Section 2.4 and again in Definition
+  1. I would avoid redefining symbols halfway through, and instead use different
+  symbols for each meaning.
+
+- In Definition 6, I think you mean to say "Furthermore, the predicate P" ---
+  this certainly seems to make more sense than the other alternative, "the
+  predicates \mathcal{P}", but it should be clarified nonetheless.
 
 Presentational comments for the authors:
 
@@ -165,6 +215,8 @@ version of the paper, or in future work:
  ideally a description of its implementation, although this would
  clearly be out of scope of the current paper).
 
+Ale: discuss this
+
 -The definitions of non-interference seem too weak to rule out
  insecure behaviors. In particular, the definition of
  termination-sensitive non-interference (TSNI) requires that if
@@ -178,6 +230,10 @@ version of the paper, or in future work:
  or c_1'. The definition of termination-insensitive non-interference
  (TINI) suffers from a similar issue.
 
+Ale: it misses that you can apply the definition again to the same system
+to get security guarantees about the intermediate steps. Adding a sentence
+clarifying this point?
+
 -One of the key claims about the contribution of this paper is that it
  presents a framework for reasoning about the DIFC aspects as a system
  without reasoning intrusively about the core language. However, the
@@ -187,11 +243,15 @@ version of the paper, or in future work:
  restriction necessary because passing arbitrary objects would require
  reasoning about complex heap data structures?
 
+Ale: clarify this (e.g., to avoid pointers to escape the thread)
+
 -The discussion of the message-passing interface implemented by
  Node.js DIFC vs. wrapped objects seems critical, and should be
  expanded upon in more detail. In particular, I could not get an
  understanding of what exactly wrapped objects are, or what are the
  security holes of using such an approach.
+
+Ale: extend a bit.
 
 Some low-level issues with technical presentation:
 
@@ -200,6 +260,8 @@ Some low-level issues with technical presentation:
  case of the right-hand side expression. My hunch is that this is not
  a deep issue and is just a result of the implicit precedence of the
  filter and comma (sequencing) operators.
+
+Ale: adding parenthesis?
 
 -p. 10: "c_1 will reduce (in two steps) to c_1" -> "c_1 will reduce
  (in two steps) to c_1'"
@@ -257,9 +319,15 @@ questions: How to enforce the predicates on the target language? How
 to make sure that the (OS) scheduler behaves the way required for the
 proof, and how expensive will this be?
 
+Ale: the last question popped up in review 1 as well!
+
 Further, what about other properties such as progress sensitive and
 timing sensitive noninterference? Can the constructs and embedding
 presented here be generalized to achieve those properties?
+
+Ale: we can add a sentence about it. After all, the concurrent version
+is progress sensitive.
+
 
 In summary, the formalism presented in this paper is an interesting
 and promising first step towards retrofitting languages with
@@ -267,3 +335,6 @@ IFC. However, the applicability of this result is limited and it not fully
 empirically evaluated. If published, the paper ought to tone down general
 claims of practicality in favor of specific discussions of concrete
 practical issues like the ones mentioned above.
+
+Ale: It seems he/she didn't like that we say it is very practical without
+simulation results.
