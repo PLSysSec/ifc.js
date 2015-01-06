@@ -18,6 +18,7 @@ Top level points:
 
 
 ----------------------- REVIEW 1 ---------------------
+TODO: Stefan
 PAPER: 22
 TITLE: IFC Inside: Retrofitting Languages with Dynamic Information Flow Control
 AUTHORS: Stefan Heule, Deian Stefan, Edward Yang, John Mitchell and Alejandro Russo
@@ -86,7 +87,6 @@ Ale: typo
 
 Ale: we could just say that and refer to our papers from ESORICS 2013, TGC 2013
 as clear examples for that.
-DS: That's reasonable, but may also be okay to mention hierarchical schedulers.
 
 - \hookrightarrow is defined twice, once in Section 2.4 and again in Definition
   1. I would avoid redefining symbols halfway through, and instead use different
@@ -238,8 +238,7 @@ to a task.
 Ale: it misses that you can apply the definition again to the same system
 to get security guarantees about the intermediate steps. Adding a sentence
 clarifying this point?
-DS: Ale: I don't think that that's what they're gettig at. Same issue
-as JFP, let's discuss.
+TODO: EZ
 
 -One of the key claims about the contribution of this paper is that it
  presents a framework for reasoning about the DIFC aspects as a system
@@ -277,6 +276,7 @@ Ale: adding parenthesis?
 
 
 ----------------------- REVIEW 3 ---------------------
+TODO: Deian (this weekend)
 PAPER: 22
 TITLE: IFC Inside: Retrofitting Languages with Dynamic Information Flow Control
 AUTHORS: Stefan Heule, Deian Stefan, Edward Yang, John Mitchell and Alejandro Russo
