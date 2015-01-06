@@ -1,0 +1,269 @@
+
+
+----------------------- REVIEW 1 ---------------------
+PAPER: 22
+TITLE: IFC Inside: Retrofitting Languages with Dynamic Information Flow Control
+AUTHORS: Stefan Heule, Deian Stefan, Edward Yang, John Mitchell and Alejandro Russo
+
+OVERALL EVALUATION: 4 (accept - will argue for)
+REVIEWER'S CONFIDENCE: 4 (high)
+
+----------- REVIEW -----------
+The authors present a core information flow
+control (IFC) language. Unlike other approaches to IFC, which typically focus on
+performing information flow analysis in a single language (or no language at
+all, instead remaining purely theoretical), this is a minimal standalone
+language for performing coarse-grained IFC at the "task" level, containing only
+primitives for getting task IDs, assigning and reading security labels, and
+message-passing between tasks. The authors' IFC language isn't useful by itself:
+its real strength is shown when it is combined with a pre-existing "target
+language", which need not contain any information flow control primitives at
+all. The authors demonstrate how their IFC language can easily be merged with a
+range of target languages, beginning with an untyped lambda calculus, and
+investigate the various forms of non-interference that can be guaranteed in this
+merged language; they go on to demonstrate how it can be applied to both server-
+and clien!  t-side JavaScript implementations, Haskell's LIO library, and
+convincingly outline how their IFC language could be applied to C.
+
+This is a brilliant contribution to the qualitative information flow analysis
+literature, particularly because of the close attention the authors pay to how
+their IFC mechanism can be applied to real-world programming languages, even
+during their description of the theoretical underpinnings of their work (for
+instance, the HTML5 postMessage API is used as motivation for the design of the
+IFC language). That their IFC language is shown to cleanly apply to a range of
+target languages is particularly attractive. The main body of the paper is
+excellently presented, structured, and paced, to the extent that it ought to be
+possible for someone with little background in information flow analysis to
+follow it. I strongly recommend this paper's acceptance.
+
+Technical comments for the authors:
+
+- In Section 2.3, you briefly introduce the concept of security labels, and state that you just use the metavariable "l" to represent them. In fact, later in the paper, you give a concrete example of these labels ("sec" and "pub" in your discussion of Theorem 1); it would be better to introduce this simple labelling example in Section 2.3, and then state that your partial ordering doesn't actually depend on any particular set of labels, and that the programmer is free to impose a partial ordering on whatever labels they wish. By doing this, you'll give the general audience an idea of the purpose of security labels without having to explain them in excruciating detail, as you avoided having to do in the paper.
+- "e ::= sandbox e" is defined in the grammar of the IFC language in Fig. 2, but the semantics is not given until Fig. 3. I appreciate this breaks the neat symmetry of the two figures, but it's probably best to move "e ::= sandbox e" into the extended grammar of "e" shown in Fig. 3 to avoid confusion (and also emphasise that the semantics of "sandbox" depend partially on the target language).
+- In Section 2.3, you state that when sending a message the recipient's label must be "above" that of the sender. In a way, this is surprising: why are tasks with the same label not allowed to communicate?
+- You discuss the security implications of choosing various IFC schedulers at the end of Section 2. It would be nice to see some discussion of how this works in practice: presumably you have to implement another scheduling layer in your target language as part of your IFC monitor?
+- \hookrightarrow is defined twice, once in Section 2.4 and again in Definition 1. I would avoid redefining symbols halfway through, and instead use different symbols for each meaning.
+- In Definition 6, I think you mean to say "Furthermore, the predicate P" --- this certainly seems to make more sense than the other alternative, "the predicates \mathcal{P}", but it should be clarified nonetheless.
+
+Presentational comments for the authors:
+
+- Your gerrymandering of TeX lengths and font size for references is kind of
+  obvious; I don't know how seriously the publishers frown upon this, though.
+
+- LNCS uses the "Fig." abbreviation in names of figures (rather than "Figure"),
+  and this should be respected in the main text.
+
+- p.2: the citation of "Matthews-Findler" should be "Matthews and Findler".
+
+- "semantics" is sometimes used as a singular noun, and other times it
+  isn't. For consistency, make it a singular noun everywhere (see below).
+
+- "information flow" is sometimes hyphenated, and other times it isn't. I rarely
+  see it hyphenated in the literature, so I'd remove the hyphen where it makes
+  sense to (see below).
+
+- p.8: "semantics of sandbox" should probably be "semantics of
+  \textbf{sandbox}".
+
+- Just below Definition 4, you refer to TSNI, but the paragraph makes more sense
+  if you actually meant to refer to TINI; presumably this is a typo.
+
+- You refer to the initialism "XHR" without ever expanding it in the text. If
+  you wanted to avoid doing so, perhaps you could go with "AJAX" where
+  appropriate.
+
+- p.18: the citation for "Bielova al." should be "Bielova et al."
+
+
+Typos and grammar suggestions (sorry for the long list):
+
+- Abstract: "programmings" -> "programming"
+- p.2: "Finally, by" -> "Finally"
+- p.2: "choice of an specific" -> "choice of a specific"
+- p.3: "(Sections 4)" -> "(Section 4)"
+- p.3: "We implemented": "We have implemented" sounds better
+- p.3: "we'd like to" -> "we"
+- p.3: "principles suggests" -> "principles suggest"
+- p.3: "these semantics strongly suggest" -> "this semantics strongly suggests"
+- p.4: "without having" -> "without including"
+- p.5: "minimal information-flow control language" -> "minimal information flow control language"
+- p.5: "temporarely" -> "temporarily"
+- p.6: "which, by conventions is running": doesn't make sense, and I'm afraid I
+  don't understand the sentence well enough to suggest a replacement phrase
+- p.6: "first class" -> "first-class"
+- p.6: "tasks current label" -> "task's current label"
+- p.6: "tasks continues" -> "task continues"
+- p.6: "with the target language" -> "within the target language"
+- p.6: "embeddings terms": remove "embeddings"
+- p.9: "remove any message" -> "remove any messages"
+- p.10: "two configuration" -> "two configurations"
+- Footnote 5: "straight forward" -> "straightforward"
+- p.12: "target and IFC language" -> "target and IFC languages"
+- p.12: "that behave" -> "that behaves"
+- Definition 5: "information-flow control" -> "information flow control"
+- p.12: "this is because is" -> "this is because it is"
+- p.13: "cf." -> "see"
+- p.13: "raises the question" -> "raises the question of"
+- p.13: "and by that" -> "and from that"
+- p.14: "all rule" -> "all rules"
+- p.14: "Luckly" -> "Luckily"
+- p.14: "interchangably" -> "interchangeably"
+- p.15: "treatement" -> "treatment"
+- p.16: "As for" -> "As with"
+- p.16: "task perform a request, the" -> "task performs a request,"
+- p.16: "Different from" -> "Unlike"
+- p.16: "adapted" -> "adopted"
+- p.17: "process.)" -> "process)."
+- p.18: "fine-grained information flow" -> "fine-grained information flow control"
+- p.18: "result in less" -> "result in fewer"
+- p.18: "is reminiscent" -> "are reminiscent"
+- p.18: "encodes" -> "encode"
+- p.19: "We showed how to prove" -> "We showed how"
+
+
+----------------------- REVIEW 2 ---------------------
+PAPER: 22
+TITLE: IFC Inside: Retrofitting Languages with Dynamic Information Flow Control
+AUTHORS: Stefan Heule, Deian Stefan, Edward Yang, John Mitchell and Alejandro Russo
+
+OVERALL EVALUATION: 3 (lean accept - will not argue for)
+REVIEWER'S CONFIDENCE: 3 (medium)
+
+----------- REVIEW -----------
+This paper presents a framework for reasoning about non-interference
+properties of DIFC languages. The key feature of the proposed
+framework is that it decouples the structure of a core language from
+the structure of the DIFC features with which the core language is
+extended. The paper presents a proof rule with which DIFC languages
+can be shown to satisfy termination-sensitive and termination
+insensitive non-interference by isomorphism to their core
+language. The paper describes how the proposed framework has been used
+to design DIFC extensions to JavaScript and Haskell, and describes how
+the framework may be applied to design a DIFC extension for C.
+
+In general, I feel that this work is well-motivated, and that the
+proof technique proposed, in which a core language is essentially
+represented as a class of transition systems, seems like a promising
+approach. I have some high-level concerns about the evaluation of the
+current approach that I feel should be addressed in either a final
+version of the paper, or in future work:
+
+-The key contribution of this paper is a technique for reasoning about
+ a single parameterized DIFC language, and reusing such reasoning for
+ showing the correctness of instances for multiple core
+ languages. However, I am not clear on the current and potential
+ consequences the framework. The key issue with applying the framework
+ seems to be that the pure DIFC components for each target language
+ are themselves implemented using completely different mechanisms
+ (i.e., JS engine components vs. monads vs. system page tables). It is
+ thus unclear to me how reasoning about a single parameterized DIFC
+ language will lead to an actual reduction of work in designing DIFC
+ components or proving their correctness. One path forward seems to be
+ a single compiler for the DIFC language that would generate JS,
+ Haskell, and C implementations from different backends. The paper
+ could be strengthened by a proposed design for such a compiler (and
+ ideally a description of its implementation, although this would
+ clearly be out of scope of the current paper).
+
+-The definitions of non-interference seem too weak to rule out
+ insecure behaviors. In particular, the definition of
+ termination-sensitive non-interference (TSNI) requires that if
+ configurations c_1 and c_2 are l-equivalent, and c_1 transitions over
+ some number of steps to configuration c_1', then there is *some*
+ configuration c_2' such that (1) c_2' is l-equivalent to c_1' and c_2
+ transitions to c_2 over some number of steps. However, this
+ definition puts no restriction on *all* of the configurations that
+ occur between c_2 and c_2': in particular, the definition does not
+ restrict that such intermediate configurations be l-equivalent to c_1
+ or c_1'. The definition of termination-insensitive non-interference
+ (TINI) suffers from a similar issue.
+
+-One of the key claims about the contribution of this paper is that it
+ presents a framework for reasoning about the DIFC aspects as a system
+ without reasoning intrusively about the core language. However, the
+ Node.js implementation of the framework seems to place an
+ aggressively-intrusive restriction on core applications by requiring
+ the application to pass information over only strings. Is this
+ restriction necessary because passing arbitrary objects would require
+ reasoning about complex heap data structures?
+
+-The discussion of the message-passing interface implemented by
+ Node.js DIFC vs. wrapped objects seems critical, and should be
+ expanded upon in more detail. In particular, I could not get an
+ understanding of what exactly wrapped objects are, or what are the
+ security holes of using such an approach.
+
+Some low-level issues with technical presentation:
+
+-p. 5: definition of the filtering function: this definition does not seem
+ to be well-founded: the left-hand term is identical to a term in one
+ case of the right-hand side expression. My hunch is that this is not
+ a deep issue and is just a result of the implicit precedence of the
+ filter and comma (sequencing) operators.
+
+-p. 10: "c_1 will reduce (in two steps) to c_1" -> "c_1 will reduce
+ (in two steps) to c_1'"
+
+-p. 10: "TSNI states that..." -> "TINI states that..."
+
+
+----------------------- REVIEW 3 ---------------------
+PAPER: 22
+TITLE: IFC Inside: Retrofitting Languages with Dynamic Information Flow Control
+AUTHORS: Stefan Heule, Deian Stefan, Edward Yang, John Mitchell and Alejandro Russo
+
+OVERALL EVALUATION: 2 (lean reject - will not argue against)
+REVIEWER'S CONFIDENCE: 4 (high)
+
+----------- REVIEW -----------
+This paper proposes a method for retrofitting languages with dynamic
+information flow control. The high-level information flow control
+(IFC) system enforces coarse-grained dynamic information flow control
+at the boundary of isolated components (e.g., a process containing one
+or several functions). New components can be spawned and concurrently
+executing components communicate with each other via message
+passing. These IFC constructs are then embedded (retrofitted) into the
+target language so that IFC control can be enforced by target
+language's runtime.  The paper also defines restrictions on the target
+language so that isolation of components can be achieved. The paper
+shows several example embeddings that have termination (in)sensitive
+noninterference properties.  The paper then briefly discusses
+applications to C, Node JS, and Haskell.
+
+Retrofitting information flow is a very interesting idea. It has the
+promise to decouple the target language from the specific end-to-end
+security property of the IFC system. This paper takes the first step
+towards building such an infrastructure.  This paper is technically
+sound and easy to read.
+
+However, I have doubts about the practicality of the approach proposed
+in this paper and how much decoupling can be achieved for languages
+such as Javascript and C.  The key primitive here is "sandbox", which
+creates an isolated environment for a component, and forces the
+communication between components to be message passing, so the
+reference monitor can monitor and control the flow.  How this
+primitive is implemented and whether it is possible to implement it
+largely depend on the target language and the underlying OS; different
+techniques need to be used to construct isolated components.  For
+languages such as Haskell, the semantics is clean and separation
+(sandboxing the components) is relatively easy. For languages like
+Javascript and C, this is a lot harder.  The high-level operational
+semantics rules defined in the paper may not match the real low-level
+operational semantics of the target language. Without refinement
+(simulation) results, the soundness of the embedding is
+questionable. Discussions on Javascript and C are very brief. After
+reading the paper, I still don't know answers to the following
+questions: How to enforce the predicates on the target language? How
+to make sure that the (OS) scheduler behaves the way required for the
+proof, and how expensive will this be?
+
+Further, what about other properties such as progress sensitive and
+timing sensitive noninterference? Can the constructs and embedding
+presented here be generalized to achieve those properties?
+
+In summary, the formalism presented in this paper is an interesting
+and promising first step towards retrofitting languages with
+IFC. However, the applicability of this result is limited and it not fully
+empirically evaluated. If published, the paper ought to tone down general
+claims of practicality in favor of specific discussions of concrete
+practical issues like the ones mentioned above.
