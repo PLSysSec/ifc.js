@@ -9,8 +9,8 @@ Top level points:
   achieve the security guarantees.
 
 - Reviewer 3 seems to dislike the claims about the practicality of the approach
-  without having simulation results to back up those claims (and I believe that
-  is the main reason for the score). We should revisit the strength of those
+  without having simulation results to back up them up (and I believe that is
+  the main reason for the score). We should revisit the strength of those
   claims.
 
 ---------------------------------------------------------------------------------
