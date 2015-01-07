@@ -211,7 +211,7 @@ are possible. %(see Section~\ref{sec:extensions}).
 
 These asynchronous communication primitives are worth further
 discussion.  When a task is sending a message using |send|, it also labels that
-message with a label |il'| (which must be above the task's current label |il|).
+message with a label |il'| (which must be at or above the task's current label |il|).
 Messages can only be received by a task if its current label is
 at least as high as the label of the message.
 Specifically, receiving a message using
