@@ -18,6 +18,7 @@ Top level points:
 
 
 ----------------------- REVIEW 1 ---------------------
+TODO: Stefan
 PAPER: 22
 TITLE: IFC Inside: Retrofitting Languages with Dynamic Information Flow Control
 AUTHORS: Stefan Heule, Deian Stefan, Edward Yang, John Mitchell and Alejandro Russo
@@ -215,7 +216,11 @@ version of the paper, or in future work:
  ideally a description of its implementation, although this would
  clearly be out of scope of the current paper).
 
-Ale: discuss this
+Ale: discuss this.
+DS: I think that this is a good point. I do think that the thing that
+needs to be highlighted is why mondads vs. page tables, etc. These are
+simply mechanisms to reduce the language so that effects are confined
+to a task.
 
 -The definitions of non-interference seem too weak to rule out
  insecure behaviors. In particular, the definition of
@@ -233,6 +238,7 @@ Ale: discuss this
 Ale: it misses that you can apply the definition again to the same system
 to get security guarantees about the intermediate steps. Adding a sentence
 clarifying this point?
+TODO: EZ
 
 -One of the key claims about the contribution of this paper is that it
  presents a framework for reasoning about the DIFC aspects as a system
@@ -270,6 +276,7 @@ Ale: adding parenthesis?
 
 
 ----------------------- REVIEW 3 ---------------------
+TODO: Deian (this weekend)
 PAPER: 22
 TITLE: IFC Inside: Retrofitting Languages with Dynamic Information Flow Control
 AUTHORS: Stefan Heule, Deian Stefan, Edward Yang, John Mitchell and Alejandro Russo
@@ -320,6 +327,14 @@ to make sure that the (OS) scheduler behaves the way required for the
 proof, and how expensive will this be?
 
 Ale: the last question popped up in review 1 as well!
+DS: I think the scheduler questions are quite different, but I think
+that the underlying discussion may be similar. In particular, I think
+this reviewer is getting at the fact that our proof does not hold for
+a real OS scheduler since scheduling is not round-robin, etc. I think
+that this is a good point, but also somewhat asking for too much. At
+worsrt, we can implement a scheduler in user-space that is closer to
+our semantics.
+
 
 Further, what about other properties such as progress sensitive and
 timing sensitive noninterference? Can the constructs and embedding
@@ -338,3 +353,5 @@ practical issues like the ones mentioned above.
 
 Ale: It seems he/she didn't like that we say it is very practical without
 simulation results.
+DS: I think this is a fair point. We should tone down practical. What
+we want to get at is real-world.
