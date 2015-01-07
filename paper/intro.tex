@@ -77,7 +77,7 @@ system can be designed once and then applied to any programming language
 which has control over external effects (e.g., JavaScript or C with
 access to hardware privilege separation).  We formalize this system
 using an approach by
-Matthews-Findler~\cite{Matthews:2007:OSM:1190216.1190220} for combining
+Matthews and Findler~\cite{Matthews:2007:OSM:1190216.1190220} for combining
 operational semantics and prove non-interference guarantees
 that are independent of the choice of an specific target language.
 
@@ -153,7 +153,7 @@ such strong isolation.
 
 In this paper, we describe a simple but general methodology for using
 isolation of \emph{execution contexts}, e.g.\ an instance of the
-JavaScript engine, in order to add information-flow control to an
+JavaScript engine, in order to add information flow control to an
 existing language.  This is a very practical approach, as there are many
 languages which have built-in capabilities for strong isolation by
 forking an execution context (i.e. Web Workers).  To validate this

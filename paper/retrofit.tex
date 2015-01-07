@@ -162,7 +162,7 @@ to allow the task to read from more sensitive entities at the cost of giving up
 the ability to write to others. %certain entities.
 
 In Fig.~\ref{fig:ifc}, we give the syntax and \emph{single-task}
-evaluation rules for a minimal information-flow control language.
+evaluation rules for a minimal information flow control language.
 Ordinarily, information flow control languages are defined by directly
 stating a base language plus information flow control operators.  In
 contrast, our language is purposely minimal: it does not have sequencing
@@ -457,7 +457,7 @@ is the question of what the target language state of the new task should
 be.  Our rule is stated generically in terms of a function |klone|.
 Conservatively, |klone| may be simply thought of as the identity
 function, in which
-case the semantics of sandbox are such that the state of the target language is \emph{cloned}
+case the semantics of |sandbox| are such that the state of the target language is \emph{cloned}
 when sandboxing occurs.  However, this is not necessary: it is also valid for |klone|
 to remove entries from the state.  In Section~\ref{sec:concrete}, we give a more detailed
 discussion of the implications of the choice of |klone|, but all our
