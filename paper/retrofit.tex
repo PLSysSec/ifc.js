@@ -95,7 +95,7 @@ while IFC language nonterminals are colored \textit{{\color{blue} blue}}.
 
 \subsection{Target Language: Mini-ES}
 
-In Figure~\ref{fig:ml}, we give a simple, untyped lambda calculus with
+In Fig.~\ref{fig:ml}, we give a simple, untyped lambda calculus with
 mutable references and fixpoint, prepared for combination with an
 information flow control language.  The presentation is mostly standard, and utilizes Felleisen-Hieb reduction
 semantics~\cite{Felleisen:1992:RRS:136293.136297} to define the
@@ -161,7 +161,7 @@ However, as in other floating-label systems, this current label can be raised
 to allow the task to read from more sensitive entities at the cost of giving up
 the ability to write to others. %certain entities.
 
-In Figure~\ref{fig:ifc}, we give the syntax and \emph{single-task}
+In Fig.~\ref{fig:ifc}, we give the syntax and \emph{single-task}
 evaluation rules for a minimal information-flow control language.
 Ordinarily, information flow control languages are defined by directly
 stating a base language plus information flow control operators.  In
@@ -321,7 +321,7 @@ niconf iS id il' unit
 \end{figure}
 
 \subsection{The Embedding}
-Figure~\ref{fig:embedding}
+Fig.~\ref{fig:embedding}
 provides all of the rules responsible for actually carrying out the embedding of the IFC language with the target language.
 The most important feature of this embedding is that every task maintains its own
 copy of the target language global state and evaluation context, thus
@@ -420,7 +420,7 @@ IFC-inside''); in the IFC language, a target language expression appears as |IT
 te| ( ``{\color{blue}{I}}FC-outside, target-inside'').
     \item We reinterpret |CE| to be evaluation contexts on task lists, providing definitions for |curlyRedE| and |curlyBlueE|.  These rules only operate on the first task in the task list, which by convention is the only task executing.
     \item We reinterpret |->|, an operation on a single task, in terms of |.->|, operation on task lists.  The correspondence is simple: a task executes a step and then is rescheduled in the task list according to schedule policy |alpha|.
-    Figure~\ref{fig:scheduler} defines two concrete schedulers.
+    Fig.~\ref{fig:scheduler} defines two concrete schedulers.
     \item Finally, we define some rules for scheduling, handling sandboxing tasks (which interact with the state of the target language),
     and intermediating between the borders of the two languages.
 \end{itemize}

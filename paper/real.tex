@@ -96,7 +96,7 @@ standard JavaScript library and our IFC primitives.
 These IFC operations are mediated by the trusted library code (executing
 as the main Node.js context), which tracks the state (current label, messages,
 etc.) of each task.  An example for |send|/|recv| is shown in
-Figure~\ref{fig:node}.
+Fig.~\ref{fig:node}.
 %While V8 provides a means for sharing any object between contexts (used
 %by same-origin contexts in Blink),
 We remark that our system conservatively restricts
@@ -136,7 +136,7 @@ typically require access to libraries (e.g., the file system library
 Exposing the Node.js APIs directly to sandboxed tasks is unsafe.
 Instead, we implement libraries (like a labeled version of \textsf{fs}) as
 message exchanges between the sandboxed tasks (e.g., \textsf{task-1}
-in Figure~\ref{fig:node}) and the main Node.js task that implements
+in Fig.~\ref{fig:node}) and the main Node.js task that implements
 the IFC monitor.
 %
 While this is safer than simply wrapping unsafe objects, which can

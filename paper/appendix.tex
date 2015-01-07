@@ -4,8 +4,8 @@
 \section{Full Semantics for |targetLangML|}
 \label{sec:app:semantics}
 
-In Figure~\ref{fig:ml-full} we give the full semantics for |targetLangML|.  A subset
-of them has been given in Figure~\ref{fig:ml} earlier in the paper.
+In Fig.~\ref{fig:ml-full} we give the full semantics for |targetLangML|.  A subset
+of them has been given in Fig.~\ref{fig:ml} earlier in the paper.
 
 \begin{figure}
 \begin{code}
@@ -114,8 +114,8 @@ this language satisfies non-interference by Theorem~\ref{thm:restricted}.
 The essential parts of the semantics for the concrete language
 with a single heap,
 which we call |concreteLangMl alpha|,
-are given in Figure~\ref{fig:concrete}.  Most rules are
-straight-forward translations of the rules in Figures~\ref{fig:ifc}
+are given in Fig.~\ref{fig:concrete}.  Most rules are
+straight-forward translations of the rules in Figs.~\ref{fig:ifc}
 and~\ref{fig:embedding} but for a single heap.  For conciseness, we
 only show the interesting ones.
 Now, we can show an isomorphism between this language and
@@ -213,7 +213,7 @@ been transferred from the current label to |il|.
 %
 %}
 
-In Figure~\ref{fig:labeled-vals}, we formally show how to add this
+In Fig.~\ref{fig:labeled-vals}, we formally show how to add this
 extension to the language.
 We assume that the constructor |Labeled| is not part
 of the surface syntax, but rather an internal construct.
@@ -284,12 +284,12 @@ and a label
 which can be read and written to by different tasks through a labeled
 reference implementations.
 
-In Figure~\ref{fig:labeled-refs} details labeled references formally.
+In Fig.~\ref{fig:labeled-refs} details labeled references formally.
 The construct |ial| is internal in the labeled reference implementation,
 and not part of the surface syntax.
 The changes to the language for labeled values and
 references require us to update the erasure function
-|erasef il|, whose full definition is shown in Figure~\ref{fig:erasure2}.
+|erasef il|, whose full definition is shown in Fig.~\ref{fig:erasure2}.
 
 
 \begin{figure}
@@ -378,7 +378,7 @@ references require us to update the erasure function
     In all cases that are not specified, including target-language constructs,
     |erasef il| is applied homomorphically
     (e.g., |erase il (setLabel e) = setLabel (erase il e)|).
-    This definition replaces the one from Figure~\ref{fig:erasure}, which
+    This definition replaces the one from Fig.~\ref{fig:erasure}, which
     is for the IFC language without extensions.}
   \label{fig:erasure2}
 \end{figure}
