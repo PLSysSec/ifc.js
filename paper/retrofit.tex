@@ -225,9 +225,9 @@ If |Q| is the empty list |nil|, the
 function is simply the identity function, i.e.,
 |filter il nil = nil|, and otherwise:
 \[
-|filter il ((il', id, ie) , Q )| = \left\{
+|filter il (((il', id, ie) , Q) )| = \left\{
 \begin{array}{l l}
-|(il', id, ie) , filter il Q| & \quad \text{if |il' canFlowTo il|}\\
+|(il', id, ie) , (filter il Q)| & \quad \text{if |il' canFlowTo il|}\\
 |filter il Q| & \quad \text{otherwise}
 \end{array} \right.
 \]

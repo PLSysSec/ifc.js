@@ -211,7 +211,7 @@ ic2 = iS ; fullconf 1 sec tS1 (IT(if true then diverge else true)),   fullconf 2
 \end{code}
 These two configurations are |pub|-equivalent, but |ic1| will reduce
 (in two steps)
-to |ic1 = iS ; fullconf 2 pub tS1 (IT true)|, whereas |ic2| will not make
+to |ic1' = iS ; fullconf 2 pub tS1 (IT true)|, whereas |ic2| will not make
 any progress.
 %
 Suppose that |ie| is a computation that writes to a |pub| channel,\footnote{
