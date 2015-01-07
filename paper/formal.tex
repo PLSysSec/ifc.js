@@ -73,7 +73,7 @@ our erasure function |erasef il|.
 %
 Essentially, a task and its corresponding message queue is completely erased from the task
 list if its label does not flow to the attacker observation level |il|.
-Otherwise, we apply the erasure function homomorphically and remove any message
+Otherwise, we apply the erasure function homomorphically and remove any messages
 from the task's message queue that are more sensitive than |il|.
 %}
 
@@ -123,7 +123,7 @@ Given an information flow control language, we can now define non-interference.
 Intuitively, we want to make statements about the attacker's observational
 power at some security level |l|.  This is done by defining an equivalence
 relation called |l|-equivalence on configurations: an attacker should
-not be able to distinguish two configuration that are |l|-equivalent.
+not be able to distinguish two configurations that are |l|-equivalent.
 %
 Since our erasure function captures what an attacker can or cannot observe, we simply define this
 equivalence as the syntactic-equivalence of erased configurations~\cite{stefan:addressing-covert}.
@@ -216,7 +216,7 @@ any progress.
 %
 Suppose that |ie| is a computation that writes to a |pub| channel,\footnote{
 Though we do not model labeled channels, extending the calculus with such a
-feature is straight forward, see Section~\ref{sec:extensions}.}
+feature is straightforward, see Section~\ref{sec:extensions}.}
 then the |sec| task's decision to diverge or not is directly leaked to a
 public entity.
 

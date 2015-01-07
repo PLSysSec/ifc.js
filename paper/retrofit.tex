@@ -1,7 +1,7 @@
 \section{Retrofitting Languages with IFC}
 \label{sec:retrofit}
 
-Before moving on to the formal treatment of our system, we'd like to give
+Before moving on to the formal treatment of our system, we give
 a brief primer of information flow control and describe some example programs
 in our system, emphasizing the parallel between their implementation
 in a multi-task setting, and the traditional, ``monolithic'' programming
@@ -39,12 +39,12 @@ reader and writer. While this solves the leak, for languages like
 JavaScript, where references are prevalently used, this also dooms the
 performance of the system.
 
-Our design principles suggests a different resolution: when these
+Our design principles suggest a different resolution: when these
 constructs are treated as isolated tasks, each of which have their own heaps, it
 is obviously the case that there is no sharing; in fact, the sandboxed task receives a dangling pointer.  Even if there is only one heap, if we enforce that references
 not be shared, the two systems are morally equivalent. (We elaborate on
-this formally in Section~\ref{sec:concrete}.)  Finally, these
-semantics strongly suggest that one should restrict the types of
+this formally in Section~\ref{sec:concrete}.)  Finally, this
+semantics strongly suggests that one should restrict the types of
 data which may be passed between tasks (for example, in JavaScript, one
 might only allow JSON objects to be passed between tasks, rather than
 general object structures).
@@ -80,7 +80,7 @@ taking ECMAScript as the target language and combining it with our IFC
 language should produce the formal semantics for the core part of COWL~\cite{swapi}.  In this
 presentation, we use a simple, untyped lambda calculus with mutable
 references and fixpoint in place of ECMAScript, to demonstrate some of the key
-properties without having too much detail (and because the embedding really
+properties without including too much detail (and because the embedding really
 does not care about what, exactly, is in the target language); we discuss the proper
 embedding in more detail in Section~\ref{sec:real}.
 
@@ -194,11 +194,11 @@ labels (|canFlowTo|, |lub| and |glb|).
 \end{itemize}
 
 These operations are all defined with respect to an evaluation context
-|curlyBlueE| that represents the context of the current task which, by
-conventions is running. The evaluation context has three important pieces of
+|curlyBlueE| that represents the context of the current task which.
+The evaluation context has three important pieces of
 state: the global message queues |iS|, the current label |il| and the task ID |id|.
 
-We note that first class labels, tasks (albeit named differently), and
+We note that first-class labels, tasks (albeit named differently), and
 operations for inspecting the current label are essentially universal to
 all floating-label systems.
 %
@@ -211,14 +211,14 @@ are possible. %(see Section~\ref{sec:extensions}).
 
 These asynchronous communication primitives are worth further
 discussion.  When a task is sending a message using |send|, it also labels that
-message with a label |il'| (which must be above the tasks current label |il|).
+message with a label |il'| (which must be above the task's current label |il|).
 Messages can only be received by a task if its current label is
 at least as high as the label of the message.
 Specifically, receiving a message using
 $|recvf ix1 ix2 ie1 ie2|$
 binds the message and the sender's task identifier
 to local variables |ix1| and |ix2|, respectively, and then executes |ie1|.
-Otherwise, if there are no messages, that tasks continues its execution with |ie2|.
+Otherwise, if there are no messages, that task continues its execution with |ie2|.
 We denote the filtering of the message queue by |filter il Q|,
 which is defined as follows.
 If |Q| is the empty list |nil|, the
@@ -322,7 +322,7 @@ niconf iS id il' unit
 
 \subsection{The Embedding}
 Fig.~\ref{fig:embedding}
-provides all of the rules responsible for actually carrying out the embedding of the IFC language with the target language.
+provides all of the rules responsible for actually carrying out the embedding of the IFC language within the target language.
 The most important feature of this embedding is that every task maintains its own
 copy of the target language global state and evaluation context, thus
 enforcing isolation between various tasks.  In more detail:
@@ -411,7 +411,7 @@ niconf iS id il ie
 
 \begin{itemize}
     \item We extend the values, expressions and evaluation contexts of
-      both languages to allow for embeddings terms in one language to
+      both languages to allow for terms in one language to
       be embedded in the other, as
       in~\cite{Matthews:2007:OSM:1190216.1190220}.
     %

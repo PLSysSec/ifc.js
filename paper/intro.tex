@@ -59,7 +59,7 @@ be performed at isolation boundaries
 instead of (almost) every program instruction~(e.g.,~\cite{JSFlow}).
 %, compared to fine-grained
 %systems were the runtime overhead can be impractical~\cite{JSFlow}.
-Finally, by associating
+Finally, associating
 a single security label with the entire computational unit simplifies
 understanding and reasoning about the security guarantees of the
 system, without reasoning about most of the
@@ -79,7 +79,7 @@ access to hardware privilege separation).  We formalize this system
 using an approach by
 Matthews and Findler~\cite{Matthews:2007:OSM:1190216.1190220} for combining
 operational semantics and prove non-interference guarantees
-that are independent of the choice of an specific target language.
+that are independent of the choice of a specific target language.
 
 There are a number of points that distinguish this setting from
 previous coarse-grained IFC systems.
@@ -113,8 +113,8 @@ Our contributions can be summarized as follows:
   \item We provide a proof technique to show the non-interference
   of a concrete semantics for a potentially optimized IFC language
   by means of an isomorphism and show a class of restrictions on
-  the IFC language that preserves non-interference. (Sections~\ref{sec:concrete})
-  \item We implemented an IFC system based on these semantics
+  the IFC language that preserves non-interference. (Section~\ref{sec:concrete})
+  \item We have implemented an IFC system based on these semantics
   for Node.js, and we connect our formalism to another implementation
   based on this work for client-side JavaScript~\cite{swapi}.
   Furthermore, we outline an implementation for the C programming

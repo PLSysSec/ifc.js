@@ -39,7 +39,7 @@ server-side web application, relies on many tasks.
 %% creates a new task for each HTTP request.  The overhead would
 %% quickly become impractical.
 
-Luckly, this issue is not unique to our work---browser layout engines
+Luckily, this issue is not unique to our work---browser layout engines
 also rely on isolating code executing in separate iframes (e.g., according to the
 same-origin policy).
 %
@@ -51,7 +51,7 @@ on disjoint sub-heaps.
 In V8, this unit of isolation is called a \emph{context}; in
 SpiderMonkey, it is called a \emph{compartment}.
 %
-(We will use these terms interchangably.)
+(We will use these terms interchangeably.)
 %
 Each context is associated with a global object, which, by
 default, implements the JavaScript standard library (e.g.,
@@ -87,7 +87,7 @@ library for creating new tasks, i.e., contexts whose global object
 only contains the standard JavaScript library and our IFC primitives
 (e.g., |send| and |sandbox|).
 %
-When mapped to our formal treatement, |sandbox| is defined with |ap
+When mapped to our formal treatment, |sandbox| is defined with |ap
 klone tS = tS0|, where |tS0| is the global object corresponding to the
 standard JavaScript library and our IFC primitives.
 %
@@ -180,7 +180,7 @@ Furthermore, COWL repurposes existing contexts (e.g., iframes and
 pages) as IFC tasks, only imposing additional constraints on how they
 communicate.
 %
-As for Node.js, at its core, the global object of a COWL task
+As with Node.js, at its core, the global object of a COWL task
 should only contain the standard JavaScript libraries and
 \texttt{postMessage}, whose semantics are modeled by our
 \textsc{JS-send} rule.
@@ -199,7 +199,7 @@ In this light, COWL allows safe network communication by associating an
 implicit label with remote hosts (a host's label corresponds to
 its origin).
 %
-In turn, when a task perform a request, the COWL's IFC monitor
+In turn, when a task perform a request, COWL's IFC monitor
 ensures that the task label can flow to the remote origin label.
 %
 While the external effects of COWL can be formally modeled, we do not
@@ -232,7 +232,7 @@ IFC language.
 %Indeed, by rephrasing LIO in terms of our framework, we simplified
 %LIO's treatment of exceptions.
 %
-Different from our proposal, LIO originally associated labels with exceptions, in a
+Unlike our proposal, LIO originally associated labels with exceptions, in a
 similar style to fine-grained
 systems~\cite{stefan:2012:arxiv-flexible, Hritcu:2013:YIB:2497621.2498098}.
 %
@@ -246,7 +246,7 @@ trusted code, effectively allowing for denial of service attacks.
 %
 The insights gained when viewing coarse-grained IFC as presented in this
 paper led to a much cleaner, simpler treatment of exceptions in LIO,
-which has now been adapted by LIO.
+which has now been adopted by LIO.
 %By using isolated tasks, and thus treating the current label (and
 %clearance) as global, the underlying Haskell exception system can be
 %used directly: exceptional control flow does not affect IFC.
@@ -295,7 +295,7 @@ there will be no shared memory
 (effectively
 defining |ap klone tS
 = tS0|, where |tS0| is the set of pages necessary to bootstrap a
-lightweight process.)
+lightweight process).
 %
 Similarly, control over page tables and protection bits allows us to
 define a |send| syscall that copies pages to our

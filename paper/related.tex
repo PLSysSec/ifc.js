@@ -42,9 +42,9 @@ operations; however, our approach only runs the program once.
 
 One of the primary motivations behind this paper is constructing a practical
 information flow control system for JavaScript.  Some of these systems attempt
-to perform fine-grained information flow of
+to perform fine-grained information flow control of
 JavaScript~\cite{Hedin:2012,ConDOM,JSFlow}. While fine-grained information flow
-control can result in less false alarms and target legacy code, it comes at the
+control can result in fewer false alarms and target legacy code, it comes at the
 cost of complexity (the system must accommodate the entirety of JavaScript's
 semantics~\cite{JSFlow}).
 %Moreover, the runtime performance cost are sometimes too high, e.g.,
@@ -64,7 +64,7 @@ scenario~\cite{Yip:2009:PBS,DeGroef:2012,conf/esorics/AkhaweLHSS13}.
 
 
 The constructs in our IFC language, as well as the behavior of
-inter-thread communication, is reminiscent of distributed systems
+inter-thread communication, are reminiscent of distributed systems
 like Erlang~\cite{Armstrong03makingreliable}.  There is a close
 correspondence: in distributed systems, isolation is required due to
 physical constraints; in information flow control, isolation is
@@ -81,7 +81,7 @@ desugared into.  Abadi et al.~\cite{abadi+:core} motivate their core calculus of
 dependency by showing how various previous systems can be encoded in it; Tse and
 Zdancewic~\cite{Tse:Zdancewic:ICFP04}, in turn, show how this calculus can be
 encoded in System F via parametricity.  Broberg and Sands~\cite{Broberg:2010}
-encodes several IFC systems into Paralocks.  However, this line of work is
+encode several IFC systems into Paralocks.  However, this line of work is
 primarily focused on static enforcements.
 %information flow control systems.
 

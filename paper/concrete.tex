@@ -19,7 +19,7 @@ For instance, for the language |targetLangML|, our presentation so far
 requires a separate heap per task, which is not very practical.
 Instead, we would like to
 more tightly couple the integration of the target and IFC
-language by reusing existing infrastructure.  In the running example,
+languages by reusing existing infrastructure.  In the running example,
 a concrete implementation might use a single global heap.
 More precisely, instead of using a configuration of the form
 $|iconf iS (fullconf id1 il1 tS1 ie1, fullconf id2 il2 tS2 ie2 ldots)|$
@@ -35,7 +35,7 @@ The intention of our single heap implementation is to permit
 efficient execution while \emph{conceptually maintaining isolation between
 tasks} (by not allowing sharing of references between them).
 This intuition of having a different (potentially more efficient)
-concrete semantics that behave like the abstract semantics
+concrete semantics that behaves like the abstract semantics
 can be formalized by the following definition:
 
 % con no-prime red target
@@ -73,7 +73,7 @@ as the following two theorems state.
 \end{proof}
 
 Only weak isomorphism is necessary for TINI. Intuitively, this is because
-is not necessary to back-translate reduction sequences in $L'$ to
+it is not necessary to back-translate reduction sequences in $L'$ to
 $L$; by the definition of TINI, we have both reduction sequences in $L$
 by assumption.
 
@@ -96,7 +96,7 @@ behavior of several heaps with a single actual heap.
 The interesting cases are when we sandbox
 an expression and when messages are sent and received.
 The rule for sandboxing is
-parametrized by the strategy |klone| (cf.\ Section~\ref{sec:retrofit}),
+parametrized by the strategy |klone| (see Section~\ref{sec:retrofit}),
 which defines what heap the new task
 should execute with.  We have considered two choices:
 
@@ -136,11 +136,11 @@ restrict the transition for |sandbox| and |send| to only allow expressions
 without memory addresses.
 
 While this sounds plausible, it is worth noting that we are modifying the IFC language semantics,
-which raises the question whether non-interference is preserved.
+which raises the question of whether non-interference is preserved.
 This question can be subtle: it is easy to remove a transition from
 a language and invalidate TSNI.  Intuitively
 if the restriction depends on secret data, then a public thread
-can observe if some other task terminates or not, and by that obtain
+can observe if some other task terminates or not, and from that obtain
 information about the secret data that was used to restrict the
 transition.
 With this in mind, we require semantic rules to get restricted only
@@ -198,7 +198,7 @@ abstract IFC language |specLang alpha targetLang|.
   |specLang alpha targetLang|, with the following exception:
   The reduction rules are restricted
   by adding a predicate $P \in \mathcal P$ to the premise of
-  all rule other than \textsc{I-noStep}.  Furthermore, the predicates $P$
+  all rules other than \textsc{I-noStep}.  Furthermore, the predicates $P$
   can depend only on the \textit{erased} configuration
   |erase il ic|, where |il| is the label of the first task
   in the task list and |ic| the full configuration.
