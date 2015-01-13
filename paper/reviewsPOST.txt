@@ -67,6 +67,8 @@ Technical comments for the authors:
  security labels without having to explain them in excruciating detail, as you
  avoided having to do in the paper.
 
+Stefan: Didn't do this, the paper seemed fine to me.  Don't have a strong opinion though.
+
 - "e ::= sandbox e" is defined in the grammar of the IFC language in Fig. 2, but
   the semantics is not given until Fig. 3. I appreciate this breaks the neat
   symmetry of the two figures, but it's probably best to move "e ::= sandbox e"
@@ -74,9 +76,11 @@ Technical comments for the authors:
   emphasise that the semantics of "sandbox" depend partially on the target
   language).
 
-- In Section 2.3, you state that when sending a message the recipient's label
-  must be "above" that of the sender. In a way, this is surprising: why are
-  tasks with the same label not allowed to communicate?
+Stefan: I disagree, I think we should keep it the way it is.
+
+# - In Section 2.3, you state that when sending a message the recipient's label
+#   must be "above" that of the sender. In a way, this is surprising: why are
+#   tasks with the same label not allowed to communicate?
 
 Ale: typo
 
@@ -92,84 +96,86 @@ as clear examples for that.
   1. I would avoid redefining symbols halfway through, and instead use different
   symbols for each meaning.
 
-- In Definition 6, I think you mean to say "Furthermore, the predicate P" ---
-  this certainly seems to make more sense than the other alternative, "the
-  predicates \mathcal{P}", but it should be clarified nonetheless.
+Stefan: I disagree, there is no confusion.
+
+# - In Definition 6, I think you mean to say "Furthermore, the predicate P" ---
+#   this certainly seems to make more sense than the other alternative, "the
+#   predicates \mathcal{P}", but it should be clarified nonetheless.
 
 Presentational comments for the authors:
 
 - Your gerrymandering of TeX lengths and font size for references is kind of
   obvious; I don't know how seriously the publishers frown upon this, though.
 
-- LNCS uses the "Fig." abbreviation in names of figures (rather than "Figure"),
-  and this should be respected in the main text.
+# - LNCS uses the "Fig." abbreviation in names of figures (rather than "Figure"),
+#   and this should be respected in the main text.
 
-- p.2: the citation of "Matthews-Findler" should be "Matthews and Findler".
+# - p.2: the citation of "Matthews-Findler" should be "Matthews and Findler".
 
-- "semantics" is sometimes used as a singular noun, and other times it
-  isn't. For consistency, make it a singular noun everywhere (see below).
+# - "semantics" is sometimes used as a singular noun, and other times it
+#   isn't. For consistency, make it a singular noun everywhere (see below).
 
-- "information flow" is sometimes hyphenated, and other times it isn't. I rarely
-  see it hyphenated in the literature, so I'd remove the hyphen where it makes
-  sense to (see below).
+# - "information flow" is sometimes hyphenated, and other times it isn't. I rarely
+#   see it hyphenated in the literature, so I'd remove the hyphen where it makes
+#   sense to (see below).
 
-- p.8: "semantics of sandbox" should probably be "semantics of
-  \textbf{sandbox}".
+# - p.8: "semantics of sandbox" should probably be "semantics of
+#   \textbf{sandbox}".
 
-- Just below Definition 4, you refer to TSNI, but the paragraph makes more sense
-  if you actually meant to refer to TINI; presumably this is a typo.
+# - Just below Definition 4, you refer to TSNI, but the paragraph makes more sense
+#   if you actually meant to refer to TINI; presumably this is a typo.
 
-- You refer to the initialism "XHR" without ever expanding it in the text. If
-  you wanted to avoid doing so, perhaps you could go with "AJAX" where
-  appropriate.
+# - You refer to the initialism "XHR" without ever expanding it in the text. If
+#   you wanted to avoid doing so, perhaps you could go with "AJAX" where
+#   appropriate.
 
-- p.18: the citation for "Bielova al." should be "Bielova et al."
+# - p.18: the citation for "Bielova al." should be "Bielova et al."
 
 
 Typos and grammar suggestions (sorry for the long list):
 
-- Abstract: "programmings" -> "programming"
-- p.2: "Finally, by" -> "Finally"
-- p.2: "choice of an specific" -> "choice of a specific"
-- p.3: "(Sections 4)" -> "(Section 4)"
-- p.3: "We implemented": "We have implemented" sounds better
-- p.3: "we'd like to" -> "we"
-- p.3: "principles suggests" -> "principles suggest"
-- p.3: "these semantics strongly suggest" -> "this semantics strongly suggests"
-- p.4: "without having" -> "without including"
-- p.5: "minimal information-flow control language" -> "minimal information flow control language"
-- p.5: "temporarely" -> "temporarily"
-- p.6: "which, by conventions is running": doesn't make sense, and I'm afraid I
-  don't understand the sentence well enough to suggest a replacement phrase
-- p.6: "first class" -> "first-class"
-- p.6: "tasks current label" -> "task's current label"
-- p.6: "tasks continues" -> "task continues"
-- p.6: "with the target language" -> "within the target language"
-- p.6: "embeddings terms": remove "embeddings"
-- p.9: "remove any message" -> "remove any messages"
-- p.10: "two configuration" -> "two configurations"
-- Footnote 5: "straight forward" -> "straightforward"
-- p.12: "target and IFC language" -> "target and IFC languages"
-- p.12: "that behave" -> "that behaves"
-- Definition 5: "information-flow control" -> "information flow control"
-- p.12: "this is because is" -> "this is because it is"
-- p.13: "cf." -> "see"
-- p.13: "raises the question" -> "raises the question of"
-- p.13: "and by that" -> "and from that"
-- p.14: "all rule" -> "all rules"
-- p.14: "Luckly" -> "Luckily"
-- p.14: "interchangably" -> "interchangeably"
-- p.15: "treatement" -> "treatment"
-- p.16: "As for" -> "As with"
-- p.16: "task perform a request, the" -> "task performs a request,"
-- p.16: "Different from" -> "Unlike"
-- p.16: "adapted" -> "adopted"
-- p.17: "process.)" -> "process)."
-- p.18: "fine-grained information flow" -> "fine-grained information flow control"
-- p.18: "result in less" -> "result in fewer"
-- p.18: "is reminiscent" -> "are reminiscent"
-- p.18: "encodes" -> "encode"
-- p.19: "We showed how to prove" -> "We showed how"
+# - Abstract: "programmings" -> "programming"
+# - p.2: "Finally, by" -> "Finally"
+# - p.2: "choice of an specific" -> "choice of a specific"
+# - p.3: "(Sections 4)" -> "(Section 4)"
+# - p.3: "We implemented": "We have implemented" sounds better
+# - p.3: "we'd like to" -> "we"
+# - p.3: "principles suggests" -> "principles suggest"
+# - p.3: "these semantics strongly suggest" -> "this semantics strongly suggests"
+# - p.4: "without having" -> "without including"
+# - p.5: "minimal information-flow control language" -> "minimal information flow control language"
+# - p.5: "temporarely" -> "temporarily"
+# - p.6: "which, by conventions is running": doesn't make sense, and I'm afraid I
+#   don't understand the sentence well enough to suggest a replacement phrase
+# - p.6: "first class" -> "first-class"
+# - p.6: "tasks current label" -> "task's current label"
+# - p.6: "tasks continues" -> "task continues"
+# - p.6: "with the target language" -> "within the target language"
+# - p.6: "embeddings terms": remove "embeddings"
+# - p.9: "remove any message" -> "remove any messages"
+# - p.10: "two configuration" -> "two configurations"
+# - Footnote 5: "straight forward" -> "straightforward"
+# - p.12: "target and IFC language" -> "target and IFC languages"
+# - p.12: "that behave" -> "that behaves"
+# - Definition 5: "information-flow control" -> "information flow control"
+# - p.12: "this is because is" -> "this is because it is"
+# - p.13: "cf." -> "see"
+# - p.13: "raises the question" -> "raises the question of"
+# - p.13: "and by that" -> "and from that"
+# - p.14: "all rule" -> "all rules"
+# - p.14: "Luckly" -> "Luckily"
+# - p.14: "interchangably" -> "interchangeably"
+# - p.15: "treatement" -> "treatment"
+# - p.16: "As for" -> "As with"
+# - p.16: "task perform a request, the" -> "task performs a request,"
+# - p.16: "Different from" -> "Unlike"
+# - p.16: "adapted" -> "adopted"
+# - p.17: "process.)" -> "process)."
+# - p.18: "fine-grained information flow" -> "fine-grained information flow control"
+# - p.18: "result in less" -> "result in fewer"
+# - p.18: "is reminiscent" -> "are reminiscent"
+# - p.18: "encodes" -> "encode"
+# - p.19: "We showed how to prove" -> "We showed how"
 
 
 ----------------------- REVIEW 2 ---------------------
@@ -261,18 +267,18 @@ Ale: extend a bit.
 
 Some low-level issues with technical presentation:
 
--p. 5: definition of the filtering function: this definition does not seem
- to be well-founded: the left-hand term is identical to a term in one
- case of the right-hand side expression. My hunch is that this is not
- a deep issue and is just a result of the implicit precedence of the
- filter and comma (sequencing) operators.
+# -p. 5: definition of the filtering function: this definition does not seem
+#  to be well-founded: the left-hand term is identical to a term in one
+#  case of the right-hand side expression. My hunch is that this is not
+#  a deep issue and is just a result of the implicit precedence of the
+#  filter and comma (sequencing) operators.
 
 Ale: adding parenthesis?
 
--p. 10: "c_1 will reduce (in two steps) to c_1" -> "c_1 will reduce
- (in two steps) to c_1'"
+# -p. 10: "c_1 will reduce (in two steps) to c_1" -> "c_1 will reduce
+#  (in two steps) to c_1'"
 
--p. 10: "TSNI states that..." -> "TINI states that..."
+# -p. 10: "TSNI states that..." -> "TINI states that..."
 
 
 ----------------------- REVIEW 3 ---------------------
