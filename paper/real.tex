@@ -166,8 +166,13 @@ the IFC monitor.
 %
 While this is safer than simply wrapping unsafe objects, which can
 potentially be exploited to access objects outside the context (e.g.,
-as seen with ADSafe, FBJS, and Caja~\cite{taly2011automated,
-maffeis2010object, maffeis2009language}), adding features such as the
+as seen with
+\ifextended
+ADSafe, FBJS, and Caja~\cite{taly2011automated, maffeis2010object, maffeis2009language}),
+\else
+ADSafe~\cite{taly2011automated}),
+\fi
+adding features such as the
 \textsf{fs} requires the code in the main task to ensures that labels
 are properly propagated and enforced.
 %
@@ -265,7 +270,7 @@ systems~\cite{stefan:2012:arxiv-flexible, Hritcu:2013:YIB:2497621.2498098}.
 %
 In addition to being overly complex, the interaction of exceptions
 with clearance (which sets an upper bound on the floating label, see
-Section~\ref{sec:clearance}) was incorrect: the clearance
+\appref{sec:clearance}) was incorrect: the clearance
 was restored to the clearance at point of the catch.
 %
 Furthermore, pure exceptions (e.g., divide by zero) always percolated to

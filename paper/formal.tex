@@ -171,17 +171,21 @@ configuration that is |l|-equivalent to the first resultant configuration.
 By symmetry, this applies to all intermediate steps from the second configuration
 as well.
 %
+\ifextended
 We remark that this notion of non-interfernce is similar to
 \emph{progress sensitive non-interference (PSNI)}, which accounts for
 leakage via progress (or termination) channels, as used for static
 systems~\cite{moore2012precise}.
+\fi
 
 
-Our IFC language satisfies TSNI 
+Our language satisfies TSNI 
+\ifextended
 (and thus PSNI)
+\fi
 under the round-robin scheduler
-|roundrobinf| given in Fig.~\ref{fig:scheduler}.
-
+|roundrobinf| of Fig.~\ref{fig:scheduler}.
+%
 \begin{theorem}[Concurrent IFC language is TSNI]
   \label{thm:rr-tsni}
 For any target language |targetLang|, |specLang roundrobinf

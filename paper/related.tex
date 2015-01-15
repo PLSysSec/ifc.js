@@ -26,12 +26,11 @@ originates from Smith and Volpano~\cite{Smith:Volpano:MultiThreaded,Volpano:1997
 %systems attempt to be generic in the choice of target language.
 
 One information flow control technique designed to handle legacy code is
-secure multi-execution (SME)~\cite{Devriese:2010}. SME runs
+secure multi-execution (SME)~\cite{Devriese:2010,Rafnson:2013}. SME runs
 multiple copies of the program, one per security level, where the semantics of
-I/O interactions is altered. Authors often present
-SME in the context of a single, specific programming
-language~\cite{KULeuven-350547,Rafnson:2013}. However, Bielova et
-al.~\cite{Biel-etal-11-TR} uses a transition system to describe SME, where the
+I/O interactions is altered.
+Bielova et
+al.~\cite{Biel-etal-11-TR} use a transition system to describe SME, where the
 details of the underlying language are hidden.  Zanarini et
 al.~\cite{ZanariniJR13} propose a novel semantics for programs based on
 interaction trees~\cite{jacobs-tutorial}, which treats programs as black-boxes
@@ -43,15 +42,20 @@ operations; however, our approach only runs the program once.
 One of the primary motivations behind this paper is the application of
 information flow control to JavaScript.  Previous systems 
 retrofitted JavaScript with fine-grained
-IFC~\cite{Hedin:2012,ConDOM,JSFlow}. While fine-grained IFC can result
+\ifextended
+IFC~\cite{Hedin:2012,ConDOM,JSFlow}.
+\else
+IFC~\cite{Hedin:2012,JSFlow}.
+\fi
+While fine-grained IFC can result
 in fewer false alarms and target legacy code, it comes at the
 cost of complexity: the system must accommodate the entirety of JavaScript's
 semantics~\cite{JSFlow}.
 %Moreover, the runtime performance cost are sometimes too high, e.g.,
 %higher than 100\%~\cite{JSFlow}.
 By contrast, coarse-grained
-approaches to security have also been proposed for the web
-scenario and tend to have simpler implications~\cite{Yip:2009:PBS,DeGroef:2012,conf/esorics/AkhaweLHSS13}.
+approaches to security
+tend to have simpler implications~\cite{Yip:2009:PBS,DeGroef:2012}.
 
 
 %There are attempts to overcome this performance barrier by various means:
@@ -65,12 +69,12 @@ scenario and tend to have simpler implications~\cite{Yip:2009:PBS,DeGroef:2012,c
 
 The constructs in our IFC language, as well as the behavior of
 inter-task communication, are reminiscent of distributed systems like
-Erlang~\cite{Armstrong03makingreliable}.  There is a close
-correspondence: in distributed systems, isolation is required due to
+Erlang~\cite{Armstrong03makingreliable}.
+In distributed systems, isolation is required due to
 physical constraints; in information flow control, isolation is
 required to enforce non-interference.  Papagiannis et
 al.~\cite{Papagiannis_enforcinguser} built an information flow control
-system on top of Erlang which shares some similarities to ours.
+system on top of Erlang that shares some similarities to ours.
 However, they do not take a floating-label approach (processes can find
 out when sending a message failed due to a forbidden information
 flow), nor do they provide security proofs.
