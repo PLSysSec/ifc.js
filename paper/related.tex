@@ -26,32 +26,32 @@ originates from Smith and Volpano~\cite{Smith:Volpano:MultiThreaded,Volpano:1997
 %systems attempt to be generic in the choice of target language.
 
 One information flow control technique designed to handle legacy code is
-secure multi-execution (SME)~\cite{Devriese:2010}. It runs
+secure multi-execution (SME)~\cite{Devriese:2010}. SME runs
 multiple copies of the program, one per security level, where the semantics of
 I/O interactions is altered. Authors often present
-SME considering one specific programming
+SME in the context of a single, specific programming
 language~\cite{KULeuven-350547,Rafnson:2013}. However, Bielova et
 al.~\cite{Biel-etal-11-TR} uses a transition system to describe SME, where the
-details of the underlying language is hidden.  Zanarini et
+details of the underlying language are hidden.  Zanarini et
 al.~\cite{ZanariniJR13} propose a novel semantics for programs based on
 interaction trees~\cite{jacobs-tutorial}, which treats programs as black-boxes
-about which nothing is known except what is inferred from their I/O interactions
+about which nothing is known, except what can be inferred from their interaction
 with the environment. Similar to SME, our approach mediates I/O
 operations; however, our approach only runs the program once.
 
 
-One of the primary motivations behind this paper is constructing a practical
-information flow control system for JavaScript.  Some of these systems attempt
-to perform fine-grained information flow control of
-JavaScript~\cite{Hedin:2012,ConDOM,JSFlow}. While fine-grained information flow
-control can result in fewer false alarms and target legacy code, it comes at the
-cost of complexity (the system must accommodate the entirety of JavaScript's
-semantics~\cite{JSFlow}).
+One of the primary motivations behind this paper is the application of
+information flow control to JavaScript.  Previous systems 
+retrofitted JavaScript with fine-grained
+IFC~\cite{Hedin:2012,ConDOM,JSFlow}. While fine-grained IFC can result
+in fewer false alarms and target legacy code, it comes at the
+cost of complexity: the system must accommodate the entirety of JavaScript's
+semantics~\cite{JSFlow}.
 %Moreover, the runtime performance cost are sometimes too high, e.g.,
 %higher than 100\%~\cite{JSFlow}.
-Alternatively, coarse-grained
+By contrast, coarse-grained
 approaches to security have also been proposed for the web
-scenario~\cite{Yip:2009:PBS,DeGroef:2012,conf/esorics/AkhaweLHSS13}.
+scenario and tend to have simpler implications~\cite{Yip:2009:PBS,DeGroef:2012,conf/esorics/AkhaweLHSS13}.
 
 
 %There are attempts to overcome this performance barrier by various means:
@@ -64,21 +64,22 @@ scenario~\cite{Yip:2009:PBS,DeGroef:2012,conf/esorics/AkhaweLHSS13}.
 
 
 The constructs in our IFC language, as well as the behavior of
-inter-thread communication, are reminiscent of distributed systems
-like Erlang~\cite{Armstrong03makingreliable}.  There is a close
+inter-task communication, are reminiscent of distributed systems like
+Erlang~\cite{Armstrong03makingreliable}.  There is a close
 correspondence: in distributed systems, isolation is required due to
 physical constraints; in information flow control, isolation is
-required to enforce noninterference.  Papagiannis et al.~\cite{Papagiannis_enforcinguser}
-built an information flow control system on top of Erlang which is quite
-similar to ours.  However, they do not use a floating label system (processes
-can find out when sending a message failed due to a forbidden information flow),
-and they include no security proofs.
+required to enforce non-interference.  Papagiannis et
+al.~\cite{Papagiannis_enforcinguser} built an information flow control
+system on top of Erlang which shares some similarities to ours.
+However, they do not take a floating-label approach (processes can find
+out when sending a message failed due to a forbidden information
+flow), nor do they provide security proofs.
 
-There appears to be limited literature in general techniques for retrofitting
-information flow control to arbitrary languages; however, one time-honored
-technique is defining a fundamental calculus, for which other languages can be
+There is limited work on general techniques for retrofitting
+arbitrary languages with information flow control. However, one time-honored
+technique is to define a fundamental calculus for which other languages can be
 desugared into.  Abadi et al.~\cite{abadi+:core} motivate their core calculus of
-dependency by showing how various previous systems can be encoded in it; Tse and
+dependency by showing how various previous systems can be encoded in it. Tse and
 Zdancewic~\cite{Tse:Zdancewic:ICFP04}, in turn, show how this calculus can be
 encoded in System F via parametricity.  Broberg and Sands~\cite{Broberg:2010}
 encode several IFC systems into Paralocks.  However, this line of work is
