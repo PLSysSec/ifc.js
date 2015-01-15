@@ -1,14 +1,35 @@
 \section{Real World Languages}
 \label{sec:real}
 
-In this section, we describe two JavaScript IFC implementations
+Our approach can be used to retrofit any language for which we
+can achieve isolation with information flow control.
+%
+Unfortunately, controlling the external effects of a real-world
+language, as to achieve isolation, is language-specific and varies
+from one language to another.\footnote{
+  Though we apply our framework to several real-world languages, it is
+  conceivable that there are languages for which isolation cannot be
+  easily achieved.
+}
+%
+Indeed, even for a single language (e.g., JavaScript), how one
+achieves isolation may vary according to the language runtime or
+embedding (e.g., server and browser).
+%
+
+In this section, we describe several implementations and their
+approaches to isolation.
+%
+In particular, we describe two JavaScript IFC implementations
 building on the theoretical foundations of this work.
 %
-Furthermore, we consider how our formalism could be applied to the C
-programming language
-and connect it to a previous IFC system for
+Then, we consider how our formalism could be applied to the C
+programming language and connect it to a previous IFC system for
 Haskell.
 %
+
+
+
 %% The goal of this section is to show the flexibility of the embedding in settings with
 %% vastly different properties and discuss the
 %% semantic gap that must be overcome to apply our formalism
