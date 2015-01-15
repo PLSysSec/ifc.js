@@ -45,12 +45,12 @@
 \let\subparagraph\paragraph
 %% Load titlesec
 \usepackage[compact,nonindentfirst]{titlesec}
-\titlespacing{\section}{0pt}{2ex}{0.5ex}
-\titlespacing{\subsection}{0pt}{1.25ex}{0.5ex}
-\titlespacing{\subsubsection}{0pt}{0.5ex}{0.0ex}
+\titlespacing{\section}{0pt}{1.5ex}{0.4ex}
+\titlespacing{\subsection}{0pt}{1ex}{0.37ex}
+\titlespacing{\subsubsection}{0pt}{0.47ex}{0.0ex}
 %% Revert \subparagraph to the llncs definition
 \let\subparagraph\llncssubparagraph
-\setlength{\textfloatsep}{0.71cm}
+\setlength{\textfloatsep}{0.65cm}
 
 % At least 80% of every float page must be taken up by
 % floats; there will be no page with more than 20% white space.
@@ -129,7 +129,7 @@ IFC Inside: Retrofitting Languages with Dynamic Information Flow Control
  John C. Mitchell\inst{1} \and
  Alejandro Russo\inst{2}
 }
-\institute{Stanford University \and Chalmers University
+\institute{Stanford University \quad Chalmers University
 }
 
 \maketitle
@@ -144,7 +144,8 @@ IFC Inside: Retrofitting Languages with Dynamic Information Flow Control
 %include related.tex
 %include conclusion.tex
 
-\section*{Acknowledgements}
+{\small
+\paragraph{Acknowledgements}
 We thank the POST 2015 anonymous reviewers, 
 Adriaan Larmuseau,
 Sergio Maffeis, and
@@ -158,6 +159,7 @@ Suecia Foundation.
 %
 Deian Stefan and Edward Z. Yang were supported by the DoD through the
 NDSEG Fellowship Program.
+}
 
 
 {\frenchspacing\scriptsize
