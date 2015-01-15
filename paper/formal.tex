@@ -170,12 +170,15 @@ number of steps that the second configuration can take to result in a
 configuration that is |l|-equivalent to the first resultant configuration.
 By symmetry, this applies to all intermediate steps from the second configuration
 as well.
-
-
-Our IFC language satisfies TSNI %under a particular
-%scheduling policy.
 %
-%Specifically, we consider the language
+We remark that this notion of non-interfernce is similar to
+\emph{progress sensitive non-interference (PSNI)}, which accounts for
+leakage via progress (or termination) channels, as used for static
+systems~\cite{moore2012precise}.
+
+
+Our IFC language satisfies TSNI 
+(and thus PSNI)
 under the round-robin scheduler
 |roundrobinf| given in Fig.~\ref{fig:scheduler}.
 
