@@ -44,8 +44,8 @@ also rely on isolating code executing in separate iframes (e.g., according to th
 same-origin policy).
 %
 Since creating an OS thread for each iframe is expensive, both
-the V8 and SpiderMonkey JavaScript engines provide a means for running
-JavaScript code in isolation in a single OS thread,
+the V8 and SpiderMonkey JavaScript engines provide means for running
+JavaScript code in isolation within a single OS thread,
 on disjoint sub-heaps.
 %
 In V8, this unit of isolation is called a \emph{context}; in
@@ -67,7 +67,7 @@ system get exposed as part of the runtime system.
 These features are exposed by extending the global object, just like
 the standard library.  For this reason, it is easy to modify
 these systems to forbid external effects when implementing
-an IFC system, so important effects can be reintroduced in a safe manner.
+an IFC system, ensuring that important effects can be reintroduced in a safe manner.
 
 
 
@@ -186,7 +186,7 @@ should only contain the standard JavaScript libraries and
 \textsc{JS-send} rule.
 %
 However, existing contexts have objects such as the DOM, which
-demands COWL to restrict a task's external effects.
+require COWL to restrict a task's external effects.
 %
 To this end, COWL mediates any communication (even via the DOM) at
 the context boundary. %by COWL.
@@ -199,7 +199,7 @@ In this light, COWL allows safe network communication by associating an
 implicit label with remote hosts (a host's label corresponds to
 its origin).
 %
-In turn, when a task perform a request, COWL's IFC monitor
+In turn, when a task performs a request, COWL's IFC monitor
 ensures that the task label can flow to the remote origin label.
 %
 While the external effects of COWL can be formally modeled, we do not
@@ -245,7 +245,7 @@ Furthermore, pure exceptions (e.g., divide by zero) always percolated to
 trusted code, effectively allowing for denial of service attacks.
 %
 The insights gained when viewing coarse-grained IFC as presented in this
-paper led to a much cleaner, simpler treatment of exceptions in LIO,
+paper led to a much cleaner, simpler treatment of exceptions,
 which has now been adopted by LIO.
 %By using isolated tasks, and thus treating the current label (and
 %clearance) as global, the underlying Haskell exception system can be
@@ -267,9 +267,9 @@ and hardware.
 %
 For instance, our notion of isolation can be achieved using Dune's
 hardware protection mechanisms~\cite{Belay:2012:DSU:2387880.2387913},
-similar to a simpler version of
+similar to 
 Wedge~\cite{Belay:2012:DSU:2387880.2387913,
-Bittau:2008:WSA:1387589.1387611} with an information flow control
+Bittau:2008:WSA:1387589.1387611}, but using an information flow control
 policy.
 %
 Using page tables, a (trusted) IFC runtime could ensure that each task,
@@ -298,7 +298,7 @@ defining |ap klone tS
 lightweight process).
 %
 Similarly, control over page tables and protection bits allows us to
-define a |send| syscall that copies pages to our
+define a |send| system call that copies pages to our
 (trusted) runtime queue; and, correspondingly, a |recv| that copies
 the pages from the runtime queue to the (untrusted) receiver.
 %

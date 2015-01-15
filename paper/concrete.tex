@@ -28,7 +28,7 @@ $|oneheapiconf iS tS (oneheapfullconf id1 il1 ie1, oneheapfullconf id2 il2 ie2, 
 
 If the operational rules are adapted na\"ively to this new setting,
 then non-interference can be violated: as we mentioned earlier,
-shared mutable cells could result in violation of non-interference.
+shared mutable cells could be used to leak sensitive information.
 What we would like is a way of characterizing safe modifications to
 the semantics which preserve non-interference.
 The intention of our single heap implementation is to permit
@@ -59,7 +59,7 @@ Providing an isomorphism between the two languages allows us to
 preserve (termination sensitive or insensitive) non-interference
 as the following two theorems state.
 
-\begin{theorem}[Isomorphism preserves termination sensitive non-interference]
+\begin{theorem}[Isomorphism preserves TSNI]
   \label{thm:iso-tsni}
   If $L$ is isomorphic to $L'$ and $L'$ satisfies TSNI, then
   $L$ satisfies TSNI.
@@ -77,7 +77,7 @@ it is not necessary to back-translate reduction sequences in $L'$ to
 $L$; by the definition of TINI, we have both reduction sequences in $L$
 by assumption.
 
-\begin{theorem}[Weak isomorphism preserves termination insensitive non-interference]
+\begin{theorem}[Weak isomorphism preserves TINI]
   \label{thm:iso-tini}
   If a language $L$ is weakly isomorphic to a language $L'$, and $L'$
   satisfies TINI, then $L$ satisfies TINI.
@@ -196,12 +196,12 @@ abstract IFC language |specLang alpha targetLang|.
   |restrictedLang alpha targetLang| a restricted IFC language
   if its definition is equivalent to the abstract language
   |specLang alpha targetLang|, with the following exception:
-  The reduction rules are restricted
+  the reduction rules are restricted
   by adding a predicate $P \in \mathcal P$ to the premise of
   all rules other than \textsc{I-noStep}.  Furthermore, the predicate $P$
   can depend only on the \textit{erased} configuration
   |erase il ic|, where |il| is the label of the first task
-  in the task list and |ic| the full configuration.
+  in the task list and |ic| is the full configuration.
 \end{definition}
 
 By the following theorem, the restricted IFC language with an

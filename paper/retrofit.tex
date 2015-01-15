@@ -12,9 +12,9 @@ and specifying whether or not data tagged with one label |l1| can flow
 to another
 label |l2| (written as |canFlowTo2 l1 l2|).  These labels encode the desired
 security policy (for example, confidential information should not flow to
-a public channel), and the work of specifying the semantics of an information
+a public channel), while the work of specifying the semantics of an information
 flow language involves demonstrating that impermissible flows cannot happen,
-a property called \emph{non-interference}.
+a property called \emph{non-interference}~\cite{Goguen82}.
 %
 In our coarse-grained floating-label approach, labels are associated with tasks.
 %
@@ -79,10 +79,10 @@ language}} with a formal operational semantics and combine it with an
 taking ECMAScript as the target language and combining it with our IFC
 language should produce the formal semantics for the core part of COWL~\cite{swapi}.  In this
 presentation, we use a simple, untyped lambda calculus with mutable
-references and fixpoint in place of ECMAScript, to demonstrate some of the key
-properties without including too much detail (and because the embedding really
-does not care about what, exactly, is in the target language); we discuss the proper
-embedding in more detail in Section~\ref{sec:real}.
+references and fixpoint in place of ECMAScript to demonstrate some the key
+properties of the system (and, because the embedding does not care
+about the target language features); we discuss the proper embedding
+in more detail in Section~\ref{sec:real}.
 
 \vspace{1pt}
 \noindent
@@ -91,7 +91,7 @@ We have typeset nonterminals of the target language using \textbf{{\color{red}
 bold font}} while the nonterminals of the IFC language have been typeset
 with \textit{{\color{blue} italic font}}.  Readers are encouraged to view
 a color copy of this paper, where target language nonterminals are colored \textbf{{\color{red} red}}
-while IFC language nonterminals are colored \textit{{\color{blue} blue}}.
+and IFC language nonterminals are colored \textit{{\color{blue} blue}}.
 
 \subsection{Target Language: Mini-ES}
 
@@ -194,7 +194,7 @@ labels (|canFlowTo|, |lub| and |glb|).
 \end{itemize}
 
 These operations are all defined with respect to an evaluation context
-|curlyBlueE| that represents the context of the current task which.
+|curlyBlueE| that represents the context of the current task.
 The evaluation context has three important pieces of
 state: the global message queues |iS|, the current label |il| and the task ID |id|.
 
