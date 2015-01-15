@@ -485,6 +485,14 @@ information through the termination channel.
 %
 Instead, as our example round-robin (|roundrobinf|) scheduler shows,
 such tasks should simply be removed from the task list.
+%
+Many language runtime or Operating System schedulers implement such
+schedulers.
+%
+Moreover, techniques such as instruction-based
+scheduling~\cite{stefan:2013:eliminating, buiras:2013:a-library} can
+be further applied close the gap between specified semantics and
+implementation.
 
 %
 As in~\cite{Matthews:2007:OSM:1190216.1190220}, rules \textsc{T-border} and
