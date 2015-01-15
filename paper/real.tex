@@ -120,11 +120,9 @@ etc.) of each task.  An example for |send|/|recv| is shown in
 Fig.~\ref{fig:node}.
 %While V8 provides a means for sharing any object between contexts (used
 %by same-origin contexts in Blink),
-We remark that our system conservatively restricts
-the kinds of messages that can be exchanged, via |send| (and |sandbox|),
-to string values.
+Our system conservatively restricts the kinds of messages that can be
+exchanged, via |send| (and |sandbox|), to string values.
 %
-(We provide a convenience library which marshalls JSON objects to/from strings.)
 %
 In our formalization, this amounts to restricting the IFC language rule
 for |send| in the following way:
@@ -149,6 +147,12 @@ iS'; sched step (fullconf id il tS (iniEi unit), ldots)
 \end{mathpar}
 %}
 %
+Of course, we provide a convenience library which marshals JSON
+objects to/from strings.
+%
+We remark that this is not unlike existing message-passing JavaScript
+APIs, e.g., \texttt{postMessage}, which impose similar restrictions as
+to avoid sharing references between concurrent code.
 
 While the described system implements |specLangJS seqf|, applications
 typically require access to libraries (e.g., the file system library
