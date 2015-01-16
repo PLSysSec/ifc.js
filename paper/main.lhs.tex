@@ -8,17 +8,26 @@
 
 % ------------------------------------------
 % CONFIGURATION: are we building the exteded version?
-%\extendedtrue
-\extendedfalse
+\extendedtrue
+%\extendedfalse
 % ------------------------------------------
 
 
 \usepackage[small,bf]{caption}
 
-
+\usepackage[svgnames]{xcolor}
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  pdfborder={0 0 0},
+  citecolor=DarkGreen,
+  linkcolor=DarkBlue,
+  urlcolor=DarkBlue,
+  pdfauthor = {Stefan Heule, Deian Stefan, Edward Z. Yang, John C. Mitchell, Alejandro Russo},
+  pdftitle = {IFC Inside: Retrofitting Languages with Dynamic Information Flow Control (Extended Version)}
+}
 
 \usepackage{array, amssymb, amsmath, mathpartir,thmtools}
-\usepackage[usenames,dvipsnames]{color}
 \usepackage{balance}
 \usepackage{tikz}
 \newcommand{\Red}[1]{{\color{red} #1}}
@@ -38,6 +47,9 @@
 
 \usepackage{url}
 
+
+\ifextended%
+\else%
 %% Save the class definition of \subparagraph
 \let\llncssubparagraph\subparagraph
 %% Provide a definition to \subparagraph to keep titlesec happy
@@ -50,6 +62,7 @@
 %% Revert \subparagraph to the llncs definition
 \let\subparagraph\llncssubparagraph
 \setlength{\textfloatsep}{0.20cm}
+\fi%
 
 % At least 80% of every float page must be taken up by
 % floats; there will be no page with more than 20% white space.
@@ -143,7 +156,8 @@ IFC Inside: Retrofitting Languages with Dynamic Information Flow Control
 %include related.tex
 %include conclusion.tex
 
-{\small
+{
+\small
 \paragraph{Acknowledgements}
 We thank the POST 2015 anonymous reviewers,
 Adriaan Larmuseau,
@@ -162,8 +176,12 @@ NDSEG.
 }
 
 
-{\frenchspacing\scriptsize
-  \setlength{\bibsep}{2pt}
+{
+\ifextended%
+\else%
+\frenchspacing\scriptsize
+\setlength{\bibsep}{2pt}
+\fi%
   \bibliographystyle{abbrvnat}
   \bibliography{local}
 }
